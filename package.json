@@ -27,7 +27,9 @@
       "tabs",
       "webNavigation",
       "notifications",
-      "printerProvider"
+      "printerProvider",
+      "activeTab",
+      "scripting"
     ],
     "web_accessible_resources": [
       {
@@ -44,6 +46,16 @@
         ],
         "matches": [
           "*://*/*"
+        ]
+      },
+      {
+        "matches": [
+          "<all_urls>"
+        ],
+        "resources": [
+          "assets/js/singlefile/single-file-hooks-frames.js",
+          "assets/js/singlefile/single-file-zip.min.js",
+          "assets/js/singlefile/single-file-z-worker.js"
         ]
       }
     ]

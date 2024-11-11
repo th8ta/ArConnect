@@ -52,6 +52,18 @@ export async function createContextMenus(hasPerms: boolean) {
     );
   }
 
+  browser.contextMenus.create(
+    {
+      id: "archive_page_context_menu",
+      title: "Archive this page",
+      contexts: [actionContext, "page"],
+      onclick: !isManifestv3()
+        ? (_, tab) => onArchivePageClicked(tab)
+        : undefined
+    },
+    () => browser.runtime.lastError
+  );
+
   // if we are one manifest v3, we add an event
   // listener for context menu clicks
   if (isManifestv3() && (hasPerms || wallets.length > 0)) {
@@ -71,6 +83,10 @@ async function contextClickListener(info: Menus.OnClickData, tab: Tabs.Tab) {
 
       case "copy_address_context_menu":
         await onCopyAddressClicked();
+        break;
+
+      case "archive_page_context_menu":
+        await onArchivePageClicked(tab);
         break;
     }
   } catch {}
@@ -102,4 +118,15 @@ async function onDisconnectClicked(tab: Tabs.Tab) {
   // remove the app and reload the tab
   await removeApp(getAppURL(tab.url));
   await browser.tabs.reload(tab.id);
+}
+
+/**
+ * Handle archive page context menu click
+ */
+async function onArchivePageClicked(tab: Tabs.Tab) {
+  if (!tab.url) return;
+  await browser.tabs.sendMessage(tab.id, {
+    action: "archive-page",
+    tabId: tab.id
+  });
 }

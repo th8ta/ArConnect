@@ -18,12 +18,16 @@ import { trackBalance } from "~utils/analytics";
 import { subscriptionsHandler } from "~subscriptions/api";
 import { importAoTokens } from "~tokens/aoTokens/sync";
 import { aoTokensCacheHandler } from "~tokens/aoTokens/ao";
+import { handleArchiveRequest } from "~lib/archive";
 
 // watch for API calls
 onMessage("api_call", handleApiCalls);
 
 // watch for chunks
 onMessage("chunk", handleChunkCalls);
+
+// watch for archive requests
+onMessage("archive", handleArchiveRequest);
 
 // handle tab change (icon, context menus)
 browser.tabs.onUpdated.addListener((tabId) => handleTabUpdate(tabId));
