@@ -22,6 +22,7 @@ import {
   SubscriptionStatus,
   type SubscriptionData
 } from "~subscriptions/subscription";
+import { checkTransactionError } from "~lib/transactions";
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState<Transaction[]>([]);
@@ -86,9 +87,15 @@ export default function Notifications() {
     formattedNotifications: Transaction[];
   }> => {
     const address = await getActiveAddress();
+
     let formattedNotifications = await Promise.all(
       notifications.map(async (notification) => {
         try {
+          const hasError = await checkTransactionError(notification);
+          if (hasError) {
+            return { formattedMessage: null, notification };
+          }
+
           let formattedMessage: string = "";
           if (notification.transactionType === "PrintArchive") {
             formattedMessage = browser.i18n.getMessage("print_archived");

@@ -1,6 +1,6 @@
 import type GQLResultInterface from "ar-gql/dist/faces";
 import type { GQLEdgeInterface } from "ar-gql/dist/faces";
-import type { RawTransaction } from "~notifications/api";
+import type { RawTransaction, Transaction } from "~notifications/api";
 import { timeoutPromise, type TokenInfo } from "~tokens/aoTokens/ao";
 import { formatAddress } from "~utils/format";
 import { ExtensionStorage } from "~utils/storage";
@@ -9,9 +9,15 @@ import type { Token } from "~tokens/token";
 import BigNumber from "bignumber.js";
 import browser from "webextension-polyfill";
 import { balanceToFractioned, formatFiatBalance } from "~tokens/currency";
+import { AF_ERROR_QUERY } from "~notifications/utils";
+import { gql } from "~gateways/api";
+import { txHistoryGateways } from "~gateways/gateway";
+import { retryWithDelay } from "~utils/retry";
 
 let tokens: TokenInfo[] = null;
 export let tokenInfoMap = new Map<string, TokenInfo | Token>();
+
+const AGENT_TOKEN_ADDRESS = "8rbAftv7RaPxFjFk5FGUVAVCSjGQB4JHDcb9P9wCVhQ";
 
 export type ExtendedTransaction = RawTransaction & {
   cursor: string;
@@ -87,10 +93,37 @@ const processTransaction = (transaction: GQLEdgeInterface, type: string) => ({
   date: ""
 });
 
+export async function checkTransactionError(
+  transaction: GQLEdgeInterface | Transaction
+): Promise<boolean> {
+  if (transaction.node.recipient !== AGENT_TOKEN_ADDRESS) {
+    return false;
+  }
+
+  return retryWithDelay(async (attempt) => {
+    const data = await gql(
+      AF_ERROR_QUERY,
+      { messageId: transaction.node.id },
+      txHistoryGateways[attempt % txHistoryGateways.length]
+    );
+
+    if (data?.data === null && (data as any)?.errors?.length > 0) {
+      throw new Error((data as any)?.errors?.[0]?.message || "GraphQL Error");
+    }
+
+    return data.data.transactions.edges.length > 0;
+  }, 2).catch(() => false);
+}
+
 const processAoTransaction = async (
   transaction: GQLEdgeInterface,
   type: string
 ) => {
+  const hasError = await checkTransactionError(transaction);
+  if (hasError) {
+    return null;
+  }
+
   const tokenData = await timeoutPromise(
     fetchTokenByProcessId(transaction.node.recipient),
     10000
@@ -124,7 +157,7 @@ export const processTransactions = async (
     if (isAo) {
       return Promise.all(
         edges.map((transaction) => processAoTransaction(transaction, type))
-      );
+      ).then((transactions) => transactions.filter(Boolean));
     } else {
       return edges.map((transaction) => processTransaction(transaction, type));
     }
