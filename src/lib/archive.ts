@@ -9,22 +9,21 @@ import Arweave from "arweave";
 import { signAuth } from "~api/modules/sign/sign_auth";
 import { getActiveTab } from "~applications";
 import { sleep } from "~utils/sleep";
-import type { ApiCall, ApiResponse } from "shim";
 import type { OnMessageCallback } from "@arconnect/webext-bridge";
+import type { JSONObject } from "@segment/analytics-next";
 
-interface PageData {
+export interface PageData extends JSONObject {
   content: string;
   mimeType: string;
   title: string;
 }
 
-type ReturnType = "OK" | "FAILED";
+export type ReturnType = "OK" | "FAILED";
 
 /**
  * Handles the request from the user to archive the page to Arweave
  */
 export const handleArchiveRequest: OnMessageCallback<
-  // @ts-expect-error
   PageData,
   ReturnType
 > = async ({ data: pageData, sender }) => {

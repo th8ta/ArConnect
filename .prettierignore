@@ -3,3 +3,4 @@ build
 .plasmo
 assets
 .husky
+lib/*.js

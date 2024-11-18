@@ -1,10 +1,10 @@
 import browser from "webextension-polyfill";
-import singlefile from "~lib/archive/singlefile.js";
+import singlefile from "~../lib/single-file.js";
 import type { PlasmoCSConfig } from "plasmo";
 import { sendMessage } from "@arconnect/webext-bridge";
 
 export const config: PlasmoCSConfig = {
-  matches: ["file://*/*", "http://*/*", "https://*/*"],
+  matches: ["*://*/*"],
   run_at: "document_start"
 };
 
@@ -24,7 +24,9 @@ browser.runtime.onMessage.addListener(async (message) => {
         removeAlternativeFonts: true,
         removeAlternativeMedias: true,
         removeAlternativeImages: true,
-        groupDuplicateImages: true
+        groupDuplicateImages: true,
+        filenameReplacementCharacter: "_",
+        includeInfobar: true
       });
       await sendMessage("archive", pageData, "background");
     } catch (err) {
@@ -32,3 +34,6 @@ browser.runtime.onMessage.addListener(async (message) => {
     }
   }
 });
+
+// @ts-ignore
+window.singlefile = singlefile;

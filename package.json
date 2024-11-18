@@ -49,13 +49,13 @@
         ]
       },
       {
-        "matches": [
-          "<all_urls>"
-        ],
         "resources": [
-          "assets/js/singlefile/single-file-hooks-frames.js",
-          "assets/js/singlefile/single-file-zip.min.js",
-          "assets/js/singlefile/single-file-z-worker.js"
+          "lib/single-file-hooks-frames.js",
+          "lib/single-file-zip.min.js",
+          "lib/single-file-z-worker.js"
+        ],
+        "matches": [
+          "*://*/*"
         ]
       }
     ]

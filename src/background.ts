@@ -9,7 +9,6 @@ import { handleTabUpdate } from "~applications/tab";
 import protocolHandler from "~gateways/ar_protocol";
 import { notificationsHandler } from "~notifications/api";
 import { appsChangeListener } from "~applications";
-import handleFeeAlarm from "~api/modules/sign/fee";
 import { ExtensionStorage } from "~utils/storage";
 import { onInstalled } from "~utils/runtime";
 import browser from "webextension-polyfill";
@@ -19,6 +18,7 @@ import { subscriptionsHandler } from "~subscriptions/api";
 import { importAoTokens } from "~tokens/aoTokens/sync";
 import { aoTokensCacheHandler } from "~tokens/aoTokens/ao";
 import { handleArchiveRequest } from "~lib/archive";
+import "~../lib/single-file-background.js";
 
 // watch for API calls
 onMessage("api_call", handleApiCalls);

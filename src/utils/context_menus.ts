@@ -4,6 +4,12 @@ import { getActiveTab, removeApp } from "~applications";
 import { sendMessage } from "@arconnect/webext-bridge";
 import { isManifestv3 } from "./runtime";
 import { getAppURL } from "./format";
+import chromeBrowserPolyfill from "url:~../lib/chrome-browser-polyfill.js";
+import singleFileFrames from "url:~../lib/single-file-frames.js";
+import singleFileExtensionFrames from "url:~../lib/single-file-extension-frames.js";
+import singleFileHooksFrames from "url:~../lib/single-file-hooks-frames.js";
+import singleFileBootstrap from "url:~../lib/single-file-bootstrap.js";
+import singleFileExtensionCore from "url:~../lib/single-file-extension-core.js";
 
 /**
  * Create context menus (right click actions)
@@ -120,11 +126,50 @@ async function onDisconnectClicked(tab: Tabs.Tab) {
   await browser.tabs.reload(tab.id);
 }
 
+export async function injectSingleFileScripts(
+  scripts: string[],
+  world: "MAIN" | "ISOLATED",
+  tabId: number
+) {
+  try {
+    const files = scripts.map(
+      (script) =>
+        "/" +
+        script
+          .replace(/chrome-extension:\/\/[a-z]*\/([^?]*)\?.*/i, "$1")
+          .replace("static/background/../../", "")
+    );
+
+    const results = await chrome.scripting.executeScript({
+      target: { tabId },
+      files,
+      world
+    });
+
+    console.debug("SingleFile scripts injection successful:", results);
+    return results;
+  } catch (error) {
+    console.error("Failed to inject SingleFile scripts:", error);
+  }
+}
+
 /**
  * Handle archive page context menu click
  */
 async function onArchivePageClicked(tab: Tabs.Tab) {
   if (!tab.url) return;
+  await injectSingleFileScripts(
+    [
+      chromeBrowserPolyfill,
+      singleFileFrames,
+      singleFileExtensionFrames,
+      singleFileBootstrap,
+      singleFileExtensionCore
+    ],
+    "ISOLATED",
+    tab.id
+  );
+  await injectSingleFileScripts([singleFileHooksFrames], "MAIN", tab.id);
   await browser.tabs.sendMessage(tab.id, {
     action: "archive-page",
     tabId: tab.id
