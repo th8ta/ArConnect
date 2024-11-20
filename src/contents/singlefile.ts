@@ -16,17 +16,18 @@ browser.runtime.onMessage.addListener(async (message) => {
         removeHiddenElements: true,
         removeUnusedStyles: true,
         removeUnusedFonts: true,
-        removeImports: true,
-        blockScripts: true,
-        blockAudios: true,
-        blockVideos: true,
         compressHTML: true,
+        loadDeferredImages: true,
+        loadDeferredImagesMaxIdleTime: 1500,
+        filenameReplacementCharacter: "_",
         removeAlternativeFonts: true,
         removeAlternativeMedias: true,
         removeAlternativeImages: true,
         groupDuplicateImages: true,
-        filenameReplacementCharacter: "_",
-        includeInfobar: true
+        saveFavicon: true,
+        blockScripts: true,
+        blockVideos: true,
+        blockAudios: true
       });
       await sendMessage("archive", pageData, "background");
     } catch (err) {
