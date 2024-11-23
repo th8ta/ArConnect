@@ -9,7 +9,7 @@ import Arweave from "arweave";
 import { signAuth } from "~api/modules/sign/sign_auth";
 import { getActiveTab } from "~applications";
 import { sleep } from "~utils/sleep";
-import type { OnMessageCallback } from "@arconnect/webext-bridge";
+import { sendMessage, type OnMessageCallback } from "@arconnect/webext-bridge";
 import type { JSONObject } from "@segment/analytics-next";
 
 export interface PageData extends JSONObject {
@@ -18,18 +18,22 @@ export interface PageData extends JSONObject {
   title: string;
 }
 
-export type ReturnType = "OK" | "FAILED";
+export interface ArchiveResult extends JSONObject {
+  transactionId?: string;
+  status: "OK" | "FAILED";
+  error?: string;
+}
 
 /**
  * Handles the request from the user to archive the page to Arweave
  */
 export const handleArchiveRequest: OnMessageCallback<
   PageData,
-  ReturnType
+  ArchiveResult
 > = async ({ data: pageData, sender }) => {
-  if (sender.context !== "content-script") return;
-
-  let returnStatus: ReturnType = "OK";
+  if (sender.context !== "content-script") {
+    return { status: "FAILED", error: "Not allowed" };
+  }
 
   // wallet
   let decryptedWallet: DecryptedWallet;
@@ -41,8 +45,12 @@ export const handleArchiveRequest: OnMessageCallback<
     // get user wallet
     decryptedWallet = await getActiveKeyfile();
 
-    if (decryptedWallet.type === "hardware")
-      throw new Error("Cannot archive with a hardware wallet.");
+    if (decryptedWallet.type === "hardware") {
+      return {
+        status: "FAILED",
+        error: "Cannot archive with a hardware wallet."
+      };
+    }
 
     // extension manifest
     const manifest = browser.runtime.getManifest();
@@ -87,15 +95,16 @@ export const handleArchiveRequest: OnMessageCallback<
       decryptedWallet.address
     );
 
+    await sendMessage(
+      "archive-authorized",
+      null,
+      `content-script@${sender.tabId}`
+    );
+
     try {
       // sign an upload data
       await dataEntry.sign(dataSigner);
       await uploadDataToTurbo(dataEntry, "https://turbo.ardrive.io");
-
-      await sleep(2000);
-
-      // this has to be one of FAILED, INVALID_DATA, INVALID_TICKET, OK
-      // resultCallback("OK");
 
       transactionId = dataEntry.id;
     } catch (error) {
@@ -118,25 +127,23 @@ export const handleArchiveRequest: OnMessageCallback<
         await uploader.uploadChunk();
       }
 
-      await sleep(2000);
-
       transactionId = transaction.id;
     }
+
+    await sleep(2000);
 
     // open in new tab
     await chrome.tabs.create({
       url: `${concatGatewayURL(gateway)}/${transactionId}`
     });
-    returnStatus = "OK";
+
+    return { status: "OK", transactionId };
   } catch (e) {
-    returnStatus = "FAILED";
-    console.log("Printing failed:\n", e);
-    // resultCallback("FAILED");
+    return { status: "FAILED", error: String(e) || "Failed to archive page" };
+  } finally {
+    // free wallet from memory
+    if (decryptedWallet?.type == "local") {
+      freeDecryptedWallet(decryptedWallet.keyfile);
+    }
   }
-
-  // free wallet from memory
-  if (decryptedWallet?.type == "local")
-    freeDecryptedWallet(decryptedWallet.keyfile);
-
-  return returnStatus;
 };
