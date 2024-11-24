@@ -180,6 +180,8 @@ async function createPreviewWindow(
       pointer-events: auto !important;
       transform: none !important;
       padding: 12px !important;
+      background-color: rgba(255, 255, 255, 0.95) !important;
+      border-radius: 12px !important;
     }
 
     .archive-btn {
