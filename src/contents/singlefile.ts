@@ -157,7 +157,7 @@ async function createPreviewWindow(
   const previewWindow = window.open(
     "",
     "Archive Preview",
-    "width=" + screen.availWidth + ",height=" + screen.availHeight
+    `width=${screen.availWidth},height=${screen.availHeight}`
   );
   if (!previewWindow) throw new Error("Failed to create preview window");
 
@@ -182,6 +182,9 @@ async function createPreviewWindow(
       padding: 12px !important;
       background-color: rgba(255, 255, 255, 0.95) !important;
       border-radius: 12px !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+      margin: 0 !important;
+      user-select: none !important;
     }
 
     .archive-btn {
@@ -238,12 +241,6 @@ async function createPreviewWindow(
   confirmButton.textContent = "Confirm Archive";
   confirmButton.className = "archive-btn archive-confirm-btn";
 
-  // Add buttons to container
-  buttonContainer.style.cssText = `
-    position: fixed !important;
-    visibility: visible !important;
-    z-index: 2147483647 !important;
-  `;
   buttonContainer.appendChild(cancelButton);
   buttonContainer.appendChild(confirmButton);
   previewWindow.document.body.appendChild(buttonContainer);
