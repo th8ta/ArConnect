@@ -105,6 +105,7 @@ export const handleArchiveRequest: OnMessageCallback<
       // sign an upload data
       await dataEntry.sign(dataSigner);
       await uploadDataToTurbo(dataEntry, "https://turbo.ardrive.io");
+      sendMessage("archive-progress", 100, `content-script@${sender.tabId}`);
 
       transactionId = dataEntry.id;
     } catch (error) {
@@ -125,6 +126,11 @@ export const handleArchiveRequest: OnMessageCallback<
 
       while (!uploader.isComplete) {
         await uploader.uploadChunk();
+        sendMessage(
+          "archive-progress",
+          uploader.pctComplete,
+          `content-script@${sender.tabId}`
+        );
       }
 
       transactionId = transaction.id;

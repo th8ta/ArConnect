@@ -149,8 +149,9 @@ async function createPreviewWindow(
   maskElement: Element,
   progressText: Element
 ) {
-  // Store if confirm button was clicked
+  // Store if confirm / cancel buttons were clicked
   let isConfirmArchiveClicked = false;
+  let isCancelArchiveClicked = false;
 
   // Create full-screen preview popup
   const previewWindow = window.open(
@@ -166,10 +167,23 @@ async function createPreviewWindow(
   // Inject theme styles
   const styleSheet = previewWindow.document.createElement("style");
   styleSheet.textContent = `
-    .archive-confirm-btn {
+    .archive-buttons {
+      position: fixed !important;
+      top: 20px !important;
+      right: 20px !important;
+      display: inline-flex !important;
+      width: fit-content !important;
+      gap: 12px !important;
+      z-index: 2147483647 !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transform: none !important;
+      padding: 12px !important;
+    }
+
+    .archive-btn {
       display: flex !important;
-      color: #fff !important;
-      background-color: #8E7BEA !important;
       border: none !important;
       outline: none !important;
       cursor: pointer !important;
@@ -183,40 +197,74 @@ async function createPreviewWindow(
       align-items: center !important;
       justify-content: center !important;
       transition: all 0.23s ease-in-out !important;
-      position: fixed !important;
-      top: 20px !important;
-      right: 20px !important;
-      z-index: 2147483647 !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    }
+
+    .archive-confirm-btn {
+      color: #fff !important;
+      background-color: #8E7BEA !important;
     }
 
     .archive-confirm-btn:hover {
       background-color: #7B66D9 !important;
     }
+
+    .archive-cancel-btn {
+      color: #1a1a1a !important;
+      background-color: #fff !important;
+      border: 1px solid #8E7BEA !important;
+    }
+
+    .archive-cancel-btn:hover {
+      background-color: #f5f5f5 !important;
+    }
   `;
   previewWindow.document.head.appendChild(styleSheet);
 
-  // Create button with matching styles
+  /// Create button container
+  const buttonContainer = previewWindow.document.createElement("div");
+  buttonContainer.className = "archive-buttons";
+
+  // Create cancel button
+  const cancelButton = previewWindow.document.createElement("button");
+  cancelButton.textContent = "Cancel";
+  cancelButton.className = "archive-btn archive-cancel-btn";
+
+  // Create confirm button
   const confirmButton = previewWindow.document.createElement("button");
   confirmButton.textContent = "Confirm Archive";
-  confirmButton.className = "archive-confirm-btn";
+  confirmButton.className = "archive-btn archive-confirm-btn";
 
-  previewWindow.document.body.appendChild(confirmButton);
+  // Add buttons to container
+  buttonContainer.style.cssText = `
+    position: fixed !important;
+    visibility: visible !important;
+    z-index: 2147483647 !important;
+  `;
+  buttonContainer.appendChild(cancelButton);
+  buttonContainer.appendChild(confirmButton);
+  previewWindow.document.body.appendChild(buttonContainer);
 
   previewWindow.onbeforeunload = () => {
-    if (!isConfirmArchiveClicked) {
+    if (!isConfirmArchiveClicked && !isCancelArchiveClicked) {
       maskElement.remove();
     }
   };
 
   // Wait for user confirmation
-  await new Promise((resolve) => {
+  await new Promise((resolve, reject) => {
     confirmButton.onclick = () => {
       isConfirmArchiveClicked = true;
       previewWindow.close();
       progressText.textContent = "Authorize to archive this page...";
       resolve(true);
+    };
+
+    cancelButton.onclick = () => {
+      isCancelArchiveClicked = true;
+      previewWindow.close();
+      reject(new Error("Archive cancelled"));
     };
   });
 }
@@ -269,7 +317,17 @@ onMessage("archive-authorized", () => {
   const progressText = maskElement.shadowRoot.querySelector(".progress-text");
   if (!progressText) return;
 
-  progressText.textContent = "Archiving page...";
+  progressText.textContent = "Archiving page... 0%";
+});
+
+onMessage("archive-progress", ({ data: progress }) => {
+  const maskElement = document.querySelector(MASK_TAGNAME);
+  if (!maskElement) return;
+
+  const progressText = maskElement.shadowRoot.querySelector(".progress-text");
+  if (!progressText) return;
+
+  progressText.textContent = `Archiving page... ${progress}%`;
 });
 
 // @ts-ignore
