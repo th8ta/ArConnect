@@ -1,5 +1,6 @@
 import { sendMessage } from "@arconnect/webext-bridge";
 import { isString } from "typed-assert";
+import { isomorphicSendMessage } from "~utils/messaging/messaging.utils";
 
 // TODO: This is not enough for client-rendered pages (e.g. React apps):
 
@@ -21,12 +22,11 @@ export async function replaceArProtocolLinks() {
   for (const el of elements) {
     // ask the background script to return the correct ar:// url
     try {
-      // TODO: Replace with postMessage for the embedded wallet:
-      const res = await sendMessage(
-        "ar_protocol",
-        { url: el[fields[el.tagName]] },
-        "background"
-      );
+      const res = await isomorphicSendMessage({
+        destination: "background",
+        messageId: "ar_protocol",
+        data: { url: el[fields[el.tagName]] }
+      });
 
       // check result
       isString(res?.url);

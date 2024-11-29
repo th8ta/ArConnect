@@ -1,4 +1,5 @@
 import { onMessage } from "@arconnect/webext-bridge";
+import { isomorphicOnMessage } from "~utils/messaging/messaging.utils";
 
 // Some backend handlers (`src/api/background/handlers/*`) will use `sendMessage(...)` to communicate with the
 // `event.ts` content script, which in turn calls `postMessage()`, dispatches events or performs certain actions in the
@@ -10,9 +11,9 @@ import { onMessage } from "@arconnect/webext-bridge";
 //
 // See https://stackoverflow.com/questions/16266474/javascript-listen-for-postmessage-events-from-specific-iframe
 
-export function setupEventListeners(iframe?: HTMLIFrameElement) {
+export function setupEventListeners() {
   // event emitter events
-  onMessage("event", ({ data, sender }) => {
+  isomorphicOnMessage("event", ({ data, sender }) => {
     if (sender.context !== "background") return;
 
     // send to mitt instance
@@ -24,7 +25,7 @@ export function setupEventListeners(iframe?: HTMLIFrameElement) {
 
   // listen for wallet switches
   /** @deprecated */
-  onMessage("switch_wallet_event", ({ data, sender }) => {
+  isomorphicOnMessage("switch_wallet_event", ({ data, sender }) => {
     if (sender.context !== "background") return;
 
     // dispatch custom event
@@ -35,9 +36,10 @@ export function setupEventListeners(iframe?: HTMLIFrameElement) {
     );
   });
 
+  // TODO: This will never be used for the embedded wallet, so there's no need to change it to `isomorphicSendMessage()`:
   // copy address in the content script
   // (not possible in the background)
-  onMessage("copy_address", async ({ sender, data: addr }) => {
+  isomorphicOnMessage("copy_address", async ({ sender, data: addr }) => {
     if (sender.context !== "background") return;
 
     const input = document.createElement("input");

@@ -86,6 +86,7 @@ async function onCopyAddressClicked() {
 
   const activeTab = await getActiveTab();
 
+  // This will never be used for the embedded wallet, so there's no need to change it to `isomorphicSendMessage()`:
   await sendMessage(
     "copy_address",
     activeAddress,

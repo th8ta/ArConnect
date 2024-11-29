@@ -27,6 +27,7 @@ import {
   handleTabUpdate
 } from "~api/background/handlers/browser/tabs/tabs.handler";
 import { log, LOG_GROUP } from "~utils/log/log.utils";
+import { isomorphicOnMessage } from "~utils/messaging/messaging.utils";
 
 export function setupBackgroundService() {
   log(
@@ -36,8 +37,8 @@ export function setupBackgroundService() {
 
   // MESSAGES:
   // Watch for API call and chunk messages:
-  onMessage("api_call", handleApiCallMessage);
-  onMessage("chunk", handleChunkMessage);
+  isomorphicOnMessage("api_call", handleApiCallMessage);
+  isomorphicOnMessage("chunk", handleChunkMessage);
 
   // LIFECYCLE:
 

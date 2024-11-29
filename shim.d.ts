@@ -21,6 +21,8 @@ declare module "@arconnect/webext-bridge" {
      */
     chunk: ProtocolWithReturn<ApiCall<Chunk>, ApiResponse<number>>;
 
+    // AUTH POPUP:
+
     /**
      * `createAuthPopup()` in `auth.utils.ts` sends `auth_request` messages from the background to the auth popup, which
      * are received in `auth.provider.ts`.
@@ -58,11 +60,22 @@ declare module "@arconnect/webext-bridge" {
      */
     auth_app_disconnected: number;
 
+    // EMBEDDED:
+
+    embedded_open: null;
+    embedded_close: null;
+    embedded_resize: null;
+    embedded_auth: null;
+    embedded_balance: null;
+    embedded_info: null;
+
     // OTHER:
 
     switch_wallet_event: string | null;
     copy_address: string;
     event: Event;
+
+    // TODO: This doesn't seem to be doing anything. Get rid of `replaceArProtocolLinks`
     ar_protocol: ProtocolWithReturn<{ url: string }, { url: sting }>;
   }
 }

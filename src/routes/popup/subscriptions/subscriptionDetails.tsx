@@ -24,7 +24,7 @@ import {
   InputV2,
   useInput
 } from "@arconnect/components";
-import { AppIcon, Content, Title, getColorByStatus } from "./subscriptions";
+import { Content, Title, getColorByStatus } from "./subscriptions";
 import { CreditCardUpload } from "@untitled-ui/icons-react";
 import {
   SettingIconWrapper,

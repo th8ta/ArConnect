@@ -124,6 +124,8 @@ export function initArConnectEmbedded(options: ArConnectEmbeddedOptions) {
 
   const iframeWindow = iframeElement.contentWindow;
 
+  setIFrameWindow(iframeWindow);
+
   // api.ts:
 
   // Because in ArConnect Embedded the injected code is not sandboxed, we can simply call `injectWalletSDK()` instead of
@@ -152,41 +154,39 @@ export function initArConnectEmbedded(options: ArConnectEmbeddedOptions) {
 
   function resize() {}
 
-  // TODO: Update `isomorphicOnMessage()` to work with this:
-
-  isomorphicOnMessage("open", iframeWindow, (openMessage) => {
+  isomorphicOnMessage("embedded_open", (openMessage) => {
     if (options.onOpen && options.onOpen(openMessage.data) === false) return;
 
     open(openMessage.data);
   });
 
-  isomorphicOnMessage("close", iframeWindow, (closeMessage) => {
+  isomorphicOnMessage("embedded_close", (closeMessage) => {
     if (options.onClose && options.onClose(closeMessage.data) === false) return;
 
     close(closeMessage.data);
   });
 
-  isomorphicOnMessage("resize", iframeWindow, (resizeMessage) => {
+  isomorphicOnMessage("embedded_resize", (resizeMessage) => {
     if (options.onResize && options.onResize(resizeMessage.data) === false)
       return;
 
     resize(resizeMessage.data);
   });
 
-  isomorphicOnMessage("auth", iframeWindow, (authMessage) => {
+  isomorphicOnMessage("embedded_auth", (authMessage) => {
     if (options.onAuth && options.onAuth(authMessage.data) === false) return;
 
     // TODO: Handle `authMessage` (can be authRequest, balance or notification)
   });
 
-  isomorphicOnMessage("balance", iframeWindow, (balanceMessage) => {
+  isomorphicOnMessage("embedded_balance", (balanceMessage) => {
     if (options.onBalance && options.onBalance(authMessage.data) === false)
       return;
 
     // TODO: Handle `authMessage` (can be authRequest, balance or notification)
   });
 
-  isomorphicOnMessage("info", iframeWindow, (dataMessage) => {
+  isomorphicOnMessage("embedded_info", (dataMessage) => {
     if (options.onInfo && options.onInfo(dataMessage.data) === false) return;
 
     // TODO: Handle `dataMessage` (can be authRequest, balance or notification)

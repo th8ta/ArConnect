@@ -33,30 +33,31 @@ export async function handleActiveAddressChange({
     if (permissionCheck.has.length === 0) return;
 
     // trigger emitter
-    await sendMessage(
-      "event",
-      {
+    await isomorphicSendMessage({
+      destination: `content-script@${tab.id}`,
+      messageId: "event",
+      data: {
         name: "activeAddress",
         value: permissionCheck.result ? newAddress : null
-      },
-      `content-script@${tab.id}`
-    );
+      }
+    });
 
     const popupTabID = getCachedAuthPopupWindowTabID();
 
     if (popupTabID) {
       isomorphicSendMessage({
+        destination: `popup@${popupTabID}`,
         messageId: "auth_active_wallet_change",
-        tabId: popupTabID,
+        // tabId: popupTabID,
         data: tab.id
       });
     }
 
     // trigger event via message
-    await sendMessage(
-      "switch_wallet_event",
-      permissionCheck ? newAddress : null,
-      `content-script@${tab.id}`
-    );
+    await isomorphicSendMessage({
+      destination: `content-script@${tab.id}`,
+      messageId: "switch_wallet_event",
+      data: permissionCheck ? newAddress : null
+    });
   });
 }
