@@ -8,6 +8,7 @@ import { forEachTab } from "~applications/tab";
 import { compareGateways } from "~gateways/utils";
 import type { InitAppParams } from "~applications/application";
 import Application, { PREFIX } from "~applications/application";
+import { isomorphicSendMessage } from "~utils/messaging/messaging.utils";
 
 export async function handleAppConfigChange(
   changes: Record<string, StorageChange<InitAppParams>>,
@@ -98,10 +99,16 @@ export async function handleAppConfigChange(
     const eventsForTab = events
       .filter(({ appURL }) => getAppURL(tab.url) === appURL)
       .map((e) => e.event);
+
     // send the events
     for (const event of eventsForTab) {
       // trigger emiter
-      await sendMessage("event", event, `content-script@${tab.id}`);
+      // TODO: Remove this await here
+      await isomorphicSendMessage({
+        destination: `content-script@${tab.id}`,
+        messageId: "event",
+        data: event
+      });
     }
   });
 }

@@ -2,7 +2,10 @@ import { onMessage, sendMessage } from "@arconnect/webext-bridge";
 import { nanoid } from "nanoid";
 import browser from "webextension-polyfill";
 import { Mutex } from "~utils/mutex";
-import { isomorphicSendMessage } from "~utils/messaging/messaging.utils";
+import {
+  isomorphicOnMessage,
+  isomorphicSendMessage
+} from "~utils/messaging/messaging.utils";
 import {
   isAuthErrorResult,
   type AuthErrorResult,
@@ -179,8 +182,8 @@ export async function createAuthPopup(
     );
 
     await isomorphicSendMessage({
+      destination: `popup@${POPUP_TAB_ID}`,
       messageId: "auth_request",
-      tabId: POPUP_TAB_ID,
       data: {
         ...authRequestData,
         url: moduleAppData.url,
@@ -212,7 +215,7 @@ function addAuthResultListener<T>(
   authResultCallbacks.set(authID, fn);
 
   if (authResultCallbacks.size === 1) {
-    onMessage("auth_result", ({ sender, data }) => {
+    isomorphicOnMessage("auth_result", ({ sender, data }) => {
       // validate sender by it's tabId
       if (sender.tabId !== popupWindowTabID) {
         console.warn(
@@ -320,7 +323,11 @@ export async function replyToAuthRequest<T>(
       } satisfies AuthSuccessResult<T>);
 
   // send the response message
-  await sendMessage("auth_result", response, "background");
+  await isomorphicSendMessage({
+    destination: "background",
+    messageId: "auth_result",
+    data: response
+  });
 }
 
 // KEEP ALIVE ALARM:

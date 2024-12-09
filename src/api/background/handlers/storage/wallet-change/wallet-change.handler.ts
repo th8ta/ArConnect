@@ -5,6 +5,7 @@ import Application from "~applications/application";
 import { forEachTab } from "~applications/tab";
 import { getAppURL } from "~utils/format";
 import browser from "webextension-polyfill";
+import { isomorphicSendMessage } from "~utils/messaging/messaging.utils";
 
 /**
  * Added wallets change listener.
@@ -32,14 +33,14 @@ export async function handleWalletsChange({
     if (permissionCheck.has.length === 0) return;
 
     // trigger emiter
-    await sendMessage(
-      "event",
-      {
+    await isomorphicSendMessage({
+      destination: `content-script@${tab.id}`,
+      messageId: "event",
+      data: {
         name: "addresses",
         value: permissionCheck.result ? addresses : null
-      },
-      `content-script@${tab.id}`
-    );
+      }
+    });
   });
 
   // add or remove ANS label change listener

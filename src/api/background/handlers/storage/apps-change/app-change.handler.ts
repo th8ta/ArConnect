@@ -19,14 +19,14 @@ export async function handleAppsChange({
 }: StorageChange<string[]>) {
   // message to send the event
   const triggerEvent = (tabID: number, type: "connect" | "disconnect") =>
-    sendMessage(
-      "event",
-      {
+    isomorphicSendMessage({
+      destination: `content-script@${tabID}`,
+      messageId: "event",
+      data: {
         name: type,
         value: null
-      },
-      `content-script@${tabID}`
-    );
+      }
+    });
 
   // trigger events
   forEachTab(async (tab) => {
@@ -45,8 +45,8 @@ export async function handleAppsChange({
 
       if (popupTabID) {
         isomorphicSendMessage({
+          destination: `popup@${popupTabID}`,
           messageId: "auth_app_disconnected",
-          tabId: popupTabID,
           data: tab.id
         });
       }
@@ -73,8 +73,8 @@ export async function handleAppsChange({
 
       if (popupTabID) {
         isomorphicSendMessage({
+          destination: `popup@${popupTabID}`,
           messageId: "auth_app_disconnected",
-          tabId: popupTabID,
           data: tab.id
         });
       }
