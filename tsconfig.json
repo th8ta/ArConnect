@@ -6,8 +6,7 @@
     ".plasmo/**/*",
     "./**/*.ts",
     "./**/*.tsx",
-    "./shim.d.ts",
-    "vite.config.js"
+    "./shim.d.ts"
   ],
   "compilerOptions": {
     "paths": {

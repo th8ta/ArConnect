@@ -3,7 +3,6 @@ import { PlusIcon, SettingsIcon } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { checkPassword } from "~wallets/auth";
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
 import { addWallet, getWalletKeyLength } from "~wallets";
 import {
   Text,
@@ -23,8 +22,11 @@ import Arweave from "arweave/web/common";
 import styled from "styled-components";
 import { defaultGateway } from "~gateways/gateway";
 import { WalletKeySizeErrorModal } from "~components/modals/WalletKeySizeErrorModal";
+import { useLocation } from "~wallets/router/router.utils";
 
-export default function AddWallet() {
+export function AddWalletDashboardView() {
+  const { navigate } = useLocation();
+
   // password input
   const passwordInput = useInput();
 
@@ -71,9 +73,6 @@ export default function AddWallet() {
   // seedphrase or jwk loaded from
   // the seedphrase component
   const [providedWallet, setProvidedWallet] = useState<JWKInterface | string>();
-
-  // router location
-  const [, setLocation] = useLocation();
 
   // add wallet
   async function loadWallet() {
@@ -169,7 +168,7 @@ export default function AddWallet() {
       // redirect to the wallet in settings
       const arweave = new Arweave(defaultGateway);
 
-      setLocation(`/wallets/${await arweave.wallets.jwkToAddress(jwk)}`);
+      navigate(`/wallets/${await arweave.wallets.jwkToAddress(jwk)}`);
     } catch (e) {
       console.log("Failed to load wallet", e);
       setIncorrectPasswordError(true);
@@ -275,7 +274,7 @@ export default function AddWallet() {
       // redirect to the wallet in settings
       const arweave = new Arweave(defaultGateway);
 
-      setLocation(
+      navigate(
         `/wallets/${await arweave.wallets.jwkToAddress(generatedWallet.jwk)}`
       );
     } catch {

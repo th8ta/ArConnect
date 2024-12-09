@@ -15,7 +15,7 @@ import {
   type MutableRefObject
 } from "react";
 import { useGateway } from "~gateways/wayfinder";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
+import { useLocation } from "~wallets/router/router.utils";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -71,9 +71,12 @@ export type TransactionViewProps = CommonRouteProps<TransactionViewParams>;
 export function TransactionView({
   params: { id: rawId, gw, message }
 }: TransactionViewProps) {
+  const { navigate, back } = useLocation();
+
   // fixup id
   const id = useMemo(() => rawId.split("?")[0], [rawId]);
 
+  // TODO: Should this be a redirect?
   if (!id) return <></>;
 
   // fetch tx data
@@ -321,9 +324,6 @@ export function TransactionView({
     })();
   }, []);
 
-  // router push
-  const [push, back] = useHistory();
-
   // interaction input
   const input = useMemo(() => {
     const value = transaction?.tags?.find((tag) => tag.name === "Input")?.value;
@@ -344,7 +344,7 @@ export function TransactionView({
             if (backPath === "/notifications" || backPath === "/transactions") {
               back();
             } else {
-              push("/");
+              navigate("/");
             }
           }}
         />
@@ -406,7 +406,7 @@ export function TransactionView({
                                     fromSendFlow: true
                                   });
 
-                                  push(
+                                  navigate(
                                     `/quick-settings/contacts/new?address=${fromAddress}`
                                   );
                                 }}
@@ -458,7 +458,7 @@ export function TransactionView({
                                     fromSendFlow: true
                                   });
 
-                                  push(
+                                  navigate(
                                     `/quick-settings/contacts/new?address=${toAddress}`
                                   );
                                 }}

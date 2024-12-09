@@ -56,38 +56,6 @@ export async function getWallets() {
 }
 
 /**
- * Hook to get if there are no wallets added
- */
-export const useNoWallets = () => {
-  const [state, setState] = useState(false);
-
-  useEffect(() => {
-    (async () => {
-      const activeAddress = await getActiveAddress();
-      const wallets = await getWallets();
-
-      setState(!activeAddress && wallets.length === 0);
-    })();
-  }, []);
-
-  return state;
-};
-
-/**
- * Hook for decryption key
- */
-export function useDecryptionKey(): [string, (val: string) => void] {
-  const [decryptionKey, setDecryptionKey] = useStorage<string>({
-    key: "decryption_key",
-    instance: ExtensionStorage
-  });
-
-  const set = (val: string) => setDecryptionKey(btoa(val));
-
-  return [decryptionKey ? atob(decryptionKey) : undefined, set];
-}
-
-/**
  * Get the active address
  */
 export async function getActiveAddress() {
@@ -141,6 +109,19 @@ export async function openOrSelectWelcomePage(force = false) {
   }
 
   log(LOG_GROUP.AUTH, `openOrSelectWelcomePage(${force})`);
+
+  // Make sure we clear any stored value from previous installations before
+  // opening the welcome page to onboard the user:
+
+  // get all keys
+  const allStoredKeys = Object.keys(
+    (await browser.storage.local.get(null)) || {}
+  );
+
+  // remove all keys
+  await Promise.allSettled(
+    allStoredKeys.map((key) => ExtensionStorage.remove(key))
+  );
 
   const url = browser.runtime.getURL("tabs/welcome.html");
   const welcomePageTabs = await browser.tabs.query({ url });

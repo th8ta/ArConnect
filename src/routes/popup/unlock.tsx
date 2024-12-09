@@ -76,5 +76,3 @@ export function UnlockView() {
     </Wrapper>
   );
 }
-
-export const UnlockPage = withPage(UnlockView);

@@ -1,8 +1,8 @@
 import { Loading } from "@arconnect/components";
 import styled from "styled-components";
-import { withPage } from "~components/page/page.utils";
+import type { CommonRouteProps } from "~wallets/router/router.types";
 
-export interface LoadingViewProps {
+export interface LoadingViewProps extends CommonRouteProps {
   label?: string;
 }
 
@@ -14,8 +14,6 @@ export const LoadingView = ({ label }: LoadingViewProps) => {
     </DivWrapper>
   );
 };
-
-export const LoadingPage = withPage(LoadingView);
 
 const DivWrapper = styled.div`
   display: flex;

@@ -24,8 +24,18 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { formatAddress } from "~utils/format";
+import type { CommonRouteProps } from "~wallets/router/router.types";
 
-export default function WalletSettings({ address }: Props) {
+export interface WalletSettingsDashboardViewParams {
+  address: string;
+}
+
+export type WalletSettingsDashboardViewProps =
+  CommonRouteProps<WalletSettingsDashboardViewParams>;
+
+export function WalletSettingsDashboardView({
+  params: { address }
+}: WalletSettingsDashboardViewProps) {
   // wallets
   const [wallets, setWallets] = useStorage<StoredWallet[]>(
     {
@@ -157,6 +167,7 @@ export default function WalletSettings({ address }: Props) {
     }
   }
 
+  // TODO: Should this be a redirect?
   if (!wallet) return <></>;
 
   return (
@@ -375,7 +386,3 @@ const ButtonWrapper = styled.div`
   flex-direction: row;
   gap: 10px;
 `;
-
-interface Props {
-  address: string;
-}

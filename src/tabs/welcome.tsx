@@ -1,46 +1,31 @@
-import { type Path, pathToRegexp } from "path-to-regexp";
-import { useHashLocation } from "~wallets/router/hash/hash-router.hook";
-import { Router, Route } from "wouter";
+import { useHashLocation } from "wouter/use-hash-location";
+import { Router as Wouter } from "wouter";
 
-import Home from "~routes/welcome";
-import Start from "~routes/welcome/start";
-import Setup from "~routes/welcome/setup";
-
-import makeCachedMatcher from "wouter/matcher";
-import GettingStarted from "~routes/welcome/gettingStarted";
 import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { useRemoveCover } from "~wallets/setup/non/non-wallet-setup.hook";
+import { BodyScroller } from "~wallets/router/router.utils";
+import { AnimatePresence } from "framer-motion";
+import { Routes } from "~wallets/router/routes.component";
+import { WELCOME_ROUTES } from "~wallets/router/welcome/welcome.routes";
 
-export default function Welcome() {
+export function ArConnectWelcomeApp() {
+  return <Routes routes={WELCOME_ROUTES} pageComponent={null} />;
+}
+
+export function ArConnectWelcomeAppRoot() {
   useRemoveCover();
 
   return (
     <ArConnectThemeProvider>
-      <Router hook={useHashLocation} matcher={customMatcher}>
-        <Route path="/" component={Home} />
-        <Route path="/start/:page" component={Start} />
-        <Route path="/getting-started/:page">
-          {(params: { page: string }) => (
-            <GettingStarted page={Number(params.page)} />
-          )}
-        </Route>
+      <Wouter hook={useHashLocation}>
+        <BodyScroller />
 
-        <Route path="/:setupMode(generate|load)/:page">
-          {(params: { setupMode: "generate" | "load"; page: string }) => (
-            <Setup setupMode={params.setupMode} page={Number(params.page)} />
-          )}
-        </Route>
-      </Router>
+        <AnimatePresence initial={false}>
+          <ArConnectWelcomeApp />
+        </AnimatePresence>
+      </Wouter>
     </ArConnectThemeProvider>
   );
 }
 
-const convertPathToRegexp = (path: Path) => {
-  let keys = [];
-
-  // we use original pathToRegexp package here with keys
-  const regexp = pathToRegexp(path, keys, { strict: true });
-  return { keys, regexp };
-};
-
-const customMatcher = makeCachedMatcher(convertPathToRegexp);
+export default ArConnectWelcomeAppRoot;

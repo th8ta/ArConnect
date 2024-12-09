@@ -23,9 +23,9 @@ import styled from "styled-components";
 import Arweave from "arweave";
 import { defaultGateway, suggestedGateways, testnets } from "~gateways/gateway";
 import HeadV2 from "~components/popup/HeadV2";
-import { useLocation } from "wouter";
 import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 import type { CommonRouteProps } from "~wallets/router/router.types";
+import { useLocation } from "~wallets/router/router.utils";
 
 export interface AppSettingsViewParams {
   url: string;
@@ -34,12 +34,12 @@ export interface AppSettingsViewParams {
 export type AppSettingsViewProps = CommonRouteProps<AppSettingsViewParams>;
 
 export function AppSettingsView({ params: { url } }: AppSettingsViewProps) {
+  const { navigate } = useLocation();
+
   // app settings
   const app = new Application(decodeURIComponent(url));
   const [settings, updateSettings] = app.hook();
   const arweave = new Arweave(defaultGateway);
-
-  const [, setLocation] = useLocation();
 
   // allowance spent qty
   const spent = useMemo(() => {
@@ -102,13 +102,14 @@ export function AppSettingsView({ params: { url } }: AppSettingsViewProps) {
   // remove modal
   const removeModal = useModal();
 
+  // TODO: Should this be a redirect?
   if (!settings) return <></>;
 
   return (
     <>
       <HeadV2
         title={settings?.name || settings?.url}
-        back={() => setLocation("/quick-settings/apps")}
+        back={() => navigate("/quick-settings/apps")}
       />
       <Wrapper>
         <div>
@@ -116,7 +117,7 @@ export function AppSettingsView({ params: { url } }: AppSettingsViewProps) {
             <TitleV1 noMargin>{browser.i18n.getMessage("permissions")}</TitleV1>
             <ResetButton
               onClick={() =>
-                setLocation(`/quick-settings/apps/${url}/permissions`)
+                navigate(`/quick-settings/apps/${url}/permissions`)
               }
             >
               <Text
@@ -356,7 +357,7 @@ export function AppSettingsView({ params: { url } }: AppSettingsViewProps) {
                 <ButtonV2
                   onClick={async () => {
                     await removeApp(app.url);
-                    setLocation(`/quick-settings/apps`);
+                    navigate(`/quick-settings/apps`);
                   }}
                 >
                   {browser.i18n.getMessage("remove")}

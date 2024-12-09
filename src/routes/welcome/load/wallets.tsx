@@ -11,8 +11,7 @@ import type { JWKInterface } from "arweave/web/lib/wallet";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { ArrowRightIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
-import { useLocation, useRoute } from "wouter";
-import { PasswordContext } from "../setup";
+import { PasswordContext, type SetupWelcomeViewParams } from "../setup";
 import {
   ButtonV2,
   ModalV2,
@@ -28,8 +27,14 @@ import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { WalletKeySizeErrorModal } from "~components/modals/WalletKeySizeErrorModal";
+import { useLocation } from "~wallets/router/router.utils";
+import type { CommonRouteProps } from "~wallets/router/router.types";
 
-export default function Wallets() {
+export type WalletsWelcomeViewProps = CommonRouteProps<SetupWelcomeViewParams>;
+
+export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
+  const { navigate } = useLocation();
+
   // password context
   const { password } = useContext(PasswordContext);
 
@@ -88,10 +93,6 @@ export default function Wallets() {
 
   // toasts
   const { setToast } = useToasts();
-
-  // route
-  const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
-  const [, setLocation] = useLocation();
 
   // loading
   const [loading, setLoading] = useState(false);
@@ -170,7 +171,7 @@ export default function Wallets() {
       }
 
       // continue to the next page
-      setLocation(`/${params.setup}/${Number(params.page) + 1}`);
+      navigate(`/${params.setupMode}/${Number(params.page) + 1}`);
     } catch (e) {
       console.log("Failed to load wallet", e);
       setToast({
@@ -191,7 +192,7 @@ export default function Wallets() {
     await setActiveWallet(account.address);
 
     // redirect
-    setLocation(`/${params.setup}/${Number(params.page) + 1}`);
+    navigate(`/${params.setupMode}/${Number(params.page) + 1}`);
   }
 
   // migration available
@@ -282,7 +283,7 @@ export default function Wallets() {
         </ModalText>
         <Spacer y={0.75} />
       </ModalV2>
-      <WalletKeySizeErrorModal {...walletModal} back={() => setLocation(`/`)} />
+      <WalletKeySizeErrorModal {...walletModal} back={() => navigate(`/`)} />
     </>
   );
 }

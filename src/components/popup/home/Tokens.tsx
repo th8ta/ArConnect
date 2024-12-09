@@ -1,14 +1,16 @@
 import { Heading, TokenCount, ViewAll } from "../Title";
 import { Spacer, Text } from "@arconnect/components";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
 import { useTokens } from "~tokens";
 import { useMemo } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Token from "../Token";
 import { useAoTokens } from "~tokens/aoTokens/ao";
+import { useLocation } from "~wallets/router/router.utils";
 
 export default function Tokens() {
+  const { navigate } = useLocation();
+
   // all tokens
   const tokens = useTokens();
 
@@ -21,18 +23,15 @@ export default function Tokens() {
     [tokens]
   );
 
-  // router push
-  const [push] = useHistory();
-
   // handle aoClick
   function handleTokenClick(tokenId) {
-    push(`/send/transfer/${tokenId}`);
+    navigate(`/send/transfer/${tokenId}`);
   }
 
   return (
     <>
       <Heading>
-        <ViewAll onClick={() => push("/tokens")}>
+        <ViewAll onClick={() => navigate("/tokens")}>
           {browser.i18n.getMessage("view_all")}
           <TokenCount>({assets.length + aoTokens.length})</TokenCount>
         </ViewAll>
@@ -61,7 +60,7 @@ export default function Tokens() {
         {assets.slice(0, 8).map((token, i) => (
           <Token
             {...token}
-            onClick={() => push(`/token/${token.id}`)}
+            onClick={() => navigate(`/token/${token.id}`)}
             key={i}
           />
         ))}

@@ -15,15 +15,14 @@ import HardwareWalletIcon, {
   hwIconAnimateProps
 } from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
 import React, { useEffect, useMemo, useState } from "react";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import WalletSwitcher from "./WalletSwitcher";
 import styled from "styled-components";
 import { svgie } from "~utils/svgies";
 import type { AppInfo } from "~applications/application";
-import Application from "~applications/application";
 import Squircle from "~components/Squircle";
+import { useLocation } from "~wallets/router/router.utils";
 
 export interface HeadV2Props {
   title: string;
@@ -39,12 +38,15 @@ export interface HeadV2Props {
 export default function HeadV2({
   title,
   showOptions = true,
-  back,
+  back: onBack,
   padding,
   showBack = true,
   appInfo,
   onAppInfoClick
 }: HeadV2Props) {
+  const theme = useTheme();
+  const { back } = useLocation();
+
   // scroll position
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
   const [scrolled, setScrolled] = useState(false);
@@ -78,9 +80,6 @@ export default function HeadV2({
     return () => window.removeEventListener("scroll", listener);
   }, [scrollDirection]);
 
-  // ui theme
-  const theme = useTheme();
-
   // current address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
@@ -100,9 +99,6 @@ export default function HeadV2({
   // hardware api type
   const hardwareApi = useHardwareApi();
 
-  // history back
-  const [, goBack] = useHistory();
-
   const appName = appInfo?.name;
   const appIconPlaceholderText = appName?.slice(0, 2).toUpperCase();
 
@@ -120,8 +116,8 @@ export default function HeadV2({
       {showBack ? (
         <BackButton
           onClick={async () => {
-            if (back) await back();
-            else goBack();
+            if (onBack) await onBack();
+            else back();
           }}
         >
           <BackButtonIcon />

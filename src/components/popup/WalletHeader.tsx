@@ -50,10 +50,13 @@ import {
   Users01
 } from "@untitled-ui/icons-react";
 import { svgie } from "~utils/svgies";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
 import WalletMenu from "./WalletMenu";
+import { useLocation } from "~wallets/router/router.utils";
 
 export default function WalletHeader() {
+  const theme = useTheme();
+  const { navigate } = useLocation();
+
   // current address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
@@ -68,8 +71,6 @@ export default function WalletHeader() {
     },
     []
   );
-
-  console.log("wallets =", wallets);
 
   // is the wallet selector open
   const [isOpen, setOpen] = useState(false);
@@ -132,12 +133,6 @@ export default function WalletHeader() {
 
   // hardware wallet type
   const hardwareApi = useHardwareApi();
-
-  // ui theme
-  const theme = useTheme();
-
-  // router push
-  const [push] = useHistory();
 
   // has notifications
   const [newNotifications, setNewNotifications] = useStorage<boolean>(
@@ -209,7 +204,7 @@ export default function WalletHeader() {
         icon: <Users01 style={{ width: "18px", height: "18px" }} />,
         title: "setting_contacts",
         route: () => {
-          push("/quick-settings/contacts");
+          navigate("/quick-settings/contacts");
         }
       },
       {
@@ -224,14 +219,14 @@ export default function WalletHeader() {
         icon: <CreditCard01 style={{ width: "18px", height: "17px" }} />,
         title: "subscriptions",
         route: () => {
-          push("/subscriptions");
+          navigate("/subscriptions");
         }
       },
       {
         icon: <Settings01 style={{ width: "18px", height: "18px" }} />,
         title: "Settings",
         route: () => {
-          push("/quick-settings");
+          navigate("/quick-settings");
         }
       }
     ];
@@ -304,7 +299,7 @@ export default function WalletHeader() {
             as={Bell03}
             onClick={() => {
               setNewNotifications(false);
-              push("/notifications");
+              navigate("/notifications");
             }}
             style={{
               width: "20px",

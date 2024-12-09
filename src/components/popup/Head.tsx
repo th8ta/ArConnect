@@ -15,20 +15,23 @@ import HardwareWalletIcon, {
   hwIconAnimateProps
 } from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
 import { useEffect, useMemo, useState } from "react";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import WalletSwitcher from "./WalletSwitcher";
 import styled from "styled-components";
 import { svgie } from "~utils/svgies";
+import { useLocation } from "~wallets/router/router.utils";
 
 export default function Head({
   title,
   showOptions = true,
-  back,
+  back: onBack,
   showBack = true,
   allowOpen = true
 }: Props) {
+  const theme = useTheme();
+  const { back } = useLocation();
+
   // scroll position
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
   const [scrolled, setScrolled] = useState(false);
@@ -61,9 +64,6 @@ export default function Head({
     return () => window.removeEventListener("scroll", listener);
   }, [scrollDirection]);
 
-  // ui theme
-  const theme = useTheme();
-
   // current address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
@@ -88,9 +88,6 @@ export default function Head({
   // hardware api type
   const hardwareApi = useHardwareApi();
 
-  // history back
-  const [, goBack] = useHistory();
-
   return (
     <HeadWrapper
       displayTheme={theme}
@@ -101,8 +98,8 @@ export default function Head({
         <BackWrapper>
           <BackButton
             onClick={async () => {
-              if (back) await back();
-              else goBack();
+              if (onBack) await onBack();
+              else back();
             }}
           />
         </BackWrapper>

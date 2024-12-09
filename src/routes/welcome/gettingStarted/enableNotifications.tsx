@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 
-export default function Enable() {
+export function EnableNotificationsWelcomeView() {
   const [notifications, setNotifications] = useStorage<boolean>({
     key: "setting_notifications",
     instance: ExtensionStorage

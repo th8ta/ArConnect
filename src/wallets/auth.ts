@@ -19,24 +19,16 @@ import { log, LOG_GROUP } from "~utils/log/log.utils";
  * @param password Password for unlocking
  */
 export async function unlock(password: string) {
-  console.log("unlock 1");
-
   // validate password
   if (!(await checkPassword(password))) {
     return false;
   }
 
-  console.log("unlock 2");
-
   // save decryption key
   await setDecryptionKey(password);
 
-  console.log("unlock 3");
-
   // schedule the key for removal
   await scheduleKeyRemoval();
-
-  console.log("unlock 4");
 
   return true;
 }

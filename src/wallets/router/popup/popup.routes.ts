@@ -1,3 +1,4 @@
+import { LoadingView } from "~components/page/common/loading/loading.view";
 import { HomeView } from "~routes/popup";
 import { CollectibleView } from "~routes/popup/collectible/[id]";
 import { CollectiblesView } from "~routes/popup/collectibles";
@@ -5,7 +6,7 @@ import { ConfirmPurchaseView } from "~routes/popup/confirm";
 import { ExploreView } from "~routes/popup/explore";
 import { MessageNotificationView } from "~routes/popup/notification/[id]";
 import { NotificationsView } from "~routes/popup/notifications";
-import { PendingPurchase } from "~routes/popup/pending";
+import { PendingPurchaseView } from "~routes/popup/pending";
 import { PurchaseView } from "~routes/popup/purchase";
 import { ReceiveView } from "~routes/popup/receive";
 import { SendView } from "~routes/popup/send";
@@ -35,9 +36,51 @@ import { AssetView } from "~routes/popup/token/[id]";
 import { TokensView } from "~routes/popup/tokens";
 import { TransactionView } from "~routes/popup/transaction/[id]";
 import { TransactionsView } from "~routes/popup/transaction/transactions";
+import { UnlockView } from "~routes/popup/unlock";
+import { getExtensionOverrides } from "~wallets/router/extension/extension.routes";
 import type { RouteConfig } from "~wallets/router/router.types";
 
-// TODO: Update with functions to pass params and replace in all usages:
+export type PopupRoutePath =
+  | "/"
+  | `/purchase`
+  | `/confirm-purchase/${string}`
+  | `/purchase-pending`
+  | `/receive`
+  | `/send/transfer`
+  | `/send/transfer/${string}`
+  | `/send/auth/${string}`
+  | `/explore`
+  | `/subscriptions`
+  | `/subscriptions/${string}`
+  | `/subscriptions/${string}/manage`
+  | `/subscriptions/${string}/payment`
+  | `/transactions`
+  | `/notifications`
+  | `/notification/${string}`
+  | `/tokens`
+  | `/token/${string}`
+  | `/collectibles`
+  | `/collectible/${string}`
+  | `/transaction/${string}`
+  | `/transaction/${string}/${string}`
+  | `/send/confirm/${string}/${string}/${string}`
+  | `/send/confirm/${string}/${string}/${string}/${string}`
+  | `/send/recipient/${string}/${string}/${string}`
+  | `/quick-settings`
+  | `/quick-settings/wallets`
+  | `/quick-settings/wallets/${string}`
+  | `/quick-settings/wallets/${string}/export`
+  | `/quick-settings/wallets/${string}/qr`
+  | `/quick-settings/apps`
+  | `/quick-settings/apps/${string}`
+  | `/quick-settings/apps/${string}/permissions`
+  | `/quick-settings/tokens`
+  | `/quick-settings/tokens/new`
+  | `/quick-settings/tokens/${string}`
+  | `/quick-settings/contacts`
+  | `/quick-settings/contacts/new`
+  | `/quick-settings/contacts/${string}`
+  | `/quick-settings/notifications`;
 
 export const PopupPaths = {
   Home: "/",
@@ -77,9 +120,13 @@ export const PopupPaths = {
   NewContact: "/quick-settings/contacts/new",
   ContactSettings: "/quick-settings/contacts/:address",
   NotificationSettings: "/quick-settings/notifications"
-} as const;
+} as const satisfies Record<string, PopupRoutePath>;
 
 export const POPUP_ROUTES = [
+  ...getExtensionOverrides({
+    unlockView: UnlockView,
+    loadingView: LoadingView
+  }),
   {
     path: PopupPaths.Home,
     component: HomeView
@@ -94,7 +141,7 @@ export const POPUP_ROUTES = [
   },
   {
     path: PopupPaths.PendingPurchase,
-    component: PendingPurchase
+    component: PendingPurchaseView
   },
   {
     path: PopupPaths.Receive,

@@ -1,4 +1,4 @@
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
+import { useLocation } from "~wallets/router/router.utils";
 import { Section } from "@arconnect/components";
 import { useTokens } from "~tokens";
 import { useMemo } from "react";
@@ -8,6 +8,8 @@ import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
 
 export function CollectiblesView() {
+  const { navigate } = useLocation();
+
   // all tokens
   const tokens = useTokens();
 
@@ -16,9 +18,6 @@ export function CollectiblesView() {
     () => tokens.filter((token) => token.type === "collectible"),
     [tokens]
   );
-
-  // router push
-  const [push] = useHistory();
 
   return (
     <>
@@ -31,7 +30,7 @@ export function CollectiblesView() {
             balance={collectible.balance}
             divisibility={collectible.divisibility}
             decimals={collectible.decimals}
-            onClick={() => push(`/collectible/${collectible.id}`)}
+            onClick={() => navigate(`/collectible/${collectible.id}`)}
             key={i}
           />
         ))}

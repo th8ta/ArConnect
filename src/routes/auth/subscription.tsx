@@ -6,7 +6,6 @@ import {
 } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import HeadV2 from "~components/popup/HeadV2";
 import {
   Body,
   InfoCircle,
@@ -17,7 +16,7 @@ import {
   SubscriptionText,
   ToggleSwitch
 } from "~routes/popup/subscriptions/subscriptionDetails";
-import { Content, Title } from "~routes/popup/subscriptions/subscriptions";
+import { Content, Title } from "~components/popup/list/SubscriptionListItem";
 import dayjs from "dayjs";
 import { addSubscription } from "~subscriptions";
 import { getActiveAddress } from "~wallets";

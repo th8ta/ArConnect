@@ -3,7 +3,6 @@ import browser from "webextension-polyfill";
 import { useEffect, useMemo, useState } from "react";
 import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
-
 import { gql } from "~gateways/api";
 import styled from "styled-components";
 import { Empty, TitleMessage } from "../notifications";
@@ -14,7 +13,7 @@ import {
   AR_SENT_QUERY_WITH_CURSOR,
   PRINT_ARWEAVE_QUERY_WITH_CURSOR
 } from "~notifications/utils";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
+import { useLocation } from "~wallets/router/router.utils";
 import { getArPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
 import { printTxWorkingGateways, txHistoryGateways } from "~gateways/gateway";
@@ -37,11 +36,11 @@ const defaultCursors = ["", "", "", "", ""];
 const defaultHasNextPages = [true, true, true, true, true];
 
 export function TransactionsView() {
+  const { navigate } = useLocation();
   const [cursors, setCursors] = useState(defaultCursors);
   const [hasNextPages, setHasNextPages] = useState(defaultHasNextPages);
   const [transactions, setTransactions] = useState<GroupedTransactions>({});
   const [arPrice, setArPrice] = useState(0);
-  const [push] = useHistory();
   const [loading, setLoading] = useState(false);
   const [currency] = useSetting<string>("currency");
 
@@ -217,7 +216,7 @@ export function TransactionsView() {
   }, [activeAddress]);
 
   const handleClick = (id: string) => {
-    push(`/transaction/${id}?back=${encodeURIComponent("/transactions")}`);
+    navigate(`/transaction/${id}?back=${encodeURIComponent("/transactions")}`);
   };
 
   return (

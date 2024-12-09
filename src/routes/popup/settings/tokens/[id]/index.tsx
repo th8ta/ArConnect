@@ -18,8 +18,8 @@ import copy from "copy-to-clipboard";
 import { formatAddress } from "~utils/format";
 import { CopyButton } from "~components/dashboard/subsettings/WalletSettings";
 import HeadV2 from "~components/popup/HeadV2";
-import { useLocation } from "wouter";
 import type { CommonRouteProps } from "~wallets/router/router.types";
+import { useLocation } from "~wallets/router/router.utils";
 
 export interface TokenSettingsParams {
   id: string;
@@ -28,6 +28,8 @@ export interface TokenSettingsParams {
 export type TokenSettingsProps = CommonRouteProps<TokenSettingsParams>;
 
 export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
+  const { navigate } = useLocation();
+
   // tokens
   const [tokens, setTokens] = useStorage<Token[]>(
     {
@@ -47,8 +49,6 @@ export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
   );
 
   const { setToast } = useToasts();
-
-  const [, setLocation] = useLocation();
 
   const { token, isAoToken } = useMemo(() => {
     const aoToken = aoTokens.find((ao) => ao.processId === id);
@@ -82,13 +82,14 @@ export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
     });
   }
 
+  // TODO: Should this be a redirect?
   if (!token) return null;
 
   return (
     <>
       <HeadV2
         title={token.name}
-        back={() => setLocation("/quick-settings/tokens")}
+        back={() => navigate("/quick-settings/tokens")}
       />
       <Wrapper>
         <div>
@@ -143,7 +144,7 @@ export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
           fullWidth
           onClick={async () => {
             await removeToken(id);
-            setLocation(`/quick-settings/tokens`);
+            navigate(`/quick-settings/tokens`);
           }}
           style={{ backgroundColor: "#8C1A1A" }}
         >

@@ -6,7 +6,6 @@ import NoBalance from "~components/popup/home/NoBalance";
 import Balance from "~components/popup/home/Balance";
 import { AnnouncementPopup } from "./announcement";
 import { getDecryptionKey } from "~wallets/auth";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
 import {
   trackEvent,
   EventType,
@@ -29,7 +28,6 @@ export function HomeView() {
   const [noBalance, setNoBalance] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [isOpen, setOpen] = useState(false);
-  const [push] = useHistory();
   const [activeAddress] = useStorage<string>({
     key: "active_address",
     instance: ExtensionStorage

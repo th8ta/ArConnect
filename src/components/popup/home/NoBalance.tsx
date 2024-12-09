@@ -1,13 +1,13 @@
 import { ButtonV2, Section, Text } from "@arconnect/components";
 import { ArrowRightIcon } from "@iconicicons/react";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
 import noBalanceArt from "url:/assets/ar/no_funds.png";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { PureBuyButton } from "./BuyButton";
+import { useLocation } from "~wallets/router/router.utils";
 
 export default function NoBalance() {
-  const [push] = useHistory();
+  const { navigate } = useLocation();
 
   return (
     <Wrapper>
@@ -18,7 +18,7 @@ export default function NoBalance() {
       <ButtonWrapper>
         <PureBuyButton />
         <ButtonV2
-          onClick={() => push("/tokens")}
+          onClick={() => navigate("/tokens")}
           secondary
           fullWidth
           className="normal-font-weight"

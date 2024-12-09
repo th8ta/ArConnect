@@ -4,7 +4,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { SettingsList } from "./list/BaseElement";
 import ContactListItem from "./list/ContactListItem";
-import { useLocation, useRoute } from "wouter";
+import { useRoute } from "wouter";
 import browser from "webextension-polyfill";
 import SearchInput from "./SearchInput";
 import styled from "styled-components";
@@ -13,12 +13,27 @@ import { multiSort } from "~utils/multi_sort";
 import { enrichContact } from "~contacts/hooks";
 import { EventType, trackEvent } from "~utils/analytics";
 import type { Contacts } from "~components/Recipient";
+import { useLocation } from "~wallets/router/router.utils";
+import type { CommonRouteProps } from "~wallets/router/router.types";
 
-interface ContactsProps {
+export interface ContactsDashboardViewParams {
+  contact?: string;
+}
+
+export interface ContactsDashboardViewProps
+  extends CommonRouteProps<ContactsDashboardViewParams> {
   isQuickSetting?: boolean;
 }
 
-export default function Contacts({ isQuickSetting }: ContactsProps) {
+export function ContactsDashboardView({
+  isQuickSetting
+}: ContactsDashboardViewProps) {
+  const { navigate } = useLocation();
+  // TODO: Replace with useParams:
+  const [matches, params] = useRoute<{ contact?: string }>(
+    "/contacts/:contact?"
+  );
+
   // contacts
   const [storedContacts, setStoredContacts] = useStorage(
     {
@@ -91,12 +106,6 @@ export default function Contacts({ isQuickSetting }: ContactsProps) {
     [contacts]
   );
 
-  // router
-  const [matches, params] = useRoute<{ contact?: string }>(
-    "/contacts/:contact?"
-  );
-  const [, setLocation] = useLocation();
-
   // active subsetting
   const activeContact = useMemo(
     () => (params?.contact ? decodeURIComponent(params.contact) : undefined),
@@ -105,7 +114,7 @@ export default function Contacts({ isQuickSetting }: ContactsProps) {
 
   // Update the URL when a contact is clicked
   const handleContactClick = (contactAddress: string) => {
-    setLocation(
+    navigate(
       `/${isQuickSetting ? "quick-settings/" : ""}contacts/${encodeURIComponent(
         contactAddress
       )}`
@@ -130,7 +139,7 @@ export default function Contacts({ isQuickSetting }: ContactsProps) {
 
   const addContact = () => {
     trackEvent(EventType.ADD_CONTACT, { fromContactSettings: true });
-    setLocation(`/${isQuickSetting ? "quick-settings/" : ""}contacts/new`);
+    navigate(`/${isQuickSetting ? "quick-settings/" : ""}contacts/new`);
   };
 
   return (

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
-import { useLocation, useRoute } from "wouter";
+import { useRoute } from "wouter";
 import type { StoredWallet } from "~wallets";
 import { Reorder } from "framer-motion";
 import WalletListItem from "./list/WalletListItem";
@@ -12,8 +12,15 @@ import browser from "webextension-polyfill";
 import SearchInput from "./SearchInput";
 import styled from "styled-components";
 import { useGateway } from "~gateways/wayfinder";
+import { useLocation } from "~wallets/router/router.utils";
 
-export default function Wallets() {
+export function WalletsDashboardView() {
+  const { navigate } = useLocation();
+  // TODO: Replace with useParams:
+  const [matches, params] = useRoute<{ address?: string }>(
+    "/wallets/:address?"
+  );
+
   // wallets
   const [wallets, setWallets] = useStorage<StoredWallet[]>(
     {
@@ -22,12 +29,6 @@ export default function Wallets() {
     },
     []
   );
-
-  // router
-  const [matches, params] = useRoute<{ address?: string }>(
-    "/wallets/:address?"
-  );
-  const [, setLocation] = useLocation();
 
   // active subsetting val
   const activeWalletSetting = useMemo(
@@ -52,7 +53,7 @@ export default function Wallets() {
     // return if the new wallet page is open
     if (activeWalletSetting === "new") return;
 
-    setLocation("/wallets/" + firstWallet.address);
+    navigate(`/wallets/${firstWallet.address}`);
   }, [wallets, activeWalletSetting]);
 
   // ans data
@@ -116,7 +117,7 @@ export default function Wallets() {
             placeholder={browser.i18n.getMessage("search_wallets")}
             {...searchInput.bindings}
           />
-          <AddWalletButton onClick={() => setLocation("/wallets/new")}>
+          <AddWalletButton onClick={() => navigate("/wallets/new")}>
             {browser.i18n.getMessage("add_wallet")}
           </AddWalletButton>
         </SearchWrapper>
@@ -136,7 +137,7 @@ export default function Wallets() {
                 address={wallet.address}
                 avatar={findAvatar(wallet.address)}
                 active={activeWalletSetting === wallet.address}
-                onClick={() => setLocation("/wallets/" + wallet.address)}
+                onClick={() => navigate(`/wallets/${wallet.address}`)}
                 key={wallet.address}
               />
             ))}

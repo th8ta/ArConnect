@@ -3,8 +3,9 @@ import { type Alarms } from "webextension-polyfill";
 import { AOProcess } from "~lib/ao";
 import { AO_ARNS_PROCESS } from "~lib/arns";
 import type {
-  GatewayAddressRegistryCache,
-  ProcessedData
+  GatewayAddressRegistryItem,
+  GatewayAddressRegistryItemData,
+  PaginatedResult
 } from "~gateways/types";
 import {
   RETRY_ALARM,
@@ -22,22 +23,26 @@ export async function handleGatewayUpdateAlarm(alarm?: Alarms.Alarm) {
     return;
   }
 
-  let procData: ProcessedData[] = [];
+  let garItemsWithChecks: GatewayAddressRegistryItem[] = [];
 
   try {
     // fetch cache
     const ArIO = new AOProcess({ processId: AO_ARNS_PROCESS });
-    const gateways = (await ArIO.read({
-      tags: [{ name: "Action", value: "Gateways" }]
-    })) as GatewayAddressRegistryCache["gateways"];
-    const garItems = extractGarItems({ gateways });
 
-    // healtcheck
-    await pingUpdater(garItems, (newData) => {
-      procData = [...newData];
+    const gatewaysResult = await ArIO.read<
+      PaginatedResult<GatewayAddressRegistryItemData>
+    >({
+      tags: [{ name: "Action", value: "Gateways" }]
     });
 
-    await updateGatewayCache(procData);
+    const garItems = extractGarItems(gatewaysResult.items);
+
+    // healtcheck
+    await pingUpdater(garItems, (nextGarItemsWithChecks) => {
+      garItemsWithChecks = nextGarItemsWithChecks;
+    });
+
+    await updateGatewayCache(garItemsWithChecks);
   } catch (err) {
     console.log("err in handle", err);
 

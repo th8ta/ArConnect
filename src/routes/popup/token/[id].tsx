@@ -13,7 +13,7 @@ import { getDreForToken, useTokens } from "~tokens";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { getCommunityUrl } from "~utils/format";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
+import { useLocation } from "~wallets/router/router.utils";
 import { useTheme } from "~utils/theme";
 import {
   ArrowDownLeftIcon,
@@ -54,6 +54,8 @@ export interface AssetViewParams {
 export type AssetViewProps = CommonRouteProps<AssetViewParams>;
 
 export function AssetView({ params: { id } }: AssetViewProps) {
+  const { navigate } = useLocation();
+
   // load state
   const [state, setState] = useState<TokenState>();
   const [validity, setValidity] = useState<{ [id: string]: boolean }>();
@@ -114,9 +116,6 @@ export function AssetView({ params: { id } }: AssetViewProps) {
 
     return formatTokenBalance(val);
   }, [id, state, activeAddress]);
-
-  // router push
-  const [push] = useHistory();
 
   // token gateway
   const tokens = useTokens();
@@ -290,11 +289,13 @@ export function AssetView({ params: { id } }: AssetViewProps) {
                 exit="hidden"
               >
                 <TokenActions>
-                  <TokenAction onClick={() => push(`/send/transfer/${id}`)} />
+                  <TokenAction
+                    onClick={() => navigate(`/send/transfer/${id}`)}
+                  />
                   <ActionSeparator />
                   <TokenAction
                     as={ArrowDownLeftIcon}
-                    onClick={() => push("/receive")}
+                    onClick={() => navigate("/receive")}
                   />
                 </TokenActions>
               </motion.div>
@@ -421,13 +422,13 @@ export function AssetView({ params: { id } }: AssetViewProps) {
                     {...interaction}
                     onClick={() => {
                       if (gateway.host !== "arweave.net") {
-                        push(
+                        navigate(
                           `/transaction/${interaction.id}/${encodeURIComponent(
                             concatGatewayURL(gateway)
                           )}`
                         );
                       } else {
-                        push(`/transaction/${interaction.id}`);
+                        navigate(`/transaction/${interaction.id}`);
                       }
                     }}
                   />

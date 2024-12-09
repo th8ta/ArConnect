@@ -1,19 +1,18 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
 import { useTheme } from "~utils/theme";
 import { ButtonV2, Section } from "@arconnect/components";
 import type { DisplayTheme } from "@arconnect/components";
-import BuyButton from "~components/popup/home/BuyButton";
 import { PageType, trackPage } from "~utils/analytics";
 import { useStorage } from "@plasmohq/storage/hook";
 import type { Quote } from "~lib/onramper";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
+import { useLocation } from "~wallets/router/router.utils";
 
-export function PendingPurchase() {
+export function PendingPurchaseView() {
   const theme = useTheme();
-  const [push] = useHistory();
+  const { navigate } = useLocation();
 
   const [quote] = useStorage<Quote>({
     key: "transak_quote",
@@ -45,7 +44,7 @@ export function PendingPurchase() {
         )}
       </MainContent>
       <Section>
-        <ButtonV2 fullWidth onClick={() => push("/")}>
+        <ButtonV2 fullWidth onClick={() => navigate("/")}>
           Home
         </ButtonV2>
       </Section>

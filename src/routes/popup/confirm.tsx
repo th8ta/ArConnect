@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
+import { useLocation } from "~wallets/router/router.utils";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
@@ -22,7 +22,7 @@ export type ConfirmPurchaseViewProps =
 export function ConfirmPurchaseView({
   params: { quoteId: id }
 }: ConfirmPurchaseViewProps) {
-  const [push] = useHistory();
+  const { navigate } = useLocation();
 
   const [activeAddress] = useStorage<string>({
     key: "active_address",
@@ -54,7 +54,7 @@ export function ConfirmPurchaseView({
       browser.tabs.create({
         url: url
       });
-      push("/purchase-pending");
+      navigate("/purchase-pending");
     } catch (error) {
       console.error("Error buying AR:", error);
     }

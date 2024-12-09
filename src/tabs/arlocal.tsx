@@ -5,7 +5,6 @@ import { urlToGateway } from "~gateways/utils";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { RefreshIcon } from "@iconicicons/react";
-import { useNoWallets } from "~wallets";
 import {
   ButtonV2 as Button,
   InputV2 as Input,
@@ -22,7 +21,7 @@ import {
   Title,
   Wrapper
 } from "./devtools";
-import Transaction from "~components/arlocal/Transaction";
+import { ArLocalTransaction } from "~components/arlocal/Transaction";
 import NoWallets from "~components/devtools/NoWallets";
 import Tutorial from "~components/arlocal/Tutorial";
 import Mint from "~components/arlocal/Mint";
@@ -31,6 +30,7 @@ import Arweave from "arweave";
 import axios from "axios";
 import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { useRemoveCover } from "~wallets/setup/non/non-wallet-setup.hook";
+import { useWallets } from "~utils/wallets/wallets.hooks";
 
 export default function ArLocal() {
   useRemoveCover();
@@ -155,13 +155,12 @@ export default function ArLocal() {
     setMining(false);
   }
 
-  // no wallets
-  const noWallets = useNoWallets();
+  const { walletStatus } = useWallets();
 
   return (
     <ArConnectThemeProvider>
       <Wrapper>
-        {noWallets && <NoWallets />}
+        {walletStatus === "noWallets" && <NoWallets />}
         <CardBody>
           <Title>
             ArLocal {browser.i18n.getMessage("devtools")}
@@ -196,7 +195,7 @@ export default function ArLocal() {
             <>
               <Mint arweave={arweave} />
               <Spacer y={1} />
-              <Transaction arweave={arweave} />
+              <ArLocalTransaction arweave={arweave} />
               <Spacer y={1} />
               <Button fullWidth secondary loading={mining} onClick={mine}>
                 {browser.i18n.getMessage("mine")}

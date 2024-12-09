@@ -1,20 +1,30 @@
+import { AnimatePresence } from "framer-motion";
 import React, { useEffect, useMemo, type PropsWithChildren } from "react";
-import { Switch, useLocation, Route as Woute } from "wouter";
+import { Switch, Route as Woute } from "wouter";
 import { Page } from "~components/page/page.component";
 import type {
   CommonRouteProps,
   RouteConfig
 } from "~wallets/router/router.types";
+import { BodyScroller, useLocation } from "~wallets/router/router.utils";
 
 export interface RoutesProps {
   routes: RouteConfig[];
+  diffLocation?: boolean;
   pageComponent?: React.ComponentType<PropsWithChildren>;
 }
 
+// TODO: Consider adding a prop to `RouteConfig.parseParams` to parse
+// params globally inside `PageWithComponent` (e.g. to replace the `Number()`)
+// conversions in the Welcome views.
+
 export function Routes({
   routes,
-  pageComponent: PageComponent = Page
+  diffLocation = false,
+  pageComponent
 }: RoutesProps) {
+  const { location } = useLocation();
+
   // In development, check there are no duplicate routes (paths):
 
   if (process.env.NODE_ENV === "development") {
@@ -30,13 +40,13 @@ export function Routes({
     }, [routes]);
   }
 
-  const [location] = useLocation();
-
   const memoizedRoutes = useMemo(() => {
     return (
       <Switch>
         {routes.map((route) => {
           const Component = route.component;
+          const PageComponent =
+            pageComponent === null ? React.Fragment : pageComponent || Page;
 
           // TODO: Async-loaded components?
 
@@ -52,7 +62,7 @@ export function Routes({
 
           return (
             <Woute
-              key={route.key}
+              key={route.key || route.path}
               path={route.path}
               component={PageWithComponent}
             />
@@ -60,7 +70,13 @@ export function Routes({
         })}
       </Switch>
     );
-  }, [routes, location]);
+  }, [routes, diffLocation ? location : undefined]);
 
-  return memoizedRoutes;
+  return (
+    <>
+      <BodyScroller />
+
+      <AnimatePresence initial={false}>{memoizedRoutes}</AnimatePresence>
+    </>
+  );
 }

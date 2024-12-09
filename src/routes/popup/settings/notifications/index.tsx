@@ -8,10 +8,10 @@ import HeadV2 from "~components/popup/HeadV2";
 import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 import { InformationIcon } from "@iconicicons/react";
 import Checkbox from "~components/Checkbox";
-import { useLocation } from "wouter";
+import { useLocation } from "~wallets/router/router.utils";
 
 export function NotificationSettingsView() {
-  const [, setLocation] = useLocation();
+  const { navigate } = useLocation();
 
   const [notificationSettings, setNotificationSettings] = useStorage(
     {
@@ -41,7 +41,7 @@ export function NotificationSettingsView() {
     <>
       <HeadV2
         title={browser.i18n.getMessage("setting_notifications")}
-        back={() => setLocation("/quick-settings")}
+        back={() => navigate("/quick-settings")}
       />
       <Wrapper>
         <ToggleSwitchWrapper>

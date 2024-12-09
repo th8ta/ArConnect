@@ -13,7 +13,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { useTheme } from "~utils/theme";
 
-export default function Reset() {
+export function ResetDashboardView() {
   // reset modal
   const resetModal = useModal();
 
@@ -31,9 +31,9 @@ export default function Reset() {
       );
 
       // remove all keys
-      for (const key of allStoredKeys) {
-        await ExtensionStorage.remove(key);
-      }
+      await Promise.allSettled(
+        allStoredKeys.map((key) => ExtensionStorage.remove(key))
+      );
 
       // close window
       window.top.close();

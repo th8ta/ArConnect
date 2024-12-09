@@ -1,13 +1,15 @@
 import { Heading, TokenCount, ViewAll } from "../Title";
 import { Spacer, Text } from "@arconnect/components";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
 import { useTokens } from "~tokens";
 import { useMemo } from "react";
 import browser from "webextension-polyfill";
 import Collectible from "../Collectible";
 import styled from "styled-components";
+import { useLocation } from "~wallets/router/router.utils";
 
 export default function Collectibles() {
+  const { navigate } = useLocation();
+
   // all tokens
   const tokens = useTokens();
 
@@ -17,16 +19,13 @@ export default function Collectibles() {
     [tokens]
   );
 
-  // router location
-  const [push] = useHistory();
-
   return (
     <>
       <Heading>
         <ViewAll
           onClick={() => {
             if (collectibles.length === 0) return;
-            push("/collectibles");
+            navigate("/collectibles");
           }}
         >
           {browser.i18n.getMessage("view_all")}
@@ -45,7 +44,7 @@ export default function Collectibles() {
             balance={collectible.balance}
             divisibility={collectible.divisibility}
             decimals={collectible.decimals}
-            onClick={() => push(`/collectible/${collectible.id}`)}
+            onClick={() => navigate(`/collectible/${collectible.id}`)}
             key={i}
           />
         ))}

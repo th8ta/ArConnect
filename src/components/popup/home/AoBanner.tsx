@@ -99,9 +99,9 @@ function BannerVector() {
             width="427"
             height="80.5"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
-            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feFlood floodOpacity="0" result="BackgroundImageFix" />
             <feBlend
               mode="normal"
               in="SourceGraphic"
@@ -121,10 +121,10 @@ function BannerVector() {
             gradientUnits="userSpaceOnUse"
             gradientTransform="translate(-16 -9) rotate(8.91893) scale(416.03 608.898)"
           >
-            <stop offset="0.141974" stop-color="#544A81" />
-            <stop offset="0.226901" stop-color="#8E7BEA" />
-            <stop offset="0.587079" stop-color="#544A81" />
-            <stop offset="1" stop-color="#8E7BEA" />
+            <stop offset="0.141974" stopColor="#544A81" />
+            <stop offset="0.226901" stopColor="#8E7BEA" />
+            <stop offset="0.587079" stopColor="#544A81" />
+            <stop offset="1" stopColor="#8E7BEA" />
           </radialGradient>
         </defs>
       </svg>
@@ -138,6 +138,7 @@ const Banner = styled.div<{ displayTheme: DisplayTheme; show: boolean }>`
   position: relative;
   flex-direction: row;
   color: #ffffff;
+  overflow: hidden;
   background: linear-gradient(
       0deg,
       rgba(0, 0, 0, 0.4) 0%,

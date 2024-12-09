@@ -27,7 +27,7 @@ import Arweave from "arweave";
 import { svgie } from "~utils/svgies";
 import { Action } from "./WalletHeader";
 import copy from "copy-to-clipboard";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
+import { useLocation } from "~wallets/router/router.utils";
 
 export default function WalletSwitcher({
   open,
@@ -36,6 +36,8 @@ export default function WalletSwitcher({
   exactTop = false,
   noPadding = false
 }: Props) {
+  const { navigate } = useLocation();
+
   // current address
   const [activeAddress, setActiveAddress] = useStorage<string>({
     key: "active_address",
@@ -166,8 +168,6 @@ export default function WalletSwitcher({
   // toasts
   const { setToast } = useToasts();
 
-  const [push] = useHistory();
-
   return (
     <AnimatePresence>
       {open && (
@@ -265,7 +265,7 @@ export default function WalletSwitcher({
                       onClick={(e) => {
                         e.preventDefault();
 
-                        push(`/quick-settings/wallets/${activeAddress}`);
+                        navigate(`/quick-settings/wallets/${activeAddress}`);
                       }}
                     />
                   </TooltipV2>

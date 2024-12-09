@@ -5,7 +5,7 @@ import arwikiLogo from "url:/assets/ecosystem/arwiki.png";
 import bazarLogo from "url:/assets/ecosystem/bazar.png";
 import protocollandLogo from "url:/assets/ecosystem/protocolland.svg";
 import permaswapLogo from "url:/assets/ecosystem/permaswap.svg";
-import barkLogo from "url:/assets/ecosystem/bark.png";
+import botegaLogo from "url:/assets/ecosystem/botega.svg";
 import arnsLogo from "url:/assets/ecosystem/arns.svg";
 import astroLogo from "url:/assets/ecosystem/astro.png";
 import permapagesLogo from "url:/assets/ecosystem/permapages.svg";
@@ -38,17 +38,17 @@ export interface App {
 
 export const apps: App[] = [
   {
-    name: "Bark",
+    name: "Botega",
     category: "Exchange",
-    description: "Bark is the AO Computer's first decentralized exchange.",
+    description: "Botega is the AO Computer's first decentralized exchange.",
     assets: {
-      logo: barkLogo,
-      thumbnail: "/apps/bark/thumbnail.png",
+      logo: botegaLogo,
+      thumbnail: "",
       lightBackground: "rgba(230, 235, 240, 1)",
       darkBackground: "rgba(19, 28, 37, 1)"
     },
     links: {
-      website: "https://bark.arweave.dev"
+      website: "https://botega.arweave.dev/#/swap"
     }
   },
   {

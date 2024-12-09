@@ -13,7 +13,6 @@ import {
   AR_SENT_QUERY,
   PRINT_ARWEAVE_QUERY
 } from "~notifications/utils";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
 import { getArPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
 import { printTxWorkingGateways, txHistoryGateways } from "~gateways/gateway";
@@ -30,11 +29,12 @@ import {
 } from "~lib/transactions";
 import BigNumber from "bignumber.js";
 import { retryWithDelay } from "~utils/promises/retry";
+import { useLocation } from "~wallets/router/router.utils";
 
 export default function Transactions() {
+  const { navigate } = useLocation();
   const [transactions, fetchTransactions] = useState<ExtendedTransaction[]>([]);
   const [arPrice, setArPrice] = useState(0);
-  const [push] = useHistory();
   const [loading, setLoading] = useState(false);
   const [currency] = useSetting<string>("currency");
   const [activeAddress] = useStorage<string>({
@@ -162,13 +162,13 @@ export default function Transactions() {
   }, [activeAddress]);
 
   const handleClick = (id: string) => {
-    push(`/transaction/${id}?back=${encodeURIComponent("/transactions")}`);
+    navigate(`/transaction/${id}?back=${encodeURIComponent("/transactions")}`);
   };
 
   return (
     <>
       <Heading>
-        <ViewAll onClick={() => push("/transactions")}>
+        <ViewAll onClick={() => navigate("/transactions")}>
           {browser.i18n.getMessage("view_all")}
           <TokenCount>({transactions.length})</TokenCount>
         </ViewAll>

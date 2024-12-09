@@ -18,7 +18,6 @@ import {
   type Key,
   type MouseEventHandler
 } from "react";
-import { useLocation } from "wouter";
 import HeadV2 from "~components/popup/HeadV2";
 import { WarningIcon } from "~components/popup/Token";
 import browser from "webextension-polyfill";
@@ -36,6 +35,7 @@ import {
 import { dataToFrames } from "qrloop";
 import { checkPassword } from "~wallets/auth";
 import type { CommonRouteProps } from "~wallets/router/router.types";
+import { useLocation } from "~wallets/router/router.utils";
 
 export interface GenerateQRViewParams {
   address: string;
@@ -44,12 +44,11 @@ export interface GenerateQRViewParams {
 export type GenerateQRViewProps = CommonRouteProps<GenerateQRViewParams>;
 
 export function GenerateQRView({ params: { address } }: GenerateQRViewProps) {
+  const { navigate } = useLocation();
   const [wallet, setWallet] = useState<DecryptedWallet>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [frames, setFrames] = useState<string[]>([]);
-
-  const [, setLocation] = useLocation();
   const { setToast } = useToasts();
   const passwordInput = useInput();
 
@@ -112,9 +111,9 @@ export function GenerateQRView({ params: { address } }: GenerateQRViewProps) {
           }
           back={() => {
             if (address) {
-              setLocation(`/quick-settings/wallets/${address}`);
+              navigate(`/quick-settings/wallets/${address}`);
             } else {
-              setLocation("/");
+              navigate("/");
             }
           }}
         />

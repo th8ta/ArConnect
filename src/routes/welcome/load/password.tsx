@@ -2,11 +2,10 @@ import PasswordStrength from "../../../components/welcome/PasswordStrength";
 import PasswordMatch from "~components/welcome/PasswordMatch";
 import { checkPasswordValid } from "~wallets/generator";
 import { ArrowRightIcon } from "@iconicicons/react";
-import { useLocation, useRoute } from "wouter";
 import Paragraph from "~components/Paragraph";
 import { useContext, useMemo, useEffect } from "react";
 import browser from "webextension-polyfill";
-import { PasswordContext } from "../setup";
+import { PasswordContext, type SetupWelcomeViewParams } from "../setup";
 import {
   ButtonV2,
   InputV2,
@@ -19,8 +18,14 @@ import {
 import { PageType, trackPage } from "~utils/analytics";
 import { PasswordWarningModal } from "~routes/popup/passwordPopup";
 import { passwordStrength } from "check-password-strength";
+import { useLocation } from "~wallets/router/router.utils";
+import type { CommonRouteProps } from "~wallets/router/router.types";
 
-export default function Password() {
+export type PasswordWelcomeViewProps = CommonRouteProps<SetupWelcomeViewParams>;
+
+export function PasswordWelcomeView({ params }: PasswordWelcomeViewProps) {
+  const { navigate } = useLocation();
+
   // input controls
   const passwordInput = useInput();
   const validPasswordInput = useInput();
@@ -33,9 +38,6 @@ export default function Password() {
 
   const passwordModal = useModal();
 
-  // route
-  const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
-  const [, setLocation] = useLocation();
   const passwordStatus = passwordStrength(passwordInput.state);
 
   // handle done button
@@ -67,7 +69,7 @@ export default function Password() {
     setPassword(passwordInput.state);
 
     // next page
-    setLocation(`/${params.setup}/${Number(params.page) + 1}`);
+    navigate(`/${params.setupMode}/${Number(params.page) + 1}`);
   }
 
   // passwords match

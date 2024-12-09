@@ -44,13 +44,12 @@ import { useTheme } from "~utils/theme";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import Arweave from "arweave";
-import { useActiveWallet, useBalance } from "~wallets/hooks";
+import { useBalance } from "~wallets/hooks";
 import { getArPrice, getPrice } from "~lib/coingecko";
 import redstone from "redstone-api";
-import { AnimatePresence, motion, type Variants } from "framer-motion";
 import Collectible from "~components/popup/Collectible";
 import { findGateway } from "~gateways/wayfinder";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
+import { useLocation } from "~wallets/router/router.utils";
 import { DREContract, DRENode } from "@arconnect/warp-dre";
 import { isUToken } from "~utils/send";
 import HeadV2 from "~components/popup/HeadV2";
@@ -105,6 +104,9 @@ export interface SendViewParams {
 export type SendViewProps = CommonRouteProps<SendViewParams>;
 
 export function SendView({ params: { id } }: SendViewProps) {
+  const { navigate, back } = useLocation();
+  const theme = useTheme();
+
   // Segment
   useEffect(() => {
     trackPage(PageType.SEND);
@@ -208,7 +210,6 @@ export function SendView({ params: { id } }: SendViewProps) {
 
   // token logo
   const [logo, setLogo] = useState<string>();
-  const theme = useTheme();
 
   useEffect(() => {
     (async () => {
@@ -313,7 +314,6 @@ export function SendView({ params: { id } }: SendViewProps) {
 
   // network fee
   const [networkFee, setNetworkFee] = useState<string>("0");
-  const [, goBack] = useHistory();
 
   useEffect(() => {
     (async () => {
@@ -402,9 +402,6 @@ export function SendView({ params: { id } }: SendViewProps) {
     return defaulQtytSize / (qtyLengthWithSymbol / maxLengthDef);
   }, [qty, qtyMode, currency, token]);
 
-  // router push
-  const [push] = useHistory();
-
   // prepare tx to send
   async function send() {
     // check qty
@@ -433,7 +430,7 @@ export function SendView({ params: { id } }: SendViewProps) {
     });
 
     // continue to confirmation page
-    push(`/send/confirm/${tokenID}/${finalQty}/${recipient.address}`);
+    navigate(`/send/confirm/${tokenID}/${finalQty}/${recipient.address}`);
   }
 
   return (
@@ -442,7 +439,7 @@ export function SendView({ params: { id } }: SendViewProps) {
         back={() => {
           TempTransactionStorage.removeItem("send");
           setQty("");
-          goBack();
+          back();
         }}
         title={browser.i18n.getMessage("send")}
       />

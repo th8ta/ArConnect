@@ -1,82 +1,53 @@
 import { Card, Spacer, Text, useInput } from "@arconnect/components";
-import SettingListItem, {
-  type Props as SettingItemData
-} from "~components/dashboard/list/SettingListItem";
+import SettingListItem from "~components/dashboard/list/SettingListItem";
 import { SettingsList } from "~components/dashboard/list/BaseElement";
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "wouter";
-import {
-  GridIcon,
-  InformationIcon,
-  TrashIcon,
-  WalletIcon,
-  BellIcon
-} from "@iconicicons/react";
-import {
-  Coins04,
-  Users01,
-  ChevronUp,
-  ChevronDown
-} from "@untitled-ui/icons-react";
-import WalletSettings from "~components/dashboard/subsettings/WalletSettings";
-import TokenSettings from "~components/dashboard/subsettings/TokenSettings";
-import AppSettings from "~components/dashboard/subsettings/AppSettings";
-import ContactSettings from "~components/dashboard/subsettings/ContactSettings";
-import AddWallet from "~components/dashboard/subsettings/AddWallet";
-import AddContact from "~components/dashboard/subsettings/AddContact";
-import Applications from "~components/dashboard/Applications";
-import SettingEl from "~components/dashboard/Setting";
-import Wallets from "~components/dashboard/Wallets";
-import Application from "~applications/application";
-import Tokens from "~components/dashboard/Tokens";
-import Contacts from "~components/dashboard/Contacts";
-import About from "~components/dashboard/About";
-import Reset from "~components/dashboard/Reset";
+import { ChevronUp, ChevronDown } from "@untitled-ui/icons-react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import settings, { getSetting } from "~settings";
 import { PageType, trackPage } from "~utils/analytics";
-import SignSettings from "~components/dashboard/SignSettings";
-import AddToken from "~components/dashboard/subsettings/AddToken";
-import NotificationSettings from "~components/dashboard/NotificationSettings";
 import SearchInput from "~components/dashboard/SearchInput";
+import { useLocation } from "~wallets/router/router.utils";
+import { SettingDashboardView } from "~components/dashboard/Setting";
+import {
+  advancedSettings,
+  allSettings,
+  basicSettings,
+  isDashboardRouteConfig,
+  type DashboardRouteConfig
+} from "~routes/dashboard/dashboard.constants";
+import type Setting from "~settings/setting";
+import {
+  DASHBOARD_SUB_SETTING_ROUTES,
+  type DashboardRoutePath
+} from "~wallets/router/dashboard/dashboard.routes";
+import { Redirect } from "~wallets/router/components/redirect/Redirect";
+import { Routes } from "~wallets/router/routes.component";
 
-export default function Settings({ params }: Props) {
-  // router location
-  const [, setLocation] = useLocation();
+export interface SettingsDashboardViewParams {
+  setting?: string;
+  subsetting?: string;
+}
+
+export interface SettingsDashboardViewProps {
+  params: SettingsDashboardViewParams;
+}
+
+export function SettingsDashboardView({ params }: SettingsDashboardViewProps) {
+  const { navigate } = useLocation();
+  const { setting: activeSettingParam } = params;
 
   const [showAdvanced, setShowAdvanced] = useState(false);
-
-  // search
   const searchInput = useInput();
 
-  // active setting val
-  const activeSetting = useMemo(() => params.setting, [params.setting]);
-
-  // whether the active setting is a setting defined
-  // in "~settings/index.ts" or not
-  const definedSetting = useMemo(
-    () => !!settings.find((s) => s.name === activeSetting),
-    [activeSetting]
-  );
-
-  // active subsetting val
-  const activeSubSetting = useMemo(
-    () => params.subsetting,
-    [params.subsetting]
-  );
-
-  // active app setting
-  const activeAppSetting = useMemo(() => {
-    if (!activeSubSetting || activeSetting !== "apps") {
-      return undefined;
-    }
-
-    return new Application(decodeURIComponent(activeSubSetting));
-  }, [activeSubSetting]);
+  const actualActiveSetting = useMemo(() => {
+    return allSettings.find(({ name }) => name === activeSettingParam);
+  }, [activeSettingParam]);
 
   // search filter function
-  function filterSearchResults(setting: Omit<Setting, "active">) {
+  function filterSearchResults(
+    dashboardRouteConfig: DashboardRouteConfig | Setting
+  ) {
     const query = searchInput.state;
 
     if (query === "" || !query) {
@@ -84,54 +55,69 @@ export default function Settings({ params }: Props) {
     }
 
     return (
-      setting.name.toLowerCase().includes(query.toLowerCase()) ||
+      dashboardRouteConfig.name.toLowerCase().includes(query.toLowerCase()) ||
       browser.i18n
-        .getMessage(setting.displayName)
+        .getMessage(dashboardRouteConfig.displayName)
         .toLowerCase()
         .includes(query.toLowerCase()) ||
       browser.i18n
-        .getMessage(setting.description)
+        .getMessage(dashboardRouteConfig.description)
         .toLowerCase()
         .includes(query.toLowerCase())
     );
   }
-
-  // redirect to the first setting
-  // if none is selected
-  useEffect(() => {
-    if (!!activeSetting) return;
-    setLocation("/" + allSettings[0].name);
-  }, [activeSetting]);
 
   // Segment
   useEffect(() => {
     trackPage(PageType.SETTINGS);
   }, []);
 
+  // Redirect to the first setting if none is selected:
+  if (!actualActiveSetting) {
+    return <Redirect to={`/${allSettings[0].name}` as DashboardRoutePath} />;
+  }
+
+  if (
+    isDashboardRouteConfig(actualActiveSetting) &&
+    !actualActiveSetting.component
+  ) {
+    throw new Error(
+      `Missing component for ${actualActiveSetting.displayName} (${actualActiveSetting.name}) setting`
+    );
+  }
+
   return (
     <SettingsWrapper>
       <Panel normalPadding showRightBorder>
         <Spacer y={0.45} />
+
         <SettingsTitle>{browser.i18n.getMessage("settings")}</SettingsTitle>
+
         <Spacer y={0.85} />
+
         <SearchInput
           placeholder={browser.i18n.getMessage("search")}
           {...searchInput.bindings}
         />
+
         <Spacer y={0.85} />
+
         <Text noMargin>{browser.i18n.getMessage("general")}</Text>
+
         <Spacer y={0.85} />
+
         <SettingsList>
           {basicSettings.filter(filterSearchResults).map((setting, i) => (
             <SettingListItem
               displayName={setting.displayName}
               description={setting.description}
               icon={setting.icon}
-              active={activeSetting === setting.name}
-              onClick={() => setLocation("/" + setting.name)}
+              active={activeSettingParam === setting.name}
+              onClick={() => navigate(`/${setting.name}` as DashboardRoutePath)}
               key={`basic-settings-${i}`}
             />
           ))}
+
           <AdvancedWrapper>
             <Text noMargin>{browser.i18n.getMessage("advanced")}</Text>
             <div
@@ -144,7 +130,8 @@ export default function Settings({ params }: Props) {
               <Action as={showAdvanced ? ChevronUp : ChevronDown} />
             </div>
           </AdvancedWrapper>
-          {showAdvanced &&
+
+          {(showAdvanced || searchInput.state) &&
             advancedSettings
               .filter(filterSearchResults)
               .map((setting, i) => (
@@ -152,77 +139,41 @@ export default function Settings({ params }: Props) {
                   displayName={setting.displayName}
                   description={setting.description}
                   icon={setting.icon}
-                  active={activeSetting === setting.name}
-                  onClick={() => setLocation("/" + setting.name)}
+                  active={activeSettingParam === setting.name}
+                  onClick={() =>
+                    navigate(`/${setting.name}` as DashboardRoutePath)
+                  }
                   key={`advanced-settings-${i}`}
                 />
               ))}
         </SettingsList>
       </Panel>
+
       <Panel normalPadding showRightBorder>
         <Spacer y={0.45} />
+
         <MidSettingsTitle>
-          {allSettings &&
-            browser.i18n.getMessage(
-              allSettings.find((s) => s.name === activeSetting)?.displayName ||
-                ""
-            )}
+          {browser.i18n.getMessage(actualActiveSetting?.displayName || "")}
         </MidSettingsTitle>
+
         <Spacer y={0.85} />
-        {activeSetting &&
-          ((definedSetting && (
-            <SettingEl
-              setting={settings.find((s) => s.name === activeSetting)}
-              key={activeSetting}
-            />
-          )) ||
-            (() => {
-              const Component = allSettings.find(
-                (s) => s.name === activeSetting
-              )?.component;
 
-              if (!Component) {
-                return <></>;
-              }
-
-              return <Component />;
-            })())}
-      </Panel>
-      <Panel>
-        {!!activeAppSetting && (
-          <AppSettings
-            app={activeAppSetting}
-            showTitle
-            key={activeAppSetting.url}
+        {isDashboardRouteConfig(actualActiveSetting) ? (
+          <actualActiveSetting.component />
+        ) : (
+          <SettingDashboardView
+            key={activeSettingParam}
+            setting={actualActiveSetting}
           />
         )}
-        {activeSetting === "wallets" &&
-          !!activeSubSetting &&
-          activeSubSetting !== "new" && (
-            <WalletSettings address={activeSubSetting} key={activeSubSetting} />
-          )}
-        {activeSetting === "wallets" && activeSubSetting === "new" && (
-          <AddWallet key="new-wallet" />
-        )}
-        {activeSetting === "tokens" && activeSubSetting !== "new" && (
-          <TokenSettings id={activeSubSetting} />
-        )}
-        {activeSetting === "tokens" && activeSubSetting === "new" && (
-          <AddToken key="new-token" />
-        )}
-        {activeSetting === "contacts" &&
-          activeSubSetting &&
-          activeSubSetting.startsWith("new") && (
-            <AddContact key="new-contacts" />
-          )}
-        {activeSetting === "contacts" &&
-          activeSubSetting &&
-          !activeSubSetting.startsWith("new") && (
-            <ContactSettings
-              address={activeSubSetting}
-              key={activeSubSetting}
-            />
-          )}
+      </Panel>
+
+      <Panel>
+        <Routes
+          routes={DASHBOARD_SUB_SETTING_ROUTES}
+          diffLocation
+          pageComponent={null}
+        />
       </Panel>
     </SettingsWrapper>
   );
@@ -331,95 +282,3 @@ const MidSettingsTitle = styled(Text).attrs({
   font-weight: 600;
   text-transform: capitalize;
 `;
-
-interface Setting extends SettingItemData {
-  name: string;
-  component?: (...args: any[]) => JSX.Element;
-}
-
-interface Props {
-  params: {
-    setting?: string;
-    subsetting?: string;
-  };
-}
-
-const basicSettings: Omit<Setting, "active">[] = [
-  {
-    name: "wallets",
-    displayName: "setting_wallets",
-    description: "setting_wallets_description",
-    icon: WalletIcon,
-    component: Wallets
-  },
-  {
-    name: "apps",
-    displayName: "setting_apps",
-    description: "setting_apps_description",
-    icon: GridIcon,
-    component: Applications
-  },
-  {
-    name: "tokens",
-    displayName: "setting_tokens",
-    description: "setting_tokens_description",
-    icon: Coins04,
-    component: Tokens
-  },
-  {
-    name: "contacts",
-    displayName: "setting_contacts",
-    description: "setting_contacts_description",
-    icon: Users01,
-    component: Contacts
-  },
-  {
-    name: "notifications",
-    displayName: "setting_notifications",
-    description: "setting_notifications_description",
-    icon: BellIcon,
-    component: NotificationSettings
-  },
-  getSetting("display_theme") as Omit<Setting, "active">,
-  {
-    name: "about",
-    displayName: "setting_about",
-    description: "setting_about_description",
-    icon: InformationIcon,
-    component: About
-  }
-];
-
-const advancedSettings: Omit<Setting, "active">[] = [
-  {
-    name: "sign_settings",
-    displayName: "setting_sign_settings",
-    description: "setting_sign_notification_description",
-    icon: BellIcon,
-    component: SignSettings
-  },
-  ...settings
-    .filter((setting) => setting.name !== "display_theme")
-    .map((setting) => ({
-      name: setting.name,
-      displayName: setting.displayName,
-      description: setting.description,
-      icon: setting.icon
-    })),
-  // TODO
-  /*{
-    name: "config",
-    displayName: "setting_config",
-    description: "setting_config_description",
-    icon: DownloadIcon
-  },*/
-  {
-    name: "reset",
-    displayName: "setting_reset",
-    description: "setting_reset_description",
-    icon: TrashIcon,
-    component: Reset
-  }
-];
-
-const allSettings = [...basicSettings, ...advancedSettings];

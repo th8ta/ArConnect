@@ -1,9 +1,9 @@
 import HeadV2 from "~components/popup/HeadV2";
 import browser from "webextension-polyfill";
-import { default as ContactSettingsComponent } from "~components/dashboard/subsettings/ContactSettings";
+import { ContactSettingsDashboardView } from "~components/dashboard/subsettings/ContactSettings";
 import styled from "styled-components";
-import { useLocation } from "wouter";
 import type { CommonRouteProps } from "~wallets/router/router.types";
+import { useLocation } from "~wallets/router/router.utils";
 
 export interface ContactSettingsViewParams {
   address: string;
@@ -12,19 +12,17 @@ export interface ContactSettingsViewParams {
 export type ContactSettingsViewProps =
   CommonRouteProps<ContactSettingsViewParams>;
 
-export function ContactSettingsView({
-  params: { address }
-}: ContactSettingsViewProps) {
-  const [, setLocation] = useLocation();
+export function ContactSettingsView({ params }: ContactSettingsViewProps) {
+  const { navigate } = useLocation();
 
   return (
     <>
       <HeadV2
         title={browser.i18n.getMessage("setting_contact")}
-        back={() => setLocation("/quick-settings/contacts")}
+        back={() => navigate("/quick-settings/contacts")}
       />
       <Wrapper>
-        <ContactSettingsComponent address={address} isQuickSetting={true} />
+        <ContactSettingsDashboardView isQuickSetting params={params} />
       </Wrapper>
     </>
   );

@@ -74,5 +74,3 @@ export function UnlockAuthRequestView() {
     </Wrapper>
   );
 }
-
-export const UnlockAuthRequestPage = withPage(UnlockAuthRequestView);

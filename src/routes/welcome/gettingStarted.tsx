@@ -6,23 +6,37 @@ import browser from "webextension-polyfill";
 
 import styled from "styled-components";
 
-import Completed from "./gettingStarted/completed";
-import Enabled from "./gettingStarted/enableNotifications";
-import Connect from "./gettingStarted/connect";
-import { useLocation } from "wouter";
-import Explore from "./gettingStarted/explore";
+import { CompletedWelcomeView } from "./gettingStarted/completed";
+import { EnableNotificationsWelcomeView } from "./gettingStarted/enableNotifications";
+import { ConnectWelcomeView } from "./gettingStarted/connect";
+import { ExploreWelcomeView } from "./gettingStarted/explore";
+import { useLocation } from "~wallets/router/router.utils";
+import type { CommonRouteProps } from "~wallets/router/router.types";
+import { Redirect } from "~wallets/router/components/redirect/Redirect";
 
-const gettingStartedPages = [
-  <Completed />,
-  <Enabled />,
-  <Explore />,
-  <Connect />
+const Views = [
+  CompletedWelcomeView,
+  EnableNotificationsWelcomeView,
+  ExploreWelcomeView,
+  ConnectWelcomeView
 ];
 
-export default function GettingStarted({ page }) {
-  // animate content sice
+export interface GettingStartedWelcomeViewParams {
+  // TODO: Use a nested router instead:
+  page: string;
+}
+
+export type GettingStartedWelcomeViewProps =
+  CommonRouteProps<GettingStartedWelcomeViewParams>;
+
+export function GettingStartedWelcomeView({
+  params: { page: pageParam }
+}: GettingStartedWelcomeViewProps) {
+  const { navigate } = useLocation();
+  const page = Number(pageParam);
+
+  // animate content size
   const [contentSize, setContentSize] = useState<number>(0);
-  const [, setLocation] = useLocation();
   const contentRef = useCallback<(el: HTMLDivElement) => void>((el) => {
     if (!el) return;
 
@@ -34,15 +48,21 @@ export default function GettingStarted({ page }) {
     obs.observe(el);
   }, []);
 
-  const navigate = (pageNum: number) => {
+  if (isNaN(page) || page < 1 || page > 5) {
+    return <Redirect to="/getting-started/1" />;
+  }
+
+  const navigateToPage = (pageNum: number) => {
     if (pageNum < 5) {
-      setLocation(`/getting-started/${pageNum}`);
+      navigate(`/getting-started/${pageNum}`);
     } else {
       // reset before unload
       window.onbeforeunload = null;
       window.top.close();
     }
   };
+
+  const View = Views[page - 1];
 
   return (
     <Wrapper>
@@ -59,21 +79,22 @@ export default function GettingStarted({ page }) {
           <PageWrapper style={{ height: contentSize }}>
             <AnimatePresence initial={false}>
               <Page key={page} ref={contentRef}>
-                {gettingStartedPages[page - 1]}
+                <View />
               </Page>
             </AnimatePresence>
           </PageWrapper>
         </Content>
         <Footer>
           <PageIndicatorContainer>
-            {gettingStartedPages.map((_, i) => (
+            {Views.map((_, i) => (
               <PageIndicator
-                onClick={() => navigate(i + 1)}
+                key={i}
                 active={page === i + 1}
+                onClick={() => navigateToPage(i + 1)}
               />
             ))}
           </PageIndicatorContainer>
-          <ButtonV2 fullWidth onClick={() => navigate(page + 1)}>
+          <ButtonV2 fullWidth onClick={() => navigateToPage(page + 1)}>
             {browser.i18n.getMessage(page + 1 < 4 ? "next" : "done")}
           </ButtonV2>
         </Footer>

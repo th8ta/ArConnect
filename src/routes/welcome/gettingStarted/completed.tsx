@@ -6,7 +6,7 @@ import styled from "styled-components";
 import { useEffect } from "react";
 import { PageType, trackPage } from "~utils/analytics";
 
-export default function Completed() {
+export function CompletedWelcomeView() {
   // Segment
   useEffect(() => {
     trackPage(PageType.SETUP_PIN);

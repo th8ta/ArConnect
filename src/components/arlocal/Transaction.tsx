@@ -1,5 +1,5 @@
 import type { CreateTransactionInterface } from "arweave/web/common";
-import { getActiveKeyfile, useDecryptionKey } from "~wallets";
+import { getActiveKeyfile } from "~wallets";
 import { InputWithBtn, InputWrapper } from "./InputWrapper";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import { PlusIcon, TrashIcon } from "@iconicicons/react";
@@ -21,10 +21,11 @@ import type Arweave from "arweave";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
+import { useWallets } from "~utils/wallets/wallets.hooks";
 
-export default function Transaction({ arweave }: Props) {
-  // decryption key to check if a password is required
-  const [decryptionKey] = useDecryptionKey();
+export function ArLocalTransaction({ arweave }: Props) {
+  // used to check if a password is required
+  const { walletStatus } = useWallets();
 
   // toast
   const { setToast } = useToasts();
@@ -99,7 +100,7 @@ export default function Transaction({ arweave }: Props) {
     }
 
     // unlock if there isn't a decryption key
-    if (!decryptionKey) {
+    if (walletStatus === "locked") {
       const unlockResult = await unlock(passwordInput.state);
 
       if (!unlockResult) {
@@ -308,7 +309,7 @@ export default function Transaction({ arweave }: Props) {
       <FileInput inputRef={fileInput}>
         {browser.i18n.getMessage("dragAndDropFile")}
       </FileInput>
-      {!decryptionKey && (
+      {walletStatus === "locked" && (
         <>
           <Spacer y={1} />
           <Input

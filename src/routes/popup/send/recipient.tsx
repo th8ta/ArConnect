@@ -18,7 +18,7 @@ import type Transaction from "arweave/web/lib/transaction";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { findGateway } from "~gateways/wayfinder";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
+import { useLocation } from "~wallets/router/router.utils";
 import browser from "webextension-polyfill";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
@@ -36,6 +36,8 @@ export type RecipientViewProps = CommonRouteProps<RecipientViewParams>;
 export function RecipientView({
   params: { tokenID, qty, message }
 }: RecipientViewProps) {
+  const { navigate } = useLocation();
+
   // transaction target input
   const targetInput = useInput();
 
@@ -99,9 +101,6 @@ export function RecipientView({
     );
   }, [lastRecipients, targetInput]);
 
-  // router push
-  const [push] = useHistory();
-
   // toasts
   const { setToast } = useToasts();
 
@@ -155,7 +154,7 @@ export function RecipientView({
       await TempTransactionStorage.set(TRANSFER_TX_STORAGE, storedTx);
 
       // push to auth & signature
-      push(`/send/auth/${tokenID}`);
+      navigate(`/send/auth/${tokenID}`);
     } catch {
       return setToast({
         type: "error",

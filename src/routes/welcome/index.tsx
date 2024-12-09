@@ -6,7 +6,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import styled, { keyframes } from "styled-components";
 import { useStorage } from "@plasmohq/storage/hook";
 import browser from "webextension-polyfill";
-import { useLocation } from "wouter";
 import {
   type MutableRefObject,
   useEffect,
@@ -16,8 +15,11 @@ import {
 } from "react";
 import { popoverAnimation } from "~components/popup/WalletSwitcher";
 import { PageType, trackPage } from "~utils/analytics";
+import { useLocation } from "~wallets/router/router.utils";
 
-export default function Home() {
+export function HomeWelcomeView() {
+  const { navigate } = useLocation();
+
   // button refs
   const startButton = useRef<HTMLButtonElement>();
   const walletButton = useRef<HTMLButtonElement>();
@@ -52,9 +54,6 @@ export default function Home() {
     [windowDimensions]
   );
 
-  // router
-  const [, setLocation] = useLocation();
-
   // migration available
   const [oldState] = useStorage({
     key: OLD_STORAGE_NAME,
@@ -82,7 +81,7 @@ export default function Home() {
               ref={startButton}
               onClick={async () => {
                 await animate(startButton);
-                setLocation("/start/1");
+                navigate("/start/1");
               }}
             >
               {browser.i18n.getMessage("get_me_started")}
@@ -93,7 +92,7 @@ export default function Home() {
               ref={walletButton}
               onClick={async () => {
                 await animate(walletButton);
-                setLocation("/load/1");
+                navigate("/load/1");
               }}
             >
               {browser.i18n.getMessage("have_wallet")}

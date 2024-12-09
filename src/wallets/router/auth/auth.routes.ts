@@ -1,13 +1,28 @@
 import { AllowanceAuthRequestView } from "~routes/auth/allowance";
 import { BatchSignDataItemAuthRequestView } from "~routes/auth/batchSignDataItem";
 import { ConnectAuthRequestView } from "~routes/auth/connect";
+import { LoadingAuthRequestView } from "~routes/auth/loading";
 import { SignAuthRequestView } from "~routes/auth/sign";
 import { SignatureAuthRequestView } from "~routes/auth/signature";
 import { SignDataItemAuthRequestView } from "~routes/auth/signDataItem";
 import { SignKeystoneAuthRequestView } from "~routes/auth/signKeystone";
 import { SubscriptionAuthRequestView } from "~routes/auth/subscription";
 import { TokenAuthRequestView } from "~routes/auth/token";
+import { UnlockAuthRequestView } from "~routes/auth/unlock";
+import { getExtensionOverrides } from "~wallets/router/extension/extension.routes";
 import type { RouteConfig } from "~wallets/router/router.types";
+
+export type AuthRoutePath =
+  | "/"
+  | `/connect/${string}`
+  | `/allowance/${string}`
+  | `/token/${string}`
+  | `/sign/${string}`
+  | `/signKeystone/${string}`
+  | `/signature/${string}`
+  | `/subscription/${string}`
+  | `/signDataItem/${string}`
+  | `/batchSignDataItem/${string}`;
 
 export const AuthPaths = {
   Connect: "/connect/:authID",
@@ -19,9 +34,13 @@ export const AuthPaths = {
   Subscription: "/subscription/:authID",
   SignDataItem: "/signDataItem/:authID",
   BatchSignDataItem: "/batchSignDataItem/:authID"
-} as const;
+} as const satisfies Record<string, AuthRoutePath>;
 
 export const AUTH_ROUTES = [
+  ...getExtensionOverrides({
+    unlockView: UnlockAuthRequestView,
+    loadingView: LoadingAuthRequestView
+  }),
   {
     path: AuthPaths.Connect,
     component: ConnectAuthRequestView

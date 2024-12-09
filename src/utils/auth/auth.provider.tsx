@@ -34,7 +34,7 @@ import { isomorphicOnMessage } from "~utils/messaging/messaging.utils";
 import type { IBridgeMessage } from "@arconnect/webext-bridge";
 import { log, LOG_GROUP } from "~utils/log/log.utils";
 import { isError } from "~utils/error/error.utils";
-import type { InitialScreenType } from "~wallets/setup/wallet-setup.types";
+import type { RouteOverride } from "~wallets/router/router.types";
 
 interface AuthRequestsContextState {
   authRequests: AuthRequest[];
@@ -42,21 +42,9 @@ interface AuthRequestsContextState {
   lastCompletedAuthRequest: null | AuthRequest;
 }
 
-interface AuthRequestContextData extends AuthRequestsContextState {
+interface AuthRequestsContextData extends AuthRequestsContextState {
   setCurrentAuthRequestIndex: (currentAuthRequestIndex: number) => void;
   completeAuthRequest: (authID: string, data: any) => Promise<void>;
-}
-
-export const AuthRequestsContext = createContext<AuthRequestContextData>({
-  authRequests: [],
-  currentAuthRequestIndex: 0,
-  lastCompletedAuthRequest: null,
-  setCurrentAuthRequestIndex: () => {},
-  completeAuthRequest: async () => {}
-});
-
-interface AuthRequestProviderPRops extends PropsWithChildren {
-  initialScreenType: InitialScreenType;
 }
 
 const AUTH_REQUESTS_CONTEXT_INITIAL_STATE: AuthRequestsContextState = {
@@ -65,10 +53,20 @@ const AUTH_REQUESTS_CONTEXT_INITIAL_STATE: AuthRequestsContextState = {
   lastCompletedAuthRequest: null
 };
 
+export const AuthRequestsContext = createContext<AuthRequestsContextData>({
+  ...AUTH_REQUESTS_CONTEXT_INITIAL_STATE,
+  setCurrentAuthRequestIndex: () => {},
+  completeAuthRequest: async () => {}
+});
+
+interface AuthRequestProviderProps extends PropsWithChildren {
+  useStatusOverride: () => RouteOverride;
+}
+
 export function AuthRequestsProvider({
   children,
-  initialScreenType
-}: AuthRequestProviderPRops) {
+  useStatusOverride
+}: AuthRequestProviderProps) {
   const [
     { authRequests, currentAuthRequestIndex, lastCompletedAuthRequest },
     setAuthRequestContextState
@@ -435,6 +433,8 @@ export function AuthRequestsProvider({
     });
   }, []);
 
+  const statusOverride = useStatusOverride();
+
   useEffect(() => {
     let clearCloseAuthPopupTimeout = () => {};
 
@@ -442,11 +442,12 @@ export function AuthRequestsProvider({
       authRequests.length > 0 &&
       authRequests.every((authRequest) => authRequest.status !== "pending");
 
-    if (initialScreenType === "default" && authRequests.length === 0) {
+    if (statusOverride === null && authRequests.length === 0) {
+      // TODO: Maybe move to the app entry point?
       // Close the popup if an AuthRequest doesn't arrive in less than `AUTH_POPUP_REQUEST_WAIT_MS` (1s), unless the
       // wallet is locked (no timeout in that case):
       clearCloseAuthPopupTimeout = closeAuthPopup(AUTH_POPUP_REQUEST_WAIT_MS);
-    } else if (initialScreenType !== "default") {
+    } else if (statusOverride) {
       // If the user doesn't unlock the wallet in 15 minutes, or somehow the popup gets stuck into any other state for
       // more than that, we close it:
       clearCloseAuthPopupTimeout = closeAuthPopup(
@@ -460,12 +461,12 @@ export function AuthRequestsProvider({
       clearCloseAuthPopupTimeout = closeAuthPopup(AUTH_POPUP_CLOSING_DELAY_MS);
     }
 
+    // Not needed in the embedded wallet, but can be left alone. It won't do anything:
     function handleBeforeUnload() {
-      // Send cancel event for all pending requests if the popup is closed by the user:
-
       authRequests.forEach((authRequest) => {
         if (authRequest.status !== "pending") return;
 
+        // Send cancel event for all pending requests if the popup is closed by the user:
         replyToAuthRequest(
           authRequest.type,
           authRequest.authID,
@@ -474,7 +475,6 @@ export function AuthRequestsProvider({
       });
     }
 
-    // TODO: Not in the embedded wallet:
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
@@ -482,12 +482,7 @@ export function AuthRequestsProvider({
 
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [
-    initialScreenType,
-    authRequests,
-    currentAuthRequestIndex,
-    closeAuthPopup
-  ]);
+  }, [statusOverride, authRequests, currentAuthRequestIndex, closeAuthPopup]);
 
   return (
     <AuthRequestsContext.Provider

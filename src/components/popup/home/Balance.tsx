@@ -136,12 +136,16 @@ export default function Balance() {
                 "*".repeat(balance.toFixed(2).length)}
               <Ticker>AR</Ticker>
             </BalanceText>
-            <FiatBalanceText noMargin>
-              {(!hideBalance &&
-                formatFiatBalance(fiat, currency.toLowerCase())) ||
-                "*".repeat(fiat.toFixed(2).length) +
-                  " " +
-                  currency.toUpperCase()}
+
+            <DivFiatBalanceRow>
+              <FiatBalanceText noMargin>
+                {(!hideBalance &&
+                  formatFiatBalance(fiat, currency.toLowerCase())) ||
+                  "*".repeat(fiat.toFixed(2).length) +
+                    " " +
+                    currency.toUpperCase()}
+              </FiatBalanceText>
+
               <IconButtons>
                 <TooltipV2
                   content={browser.i18n.getMessage(
@@ -164,7 +168,7 @@ export default function Balance() {
                   />
                 </TooltipV2>
               </IconButtons>
-            </FiatBalanceText>
+            </DivFiatBalanceRow>
           </div>
         )}
         {activeAppData && (
@@ -319,10 +323,14 @@ const Ticker = styled.span`
   margin-left: 0.33rem;
 `;
 
-const FiatBalanceText = styled(GraphText)`
+const DivFiatBalanceRow = styled.div`
   display: flex;
   align-items: center;
   gap: 0.41rem;
+  font-size: 1rem;
+`;
+
+const FiatBalanceText = styled(GraphText)`
   font-weight: 400;
 `;
 

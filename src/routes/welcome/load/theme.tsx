@@ -1,5 +1,4 @@
 import { ButtonV2, Spacer, Text } from "@arconnect/components";
-import { useLocation, useRoute } from "wouter";
 import {
   ArrowRightIcon,
   DashboardIcon,
@@ -11,14 +10,17 @@ import useSetting from "~settings/hook";
 import styled from "styled-components";
 import { useEffect } from "react";
 import { PageType, trackPage } from "~utils/analytics";
+import { useLocation } from "~wallets/router/router.utils";
+import type { SetupWelcomeViewParams } from "~routes/welcome/setup";
+import type { CommonRouteProps } from "~wallets/router/router.types";
 
-export default function Theme() {
+export type ThemeWelcomeViewProps = CommonRouteProps<SetupWelcomeViewParams>;
+
+export function ThemeWelcomeView({ params }: ThemeWelcomeViewProps) {
+  const { navigate } = useLocation();
+
   // theme
   const [theme, setTheme] = useSetting("display_theme");
-
-  // route
-  const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
-  const [, setLocation] = useLocation();
 
   // Segment
   // TODO: specify if this is an imported or new wallet
@@ -50,7 +52,7 @@ export default function Theme() {
       <ButtonV2
         fullWidth
         onClick={() =>
-          setLocation(`/${params.setup}/${Number(params.page) + 1}`)
+          navigate(`/${params.setupMode}/${Number(params.page) + 1}`)
         }
       >
         {browser.i18n.getMessage("next")}

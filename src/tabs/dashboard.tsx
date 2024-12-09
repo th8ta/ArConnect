@@ -1,18 +1,32 @@
-import { useHashLocation } from "~wallets/router/hash/hash-router.hook";
-import { Router, Route } from "wouter";
+import { useHashLocation } from "wouter/use-hash-location";
+import { Router as Wouter, Route as Woute } from "wouter";
 
-import Settings from "~routes/dashboard";
+import { SettingsDashboardView } from "~routes/dashboard";
 import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
-import { useBrowserExtensionWalletSetUp } from "~wallets/setup/browser-extension/browser-extension-wallet-setup.hook";
+import { useEffect } from "react";
+import { handleSyncLabelsAlarm } from "~api/background/handlers/alarms/sync-labels/sync-labels-alarm.handler";
+import { WalletsProvider } from "~utils/wallets/wallets.provider";
 
-export default function Dashboard() {
-  useBrowserExtensionWalletSetUp();
+export function DashboardApp() {
+  useEffect(() => {
+    handleSyncLabelsAlarm();
+  }, []);
 
   return (
+    <Woute path="/:setting?/:subsetting?" component={SettingsDashboardView} />
+  );
+}
+
+export function DashboardAppRoot() {
+  return (
     <ArConnectThemeProvider>
-      <Router hook={useHashLocation}>
-        <Route path="/:setting?/:subsetting?" component={Settings} />
-      </Router>
+      <WalletsProvider>
+        <Wouter hook={useHashLocation}>
+          <DashboardApp />
+        </Wouter>
+      </WalletsProvider>
     </ArConnectThemeProvider>
   );
 }
+
+export default DashboardAppRoot;

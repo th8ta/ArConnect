@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import styled from "styled-components";
 
 // inspired by arweave.org
-export default function Arweave() {
+export function ArweaveWelcomeView() {
   const images = Array(27)
     .fill("")
     .map(

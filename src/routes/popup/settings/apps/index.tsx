@@ -2,7 +2,6 @@ import { Spacer, Text, useInput } from "@arconnect/components";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { useLocation } from "wouter";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -12,8 +11,17 @@ import SearchInput from "~components/dashboard/SearchInput";
 import HeadV2 from "~components/popup/HeadV2";
 import useActiveTab from "~applications/useActiveTab";
 import { getAppURL } from "~utils/format";
+import { useLocation } from "~wallets/router/router.utils";
+
+interface SettingsAppData {
+  name: string;
+  url: string;
+  icon?: string;
+}
 
 export function ApplicationsView() {
+  const { navigate } = useLocation();
+
   // connected apps
   const [connectedApps] = useStorage<string[]>(
     {
@@ -46,9 +54,6 @@ export function ApplicationsView() {
     })();
   }, [connectedApps]);
 
-  // router
-  const [, setLocation] = useLocation();
-
   // active app
   const activeTab = useActiveTab();
   const activeApp = useMemo<Application | undefined>(() => {
@@ -80,7 +85,7 @@ export function ApplicationsView() {
     <>
       <HeadV2
         title={browser.i18n.getMessage("setting_apps")}
-        back={() => setLocation("/quick-settings")}
+        back={() => navigate("/quick-settings")}
       />
       <Wrapper>
         <SearchWrapper>
@@ -111,9 +116,7 @@ export function ApplicationsView() {
               icon={app.icon}
               active={false}
               onClick={() =>
-                setLocation(
-                  "/quick-settings/apps/" + encodeURIComponent(app.url)
-                )
+                navigate(`/quick-settings/apps/${encodeURIComponent(app.url)}`)
               }
               key={i}
             />
@@ -126,12 +129,6 @@ export function ApplicationsView() {
       </Wrapper>
     </>
   );
-}
-
-interface SettingsAppData {
-  name: string;
-  url: string;
-  icon?: string;
 }
 
 const Wrapper = styled.div`

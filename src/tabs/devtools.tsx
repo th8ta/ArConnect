@@ -4,8 +4,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { getTab } from "~applications/tab";
 import { getAppURL } from "~utils/format";
-import { useNoWallets } from "~wallets";
-import AppSettings from "~components/dashboard/subsettings/AppSettings";
+import { AppSettingsDashboardView } from "~components/dashboard/subsettings/AppSettings";
 import Connector from "~components/devtools/Connector";
 import NoWallets from "~components/devtools/NoWallets";
 import Application from "~applications/application";
@@ -13,6 +12,7 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { useRemoveCover } from "~wallets/setup/non/non-wallet-setup.hook";
+import { useWallets } from "~utils/wallets/wallets.hooks";
 
 export default function DevTools() {
   useRemoveCover();
@@ -47,13 +47,12 @@ export default function DevTools() {
     return connectedApps.includes(app.url);
   }, [app, connectedApps]);
 
-  // no wallets
-  const noWallets = useNoWallets();
+  const { walletStatus } = useWallets();
 
   return (
     <ArConnectThemeProvider>
       <Wrapper>
-        {noWallets && <NoWallets />}
+        {walletStatus === "noWallets" && <NoWallets />}
         <CardBody>
           <Title>ArConnect {browser.i18n.getMessage("devtools")}</Title>
           <ConnectionText>
@@ -64,7 +63,9 @@ export default function DevTools() {
           </ConnectionText>
           <Spacer y={1.5} />
           {(!connected && app && <Connector appUrl={app.url} />) ||
-            (connected && app && <AppSettings app={app} />)}
+            (connected && app && (
+              <AppSettingsDashboardView noTitle params={{ url: app.url }} />
+            ))}
         </CardBody>
       </Wrapper>
     </ArConnectThemeProvider>

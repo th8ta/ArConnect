@@ -9,85 +9,74 @@ import {
 import { Card, Spacer, useToasts } from "@arconnect/components";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { jwkFromMnemonic } from "~wallets/generator";
-import { useLocation, useRoute } from "wouter";
 import { ArrowLeftIcon } from "@iconicicons/react";
 import browser from "webextension-polyfill";
 import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
 import Arweave from "arweave";
-
-import GenerateDone from "./generate/done";
-import Confirm from "./generate/confirm";
-import Backup from "./generate/backup";
-
-import Password from "./load/password";
-import Wallets from "./load/wallets";
-import LoadDone from "./load/done";
-import Theme from "./load/theme";
 import { defaultGateway } from "~gateways/gateway";
 import Pagination, { Status } from "~components/Pagination";
 import { getWalletKeyLength } from "~wallets";
+import { useLocation } from "~wallets/router/router.utils";
+import type { CommonRouteProps } from "~wallets/router/router.types";
 
-/** Wallet generate pages */
-const generatePages = [
-  <Password />,
-  <Backup />,
-  <Confirm />,
-  <Theme />,
-  <GenerateDone />
-];
-const generateTitles = [
-  "password",
-  "backup",
-  "confirm",
-  "setting_display_theme",
-  "done"
-];
+// Shared:
+import { PasswordWelcomeView } from "./load/password";
+import { ThemeWelcomeView } from "./load/theme";
 
-/** Wallet load pages */
-const loadPages = [<Password />, <Wallets />, <Theme />, <LoadDone />];
-const loadTitles = [
-  "password",
-  "setting_wallets",
-  "setting_display_theme",
-  "done"
-];
+// Generate:
+import { BackupWelcomeView } from "./generate/backup";
+import { ConfirmWelcomeView } from "./generate/confirm";
+import { GenerateDoneWelcomeView } from "./generate/done";
 
-export default function Setup({ setupMode, page }: Props) {
-  // location
-  const [, setLocation] = useLocation();
-  const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
+// Load:
+import { WalletsWelcomeView } from "./load/wallets";
+import { LoadDoneWelcomeView } from "./load/done";
+import { Redirect } from "~wallets/router/components/redirect/Redirect";
 
-  // total page count
-  const pageCount = useMemo(
-    () => (setupMode === "load" ? loadTitles : generateTitles).length,
-    [setupMode]
-  );
-  const pageTitles = useMemo(
-    () => (setupMode === "load" ? loadTitles : generateTitles),
-    [setupMode]
-  );
+// Wallet generate pages:
 
-  // redirect if not on a page
-  useEffect(() => {
-    // wrong setup mode
-    if (Number.isNaN(page) || page < 1 || page > pageCount) {
-      setLocation(`/${setupMode}/1`);
-    }
-  }, [setupMode, page]);
+// TODO: Use a nested router instead:
+const ViewsBySetupMode = {
+  generate: [
+    PasswordWelcomeView,
+    BackupWelcomeView,
+    ConfirmWelcomeView,
+    ThemeWelcomeView,
+    GenerateDoneWelcomeView
+  ],
+  load: [
+    PasswordWelcomeView,
+    WalletsWelcomeView,
+    ThemeWelcomeView,
+    LoadDoneWelcomeView
+  ]
+} as const;
+
+const VIEW_TITLES_BY_SETUP_MODE = {
+  generate: ["password", "backup", "confirm", "setting_display_theme", "done"],
+  load: ["password", "setting_wallets", "setting_display_theme", "done"]
+} as const;
+
+export type WelcomeSetupMode = "generate" | "load";
+
+export interface SetupWelcomeViewParams {
+  setupMode: WelcomeSetupMode;
+  page: string;
+}
+
+export type SetupWelcomeViewProps = CommonRouteProps<SetupWelcomeViewParams>;
+
+export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
+  const { navigate } = useLocation();
+  const { setupMode, page: pageParam } = params;
+  const page = Number(pageParam);
+
+  const pageTitles = VIEW_TITLES_BY_SETUP_MODE[setupMode];
+  const pageCount = pageTitles.length;
 
   // temporarily stored password
   const [password, setPassword] = useState("");
-
-  // check if the user is on the wrong page without a password
-  useEffect(() => {
-    if (page !== 1 && password === "") {
-      setLocation(`/${setupMode}/1`);
-    }
-  }, [page, password]);
-
-  // is the setup mode "wallet generation"
-  const [isGenerateWallet] = useRoute("/generate/:page");
 
   // toasts
   const { setToast } = useToasts();
@@ -95,14 +84,14 @@ export default function Setup({ setupMode, page }: Props) {
   // generate wallet in the background
   const [generatedWallet, setGeneratedWallet] = useState<GeneratedWallet>({});
 
-  const navigate = () => {
-    setLocation(`/${params.setup}/${page - 1}`);
+  const navigateToPreviousPage = () => {
+    navigate(`/${setupMode}/${page - 1}`);
   };
 
   async function generateWallet() {
     // only generate wallet if the
     // setup mode is wallet generation
-    if (!isGenerateWallet || generatedWallet.address) return;
+    if (setupMode !== "generate" || generatedWallet.address) return;
 
     // prevent user from closing the window
     // while ArConnect is generating a wallet
@@ -152,7 +141,7 @@ export default function Setup({ setupMode, page }: Props) {
 
   useEffect(() => {
     generateWallet();
-  }, [isGenerateWallet]);
+  }, [setupMode]);
 
   // animate content sice
   const [contentSize, setContentSize] = useState<number>(0);
@@ -168,12 +157,31 @@ export default function Setup({ setupMode, page }: Props) {
     obs.observe(el);
   }, []);
 
+  if (
+    isNaN(page) ||
+    page < 1 ||
+    page > pageCount ||
+    (page !== 1 && password === "")
+  ) {
+    return <Redirect to={`/${setupMode}/1`} />;
+  }
+
+  if (setupMode !== "generate" && setupMode !== "load") {
+    return <Redirect to="/" />;
+  }
+
+  const CurrentView = ViewsBySetupMode[setupMode][page - 1];
+
   return (
     <Wrapper>
       <Spacer y={2} />
       <SetupCard>
         <HeaderContainer>
-          {page === 1 ? <Spacer /> : <BackButton onClick={navigate} />}
+          {page === 1 ? (
+            <Spacer />
+          ) : (
+            <BackButton onClick={navigateToPreviousPage} />
+          )}
           <PaginationContainer>
             {pageTitles.map((title, i) => (
               <Pagination
@@ -208,11 +216,7 @@ export default function Setup({ setupMode, page }: Props) {
               <PageWrapper style={{ height: contentSize }}>
                 <AnimatePresence initial={false}>
                   <Page key={page} ref={contentRef}>
-                    {
-                      (setupMode === "load" ? loadPages : generatePages)[
-                        page - 1
-                      ]
-                    }
+                    <CurrentView params={params} />
                   </Page>
                 </AnimatePresence>
               </PageWrapper>
@@ -318,9 +322,4 @@ interface GeneratedWallet {
   address?: string;
   mnemonic?: string;
   jwk?: JWKInterface;
-}
-
-interface Props {
-  setupMode: "generate" | "load";
-  page: number;
 }

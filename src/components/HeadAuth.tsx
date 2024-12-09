@@ -17,7 +17,7 @@ export interface HeadAuthProps {
 export const HeadAuth: React.FC<HeadAuthProps> = ({
   title,
   back,
-  appInfo: appInfoProp = {}
+  appInfo: appInfoProp = { name: "ArConnect" }
 }) => {
   const [areLogsExpanded, setAreLogsExpanded] = useState(false);
   const { authRequests, currentAuthRequestIndex, setCurrentAuthRequestIndex } =
@@ -27,11 +27,10 @@ export const HeadAuth: React.FC<HeadAuthProps> = ({
   // `/src/routes/auth/connect.tsx` calls `addApp()`, so the `appInfo` prop (`appInfoProp`) is used as initial /
   // fallback value:
 
+  const { name: fallbackName, logo: fallbackLogo } = appInfoProp;
+  const { tabID = null, url = "" } =
+    authRequests[currentAuthRequestIndex] || {};
   const [appInfo, setAppInfo] = useState<AppInfo>(appInfoProp);
-
-  const authRequest = authRequests[currentAuthRequestIndex];
-
-  const { tabID = null, url = "" } = authRequest;
 
   useEffect(() => {
     async function loadAppInfo() {
@@ -47,14 +46,14 @@ export const HeadAuth: React.FC<HeadAuthProps> = ({
       setAppInfo({
         name:
           appInfo.name ||
-          appInfoProp.name ||
+          fallbackName ||
           new URL(url).hostname.split(".").slice(-2).join("."),
-        logo: appInfo.logo || appInfoProp.logo
+        logo: appInfo.logo || fallbackLogo
       });
     }
 
     loadAppInfo();
-  }, [url, appInfoProp]);
+  }, [url, fallbackName, fallbackLogo]);
 
   const handleAppInfoClicked = tabID
     ? () => {

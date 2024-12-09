@@ -1,6 +1,6 @@
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { useLocation, useRoute } from "wouter";
+import { useRoute } from "wouter";
 import { useEffect, useMemo, useState } from "react";
 import type { Token, TokenType } from "~tokens/token";
 import { Reorder } from "framer-motion";
@@ -10,8 +10,13 @@ import PermissionCheckbox from "~components/auth/PermissionCheckbox";
 import browser from "webextension-polyfill";
 import { ButtonV2, Label, Spacer, Text } from "@arconnect/components";
 import { type TokenInfoWithBalance } from "~tokens/aoTokens/ao";
+import { useLocation } from "~wallets/router/router.utils";
 
-export default function Tokens() {
+export function TokensDashboardView() {
+  const { navigate } = useLocation();
+  // TODO: Replace with useParams:
+  const [matches, params] = useRoute<{ id?: string }>("/tokens/:id?");
+
   // tokens
   const [tokens, setTokens] = useStorage<Token[]>(
     {
@@ -56,10 +61,6 @@ export default function Tokens() {
     await ExtensionStorage.set("setting_ao_support", newSetting);
   };
 
-  // router
-  const [matches, params] = useRoute<{ id?: string }>("/tokens/:id?");
-  const [, setLocation] = useLocation();
-
   // active subsetting val
   const activeTokenSetting = useMemo(
     () => (params?.id ? params.id : undefined),
@@ -84,12 +85,12 @@ export default function Tokens() {
     }
 
     if (allTokens.length > 0) {
-      setLocation("/tokens/" + allTokens[0].id);
+      navigate(`/tokens/${allTokens[0].id}`);
     }
   }, [tokens, enhancedAoTokens, activeTokenSetting, matches]);
 
   const addToken = () => {
-    setLocation("/tokens/new");
+    navigate("/tokens/new");
   };
 
   const handleTokenClick = (token: {
@@ -100,7 +101,7 @@ export default function Tokens() {
     type?: TokenType;
     name?: string;
   }) => {
-    setLocation(`/tokens/${token.id}`);
+    navigate(`/tokens/${token.id}`);
   };
 
   return (

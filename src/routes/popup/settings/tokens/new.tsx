@@ -1,20 +1,20 @@
 import HeadV2 from "~components/popup/HeadV2";
 import browser from "webextension-polyfill";
-import AddToken from "~components/dashboard/subsettings/AddToken";
+import { AddTokenDashboardView } from "~components/dashboard/subsettings/AddToken";
 import styled from "styled-components";
-import { useLocation } from "wouter";
+import { useLocation } from "~wallets/router/router.utils";
 
 export function NewTokenSettingsView() {
-  const [, setLocation] = useLocation();
+  const { navigate } = useLocation();
 
   return (
     <>
       <HeadV2
         title={browser.i18n.getMessage("import_token")}
-        back={() => setLocation("/quick-settings/tokens")}
+        back={() => navigate("/quick-settings/tokens")}
       />
       <Wrapper>
-        <AddToken isQuickSetting={true} />
+        <AddTokenDashboardView isQuickSetting params={{}} />
       </Wrapper>
     </>
   );

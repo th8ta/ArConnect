@@ -1697,8 +1697,8 @@
     "message": "A provably neutral publishing platform aimed at dis-intermediating the truth. Publish assertions, and take your position in the Fact Marketplace!",
     "description": "placeholder for example get started"
   },
-  "example_bark_description" : {
-    "message": "Bark is a decentralized exchange to swap assets on the aoComputer network.",
+  "example_botega_description" : {
+    "message": "Botega is a decentralized exchange to swap assets on the aoComputer network.",
     "description": "placeholder for example get started"
   },
   "connect_with_us_title": {

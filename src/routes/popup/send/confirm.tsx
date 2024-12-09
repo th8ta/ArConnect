@@ -21,7 +21,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { findGateway } from "~gateways/wayfinder";
 import Arweave from "arweave";
-import { useHistory } from "~wallets/router/hash/hash-router.hook";
+import { useLocation } from "~wallets/router/router.utils";
 import { fallbackGateway, type Gateway } from "~gateways/gateway";
 import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
 import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
@@ -83,6 +83,8 @@ export type ConfirmViewProps = CommonRouteProps<ConfirmViewParams>;
 export function ConfirmView({
   params: { tokenID, qty: qtyParam, subscription }
 }: ConfirmViewProps) {
+  const { navigate } = useLocation();
+  // TODO: Add generic utils to parse params:
   const qty = Number(qtyParam || "0");
 
   // TODO: Need to get Token information
@@ -121,8 +123,6 @@ export function ConfirmView({
     10
   );
 
-  const [push] = useHistory();
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -151,7 +151,7 @@ export function ConfirmView({
             setMessage(data.message);
           }
         } else {
-          push("/send/transfer");
+          navigate("/send/transfer");
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -365,7 +365,7 @@ export function ConfirmView({
             content: browser.i18n.getMessage("sent_tx"),
             duration: 2000
           });
-          push(`/transaction/${res}`);
+          navigate(`/transaction/${res}`);
           setIsLoading(false);
         }
         return res;
@@ -425,8 +425,8 @@ export function ConfirmView({
           });
           // Redirect
           uToken
-            ? push("/")
-            : push(
+            ? navigate("/")
+            : navigate(
                 `/transaction/${
                   convertedTransaction.id
                 }?back=${encodeURIComponent("/")}`
@@ -493,8 +493,8 @@ export function ConfirmView({
             fee: networkFee
           });
           uToken
-            ? push("/")
-            : push(
+            ? navigate("/")
+            : navigate(
                 `/transaction/${
                   convertedTransaction.id
                 }?back=${encodeURIComponent("/")}`
@@ -559,7 +559,7 @@ export function ConfirmView({
       // redirect to transfer if the
       // transaction was not found
       if (!prepared || !prepared.transaction) {
-        return push("/send/transfer");
+        return navigate("/send/transfer");
       }
 
       // check if the current wallet
@@ -585,7 +585,7 @@ export function ConfirmView({
               content: browser.i18n.getMessage("sent_tx"),
               duration: 2000
             });
-            push(`/transaction/${res}`);
+            navigate(`/transaction/${res}`);
             setIsLoading(false);
           }
           return res;
@@ -617,7 +617,7 @@ export function ConfirmView({
           duration: 2300,
           content: browser.i18n.getMessage("transaction_auth_ur_fail")
         });
-        push("/send/transfer");
+        navigate("/send/transfer");
       }
     })();
   }, [wallet, recipient, keystoneSigner, setIsLoading]);
@@ -684,8 +684,8 @@ export function ConfirmView({
           fee: networkFee
         });
         uToken
-          ? push("/")
-          : push(
+          ? navigate("/")
+          : navigate(
               `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
             );
       } catch (e) {

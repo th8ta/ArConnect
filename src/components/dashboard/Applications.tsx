@@ -3,14 +3,27 @@ import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { SettingsList } from "./list/BaseElement";
-import { useLocation, useRoute } from "wouter";
+import { useRoute } from "wouter";
 import Application from "~applications/application";
 import AppListItem from "./list/AppListItem";
 import browser from "webextension-polyfill";
 import SearchInput from "./SearchInput";
 import styled from "styled-components";
+import { useLocation } from "~wallets/router/router.utils";
+import type { CommonRouteProps } from "~wallets/router/router.types";
 
-export default function Applications() {
+export interface ApplicationsDashboardViewParams {
+  app?: string;
+}
+
+export type ApplicationsDashboardViewProps =
+  CommonRouteProps<ApplicationsDashboardViewParams>;
+
+export function ApplicationsDashboardView() {
+  const { navigate } = useLocation();
+  // TODO: Replace with useParams:
+  const [, params] = useRoute<{ app?: string }>("/apps/:app?");
+
   // connected apps
   const [connectedApps] = useStorage<string[]>(
     {
@@ -43,10 +56,6 @@ export default function Applications() {
     })();
   }, [connectedApps]);
 
-  // router
-  const [, params] = useRoute<{ app?: string }>("/apps/:app?");
-  const [, setLocation] = useLocation();
-
   // active subsetting val
   const activeApp = useMemo(
     () => (params?.app ? decodeURIComponent(params.app) : undefined),
@@ -60,7 +69,7 @@ export default function Applications() {
       return;
     }
 
-    setLocation("/apps/" + firstApp);
+    navigate(`/apps/${firstApp}`);
   }, [connectedApps]);
 
   // search
@@ -96,7 +105,7 @@ export default function Applications() {
             url={app.url}
             icon={app.icon}
             active={activeApp === app.url}
-            onClick={() => setLocation("/apps/" + encodeURIComponent(app.url))}
+            onClick={() => navigate(`/apps/${encodeURIComponent(app.url)}`)}
             key={i}
           />
         ))}

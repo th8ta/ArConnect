@@ -11,7 +11,11 @@ import { createCoinWithAnimation } from "~api/modules/sign/animation";
 import { arconfettiIcon } from "~api/modules/sign/utils";
 import { EventType, trackEvent } from "~utils/analytics";
 
-export default function Setting({ setting }: Props) {
+export interface SettingDashboardViewProps {
+  setting: SettingType;
+}
+
+export function SettingDashboardView({ setting }: SettingDashboardViewProps) {
   // setting state
   const [settingState, updateSetting] = useSetting(setting.name);
 
@@ -132,12 +136,9 @@ export default function Setting({ setting }: Props) {
       );
 
     default:
+      // TODO: Should this be a redirect?
       return <></>;
   }
-}
-
-interface Props {
-  setting: SettingType;
 }
 
 export const RadioWrapper = styled.div`

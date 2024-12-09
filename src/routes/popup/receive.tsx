@@ -10,8 +10,8 @@ import copy from "copy-to-clipboard";
 import { useEffect, type MouseEventHandler, useState, useMemo } from "react";
 import { PageType, trackPage } from "~utils/analytics";
 import HeadV2 from "~components/popup/HeadV2";
-import { useLocation } from "wouter";
 import type { CommonRouteProps } from "~wallets/router/router.types";
+import { useLocation } from "~wallets/router/router.utils";
 
 interface ReceiveViewProps extends CommonRouteProps {
   walletName?: string;
@@ -19,6 +19,8 @@ interface ReceiveViewProps extends CommonRouteProps {
 }
 
 export function ReceiveView({ walletName, walletAddress }: ReceiveViewProps) {
+  const { navigate } = useLocation();
+
   // active address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
@@ -39,9 +41,6 @@ export function ReceiveView({ walletName, walletAddress }: ReceiveViewProps) {
   }, []);
 
   const { setToast } = useToasts();
-
-  // location
-  const [, setLocation] = useLocation();
 
   const copyAddress: MouseEventHandler = (e) => {
     e.stopPropagation();
@@ -64,9 +63,9 @@ export function ReceiveView({ walletName, walletAddress }: ReceiveViewProps) {
           title={walletName || browser.i18n.getMessage("receive")}
           back={() => {
             if (walletName && walletAddress) {
-              setLocation(`/quick-settings/wallets/${walletAddress}`);
+              navigate(`/quick-settings/wallets/${walletAddress}`);
             } else {
-              setLocation("/");
+              navigate("/");
             }
           }}
         />

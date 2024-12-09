@@ -1,7 +1,6 @@
 import { ButtonV2, Spacer, Text } from "@arconnect/components";
-import { useLocation, useRoute } from "wouter";
 import { useContext, useEffect, useRef, useState } from "react";
-import { WalletContext } from "../setup";
+import { WalletContext, type SetupWelcomeViewParams } from "../setup";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -14,8 +13,14 @@ import {
   EyeOffIcon
 } from "@iconicicons/react";
 import { PageType, trackPage } from "~utils/analytics";
+import { useLocation } from "~wallets/router/router.utils";
+import type { CommonRouteProps } from "~wallets/router/router.types";
 
-export default function Backup() {
+export type BackupWelcomeViewProps = CommonRouteProps<SetupWelcomeViewParams>;
+
+export function BackupWelcomeView({ params }: BackupWelcomeViewProps) {
+  const { navigate } = useLocation();
+
   // seed blur status
   const [shown, setShown] = useState(false);
 
@@ -24,10 +29,6 @@ export default function Backup() {
 
   // ref to track the latest generated wallet
   const walletRef = useRef(generatedWallet);
-
-  // route
-  const [, params] = useRoute<{ setup: string; page: string }>("/:setup/:page");
-  const [, setLocation] = useLocation();
 
   // icon displayed for "copy seedphrase"
   const [copyDisplay, setCopyDisplay] = useState(true);
@@ -65,7 +66,7 @@ export default function Backup() {
       <ButtonV2
         fullWidth
         onClick={() =>
-          setLocation(`/${params.setup}/${Number(params.page) + 1}`)
+          navigate(`/${params.setupMode}/${Number(params.page) + 1}`)
         }
       >
         {browser.i18n.getMessage("next")}

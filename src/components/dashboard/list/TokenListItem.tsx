@@ -6,7 +6,6 @@ import { ListItem } from "@arconnect/components";
 import { formatAddress } from "~utils/format";
 import { getDreForToken } from "~tokens";
 import { useTheme } from "~utils/theme";
-import { useLocation } from "wouter";
 import * as viewblock from "~lib/viewblock";
 import styled from "styled-components";
 import { useGateway } from "~gateways/wayfinder";
@@ -14,8 +13,11 @@ import { concatGatewayURL } from "~gateways/utils";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import { getUserAvatar } from "~lib/avatar";
+import { useLocation } from "~wallets/router/router.utils";
 
 export default function TokenListItem({ token, active, ao, onClick }: Props) {
+  const { navigate } = useLocation();
+
   // format address
   const formattedAddress = useMemo(
     () => formatAddress(token.id, 8),
@@ -66,14 +68,11 @@ export default function TokenListItem({ token, active, ao, onClick }: Props) {
     })();
   }, [token, theme, gateway, ao]);
 
-  // router
-  const [, setLocation] = useLocation();
-
   const handleClick = () => {
     if (onClick) {
       onClick();
     } else {
-      setLocation(`/tokens/${token.id}`);
+      navigate(`/tokens/${token.id}`);
     }
   };
 

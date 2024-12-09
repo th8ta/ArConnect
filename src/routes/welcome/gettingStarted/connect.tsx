@@ -9,7 +9,7 @@ import styled from "styled-components";
 import { useEffect } from "react";
 import { PageType, trackPage } from "~utils/analytics";
 
-export default function Connect() {
+export function ConnectWelcomeView() {
   // Segment
   useEffect(() => {
     trackPage(PageType.SETUP_CONNECT);

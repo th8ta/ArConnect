@@ -4,7 +4,7 @@ import logo from "url:/assets/icon512.png";
 import styled from "styled-components";
 import { getPreReleaseVersionLabel, getVersionLabel } from "~utils/runtime";
 
-export default function About() {
+export function AboutDashboardView() {
   const preReleaseVersionLabel = getPreReleaseVersionLabel();
 
   return (

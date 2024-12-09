@@ -7,7 +7,7 @@ import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
 import { EventType, trackEvent } from "~utils/analytics";
 
-export default function SignSettings() {
+export function SignSettingsDashboardView() {
   const [signSettingsState, setSignSettingsState] = useState(false);
 
   const [signatureAllowance, setSignatureAllowance] = useStorage({

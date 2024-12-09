@@ -23,12 +23,27 @@ import browser from "webextension-polyfill";
 import { useTheme } from "~utils/theme";
 import styled from "styled-components";
 import { svgie } from "~utils/svgies";
-import { useLocation } from "wouter";
 import copy from "copy-to-clipboard";
 import { formatAddress } from "~utils/format";
+import { useLocation } from "~wallets/router/router.utils";
+import type { CommonRouteProps } from "~wallets/router/router.types";
 // import { isAddressFormat } from "~utils/format";
 
-export default function ContactSettings({ address, isQuickSetting }: Props) {
+export interface ContactSettingsDashboardViewParams {
+  address: string;
+}
+
+export interface ContactSettingsDashboardViewProps
+  extends CommonRouteProps<ContactSettingsDashboardViewParams> {
+  isQuickSetting?: boolean;
+}
+
+export function ContactSettingsDashboardView({
+  isQuickSetting,
+  params: { address }
+}: ContactSettingsDashboardViewProps) {
+  const { navigate } = useLocation();
+
   // contacts
   const [storedContacts, setStoredContacts] = useStorage(
     {
@@ -253,8 +268,6 @@ export default function ContactSettings({ address, isQuickSetting }: Props) {
     }
   };
 
-  const [, setLocation] = useLocation();
-
   const removeContactModal = useModal();
 
   const confirmRemoveContact = async () => {
@@ -271,7 +284,7 @@ export default function ContactSettings({ address, isQuickSetting }: Props) {
     }
 
     removeContactModal.setOpen(false);
-    setLocation(`/${isQuickSetting ? "quick-settings/" : ""}contacts`);
+    navigate(`/${isQuickSetting ? "quick-settings/" : ""}contacts`);
   };
 
   const copyAddress: MouseEventHandler = (e) => {
@@ -690,8 +703,3 @@ export const Title = styled(Text).attrs({
   font-weight: 600;
   margin-bottom: 10px;
 `;
-
-interface Props {
-  address: string;
-  isQuickSetting?: boolean;
-}

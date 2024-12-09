@@ -2,10 +2,10 @@ import type { Requirements } from "~gateways/wayfinder";
 import { defaultGateway } from "~gateways/gateway";
 import Arweave from "arweave";
 import type {
-  GatewayAddressRegistryCache,
   GatewayAddressRegistryItem,
-  ProcessedData
+  GatewayAddressRegistryItemData
 } from "~gateways/types";
+import { log, LOG_GROUP } from "~utils/log/log.utils";
 
 const pingStaggerDelayMs = 10; // 0.01s
 const pingTimeout = 5000; // 5s
@@ -23,10 +23,10 @@ const properties = {
   }
 };
 
-const pingUpdater = async (
+async function pingUpdater(
   data: GatewayAddressRegistryItem[],
-  onUpdate: any
-) => {
+  onUpdate: (garItemsWithChecks: GatewayAddressRegistryItem[]) => void
+): Promise<void> {
   const CLabs = "CDoilQgKg6Pmp4Q0LJ4d84VXRgB3Ay9pIJ_SA617cVk";
   const CLabsGateway = data.find((item) => item.id === CLabs);
 
@@ -79,7 +79,7 @@ const pingUpdater = async (
 
         onUpdate(newData);
       } catch (e) {
-        console.error(e);
+        log(LOG_GROUP.GATEWAYS, "Gateway health check error", e);
 
         newData[index].health = {
           status: "error",
@@ -89,7 +89,7 @@ const pingUpdater = async (
         onUpdate(newData);
       }
     } catch (e) {
-      console.error(e);
+      log(LOG_GROUP.GATEWAYS, "Gateway ping check error", e);
 
       newData[index].ping = {
         status: "error",
@@ -104,10 +104,12 @@ const pingUpdater = async (
   });
 
   await Promise.all(pingPromises.map((p) => p()));
-};
+}
 
 // TODO: MAKE THIS WEIGH HTTP/HTTPS
-const sortGatewaysByOperatorStake = (filteredGateways: ProcessedData[]) => {
+const sortGatewaysByOperatorStake = (
+  filteredGateways: GatewayAddressRegistryItem[]
+) => {
   const sortedGateways = filteredGateways.slice();
 
   sortedGateways.sort((gatewayA, gatewayB) => {
@@ -163,10 +165,12 @@ const isValidGateway = (gateway: any, requirements: Requirements): boolean => {
 };
 
 // FOR CACHING AND GETTING STATUS
-const extractGarItems = (garCache: GatewayAddressRegistryCache) => {
-  return Object.entries(garCache.gateways).map(([txId, item]) => {
+function extractGarItems(
+  gateways: GatewayAddressRegistryItemData[]
+): GatewayAddressRegistryItem[] {
+  return gateways.map((item) => {
     return {
-      id: txId,
+      id: item.gatewayAddress,
       ping: { status: "unknown" },
       health: { status: "unknown" },
       linkFull: linkFull(
@@ -182,7 +186,7 @@ const extractGarItems = (garCache: GatewayAddressRegistryCache) => {
       ...item
     };
   });
-};
+}
 
 const linkFull = (protocol: string, fqdn: string, port: number) =>
   `${protocol}://${fqdn}:${port}`;

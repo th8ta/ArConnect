@@ -21,13 +21,30 @@ import {
   useToasts
 } from "@arconnect/components";
 import { concatGatewayURL, urlToGateway } from "~gateways/utils";
-import type Application from "~applications/application";
+import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Arweave from "arweave";
 import { defaultGateway, suggestedGateways, testnets } from "~gateways/gateway";
+import type { CommonRouteProps } from "~wallets/router/router.types";
 
-export default function AppSettings({ app, showTitle = false }: Props) {
+export interface AppSettingsDashboardViewParams {
+  url: string;
+}
+
+export interface AppSettingsDashboardViewProps
+  extends CommonRouteProps<AppSettingsDashboardViewParams> {
+  noTitle?: boolean;
+}
+
+export function AppSettingsDashboardView({
+  noTitle = false,
+  params: { url }
+}: AppSettingsDashboardViewProps) {
+  const app = useMemo(() => {
+    return new Application(decodeURIComponent(url));
+  }, [url]);
+
   // app settings
   const [settings, updateSettings] = app.hook();
   const arweave = new Arweave(defaultGateway);
@@ -90,11 +107,12 @@ export default function AppSettings({ app, showTitle = false }: Props) {
   // remove modal
   const removeModal = useModal();
 
+  // TODO: Should this be a redirect?
   if (!settings) return <></>;
 
   return (
     <>
-      {showTitle && (
+      {noTitle ? null : (
         <>
           <Spacer y={0.45} />
           <AppName>{settings?.name || settings?.url}</AppName>
@@ -353,11 +371,6 @@ export default function AppSettings({ app, showTitle = false }: Props) {
       </ModalV2>
     </>
   );
-}
-
-interface Props {
-  app: Application;
-  showTitle?: boolean;
 }
 
 const AppName = styled(Text).attrs({

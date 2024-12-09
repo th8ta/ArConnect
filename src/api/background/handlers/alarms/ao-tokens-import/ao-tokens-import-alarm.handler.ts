@@ -27,8 +27,6 @@ export async function handleAoTokensImportAlarm(alarm: Alarms.Alarm) {
   try {
     const activeAddress = await getActiveAddress();
 
-    console.log("Importing AO tokens...");
-
     let [aoTokens, aoTokensCache, removedTokenIds = []] = await Promise.all([
       getAoTokens(),
       getAoTokensCache(),

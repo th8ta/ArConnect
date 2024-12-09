@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import type { ProcessedData } from "./types";
+import type { GatewayAddressRegistryItem } from "~gateways/types";
 import { ExtensionStorage } from "~utils/storage";
 
 /** Cache storage name */
@@ -11,13 +11,17 @@ export const RETRY_ALARM = "update_gateway_retry";
  * Get cache of ar.io gateway list
  */
 export async function getGatewayCache() {
-  return await ExtensionStorage.get<ProcessedData[]>(CACHE_STORAGE_NAME);
+  return await ExtensionStorage.get<GatewayAddressRegistryItem[]>(
+    CACHE_STORAGE_NAME
+  );
 }
 
 /**
  * Update ar.io gateway list cache
  */
-export async function updateGatewayCache(gateways: ProcessedData[]) {
+export async function updateGatewayCache(
+  gateways: GatewayAddressRegistryItem[]
+) {
   return await ExtensionStorage.set(CACHE_STORAGE_NAME, gateways);
 }
 

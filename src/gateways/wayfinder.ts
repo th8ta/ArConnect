@@ -8,24 +8,31 @@ import { EventType, trackEvent } from "~utils/analytics";
 export async function findGateway(
   requirements: Requirements
 ): Promise<Gateway> {
-  // get if the feature is enabled
+  // Get if the Wayfinder feature is enabled:
   const wayfinderEnabled = await getSetting("wayfinder").getValue();
 
-  // wayfinder disabled, but arns is needed
-  if (!wayfinderEnabled && requirements.arns) {
-    return {
-      host: "arweave.dev",
-      port: 443,
-      protocol: "https"
-    };
-  }
-
-  // wayfinder disabled or all the chain is needed
-  if (!wayfinderEnabled || requirements.startBlock === 0) {
-    return defaultGateway;
-  }
-
+  // This should have been loaded into the cache by handleGatewayUpdateAlarm, but sometimes this function might run
+  // before that, so in that case we fall back to the same behavior has having the Wayfinder disabled:
   const procData = await getGatewayCache();
+
+  if (!wayfinderEnabled || !procData) {
+    if (requirements.arns) {
+      return {
+        host: "arweave.dev",
+        port: 443,
+        protocol: "https"
+      };
+    }
+
+    // wayfinder disabled or all the chain is needed
+    if (requirements.startBlock === 0) {
+      return defaultGateway;
+    }
+
+    throw new Error(
+      wayfinderEnabled ? "Missing gateway cache" : "Wayfinder disabled"
+    );
+  }
 
   try {
     // this could probably be filtered out during the caching process
@@ -34,9 +41,7 @@ export async function findGateway(
         gateway.ping.status === "success" && gateway.health.status === "success"
       );
     });
-
     const sortedGateways = sortGatewaysByOperatorStake(filteredGateways);
-
     const top10 = sortedGateways.slice(0, Math.min(10, sortedGateways.length));
     const randomIndex = Math.floor(Math.random() * top10.length);
     const selectedGateway = top10[randomIndex];
@@ -49,12 +54,14 @@ export async function findGateway(
         protocol: selectedGateway.settings.protocol,
         requirements
       });
+
       return {
         host: selectedGateway.settings.fqdn,
         port: selectedGateway.settings.port,
         protocol: selectedGateway.settings.protocol
       };
     }
+
     for (let i = 0; i < top10.length; i++) {
       // TODO: if we want it to be random
       // const index = (randomIndex + i) % top10.length;

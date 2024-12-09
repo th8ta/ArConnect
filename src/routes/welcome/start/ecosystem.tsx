@@ -29,7 +29,7 @@ import evermoreLogo from "url:/assets/ecosystem/evermore.png";
 import Marquee from "react-fast-marquee";
 import styled from "styled-components";
 
-export default function Ecosystem() {
+export function EcosystemWelcomeView() {
   const images = apps();
 
   return (

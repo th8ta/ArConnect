@@ -20,12 +20,15 @@ import { DREContract, DRENode } from "@arconnect/warp-dre";
 import type { TokenState, TokenType } from "~tokens/token";
 import { concatGatewayURL } from "~gateways/utils";
 import { useGateway } from "~gateways/wayfinder";
+import type { CommonRouteProps } from "~wallets/router/router.types";
 
-interface AddTokenProps {
+export interface AddTokenDashboardViewProps extends CommonRouteProps {
   isQuickSetting?: boolean;
 }
 
-export default function AddToken({ isQuickSetting }: AddTokenProps) {
+export function AddTokenDashboardView({
+  isQuickSetting
+}: AddTokenDashboardViewProps) {
   const targetInput = useInput();
   const gateway = useGateway({ startBlock: 0 });
   const [tokenType, setTokenType] = useState<TokenType>("asset");
