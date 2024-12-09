@@ -5,6 +5,8 @@ import type { DashboardRoutePath } from "~wallets/router/dashboard/dashboard.rou
 import type { PopupRoutePath } from "~wallets/router/popup/popup.routes";
 import type { WelcomeRoutePath } from "~wallets/router/welcome/welcome.routes";
 
+// Routes:
+
 export interface CommonRouteProps<T = any>
   extends Omit<WouteComponentProps, "params"> {
   params: T;
@@ -13,6 +15,8 @@ export interface CommonRouteProps<T = any>
 export type RoutePath = `/${string}`;
 
 export type RouteOverride = `/__OVERRIDES/${string}`;
+
+export type RouteRedirect<T extends RoutePath = RoutePath> = `/__REDIRECT${T}`;
 
 export type RouteAuthType = "auth" | "anon";
 
@@ -30,3 +34,25 @@ export type ArConnectRoutePath =
   | AuthRoutePath
   | PopupRoutePath
   | DashboardRoutePath;
+
+// navigate():
+
+export type NavigateAction = "prev" | "next" | "up" | number;
+
+export interface NavigateOptions<S = any> {
+  replace?: boolean;
+  state?: S;
+  search?: Record<string, string | number>;
+}
+
+export type NavigateFn<S = any> = (
+  to: ArConnectRoutePath | NavigateAction,
+  options?: NavigateOptions<S>
+) => void;
+
+// Location hooks:
+
+export type BaseLocationHook = () => [
+  RoutePath,
+  (to: RoutePath, options: any) => void
+];

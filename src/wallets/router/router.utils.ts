@@ -7,18 +7,31 @@ import type {
   RouteConfig,
   ArConnectRoutePath,
   RoutePath,
-  RouteOverride
+  RouteOverride,
+  RouteRedirect,
+  NavigateAction,
+  NavigateFn,
+  NavigateOptions
 } from "~wallets/router/router.types";
 
+export const OVERRIDES_PREFIX = "/__OVERRIDES/" as const;
+export const REDIRECT_PREFIX = "/__REDIRECT/" as const;
+
 export function isRouteOverride(
-  path: RoutePath | RouteOverride
+  path: RoutePath | RouteOverride | RouteRedirect
 ): path is RouteOverride {
-  return path.startsWith("/__OVERRIDES/");
+  return path.startsWith(OVERRIDES_PREFIX);
+}
+
+export function isRouteRedirect<T extends RoutePath>(
+  path: RoutePath | RouteOverride | RouteRedirect<T>
+): path is RouteRedirect<T> {
+  return path.startsWith(REDIRECT_PREFIX);
 }
 
 export function prefixRoutes(
-  routes: RouteConfig[],
-  prefix: RoutePath
+  prefix: RoutePath,
+  routes: RouteConfig[]
 ): RouteConfig[] {
   return routes.map((route) => ({
     ...route,
@@ -26,6 +39,12 @@ export function prefixRoutes(
       ? (route.path satisfies RouteOverride)
       : (`${prefix}${route.path}` satisfies RoutePath)
   }));
+}
+
+export function parseRouteRedirect<T extends RoutePath>(
+  routeRedirect: RouteRedirect<T>
+): T {
+  return routeRedirect.slice(REDIRECT_PREFIX.length - 1) as T;
 }
 
 export function BodyScroller() {
@@ -37,8 +56,6 @@ export function BodyScroller() {
 
   return null;
 }
-
-export type NavigateAction = "prev" | "next" | "up" | number;
 
 function isNavigateAction(
   to: ArConnectRoutePath | NavigateAction
@@ -52,11 +69,7 @@ export function useLocation() {
   const navigate = useCallback(
     <S = any>(
       to: ArConnectRoutePath | NavigateAction,
-      options?: {
-        replace?: boolean;
-        state?: S;
-        search?: Record<string, string | number>;
-      }
+      options?: NavigateOptions<S>
     ) => {
       let toPath = to as ArConnectRoutePath;
 
@@ -104,7 +117,7 @@ export function useLocation() {
       return wavigate(toPath, options);
     },
     [wocation, wavigate]
-  );
+  ) satisfies NavigateFn;
 
   const back = useCallback(() => {
     history.back();

@@ -58,6 +58,15 @@ declare module "@arconnect/webext-bridge" {
      */
     auth_app_disconnected: number;
 
+    // EMBEDDED:
+
+    embedded_open: any;
+    embedded_close: any;
+    embedded_resize: any;
+    embedded_auth: any;
+    embedded_balance: any;
+    embedded_info: any;
+
     // OTHER:
 
     switch_wallet_event: string | null;

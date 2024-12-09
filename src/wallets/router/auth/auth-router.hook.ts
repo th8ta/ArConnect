@@ -1,9 +1,9 @@
-import type { BaseLocationHook } from "wouter";
 import { useCurrentAuthRequest } from "~utils/auth/auth.hooks";
 import { NOOP } from "~utils/misc";
 import type { AuthRoutePath } from "~wallets/router/auth/auth.routes";
 import { useExtensionStatusOverride } from "~wallets/router/extension/extension-router.hook";
 import { ExtensionOverrides } from "~wallets/router/extension/extension.routes";
+import type { BaseLocationHook } from "~wallets/router/router.types";
 
 export const useAuthRequestsLocation: BaseLocationHook = () => {
   const override = useExtensionStatusOverride();
