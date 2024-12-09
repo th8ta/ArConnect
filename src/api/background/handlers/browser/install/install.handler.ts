@@ -29,6 +29,8 @@ export async function handleInstall(details: Runtime.OnInstalledDetailsType) {
     periodInMinutes: 10080
   });
 
+  // TODO: Do these 4 call need to be done in series or can they be parallelized?
+
   // initialize tokens in wallet
   await loadTokens();
 
