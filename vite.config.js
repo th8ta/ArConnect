@@ -19,6 +19,7 @@ export default defineConfig({
       "~components": path.resolve(__dirname, "./src/components"),
       "~contacts": path.resolve(__dirname, "./src/contacts"),
       "~gateways": path.resolve(__dirname, "./src/gateways"),
+      "~iframe": path.resolve(__dirname, "./src/iframe"),
       "~lib": path.resolve(__dirname, "./src/lib"),
       "~notifications": path.resolve(__dirname, "./src/notifications"),
       "~routes": path.resolve(__dirname, "./src/routes"),
