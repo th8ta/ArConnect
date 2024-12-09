@@ -3,10 +3,8 @@ import { useAuth } from "~utils/authentication/authentication.hooks";
 import type { AuthStatus } from "~utils/authentication/authentication.provider";
 import { NOOP } from "~utils/misc";
 import { useAuthRequestsLocation } from "~wallets/router/auth/auth-router.hook";
-import type {
-  EmbeddedRouteOverride,
-  EmbeddedRoutePath
-} from "~wallets/router/iframe/iframe.routes";
+import type { ExtensionRouteOverride } from "~wallets/router/extension/extension.routes";
+import type { EmbeddedRoutePath } from "~wallets/router/iframe/iframe.routes";
 import type {
   ArConnectRoutePath,
   BaseLocationHook,
@@ -20,7 +18,7 @@ import {
 
 const AUTH_STATUS_TO_OVERRIDE: Record<
   AuthStatus,
-  EmbeddedRouteOverride | RouteRedirect<EmbeddedRoutePath> | null
+  ExtensionRouteOverride | RouteRedirect<EmbeddedRoutePath> | null
 > = {
   authLoading: "/__OVERRIDES/cover",
   noAuth: "/__REDIRECT/auth",

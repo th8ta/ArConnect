@@ -50,6 +50,8 @@ export function parseRouteRedirect<T extends RoutePath>(
 export function BodyScroller() {
   const { location } = useLocation();
 
+  console.log("location =", location);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
