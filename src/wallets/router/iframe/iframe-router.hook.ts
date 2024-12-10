@@ -35,6 +35,7 @@ export function useAuthStatusOverride() {
 }
 
 export const useEmbeddedLocation: BaseLocationHook = () => {
+  const { authStatus } = useAuth();
   const override = useAuthStatusOverride();
   const [authRequestsLocation, authRequestsNavigate] =
     useAuthRequestsLocation();
@@ -43,6 +44,8 @@ export const useEmbeddedLocation: BaseLocationHook = () => {
   if (override) {
     if (isRouteRedirect(override)) {
       const redirectLocation = parseRouteRedirect(override);
+
+      console.log("redirectLocation =", redirectLocation);
 
       // TODO: Call wavigate to make the redirect happen
 
@@ -55,6 +58,9 @@ export const useEmbeddedLocation: BaseLocationHook = () => {
   if (authRequestsLocation && !isRouteOverride(authRequestsLocation)) {
     return [authRequestsLocation, authRequestsNavigate];
   }
+
+  // TODO: This should also return a redirect, so redirects should happen AFTER (or at the end) of these location hooks:
+  // if (wocation === "/" && authStatus === "noAuth") return [wocation as ArConnectRoutePath, wavigate]
 
   return [wocation as ArConnectRoutePath, wavigate];
 };
