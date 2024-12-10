@@ -52,11 +52,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     async function checkAuth() {
       await sleep(5000);
 
-      const mockedAuthStatus = "unlocked" as AuthStatus;
+      const mockedAuthStatus = "noAuth" as AuthStatus;
 
       setAuthRequestContextState({
         authStatus: mockedAuthStatus,
-        user: { username: "@mocked-user" }
+        user: null
       });
 
       const coverElement = document.getElementById("cover");
