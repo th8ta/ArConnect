@@ -25,8 +25,8 @@ export function useExtensionStatusOverride() {
 }
 
 export const useExtensionLocation: BaseLocationHook = () => {
-  const override = useExtensionStatusOverride();
   const [wocation, wavigate] = useHashLocation();
+  const override = useExtensionStatusOverride();
 
   if (override) return [override, NOOP];
 

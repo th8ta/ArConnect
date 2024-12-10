@@ -46,7 +46,7 @@ export interface NavigateOptions<S = any> {
 }
 
 export type NavigateFn<S = any> = (
-  to: ArConnectRoutePath | NavigateAction,
+  to: WanderRoutePath | NavigateAction,
   options?: NavigateOptions<S>
 ) => void;
 
@@ -54,5 +54,5 @@ export type NavigateFn<S = any> = (
 
 export type BaseLocationHook = () => [
   RoutePath,
-  (to: RoutePath, options: any) => void
+  (to: RoutePath, options?: any) => void
 ];

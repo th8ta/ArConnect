@@ -3,15 +3,16 @@ import {
   useSearch as useWearch,
   useLocation as useWouterLocation
 } from "wouter";
-import type {
-  RouteConfig,
-  WanderRoutePath,
-  RoutePath,
-  RouteOverride,
-  RouteRedirect,
-  NavigateAction,
-  NavigateFn,
-  NavigateOptions
+import {
+  type RouteConfig,
+  type WanderRoutePath,
+  type RoutePath,
+  type RouteOverride,
+  type RouteRedirect,
+  type NavigateFn,
+  type NavigateOptions,
+  type NavigateAction,
+  type BaseLocationHook
 } from "~wallets/router/router.types";
 
 export const OVERRIDES_PREFIX = "/__OVERRIDES/" as const;
@@ -27,6 +28,12 @@ export function isRouteRedirect<T extends RoutePath>(
   path: RoutePath | RouteOverride | RouteRedirect<T>
 ): path is RouteRedirect<T> {
   return path.startsWith(REDIRECT_PREFIX);
+}
+
+export function isNavigateAction(
+  to: WanderRoutePath | NavigateAction
+): to is NavigateAction {
+  return typeof to === "number" || !to.startsWith("/");
 }
 
 export function prefixRoutes(
@@ -45,6 +52,15 @@ export function parseRouteRedirect<T extends RoutePath>(
   routeRedirect: RouteRedirect<T>
 ): T {
   return routeRedirect.slice(REDIRECT_PREFIX.length - 1) as T;
+}
+
+export function routeTrap<T extends RoutePath>(
+  location: RoutePath,
+  baseRoute: T
+): null | RouteRedirect<T> {
+  return location === baseRoute || location.startsWith(`${baseRoute}/`)
+    ? null
+    : (`${REDIRECT_PREFIX}${baseRoute.slice(1)}` as RouteRedirect<T>);
 }
 
 export function BodyScroller() {
@@ -75,12 +91,6 @@ interface CustomHistoryEntry<S = any> {
 const customHistory: CustomHistoryEntry[] = [];
 
 const HISTORY_SIZE_LIMIT = 32;
-
-function isNavigateAction(
-  to: WanderRoutePath | NavigateAction
-): to is NavigateAction {
-  return typeof to === "number" || !to.startsWith("/");
-}
 
 export function useLocation() {
   const [wocation, wavigate] = useWouterLocation();
@@ -177,4 +187,27 @@ export function useSearchParams<S>() {
 
     return Object.fromEntries(searchParams.entries());
   }, [searchString]) as S;
+}
+
+export function withRouterRedirects(
+  locationHook: BaseLocationHook
+): BaseLocationHook {
+  const locationHookWithRedirects: BaseLocationHook = () => {
+    const [location, navigate] = locationHook();
+    const redirectLocation = isRouteRedirect(location)
+      ? parseRouteRedirect(location)
+      : undefined;
+
+    useEffect(() => {
+      if (!redirectLocation) return;
+
+      console.log("redirectLocation =", redirectLocation);
+
+      navigate(redirectLocation);
+    }, [redirectLocation]);
+
+    return [redirectLocation || location, navigate];
+  };
+
+  return locationHookWithRedirects;
 }
