@@ -2,6 +2,7 @@ import type React from "react";
 import type { RouteComponentProps as WouteComponentProps } from "wouter";
 import type { AuthRoutePath } from "~wallets/router/auth/auth.routes";
 import type { DashboardRoutePath } from "~wallets/router/dashboard/dashboard.routes";
+import type { EmbeddedRoutePath } from "~wallets/router/iframe/iframe.routes";
 import type { PopupRoutePath } from "~wallets/router/popup/popup.routes";
 import type { WelcomeRoutePath } from "~wallets/router/welcome/welcome.routes";
 
@@ -33,7 +34,8 @@ export type ArConnectRoutePath =
   | WelcomeRoutePath
   | AuthRoutePath
   | PopupRoutePath
-  | DashboardRoutePath;
+  | DashboardRoutePath
+  | EmbeddedRoutePath;
 
 // navigate():
 
