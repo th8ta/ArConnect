@@ -54,13 +54,23 @@ export function parseRouteRedirect<T extends RoutePath>(
   return routeRedirect.slice(REDIRECT_PREFIX.length - 1) as T;
 }
 
-export function routeTrap<T extends RoutePath>(
+export function routeTrapInside<T extends RoutePath>(
   location: RoutePath,
   baseRoute: T
 ): null | RouteRedirect<T> {
   return location === baseRoute || location.startsWith(`${baseRoute}/`)
     ? null
     : (`${REDIRECT_PREFIX}${baseRoute.slice(1)}` as RouteRedirect<T>);
+}
+
+export function routeTrapMatches<T extends RoutePath>(
+  location: RoutePath,
+  validRoutes: T[],
+  redirectTo: T
+): null | RouteRedirect<T> {
+  return validRoutes.includes(location as T)
+    ? null
+    : (`${REDIRECT_PREFIX}${redirectTo.slice(1)}` as RouteRedirect<T>);
 }
 
 export function BodyScroller() {

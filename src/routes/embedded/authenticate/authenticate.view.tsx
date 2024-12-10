@@ -1,24 +1,27 @@
 import { useAuth } from "~utils/authentication/authentication.hooks";
+import { Link } from "~wallets/router/components/link/Link";
 
 export function AuthenticateEmbeddedView() {
-  const { mockedAuthenticate } = useAuth();
+  const { authenticate } = useAuth();
 
   // TODO: Add special screen when using ArConnect. For MVP, no interface, only proxy.
 
   return (
     <div>
       <h3>Authentication</h3>
-      <button>ArConnect</button>
 
-      <button>Passkey (sign up)</button>
-      <button>Social (sign up)</button>
+      <button onClick={() => authenticate("passkey")}>Passkey</button>
+      <button disabled>ArConnect</button>
+      <button onClick={() => authenticate("emailPassword")}>
+        Email & Password
+      </button>
+      <button onClick={() => authenticate("google")}>Google</button>
 
-      <button>Passkey (sign in)</button>
-      <button>Social (sign in)</button>
+      <Link to="/auth/recover-account">
+        <button>Lost my credentials</button>
+      </Link>
 
-      <button>Lost my credentials</button>
-
-      <button>Delete device shard</button>
+      <button disabled>Delete device shard</button>
     </div>
   );
 }

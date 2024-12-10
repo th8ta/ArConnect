@@ -8,23 +8,26 @@ import { getExtensionOverrides } from "~wallets/router/extension/extension.route
 import { POPUP_ROUTES } from "~wallets/router/popup/popup.routes";
 import type { RouteConfig } from "~wallets/router/router.types";
 import { isRouteOverride, prefixRoutes } from "~wallets/router/router.utils";
-import { RecoverCredentialsEmbeddedView } from "~routes/embedded/recover-credentials/recover-credentials.view";
+import { RecoverAccountEmbeddedView } from "~routes/embedded/recover-account/recover-account.view";
+import { AddAuthProviderEmbeddedView } from "~routes/embedded/add-auth-provider/add-auth-provider.view";
 
 export type EmbeddedRoutePath =
   | "/auth"
   | "/auth/generate-wallet"
   | "/auth/add-device"
   | "/auth/confirmation"
+  | "/auth/add-auth-provider"
   | "/auth/import-wallet"
-  | "/auth/recover-credentials"
+  | "/auth/recover-account"
   | "/auth/restore-shards";
 
 export const EmbeddedPaths = {
   Authenticate: "/auth",
   GenerateWallet: "/auth/generate-wallet",
   AddDevice: "/auth/add-device",
+  AddAuthProvider: "/auth/add-auth-provider",
   ImportWallet: "/auth/import-wallet",
-  RecoverCredentials: "/auth/recover-credentials",
+  RecoverAccount: "/auth/recover-account",
   RestoreShards: "/auth/restore-shards"
 } as const satisfies Record<string, EmbeddedRoutePath>;
 
@@ -42,12 +45,16 @@ const IFRAME_OWN_ROUTES = [
     component: AddDeviceEmbeddedView
   },
   {
+    path: EmbeddedPaths.AddAuthProvider,
+    component: AddAuthProviderEmbeddedView
+  },
+  {
     path: EmbeddedPaths.ImportWallet,
     component: ImportWalletEmbeddedView
   },
   {
-    path: EmbeddedPaths.RecoverCredentials,
-    component: RecoverCredentialsEmbeddedView
+    path: EmbeddedPaths.RecoverAccount,
+    component: RecoverAccountEmbeddedView
   },
   {
     path: EmbeddedPaths.RestoreShards,
