@@ -72,16 +72,17 @@ function formatNumber(amount: string, decimalPlaces: number = 2): string {
 }
 
 export interface ConfirmViewParams {
-  tokenID: string;
+  token: string;
   qty?: number;
   recipient?: string;
+  message?: string;
   subscription?: boolean;
 }
 
 export type ConfirmViewProps = CommonRouteProps<ConfirmViewParams>;
 
 export function ConfirmView({
-  params: { tokenID, qty: qtyParam, subscription }
+  params: { token: tokenID, qty: qtyParam, subscription }
 }: ConfirmViewProps) {
   const { navigate } = useLocation();
   // TODO: Add generic utils to parse params:

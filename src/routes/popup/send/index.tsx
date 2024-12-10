@@ -133,7 +133,7 @@ export function SendView({ params: { id } }: SendViewProps) {
   const [currency] = useSetting<string>("currency");
 
   // aoTokens
-  const [aoTokens, loading] = useAoTokens(true);
+  const [aoTokens, loading] = useAoTokens({ refresh: true });
 
   // set ao for following page
   const [isAo, setIsAo] = useState<boolean>(false);
@@ -170,8 +170,9 @@ export function SendView({ params: { id } }: SendViewProps) {
       return {
         decimals: matchingTokenInAoTokens.Denomination,
         id: matchingTokenInAoTokens.id,
+        name: matchingTokenInAoTokens.Name,
         ticker: matchingTokenInAoTokens.Ticker,
-        type: "asset",
+        type: matchingTokenInAoTokens.type || "asset",
         balance: matchingTokenInAoTokens.balance,
         defaultLogo: matchingTokenInAoTokens.Logo
       };
@@ -574,7 +575,11 @@ export function SendView({ params: { id } }: SendViewProps) {
               <LogoWrapper small>
                 <Logo src={logo || arweaveLogo} />
               </LogoWrapper>
-              <TokenName>{token.name || token.ticker}</TokenName>
+              <TokenName>
+                {token.type === "collectible"
+                  ? token.name || token.ticker
+                  : token.ticker}
+              </TokenName>
               {isAo && <Image src={aoLogo} alt="ao logo" />}
             </LogoAndDetails>
             <TokenSelectorRightSide>
@@ -612,19 +617,21 @@ export function SendView({ params: { id } }: SendViewProps) {
           <TokensList>
             <ArToken onClick={() => updateSelectedToken("AR")} />
 
-            {aoTokens.map((token, i) => (
-              <Token
-                key={token.id}
-                ao={true}
-                type={"asset"}
-                defaultLogo={token?.Logo}
-                id={token.id}
-                ticker={token.Ticker}
-                divisibility={token.Denomination}
-                balance={token.balance || "0"}
-                onClick={() => updateSelectedToken(token.id)}
-              />
-            ))}
+            {aoTokens
+              .filter((token) => token.type !== "collectible")
+              .map((token, i) => (
+                <Token
+                  key={token.id}
+                  ao={true}
+                  type={"asset"}
+                  defaultLogo={token?.Logo}
+                  id={token.id}
+                  ticker={token.Ticker}
+                  divisibility={token.Denomination}
+                  balance={token.balance || "0"}
+                  onClick={() => updateSelectedToken(token.id)}
+                />
+              ))}
 
             {tokens
               .filter((token) => token.type === "asset")
@@ -638,15 +645,14 @@ export function SendView({ params: { id } }: SendViewProps) {
           </TokensList>
 
           <CollectiblesList>
-            {tokens
+            {aoTokens
               .filter((token) => token.type === "collectible")
               .map((token, i) => (
                 <Collectible
                   id={token.id}
-                  name={token.name || token.ticker}
+                  name={token.Name || token.Ticker}
                   balance={token.balance}
-                  divisibility={token.divisibility}
-                  decimals={token.decimals}
+                  divisibility={token.Denomination}
                   onClick={() => updateSelectedToken(token.id)}
                   key={i}
                 />

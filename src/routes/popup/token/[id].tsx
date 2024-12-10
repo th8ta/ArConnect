@@ -43,7 +43,7 @@ import browser from "webextension-polyfill";
 import Skeleton from "~components/Skeleton";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
-import { useGateway } from "~gateways/wayfinder";
+import { STAKED_GQL_FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 import HeadV2 from "~components/popup/HeadV2";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 
@@ -119,11 +119,7 @@ export function AssetView({ params: { id } }: AssetViewProps) {
 
   // token gateway
   const tokens = useTokens();
-  const defaultGateway = useGateway({
-    startBlock: 0,
-    graphql: true,
-    ensureStake: true
-  });
+  const defaultGateway = useGateway(STAKED_GQL_FULL_HISTORY);
   const gateway = useMemo(
     () => tokens.find((t) => t.id === id)?.gateway || defaultGateway,
     [id, defaultGateway]

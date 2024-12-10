@@ -1,4 +1,7 @@
+import BigNumber from "bignumber.js";
+import { useState, useCallback, useEffect } from "react";
 import redstone from "redstone-api";
+import { retryWithDelay } from "~utils/promises/retry";
 
 /**
  * Compare two currencies
@@ -36,6 +39,44 @@ export async function getArPrice(currency: string) {
 
     return res.source.coingecko;
   }
+}
+
+/**
+ * Hook to fetch and manage AR token price in React Native
+ * @param currency Currency to get the price in
+ * @returns Object containing price as BigNumber, loading state, and reload function
+ */
+export function useArPrice(currency: string) {
+  const [price, setPrice] = useState<BigNumber>(new BigNumber(0));
+  const [loading, setLoading] = useState(true);
+
+  const fetchPrice = useCallback(async () => {
+    if (!currency) {
+      setPrice(new BigNumber(0));
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await retryWithDelay(() => getArPrice(currency));
+      setPrice(new BigNumber(result || 0));
+    } catch {
+      setPrice(new BigNumber(0));
+    } finally {
+      setLoading(false);
+    }
+  }, [currency]);
+
+  useEffect(() => {
+    fetchPrice();
+  }, [fetchPrice]);
+
+  const reload = () => {
+    fetchPrice();
+  };
+
+  return { price, loading, reload };
 }
 
 interface CoinGeckoPriceResult {

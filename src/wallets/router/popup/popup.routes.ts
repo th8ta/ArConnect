@@ -12,7 +12,6 @@ import { ReceiveView } from "~routes/popup/receive";
 import { SendView } from "~routes/popup/send";
 import { SendAuthView } from "~routes/popup/send/auth";
 import { ConfirmView } from "~routes/popup/send/confirm";
-import { RecipientView } from "~routes/popup/send/recipient";
 import { ApplicationsView } from "~routes/popup/settings/apps";
 import { AppSettingsView } from "~routes/popup/settings/apps/[url]";
 import { AppPermissionsView } from "~routes/popup/settings/apps/[url]/permissions";
@@ -65,7 +64,6 @@ export type PopupRoutePath =
   | `/transaction/${string}/${string}`
   | `/send/confirm/${string}/${string}/${string}`
   | `/send/confirm/${string}/${string}/${string}/${string}`
-  | `/send/recipient/${string}/${string}/${string}`
   | `/quick-settings`
   | `/quick-settings/wallets`
   | `/quick-settings/wallets/${string}`
@@ -104,7 +102,6 @@ export const PopupPaths = {
   Collectible: "/collectible/:id",
   Transaction: "/transaction/:id/:gateway?",
   Confirm: "/send/confirm/:token/:qty/:recipient/:message?",
-  Recipient: "/send/recipient/:token/:qty/:message?",
   QuickSettings: "/quick-settings",
   Wallets: "/quick-settings/wallets",
   Wallet: "/quick-settings/wallets/:address",
@@ -208,12 +205,10 @@ export const POPUP_ROUTES = [
     component: TransactionView
   },
   {
+    // TODO: This route is incorrect/misleading as a lot of its params are actually ignored and loaded from a temp tx
+    // stored in the temp storage:
     path: PopupPaths.Confirm,
     component: ConfirmView
-  },
-  {
-    path: PopupPaths.Recipient,
-    component: RecipientView
   },
   {
     path: PopupPaths.QuickSettings,

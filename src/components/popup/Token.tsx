@@ -11,7 +11,7 @@ import { loadTokenLogo, type Token } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { ButtonV2, Text, TooltipV2 } from "@arconnect/components";
-import { getArPrice } from "~lib/coingecko";
+import { useArPrice } from "~lib/coingecko";
 import { usePrice } from "~lib/redstone";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
@@ -467,13 +467,7 @@ export function ArToken({ onClick }: ArTokenProps) {
   const [currency] = useSetting<string>("currency");
 
   // load arweave price
-  const [price, setPrice] = useState(0);
-
-  useEffect(() => {
-    getArPrice(currency)
-      .then((v) => setPrice(v))
-      .catch();
-  }, [currency]);
+  const { price } = useArPrice(currency);
 
   // theme
   const theme = useTheme();

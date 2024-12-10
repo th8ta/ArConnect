@@ -31,6 +31,7 @@ const Tab = ({ tab, active, setActiveTab }: TabProps) => (
 export default function Tabs() {
   const [activeTab, setActiveTab] = useState(0);
 
+  // TODO: This could/should be implemented using a nested router:
   const tabs = [
     { id: 0, name: "assets", component: Tokens },
     { id: 1, name: "collectibles", component: Collectibles },

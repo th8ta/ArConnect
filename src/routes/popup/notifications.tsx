@@ -110,7 +110,10 @@ export function NotificationsView() {
                 ticker = formatAddress(notification.tokenId, 4);
                 quantityTransfered = notification.quantity;
               } else {
-                ticker = token.Ticker;
+                ticker =
+                  token?.type === "collectible"
+                    ? token.Name! || token.Ticker!
+                    : token.Ticker! || token.Name!;
                 quantityTransfered = balanceToFractioned(
                   notification.quantity,
                   {

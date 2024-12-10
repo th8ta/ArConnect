@@ -3,15 +3,17 @@ import {
   useSearch as useWearch,
   useLocation as useWouterLocation
 } from "wouter";
-import type {
-  RouteConfig,
-  ArConnectRoutePath,
-  RoutePath,
-  RouteOverride,
-  RouteRedirect,
-  NavigateAction,
-  NavigateFn,
-  NavigateOptions
+import {
+  type RouteConfig,
+  type ArConnectRoutePath,
+  type RoutePath,
+  type RouteOverride,
+  type RouteRedirect,
+  type NavigateFn,
+  type NavigateOptions,
+  type NavigateAction,
+  type CustomHistoryEntry,
+  isNavigateAction
 } from "~wallets/router/router.types";
 
 export const OVERRIDES_PREFIX = "/__OVERRIDES/" as const;
@@ -59,11 +61,14 @@ export function BodyScroller() {
   return null;
 }
 
-function isNavigateAction(
-  to: ArConnectRoutePath | NavigateAction
-): to is NavigateAction {
-  return typeof to === "number" || !to.startsWith("/");
-}
+// This is just a temporary fix until either:
+// - Wouter adds support for `history`.
+// - We replace Wouter with a more capable routing library.
+// - We implement a proper HistoryProvider that listens for location/history changes and updates its state accordingly.
+
+const customHistory: CustomHistoryEntry[] = [];
+
+const HISTORY_SIZE_LIMIT = 32;
 
 export function useLocation() {
   const [wocation, wavigate] = useWouterLocation();
@@ -116,14 +121,28 @@ export function useLocation() {
         }
       }
 
+      customHistory.push({ to: toPath, options });
+      customHistory.splice(0, customHistory.length - HISTORY_SIZE_LIMIT);
+
       return wavigate(toPath, options);
     },
     [wocation, wavigate]
   ) satisfies NavigateFn;
 
   const back = useCallback(() => {
-    history.back();
-  }, []);
+    // Remove current route...:
+    customHistory.pop();
+
+    // ...and read the last one where we want to navigate to:
+    const lastRoute = customHistory[customHistory.length - 1];
+
+    // Navigate to the previous route (if available):
+    if (lastRoute) wavigate(lastRoute.to, lastRoute.options);
+    else wavigate("/");
+
+    // Wouter doesn't handle history, so this won't work:
+    // history.back();
+  }, [wocation, wavigate]);
 
   return {
     location: wocation,

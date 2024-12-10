@@ -89,14 +89,7 @@ export const advancedSettings: (DashboardRouteConfig | Setting)[] = [
     icon: BellIcon,
     component: SignSettingsDashboardView
   },
-  ...settings
-    .filter((setting) => setting.name !== "display_theme")
-    .map((setting) => ({
-      name: setting.name,
-      displayName: setting.displayName,
-      description: setting.description,
-      icon: setting.icon
-    })),
+  ...settings.filter((setting) => setting.name !== "display_theme"),
   // TODO
   /*{
     name: "config",

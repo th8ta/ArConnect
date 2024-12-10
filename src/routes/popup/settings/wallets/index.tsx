@@ -8,7 +8,7 @@ import type { StoredWallet } from "~wallets";
 import { Reorder } from "framer-motion";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import { useGateway } from "~gateways/wayfinder";
+import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 import WalletListItem from "~components/dashboard/list/WalletListItem";
 import SearchInput from "~components/dashboard/SearchInput";
 import HeadV2 from "~components/popup/HeadV2";
@@ -44,7 +44,7 @@ export function WalletsView() {
   const findProfile = (address: string) =>
     ansProfiles.find((profile) => profile.user === address);
 
-  const gateway = useGateway({ startBlock: 0 });
+  const gateway = useGateway(FULL_HISTORY);
 
   function findAvatar(address: string) {
     const avatar = findProfile(address)?.avatar;

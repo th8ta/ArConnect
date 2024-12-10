@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState, type HTMLProps } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { useBalance } from "~wallets/hooks";
-import { getArPrice } from "~lib/coingecko";
+import { useArPrice } from "~lib/coingecko";
 import { getAppURL } from "~utils/format";
 import { useTheme } from "~utils/theme";
 import {
@@ -42,20 +42,9 @@ export default function Balance() {
   const balance = useBalance();
 
   // balance in local currency
-  const [fiat, setFiat] = useState(BigNumber("0"));
   const [currency] = useSetting<string>("currency");
-
-  useEffect(() => {
-    (async () => {
-      if (!currency) return;
-
-      // fetch price in currency
-      const arPrice = await getArPrice(currency);
-
-      // calculate fiat balance
-      setFiat(BigNumber(arPrice).multipliedBy(balance));
-    })();
-  }, [balance.toString(), currency]);
+  const { price } = useArPrice(currency);
+  const fiat = useMemo(() => price.multipliedBy(balance), [price, balance]);
 
   // balance display
   const [hideBalance, setHideBalance] = useStorage<boolean>(

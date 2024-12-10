@@ -3,6 +3,7 @@ import { useAuth } from "~utils/authentication/authentication.hooks";
 import type { AuthStatus } from "~utils/authentication/authentication.provider";
 import { NOOP } from "~utils/misc";
 import { useAuthRequestsLocation } from "~wallets/router/auth/auth-router.hook";
+import type { AuthRoutePath } from "~wallets/router/auth/auth.routes";
 import type { ExtensionRouteOverride } from "~wallets/router/extension/extension.routes";
 import type { EmbeddedRoutePath } from "~wallets/router/iframe/iframe.routes";
 import type {
@@ -35,7 +36,7 @@ export function useAuthStatusOverride() {
 }
 
 export const useEmbeddedLocation: BaseLocationHook = () => {
-  const { authStatus } = useAuth();
+  // const { authStatus } = useAuth();
   const override = useAuthStatusOverride();
   const [authRequestsLocation, authRequestsNavigate] =
     useAuthRequestsLocation();

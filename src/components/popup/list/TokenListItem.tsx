@@ -5,7 +5,7 @@ import { formatAddress } from "~utils/format";
 import { getDreForToken } from "~tokens";
 import { useTheme } from "~utils/theme";
 import * as viewblock from "~lib/viewblock";
-import { useGateway } from "~gateways/wayfinder";
+import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 import { concatGatewayURL } from "~gateways/utils";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
@@ -37,7 +37,7 @@ export function TokenListItem({ token, ao, onClick }: TokenListItemProps) {
   const [image, setImage] = useState(viewblock.getTokenLogo(token.id));
 
   // gateway
-  const gateway = useGateway({ startBlock: 0 });
+  const gateway = useGateway(FULL_HISTORY);
 
   useEffect(() => {
     (async () => {

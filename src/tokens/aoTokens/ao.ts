@@ -77,9 +77,13 @@ export function useAo() {
   return ao;
 }
 
-export function useAoTokens(
-  refresh?: boolean
-): [TokenInfoWithBalance[], boolean] {
+export function useAoTokens({
+  refresh,
+  type
+}: { refresh?: boolean; type?: "asset" | "collectible" } = {}): [
+  TokenInfoWithBalance[],
+  boolean
+] {
   const [tokens, setTokens] = useState<TokenInfoWithBalance[]>([]);
   const [balances, setBalances] = useState<{ id: string; balance: string }[]>(
     []
@@ -105,7 +109,7 @@ export function useAoTokens(
     instance: ExtensionStorage
   });
 
-  const [aoTokens] = useStorage<any[]>(
+  const [aoTokens] = useStorage<TokenInfo[]>(
     {
       key: "ao_tokens",
       instance: ExtensionStorage
@@ -123,14 +127,22 @@ export function useAoTokens(
         }
 
         setTokens(
-          aoTokens.map((aoToken) => ({
-            id: aoToken.processId,
-            balance: "0",
-            Ticker: aoToken.Ticker,
-            Name: aoToken.Name,
-            Denomination: Number(aoToken.Denomination || 0),
-            Logo: aoToken?.Logo
-          }))
+          aoTokens
+            .filter((t) => {
+              if (!type) return true;
+              else if (type === "asset") return t.type === "asset" || !t.type;
+              else if (type === "collectible") return t.type === "collectible";
+              return false;
+            })
+            .map((aoToken) => ({
+              id: aoToken.processId,
+              balance: "0",
+              Ticker: aoToken.Ticker,
+              Name: aoToken.Name,
+              Denomination: Number(aoToken.Denomination || 0),
+              Logo: aoToken?.Logo,
+              type: aoToken.type || "asset"
+            }))
         );
       } catch {}
     })();
@@ -146,24 +158,34 @@ export function useAoTokens(
       setLoading(true);
       try {
         const balances = await Promise.all(
-          tokens.map(async ({ id }) => {
+          tokens.map(async (token) => {
             try {
               const balance = await timeoutPromise(
                 (async () => {
-                  if (id === AO_NATIVE_TOKEN) {
+                  if (token.id === AO_NATIVE_TOKEN) {
                     const res = await getNativeTokenBalance(activeAddress);
                     return res;
                   } else {
                     let balance: string;
-                    if (refresh) {
-                      const aoToken = await Token(id);
+                    if (token.type === "collectible") {
                       balance = (
-                        await aoToken.getBalance(activeAddress)
+                        await getAoCollectibleBalance(token, activeAddress)
                       ).toString();
                     } else {
-                      balance = (await getAoTokenBalance(activeAddress, id))
-                        .toString()
-                        .toString();
+                      if (refresh) {
+                        const aoToken = await Token(token.id);
+                        balance = (
+                          await aoToken.getBalance(activeAddress)
+                        ).toString();
+                      } else {
+                        balance = (
+                          await getAoTokenBalance(
+                            activeAddress,
+                            token.id,
+                            token
+                          )
+                        ).toString();
+                      }
                     }
                     if (balance) {
                       return balance;
@@ -177,7 +199,7 @@ export function useAoTokens(
               );
 
               return {
-                id,
+                id: token.id,
                 balance
               };
             } catch (error) {
@@ -186,9 +208,9 @@ export function useAoTokens(
                 error?.message.includes("ERR_SSL_PROTOCOL_ERROR") ||
                 error?.message.includes("ERR_CONNECTION_CLOSED")
               ) {
-                return { id, balance: "" };
+                return { id: token.id, balance: "" };
               }
-              return { id, balance: null };
+              return { id: token.id, balance: null };
             }
           })
         );
@@ -206,11 +228,15 @@ export function useAoTokens(
 
 export async function getAoTokenBalance(
   address: string,
-  process: string
+  process: string,
+  aoToken?: TokenInfo
 ): Promise<Quantity> {
-  const aoTokens = (await ExtensionStorage.get<TokenInfo[]>("ao_tokens")) || [];
+  if (!aoToken) {
+    const aoTokens =
+      (await ExtensionStorage.get<TokenInfo[]>("ao_tokens")) || [];
 
-  let aoToken = aoTokens.find((token) => token.processId === process);
+    aoToken = aoTokens.find((token) => token.processId === process);
+  }
 
   const res = await dryrun({
     Id,
@@ -248,6 +274,24 @@ export async function getAoTokenBalance(
 
   // default return
   return new Quantity(0n, 12n);
+}
+
+export async function getAoCollectibleBalance(
+  collectible: TokenInfoWithBalance,
+  address: string
+): Promise<Quantity> {
+  const res = await dryrun({
+    Id,
+    Owner: address,
+    process: collectible.processId || collectible.id,
+    tags: [{ name: "Action", value: "Balance" }],
+    data: JSON.stringify({ Target: address })
+  });
+
+  const balance = res.Messages[0].Data;
+  return balance
+    ? new Quantity(BigInt(balance), BigInt(collectible.Denomination))
+    : new Quantity(0, BigInt(collectible.Denomination));
 }
 
 export async function getNativeTokenBalance(address: string): Promise<string> {
@@ -485,6 +529,7 @@ export interface TokenInfo {
   Denomination: number;
   processId?: string;
   lastUpdated?: string | null;
+  type?: "asset" | "collectible";
 }
 
 export type TokenInfoWithProcessId = TokenInfo & { processId: string };

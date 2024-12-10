@@ -37,7 +37,21 @@ export type ArConnectRoutePath =
 
 // navigate():
 
+export interface CustomHistoryEntry<S = any> {
+  to: ArConnectRoutePath;
+  options?: {
+    replace?: boolean;
+    state?: S;
+  };
+}
+
 export type NavigateAction = "prev" | "next" | "up" | number;
+
+export function isNavigateAction(
+  to: ArConnectRoutePath | NavigateAction
+): to is NavigateAction {
+  return typeof to === "number" || !to.startsWith("/");
+}
 
 export interface NavigateOptions<S = any> {
   replace?: boolean;

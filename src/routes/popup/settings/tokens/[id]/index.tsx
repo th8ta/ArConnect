@@ -118,27 +118,22 @@ export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
               />
             </TooltipV2>
           </TokenAddress>
-          {!isAoToken && (
-            <SelectV2
-              small
-              label={browser.i18n.getMessage("token_type")}
-              onChange={(e) => {
-                // @ts-expect-error
-                updateType(e.target.value as TokenType);
-              }}
-              fullWidth
-            >
-              <option value="asset" selected={token.type === "asset"}>
-                {browser.i18n.getMessage("token_type_asset")}
-              </option>
-              <option
-                value="collectible"
-                selected={token.type === "collectible"}
-              >
-                {browser.i18n.getMessage("token_type_collectible")}
-              </option>
-            </SelectV2>
-          )}
+          <SelectV2
+            small
+            label={browser.i18n.getMessage("token_type")}
+            onChange={(e) => {
+              // @ts-expect-error
+              updateType(e.target.value as TokenType);
+            }}
+            fullWidth
+          >
+            <option value="asset" selected={token.type === "asset"}>
+              {browser.i18n.getMessage("token_type_asset")}
+            </option>
+            <option value="collectible" selected={token.type === "collectible"}>
+              {browser.i18n.getMessage("token_type_collectible")}
+            </option>
+          </SelectV2>
         </div>
         <ButtonV2
           fullWidth

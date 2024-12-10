@@ -135,6 +135,8 @@ const processAoTransaction = async (
   const quantityTag = transaction.node.tags.find(
     (tag) => tag.name === "Quantity"
   );
+  const isCollectible = tokenData?.type === "collectible";
+
   return {
     ...transaction,
     transactionType: type,
@@ -145,7 +147,10 @@ const processAoTransaction = async (
     aoInfo: {
       quantity: quantityTag ? quantityTag.value : undefined,
       tickerName:
-        tokenData?.Ticker || formatAddress(transaction.node.recipient, 4),
+        (isCollectible
+          ? tokenData?.Name! || tokenData?.Ticker!
+          : tokenData?.Ticker! || tokenData?.Name!) ||
+        formatAddress(transaction.node.recipient, 4),
       denomination: tokenData?.Denomination || 0
     }
   };

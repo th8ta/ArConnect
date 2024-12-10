@@ -73,7 +73,8 @@ export function TokensView() {
         Ticker: token.Ticker,
         Denomination: token.Denomination,
         Logo: token.Logo,
-        processId: token.id
+        processId: token.id,
+        type: token.type || "asset"
       });
       await ExtensionStorage.set("ao_tokens", aoTokens);
       setToast({
@@ -149,7 +150,7 @@ export function TokensView() {
             type={"asset"}
             defaultLogo={token?.Logo}
             id={token.id}
-            ticker={token.Ticker}
+            ticker={token.type === "collectible" ? token.Name : token.Ticker}
             balance={token.balance || "0"}
             onClick={(e) => {
               e.preventDefault();

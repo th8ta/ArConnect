@@ -28,7 +28,7 @@ import Title from "~components/popup/Title";
 import Head from "~components/popup/Head";
 import styled from "styled-components";
 import { concatGatewayURL } from "~gateways/utils";
-import { findGateway, useGateway } from "~gateways/wayfinder";
+import { findGateway, FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 import { useCurrentAuthRequest } from "~utils/auth/auth.hooks";
 import { HeadAuth } from "~components/HeadAuth";
 import { AuthButtons } from "~components/auth/AuthButtons";
@@ -171,7 +171,7 @@ export function TokenAuthRequestView() {
     return () => window.removeEventListener("keydown", listener);
   }, [done]);
 
-  const gateway = useGateway({ startBlock: 0 });
+  const gateway = useGateway(FULL_HISTORY);
 
   return (
     <Wrapper>

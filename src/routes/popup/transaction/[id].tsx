@@ -14,8 +14,8 @@ import {
   useState,
   type MutableRefObject
 } from "react";
-import { useGateway } from "~gateways/wayfinder";
-import { useLocation } from "~wallets/router/router.utils";
+import { STAKED_GQL_FULL_HISTORY, useGateway } from "~gateways/wayfinder";
+import { useLocation, useSearchParams } from "~wallets/router/router.utils";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -49,7 +49,10 @@ import BigNumber from "bignumber.js";
 import { fetchTokenByProcessId } from "~lib/transactions";
 import { useStorage } from "@plasmohq/storage/hook";
 import type { StoredWallet } from "~wallets";
-import type { CommonRouteProps } from "~wallets/router/router.types";
+import type {
+  ArConnectRoutePath,
+  CommonRouteProps
+} from "~wallets/router/router.types";
 
 // pull contacts and check if to address is in contacts
 
@@ -62,19 +65,17 @@ interface ao {
 export interface TransactionViewParams {
   id: string;
   // encodeURIComponent transformed gateway url
-  gw?: string;
+  gateway?: string;
   message?: boolean;
 }
 
 export type TransactionViewProps = CommonRouteProps<TransactionViewParams>;
 
 export function TransactionView({
-  params: { id: rawId, gw, message }
+  params: { id, gateway: gw, message }
 }: TransactionViewProps) {
   const { navigate, back } = useLocation();
-
-  // fixup id
-  const id = useMemo(() => rawId.split("?")[0], [rawId]);
+  const { back: backPath } = useSearchParams<{ back?: string }>();
 
   // TODO: Should this be a redirect?
   if (!id) return <></>;
@@ -112,11 +113,7 @@ export function TransactionView({
   const [showTags, setShowTags] = useState<boolean>(false);
 
   // arweave gateway
-  const defaultGateway = useGateway({
-    ensureStake: true,
-    startBlock: 0,
-    graphql: true
-  });
+  const defaultGateway = useGateway(STAKED_GQL_FULL_HISTORY);
   const gateway = useMemo(() => {
     if (!gw) {
       return defaultGateway;
@@ -198,7 +195,11 @@ export function TransactionView({
                 id: data.transaction.recipient,
                 decimals: Number(tokenInfo.Denomination)
               });
-              setTicker(tokenInfo.Ticker);
+              setTicker(
+                tokenInfo?.type === "collectible"
+                  ? tokenInfo.Name!
+                  : tokenInfo.Ticker!
+              );
               data.transaction.quantity = { ar: amount.toFixed(), winston: "" };
               data.transaction.recipient = aoRecipient.value;
             }
@@ -304,19 +305,6 @@ export function TransactionView({
     })();
   }, [id, transaction, gateway, isBinary, isPrintTx]);
 
-  // get custom back params
-  const [backPath, setBackPath] = useState<string>();
-
-  useEffect(() => {
-    const search = window.location.href.split("?");
-    const params = new URLSearchParams(search[search.length - 1]);
-    const back = params.get("back");
-
-    if (!back) return;
-
-    setBackPath(back);
-  }, []);
-
   // Clears out current transaction
   useEffect(() => {
     (async () => {
@@ -341,10 +329,15 @@ export function TransactionView({
             message ? "message" : "transaction_complete"
           )}
           back={() => {
+            // This is misleading and `backPath` is only used to indicate whether the back button actually navigates
+            // back or goes straight to Home. This is because this page is also accessed from the Home > Transactions
+            // tab items, which set `backPath = "/transactions"`, but pressing the back button would instead (but
+            // correctly) navigate Home. Also, in the `else` block it looks like there are other options, but actually
+            // there aren't; that branch always does `navigate("/")`:
             if (backPath === "/notifications" || backPath === "/transactions") {
               back();
             } else {
-              navigate("/");
+              navigate((backPath as ArConnectRoutePath) || "/");
             }
           }}
         />

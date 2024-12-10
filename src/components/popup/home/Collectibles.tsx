@@ -1,23 +1,16 @@
 import { Heading, TokenCount, ViewAll } from "../Title";
 import { Spacer, Text } from "@arconnect/components";
-import { useTokens } from "~tokens";
-import { useMemo } from "react";
 import browser from "webextension-polyfill";
 import Collectible from "../Collectible";
 import styled from "styled-components";
 import { useLocation } from "~wallets/router/router.utils";
+import { useAoTokens } from "~tokens/aoTokens/ao";
 
 export default function Collectibles() {
   const { navigate } = useLocation();
 
   // all tokens
-  const tokens = useTokens();
-
-  // collectibles
-  const collectibles = useMemo(
-    () => tokens.filter((token) => token.type === "collectible"),
-    [tokens]
-  );
+  const [collectibles] = useAoTokens({ type: "collectible" });
 
   return (
     <>
@@ -40,10 +33,9 @@ export default function Collectibles() {
         {collectibles.slice(0, 6).map((collectible, i) => (
           <Collectible
             id={collectible.id}
-            name={collectible.name || collectible.ticker}
+            name={collectible.Name || collectible.Ticker}
             balance={collectible.balance}
-            divisibility={collectible.divisibility}
-            decimals={collectible.decimals}
+            divisibility={collectible.Denomination}
             onClick={() => navigate(`/collectible/${collectible.id}`)}
             key={i}
           />
