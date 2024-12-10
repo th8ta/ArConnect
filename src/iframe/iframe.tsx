@@ -25,6 +25,8 @@ export function ArConnectEmbeddedApp() {
   );
 }
 
+// TODO: WalletsProvider is probably needed to as for the MVP the wallet is just going to be loaded into storage (and deleted every time?)
+
 export function ArConnectEmbeddedAppRoot() {
   return (
     <ArConnectThemeProvider>

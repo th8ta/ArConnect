@@ -11,23 +11,36 @@ export type AuthStatus =
   | "authLoading"
   | "noAuth"
   | "noWallets"
+  // | "noShard"
   | "loading"
   | "locked"
   | "unlocked";
 
+export type AuthMethod = "passkey" | "emailPassword" | "google";
+
+export interface AuthWallet {
+  alias: string;
+  ans: any;
+  pns: any;
+  identifierType: "alias" | "ans" | "pns";
+  status: "inactive" | "active" | "";
+  address: string; // TODO: Depending on privacy setting?
+  publicKey: string; // TODO: Depending on privacy setting?
+}
+
 export interface UserDetails {
-  username: string;
+  id: string;
 }
 
 interface AuthContextState {
   authStatus: AuthStatus;
+  authMethod: AuthMethod;
+  wallets: AuthWallet;
   user: UserDetails;
 }
 
 interface AuthContextData extends AuthContextState {
-  signIn: () => Promise<void>;
-  signUp: () => Promise<void>;
-  signOut: () => Promise<void>;
+  mockedAuthenticate: () => Promise<void>;
 }
 
 const AUTH_REQUESTS_CONTEXT_INITIAL_STATE: AuthContextState = {
@@ -37,9 +50,7 @@ const AUTH_REQUESTS_CONTEXT_INITIAL_STATE: AuthContextState = {
 
 export const AuthContext = createContext<AuthContextData>({
   ...AUTH_REQUESTS_CONTEXT_INITIAL_STATE,
-  signIn: async () => {},
-  signUp: async () => {},
-  signOut: async () => {}
+  mockedAuthenticate: async () => {}
 });
 
 interface AuthProviderProps extends PropsWithChildren {}
@@ -73,15 +84,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     checkAuth();
   }, []);
 
-  const signIn = useCallback(() => {
-    return Promise.resolve(null);
-  }, []);
-
-  const signUp = useCallback(() => {
-    return Promise.resolve(null);
-  }, []);
-
-  const signOut = useCallback(() => {
+  const mockedAuthenticate = useCallback(() => {
     return Promise.resolve(null);
   }, []);
 
@@ -90,9 +93,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       value={{
         authStatus,
         user,
-        signIn,
-        signUp,
-        signOut
+        mockedAuthenticate
       }}
     >
       {children}

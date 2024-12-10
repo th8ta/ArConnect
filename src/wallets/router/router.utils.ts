@@ -13,7 +13,7 @@ import {
   type NavigateOptions,
   type NavigateAction,
   type CustomHistoryEntry,
-  isNavigateAction
+  type BaseLocationHook
 } from "~wallets/router/router.types";
 
 export const OVERRIDES_PREFIX = "/__OVERRIDES/" as const;
@@ -29,6 +29,12 @@ export function isRouteRedirect<T extends RoutePath>(
   path: RoutePath | RouteOverride | RouteRedirect<T>
 ): path is RouteRedirect<T> {
   return path.startsWith(REDIRECT_PREFIX);
+}
+
+export function isNavigateAction(
+  to: ArConnectRoutePath | NavigateAction
+): to is NavigateAction {
+  return typeof to === "number" || !to.startsWith("/");
 }
 
 export function prefixRoutes(
@@ -47,6 +53,15 @@ export function parseRouteRedirect<T extends RoutePath>(
   routeRedirect: RouteRedirect<T>
 ): T {
   return routeRedirect.slice(REDIRECT_PREFIX.length - 1) as T;
+}
+
+export function routeTrap<T extends RoutePath>(
+  location: RoutePath,
+  baseRoute: T
+): null | RouteRedirect<T> {
+  return location === baseRoute || location.startsWith(`${baseRoute}/`)
+    ? null
+    : (`${REDIRECT_PREFIX}${baseRoute.slice(1)}` as RouteRedirect<T>);
 }
 
 export function BodyScroller() {
@@ -165,4 +180,27 @@ export function useSearchParams<S>() {
 
     return Object.fromEntries(searchParams.entries());
   }, [searchString]) as S;
+}
+
+export function withRouterRedirects(
+  locationHook: BaseLocationHook
+): BaseLocationHook {
+  const locationHookWithRedirects: BaseLocationHook = () => {
+    const [location, navigate] = locationHook();
+    const redirectLocation = isRouteRedirect(location)
+      ? parseRouteRedirect(location)
+      : undefined;
+
+    useEffect(() => {
+      if (!redirectLocation) return;
+
+      console.log("redirectLocation =", redirectLocation);
+
+      navigate(redirectLocation);
+    }, [redirectLocation]);
+
+    return [redirectLocation || location, navigate];
+  };
+
+  return locationHookWithRedirects;
 }

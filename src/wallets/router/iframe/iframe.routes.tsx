@@ -1,24 +1,56 @@
+import { GenerateWalletEmbeddedView } from "~routes/embedded/generate-wallet/generate-wallet.view";
+import { AddDeviceEmbeddedView } from "~routes/embedded/add-device/add-device.view";
+import { AuthenticateEmbeddedView } from "~routes/embedded/authenticate/authenticate.view";
+import { ImportWalletEmbeddedView } from "~routes/embedded/import-wallet/import-wallet.view";
+import { RestoreShardsEmbeddedView } from "~routes/embedded/restore-shards/restore-shards.view";
 import { AUTH_ROUTES } from "~wallets/router/auth/auth.routes";
 import { getExtensionOverrides } from "~wallets/router/extension/extension.routes";
 import { POPUP_ROUTES } from "~wallets/router/popup/popup.routes";
 import type { RouteConfig } from "~wallets/router/router.types";
 import { isRouteOverride, prefixRoutes } from "~wallets/router/router.utils";
+import { RecoverCredentialsEmbeddedView } from "~routes/embedded/recover-credentials/recover-credentials.view";
 
-export type EmbeddedRoutePath = "/auth" | "/auth/wallet";
+export type EmbeddedRoutePath =
+  | "/auth"
+  | "/auth/generate-wallet"
+  | "/auth/add-device"
+  | "/auth/import-wallet"
+  | "/auth/recover-credentials"
+  | "/auth/restore-shards";
 
 export const EmbeddedPaths = {
-  Auth: "/auth",
-  AuthWallet: "/auth/wallet"
+  Authenticate: "/auth",
+  GenerateWallet: "/auth/generate-wallet",
+  AddDevice: "/auth/add-device",
+  ImportWallet: "/auth/import-wallet",
+  RecoverCredentials: "/auth/recover-credentials",
+  RestoreShards: "/auth/restore-shards"
 } as const satisfies Record<string, EmbeddedRoutePath>;
 
 const IFRAME_OWN_ROUTES = [
   {
-    path: "/auth",
-    component: () => <p>Placeholder Auth</p>
+    path: EmbeddedPaths.Authenticate,
+    component: AuthenticateEmbeddedView
   },
   {
-    path: "/auth/wallet",
-    component: () => <p>Placeholder Auth / Wallet</p>
+    path: EmbeddedPaths.GenerateWallet,
+    component: GenerateWalletEmbeddedView
+  },
+  {
+    path: EmbeddedPaths.AddDevice,
+    component: AddDeviceEmbeddedView
+  },
+  {
+    path: EmbeddedPaths.ImportWallet,
+    component: ImportWalletEmbeddedView
+  },
+  {
+    path: EmbeddedPaths.RecoverCredentials,
+    component: RecoverCredentialsEmbeddedView
+  },
+  {
+    path: EmbeddedPaths.RestoreShards,
+    component: RestoreShardsEmbeddedView
   }
 ] as const satisfies RouteConfig<EmbeddedRoutePath>[];
 
