@@ -78,6 +78,8 @@ export function useAuthStatusOverride(
       );
     }
 
+    // TODO: Wha if we are here but the wallet, for whatever reason, is not in the wallet provider / ExtensionStore?
+
     // if (authStatus === "unlocked") force user to be outside /auth (except for confirmation screen while it has location state data)
   }
 

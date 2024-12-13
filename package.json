@@ -91,6 +91,7 @@
     "react-qr-reader": "^2.2.1",
     "redstone-api": "^0.4.11",
     "rss-parser": "^3.12.0",
+    "shamir-secret-sharing": "^0.0.3",
     "styled-components": "^5.3.6",
     "typed-assert": "^1.0.9",
     "uuid": "^9.0.0",

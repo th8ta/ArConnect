@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useEffect,
+  useRef,
   useState,
   type PropsWithChildren
 } from "react";
@@ -9,6 +10,9 @@ import {
   AuthenticationService,
   type AuthenticateData
 } from "~utils/authentication/authentication.service";
+import type { AuthMethod, DbWallet } from "~utils/authentication/fakeDB";
+import { WalletsService } from "~utils/wallets/wallets.service";
+import { WalletUtils } from "~utils/wallets/wallets.utils";
 
 export type AuthStatus =
   | "unknown"
@@ -22,41 +26,20 @@ export type AuthStatus =
   | "locked"
   | "unlocked";
 
-export type AuthMethod = "passkey" | "emailPassword" | "google";
-
-export interface AuthWallet {
-  alias: string;
-  // description?: string;
-  // tags?: string[];
-  ans: any;
-  pns: any;
-  identifierType: "alias" | "ans" | "pns";
-  status: "inactive" | "active" | "";
-  address: string; // TODO: Depending on privacy setting?
-  publicKey: string; // TODO: Depending on privacy setting?
-  lost?: boolean; // TODO: Or some other kind of user-defined status in case they'd like to tag this somehow without deleting? Maybe also readonly?
-}
-
-export interface UserDetails {
-  id: string;
-}
-
 interface AuthContextState {
   authStatus: AuthStatus;
-  authMethod: null | AuthMethod;
-  wallets: null | AuthWallet[];
-  user: null | UserDetails;
+  userId: null | string;
+  wallets: DbWallet[];
 }
 
 interface AuthContextData extends AuthContextState {
-  authenticate: (authMethod: AuthMethod) => Promise<AuthenticateData | null>;
+  authenticate: (authMethod: AuthMethod) => Promise<void>;
 }
 
 const AUTH_CONTEXT_INITIAL_STATE: AuthContextState = {
   authStatus: "unknown",
-  authMethod: null,
-  wallets: null,
-  user: null
+  userId: null,
+  wallets: []
 };
 
 export const AuthContext = createContext<AuthContextData>({
@@ -71,40 +54,95 @@ export function AuthProvider({ children }: AuthProviderProps) {
     AUTH_CONTEXT_INITIAL_STATE
   );
 
-  const updateAuthContextState = useCallback(
-    (authenticateData: null | AuthenticateData) => {
-      let authStatus = "noAuth" as AuthStatus;
-
-      if (authenticateData) {
-        if (authenticateData.wallets.length === 0) {
-          authStatus = "noWallets";
-        } else if (authenticateData.authShard === null) {
-          authStatus = "noShard";
-        }
-      }
-
-      setAuthContextState({
-        ...authenticateData,
-        authStatus
-      });
-    },
-    []
-  );
+  const { authStatus } = authContextState;
 
   useEffect(() => {
-    async function initAuth() {
-      // TODO: Handle error:
-      const authenticateData = await AuthenticationService.refreshSession();
-
-      updateAuthContextState(authenticateData);
-
+    if (authStatus !== "unknown") {
       const coverElement = document.getElementById("cover");
 
       coverElement.setAttribute("aria-hidden", "true");
     }
+  }, [authStatus]);
 
-    initAuth();
-  }, [updateAuthContextState]);
+  const initEmbeddedWallet = useCallback(async (authMethod?: AuthMethod) => {
+    let authStatus = "noAuth" as AuthStatus;
+
+    // TODO: Handle errors:
+
+    const authentication = authMethod
+      ? await AuthenticationService.authenticate(authMethod)
+      : await AuthenticationService.refreshSession();
+
+    if (!authentication.userId) {
+      setAuthContextState({
+        ...AUTH_CONTEXT_INITIAL_STATE,
+        authStatus
+      });
+
+      return;
+    }
+
+    const wallets = await WalletsService.fetchWallets();
+
+    if (wallets.length > 0) {
+      const deviceNonce = WalletUtils.getDeviceNonce();
+      const deviceShares = WalletUtils.getDeviceShares();
+
+      if (deviceNonce && deviceShares.length > 0) {
+        // TODO: The need to rotate might come in `wallets`, so this call below could already rotate the deviceNonce,
+        // send the old value and also rotate the wallet if needed...
+
+        // TODO: This step can be deferred until the wallet is going to be used...:
+        // TODO: Do this sequentially for each available deviceShare until one works:
+        const authShareResponse =
+          await WalletsService.fetchFirstAvailableAuthShare({
+            deviceNonce,
+            deviceShares
+          });
+
+        if (authShareResponse) {
+          if (authShareResponse.regenerateWallet) {
+            let oldDeviceNonce = WalletUtils.getDeviceNonce();
+
+            deviceNonce = WalletUtils.updateDeviceNonce();
+
+            // TODO: We need the public key and/or address to validate it's fine:
+            const newShares = WalletUtils.regenerateShares([
+              authShare,
+              deviceShares
+            ]);
+
+            // TODO: This wallet needs to be regenerated as well and the authShare updated. If this is not done after X
+            // "warnings", the Shards entry will be removed anyway.
+            await WalletsService.rotateDeviceShares({
+              oldDeviceNonce,
+              deviceNonce,
+              newShares
+            });
+          }
+
+          // TODO: Rebuild pk, generate random password, store encrypted in storage.
+          authStatus = "unlocked";
+        } else {
+          authStatus = "noShares";
+        }
+      } else {
+        authStatus = "noShares";
+      }
+    } else {
+      authStatus = "noWallets";
+    }
+  }, []);
+
+  const isInitializedRef = useRef(false);
+
+  useEffect(() => {
+    if (isInitializedRef.current) return;
+
+    isInitializedRef.current = true;
+
+    initEmbeddedWallet();
+  }, [initEmbeddedWallet]);
 
   const authenticate = useCallback(
     async (authMethod: AuthMethod) => {
@@ -115,16 +153,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         authStatus: "authLoading"
       });
 
-      // TODO: Handle error:
-      const authenticateResponse = await AuthenticationService.authenticate(
-        authMethod
-      );
-
-      updateAuthContextState(authenticateResponse);
-
-      return authenticateResponse;
+      // TODO: Handle errors:
+      await initEmbeddedWallet(authMethod);
     },
-    [updateAuthContextState]
+    [initEmbeddedWallet]
   );
 
   return (
