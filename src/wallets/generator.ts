@@ -19,6 +19,8 @@ import { wordlists, mnemonicToSeed } from "bip39-web-crypto";
  */
 export async function jwkFromMnemonic(mnemonic: string) {
   let seedBuffer = await mnemonicToSeed(mnemonic);
+
+  // TODO: Why not getKeyPairFromMnemonic()?
   const { privateKey } = await getKeyPairFromSeed(
     //@ts-ignore
     seedBuffer,
@@ -39,7 +41,9 @@ export async function jwkFromMnemonic(mnemonic: string) {
  * @param privateKey PKCS8 private key to convert
  * @returns JWK
  */
-async function pkcs8ToJwk(privateKey: Uint8Array): Promise<JWKInterface> {
+export async function pkcs8ToJwk(
+  privateKey: Uint8Array
+): Promise<JWKInterface> {
   const key = await window.crypto.subtle.importKey(
     "pkcs8",
     privateKey,

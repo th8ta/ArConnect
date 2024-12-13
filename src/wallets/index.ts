@@ -421,9 +421,18 @@ interface WalletWithNickname {
   nickname?: string;
 }
 
-export async function getWalletKeyLength(jwk: JWKInterface) {
+export interface WalletKeyLengths {
+  actualLength: number;
+  expectedLength: number;
+  match: boolean;
+}
+
+export async function getWalletKeyLength(
+  jwk: JWKInterface
+): Promise<WalletKeyLengths> {
   const signer = new ArweaveSigner(jwk);
   const expectedLength = signer.ownerLength;
   const actualLength = signer.publicKey.byteLength;
-  return { actualLength, expectedLength };
+  const match = actualLength === expectedLength;
+  return { actualLength, expectedLength, match };
 }
