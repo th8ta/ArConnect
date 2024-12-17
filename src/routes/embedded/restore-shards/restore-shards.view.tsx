@@ -3,6 +3,8 @@ import { WalletUtils } from "~utils/wallets/wallets.utils";
 import { Link } from "~wallets/router/components/link/Link";
 
 export function RestoreShardsEmbeddedView() {
+  // TODO: Where does this walletAddress come from? What do we store in localStorage for each shard? Shouldn't this be a hash?
+
   const handleContinue = async (
     walletAddress: string,
     recoveryShare: string
@@ -17,7 +19,7 @@ export function RestoreShardsEmbeddedView() {
       recoveryChallengeSignature
     );
 
-    const jwk = WalletUtils.recoverWalletJWK([
+    const jwk = WalletUtils.generateWalletJWKFromShards(walletAddress, [
       authRecoveryShare,
       recoveryShare
     ]);

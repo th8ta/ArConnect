@@ -14,6 +14,7 @@ export interface CreateWalletParams {
   deviceNonce: string;
   authShardFromDeviceShard: AuthShardFromOtherShard;
   authShardFromRecoveryShard: AuthShardFromOtherShard;
+  // recoverable?
 }
 
 async function createWallet(wallet: CreateWalletParams) {}

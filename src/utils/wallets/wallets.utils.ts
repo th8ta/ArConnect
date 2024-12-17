@@ -121,9 +121,10 @@ function generateRandomPassword(): string {
   return "";
 }
 
-// Combine:
-
-function combineShards() {
+function generateWalletJWKFromShards(
+  walletAddressORSIMILAR: string,
+  shards: string[]
+): JWKInterface {
   // TODO: Thus, it is the responsibility of users of this library to verify the integrity of the reconstructed secret.
 }
 
@@ -154,20 +155,22 @@ function storeDeviceNonce(deviceNonce: string) {
   localStorage.setItem(DEVICE_NONCE_KEY, deviceNonce);
 }
 
-function storeDeviceShare(deviceShare: string) {}
+function storeDeviceShare(
+  walletAddressORSIMILAR: string,
+  deviceShare: string
+) {}
 
-function storeKeyfile(jwk: JWKInterface, password: string) {}
-
-// function recoverPrivateKeyFromShards() {}
+function storeWalletJWK(jwk: JWKInterface, password: string) {}
 
 export const WalletUtils = {
   // Generation:
   generateSeedPhrase,
-  generateWalletJWK,
+  generateWalletJWK, // TODO: Rename to generateWalletKeyfile
   generateWalletWorkShares,
   generateWalletRecoveryShares,
   generateDeviceNonce,
   generateRandomPassword,
+  generateWalletJWKFromShards,
 
   // Getters:
   getDeviceNonce,
@@ -177,5 +180,5 @@ export const WalletUtils = {
   storeSeedPhrase,
   storeDeviceNonce,
   storeDeviceShare,
-  storeKeyfile
+  storeWalletJWK
 };
