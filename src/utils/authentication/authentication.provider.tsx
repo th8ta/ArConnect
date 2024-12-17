@@ -122,6 +122,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
 
           // TODO: Rebuild pk, generate random password, store encrypted in storage.
+
           authStatus = "unlocked";
         } else {
           authStatus = "noShares";

@@ -141,6 +141,8 @@ export function GenerateWalletEmbeddedView() {
     WalletUtils.storeDeviceNonce(deviceNonce);
     WalletUtils.storeDeviceShare(deviceShare);
 
+    // TODO Just call addWallet from AuthenticationProvider to to this:
+
     const randomPassword = WalletUtils.generateRandomPassword();
 
     WalletUtils.storeKeyfile(jwk, randomPassword);
