@@ -5,6 +5,7 @@ import * as SSS from "shamir-secret-sharing";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { defaultGateway } from "~gateways/gateway";
 import Arweave from "arweave";
+import { nanoid } from "nanoid";
 
 async function generateSeedPhrase() {
   console.log("1. generateSeedPhrase");
@@ -39,7 +40,14 @@ async function generateWalletJWK(seedPhrase: string): Promise<JWKInterface> {
   return generatedKeyfile;
 }
 
-async function generateWalletShards(jwk: JWKInterface) {
+export interface WorkShares {
+  authShare: string;
+  deviceShare: string;
+}
+
+async function generateWalletWorkShares(
+  jwk: JWKInterface
+): Promise<WorkShares> {
   console.log("3. generateWalletShards");
 
   const privateKey = await window.crypto.subtle.importKey(
@@ -62,37 +70,22 @@ async function generateWalletShards(jwk: JWKInterface) {
   // Wanna know why these are called "shares" and not shards?
   // See https://discuss.hashicorp.com/t/is-it-shards-or-shares-in-shamir-secret-sharing/38978/3
 
-  const [share1, share2, share3] = await SSS.split(exportedKey, 3, 2);
-
-  console.log("4. verifyingShards");
-
-  const reconstructed1 = await SSS.combine([share1, share2]);
-  const reconstructed2 = await SSS.combine([share1, share3]);
-  const reconstructed3 = await SSS.combine([share2, share3]);
-
-  console.log(btoa(reconstructed1 as any) === btoa(exportedKey as any)); // true
-  console.log(btoa(reconstructed2 as any) === btoa(exportedKey as any)); // true
-  console.log(btoa(reconstructed3 as any) === btoa(exportedKey as any)); // true
-
-  console.log("Are shares the same?");
-
-  const [share4, share5, share6] = await SSS.split(exportedKey, 3, 2);
-
-  console.log(btoa(share1 as any) === btoa(share4 as any)); // false
-  console.log(btoa(share2 as any) === btoa(share5 as any)); // false
-  console.log(btoa(share3 as any) === btoa(share6 as any)); // false
-
-  const reconstructedMixed = await SSS.combine([share1, share4]);
-  console.log(btoa(reconstructedMixed as any) === btoa(exportedKey as any)); // false
-
-  console.log("Are JWKs the same?");
-
-  const reconstructedJWK = await pkcs8ToJwk(reconstructed1);
-
-  console.log(
-    "SHOULD BE EQUAL",
-    JSON.stringify(jwk) === JSON.stringify(reconstructedJWK)
+  const [authShareBuffer, deviceShareBuffer] = await SSS.split(
+    exportedKey,
+    2,
+    2
   );
+
+  return {
+    authShare: btoa(authShareBuffer),
+    deviceShare: btoa(deviceShareBuffer)
+  };
+}
+
+async function generateWalletRecoveryShares(jwk: JWKInterface) {
+  // const reconstructedMixed = await SSS.combine([share1, share4]);
+  // const reconstructedJWK = await pkcs8ToJwk(reconstructed1);
+  /*
 
   const arweave = new Arweave(defaultGateway);
 
@@ -117,39 +110,72 @@ async function generateWalletShards(jwk: JWKInterface) {
     console.log("The key material has been tampered with", err);
   }
 
-  return [share1, share2, share3];
+  */
+}
 
+function generateDeviceNonce(): string {
+  return `${new Date().toISOString()}-${nanoid()}`;
+}
+
+function generateRandomPassword(): string {
+  return "";
+}
+
+// Combine:
+
+function combineShards() {
   // TODO: Thus, it is the responsibility of users of this library to verify the integrity of the reconstructed secret.
 }
 
+// Getters:
+
 function getDeviceNonce(): string {
-  return "";
+  return _deviceNonce;
 }
 
 function getDeviceShares(): string[] {
   return [""];
 }
 
-function storeDeviceShard(deviceShard: string) {}
+function getKeyfile(): JWKInterface {}
 
-function generateRandomPassword(): string {
-  return "";
+// Storage:
+
+function storeSeedPhrase(seedPhrase: string, jwk: JWKInterface) {}
+
+const DEVICE_NONCE_KEY = "DEVICE_NONCE_KEY";
+
+let _deviceNonce: string | null =
+  localStorage.getItem(DEVICE_NONCE_KEY) || null;
+
+function storeDeviceNonce(deviceNonce: string) {
+  _deviceNonce = deviceNonce;
+
+  localStorage.setItem(DEVICE_NONCE_KEY, deviceNonce);
 }
 
-function storePrivateKeyAndPassword(jwk: JWKInterface, password: string) {}
+function storeDeviceShare(deviceShare: string) {}
 
-function recoverPrivateKeyFromShards() {}
+function storeKeyfile(jwk: JWKInterface, password: string) {}
+
+// function recoverPrivateKeyFromShards() {}
 
 export const WalletUtils = {
   // Generation:
   generateSeedPhrase,
   generateWalletJWK,
-  generateWalletShards,
+  generateWalletWorkShares,
+  generateWalletRecoveryShares,
+  generateDeviceNonce,
+  generateRandomPassword,
 
-  // Shares:
+  // Getters:
   getDeviceNonce,
   getDeviceShares,
-  storeDeviceShard,
-  generateRandomPassword,
-  storePrivateKeyAndPassword
+
+  // Storage:
+  storeSeedPhrase,
+  storeDeviceNonce,
+  storeDeviceShare,
+  storeKeyfile
 };

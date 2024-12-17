@@ -80,7 +80,11 @@ export function useAuthStatusOverride(
 
     // TODO: Wha if we are here but the wallet, for whatever reason, is not in the wallet provider / ExtensionStore?
 
-    // if (authStatus === "unlocked") force user to be outside /auth (except for confirmation screen while it has location state data)
+    // if (authStatus === "unlocked")
+
+    // TODO: force user to be outside /auth (except for confirmation screen while it has location state data)
+    // TODO: What about the backup and export wallet pages? What would be their path prefix?
+    // TODO: Deploy already to vercel with screenshots and a bit better components to show to people
   }
 
   return AUTH_STATUS_TO_OVERRIDE[authStatus];
