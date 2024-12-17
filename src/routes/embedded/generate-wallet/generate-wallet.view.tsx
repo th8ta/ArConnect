@@ -119,16 +119,17 @@ export function GenerateWalletEmbeddedView() {
     const { authShare, deviceShare } =
       await WalletUtils.generateWalletWorkShares(jwk);
 
-    // if (maintainSeedPhrase) {
-    //   const encryptedSeedPhrase = crypto.subtle.encrypt();
-    //   WalletUtils.storeEncryptedSeedPhrase(encryptedSeedPhrase);
-    // }
+    // Maybe load some feature flags from our side, just in case?
+    if (embeddedWalletConfig.maintainSeedPhrase) {
+      WalletUtils.storeSeedPhrase(seedPhrase, jwk);
+    }
 
     // TODO: This should probably be generated on init in the provider. Instead, the getter should just reload the wallet
     // (so that it re-initializes) if the deviceNonce is missing at some point (which should not happen unless someone
     // is tampering with it).
 
-    const deviceNonce = WalletUtils.getOrGenerateDeviceNonce();
+    const deviceNonce =
+      WalletUtils.getDeviceNonce() || WalletUtils.generateDeviceNonce();
 
     await WalletService.createWallet({
       deviceNonce,
@@ -142,7 +143,7 @@ export function GenerateWalletEmbeddedView() {
 
     const randomPassword = WalletUtils.generateRandomPassword();
 
-    WalletUtils.storePrivateKeyAndPassword(jwk, randomPassword);
+    WalletUtils.storeKeyfile(jwk, randomPassword);
 
     // TODO: Generate new wallet and simply add it to mockedAuthenticateData and ExtensionStorage, then make sure the
     // router forces users out the auth screens and see if signing, etc. works.

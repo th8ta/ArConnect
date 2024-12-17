@@ -1,3 +1,5 @@
+import { WalletsService } from "~utils/wallets/wallets.service";
+import { WalletUtils } from "~utils/wallets/wallets.utils";
 import { Link } from "~wallets/router/components/link/Link";
 
 export function RestoreShardsEmbeddedView() {
@@ -7,11 +9,11 @@ export function RestoreShardsEmbeddedView() {
   ) => {
     // TODO: This registers a "recovery" event on the backend:
     const recoveryChallenge =
-      WalletService.fetchRecoveryChallenge(walletAddress);
+      WalletsService.fetchRecoveryChallenge(walletAddress);
 
     const recoveryChallengeSignature = null;
 
-    const authRecoveryShare = WalletService.resolveRecoveryChallenge(
+    const authRecoveryShare = WalletsService.resolveRecoveryChallenge(
       recoveryChallengeSignature
     );
 
@@ -26,13 +28,15 @@ export function RestoreShardsEmbeddedView() {
     // TODO: The new authShare needs to be updated to the backend, meaning also changing the deviceNonce
     const oldDeviceNonce = WalletUtils.getDeviceNonce();
 
-    const deviceNonce = WalletUtils.updateDeviceNonce();
+    if (!oldDeviceNonce) throw new Error("Missing `deviceNonce`");
+
+    const deviceNonce = WalletUtils.generateDeviceNonce();
 
     // TODO: This wallet needs to be regenerated as well and the authShare updated. If this is not done after X
     // "warnings", the Shards entry will be removed anyway.
     await WalletsService.rotateDeviceShares({
-      doldDeviceNonce,
-      eviceNonce,
+      oldDeviceNonce,
+      newDeviceNonce: deviceNonce,
       newShares: [authShare, deviceShare]
     });
 
@@ -42,7 +46,7 @@ export function RestoreShardsEmbeddedView() {
 
     const randomPassword = WalletUtils.generateRandomPassword();
 
-    WalletUtils.storePrivateKeyAndPassword(jwk, randomPassword);
+    WalletUtils.storeKeyfile(jwk, randomPassword);
 
     // TODO: Generate new wallet and simply add it to mockedAuthenticateData and ExtensionStorage, then make sure the
     // router forces users out the auth screens and see if signing, etc. works.
