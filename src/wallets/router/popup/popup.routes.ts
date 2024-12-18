@@ -11,6 +11,7 @@ import { PurchaseView } from "~routes/popup/purchase";
 import { ReceiveView } from "~routes/popup/receive";
 import { SendView } from "~routes/popup/send";
 import { SendAuthView } from "~routes/popup/send/auth";
+import { TransactionCompletedView } from "~routes/popup/send/completed";
 import { ConfirmView } from "~routes/popup/send/confirm";
 import { ApplicationsView } from "~routes/popup/settings/apps";
 import { AppSettingsView } from "~routes/popup/settings/apps/[url]";
@@ -64,6 +65,7 @@ export type PopupRoutePath =
   | `/transaction/${string}/${string}`
   | `/send/confirm/${string}/${string}/${string}`
   | `/send/confirm/${string}/${string}/${string}/${string}`
+  | `/send/completed/${string}`
   | `/quick-settings`
   | `/quick-settings/wallets`
   | `/quick-settings/wallets/${string}`
@@ -102,6 +104,7 @@ export const PopupPaths = {
   Collectible: "/collectible/:id",
   Transaction: "/transaction/:id/:gateway?",
   Confirm: "/send/confirm/:token/:qty/:recipient/:message?",
+  TransactionCompleted: "/send/completed/:id",
   QuickSettings: "/quick-settings",
   Wallets: "/quick-settings/wallets",
   Wallet: "/quick-settings/wallets/:address",
@@ -209,6 +212,10 @@ export const POPUP_ROUTES = [
     // stored in the temp storage:
     path: PopupPaths.Confirm,
     component: ConfirmView
+  },
+  {
+    path: PopupPaths.TransactionCompleted,
+    component: TransactionCompletedView
   },
   {
     path: PopupPaths.QuickSettings,

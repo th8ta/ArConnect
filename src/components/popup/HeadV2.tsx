@@ -20,7 +20,7 @@ import keystoneLogo from "url:/assets/hardware/keystone.png";
 import WalletSwitcher from "./WalletSwitcher";
 import styled from "styled-components";
 import { svgie } from "~utils/svgies";
-import type { AppInfo } from "~applications/application";
+import type { AppLogoInfo } from "~applications/application";
 import Squircle from "~components/Squircle";
 import { useLocation } from "~wallets/router/router.utils";
 
@@ -31,7 +31,7 @@ export interface HeadV2Props {
   showBack?: boolean;
   padding?: string;
   back?: (...args) => any;
-  appInfo?: AppInfo;
+  appInfo?: AppLogoInfo;
   onAppInfoClick?: () => void;
 }
 
@@ -100,7 +100,7 @@ export default function HeadV2({
   const hardwareApi = useHardwareApi();
 
   const appName = appInfo?.name;
-  const appIconPlaceholderText = appName?.slice(0, 2).toUpperCase();
+  const appIconPlaceholderText = appInfo?.placeholder;
 
   const SquircleWrapper = onAppInfoClick ? ButtonSquircle : React.Fragment;
 

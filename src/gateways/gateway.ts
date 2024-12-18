@@ -49,12 +49,14 @@ export const fallbackGateway = {
   protocol: "https"
 };
 
+export const goldskyGateway: Gateway = {
+  host: "arweave-search.goldsky.com",
+  port: 443,
+  protocol: "https"
+};
+
 export const printTxWorkingGateways: Gateway[] = [
-  {
-    host: "arweave-search.goldsky.com",
-    port: 443,
-    protocol: "https"
-  },
+  goldskyGateway,
   {
     host: "permagate.io",
     port: 443,

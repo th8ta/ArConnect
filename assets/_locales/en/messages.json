@@ -1,4 +1,16 @@
 {
+  "fallback": {
+    "message": "Oops, something isn't right. Try again later.",
+    "description": "Fallback error message"
+  },
+  "reload": {
+    "message": "Reload",
+    "description": "Reload button text"
+  },
+  "commonErrorInfo": {
+    "message": "Error Info",
+    "description": "Additional Fallback error message"
+  },
   "extensionDescription": {
     "message": "Secure wallet management for Arweave",
     "description": "Extension description"
@@ -1333,6 +1345,10 @@
     "message": "Click to view your last signed transaction",
     "description": "View last tx prompt content"
   },
+  "view_transaction_details": {
+    "message": "View transaction details",
+    "description": "View transaction details link text"
+  },
   "sign_item": {
     "message": "Sign item",
     "description": "Sign message popup title"
@@ -1341,13 +1357,31 @@
     "message": "Sign items",
     "description": "Batch sign message popup title"
   },
+  "titles_decrypt": {
+    "message": "Decrypt",
+    "description": "Request decrypt authorization password"
+  },
+  "decrypt_description": {
+    "message": "$APPNAME$ wants to decrypt and access the following data:",
+    "description": "Description for decrypting some data",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "permafacts.arweave.dev"
+      }
+    }
+  },
+  "decrypt_authorize": {
+    "message": "Authorize",
+    "description": "Authorize button label"
+  },
   "titles_signature": {
     "message": "Sign message",
     "description": "Sign message popup title"
   },
   "sign_data_description": {
     "message": "$APPNAME$ wants to sign a transaction. Review the details below.",
-    "description": "Desription for signing an item containing a transfer",
+    "description": "Description for signing an item containing a transfer",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -2305,6 +2339,10 @@
   "tokenRequestLoading": {
     "message": "Adding token...",
     "description": "Loading message for AuthRequest of type token"
+  },
+  "decryptRequestLoading": {
+    "message": "Decrypting...",
+    "description": "Loading message for AuthRequest of type decrypt"
   },
   "signRequestLoading": {
     "message": "Signing...",

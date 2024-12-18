@@ -1,5 +1,10 @@
 import { isValidGateway, sortGatewaysByOperatorStake } from "~lib/wayfinder";
-import { defaultGateway, type Gateway } from "./gateway";
+import {
+  defaultGateway,
+  goldskyGateway,
+  suggestedGateways,
+  type Gateway
+} from "./gateway";
 import { useEffect, useState } from "react";
 import { getGatewayCache } from "./cache";
 import { getSetting } from "~settings";
@@ -119,6 +124,75 @@ export function useGateway(requirements: Requirements) {
   ]);
 
   return activeGateway;
+}
+
+export async function findGraphqlGateways(count?: number) {
+  try {
+    const gateways = await getGatewayCache();
+
+    if (!gateways?.length) {
+      return suggestedGateways;
+    }
+
+    const filteredGateways = gateways.filter(
+      ({ ping, health }) =>
+        ping.status === "success" && health.status === "success"
+    );
+
+    if (!filteredGateways.length) {
+      return suggestedGateways;
+    }
+
+    return sortGatewaysByOperatorStake(filteredGateways)
+      .filter((gateway: any) => gateway?.properties?.GRAPHQL)
+      .slice(0, count || filteredGateways.length)
+      .map(({ settings: { fqdn, port, protocol } }) => ({
+        host: fqdn,
+        port,
+        protocol
+      }));
+  } catch {
+    return suggestedGateways;
+  }
+}
+
+export function useGraphqlGateways(count?: number) {
+  const [graphqlGateways, setGraphqlGateways] = useState<Gateway[]>([]);
+
+  useEffect(() => {
+    const fetchGateways = async () => {
+      try {
+        const gateways = await findGraphqlGateways(count);
+        const hasDefaultGateway = gateways.some(
+          (g) => g.host === defaultGateway.host
+        );
+        const hasGoldskyGateway = gateways.some(
+          (g) => g.host === goldskyGateway.host
+        );
+
+        const finalGateways = [...gateways];
+
+        if (!hasDefaultGateway) {
+          finalGateways.unshift(defaultGateway);
+        }
+
+        if (!hasGoldskyGateway) {
+          const insertionIndex = Math.min(2, finalGateways.length);
+          finalGateways.splice(insertionIndex, 0, goldskyGateway);
+        }
+
+        setGraphqlGateways(
+          finalGateways.slice(0, count || finalGateways.length)
+        );
+      } catch {
+        setGraphqlGateways(suggestedGateways);
+      }
+    };
+
+    fetchGateways();
+  }, [count]);
+
+  return graphqlGateways;
 }
 
 export interface Requirements {

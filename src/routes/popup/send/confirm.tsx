@@ -366,7 +366,7 @@ export function ConfirmView({
             content: browser.i18n.getMessage("sent_tx"),
             duration: 2000
           });
-          navigate(`/transaction/${res}`);
+          navigate(`/send/completed/${res}?isAo=true`);
           setIsLoading(false);
         }
         return res;
@@ -428,7 +428,7 @@ export function ConfirmView({
           uToken
             ? navigate("/")
             : navigate(
-                `/transaction/${
+                `/send/completed/${
                   convertedTransaction.id
                 }?back=${encodeURIComponent("/")}`
               );
@@ -496,7 +496,7 @@ export function ConfirmView({
           uToken
             ? navigate("/")
             : navigate(
-                `/transaction/${
+                `/send/completed/${
                   convertedTransaction.id
                 }?back=${encodeURIComponent("/")}`
               );
@@ -586,7 +586,7 @@ export function ConfirmView({
               content: browser.i18n.getMessage("sent_tx"),
               duration: 2000
             });
-            navigate(`/transaction/${res}`);
+            navigate(`/send/completed/${res}?isAo=true`);
             setIsLoading(false);
           }
           return res;
@@ -687,7 +687,9 @@ export function ConfirmView({
         uToken
           ? navigate("/")
           : navigate(
-              `/transaction/${transaction.id}?back=${encodeURIComponent("/")}`
+              `/send/completed/${transaction.id}?back=${encodeURIComponent(
+                "/"
+              )}`
             );
       } catch (e) {
         console.log(e);

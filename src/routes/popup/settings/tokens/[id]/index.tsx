@@ -20,6 +20,7 @@ import { CopyButton } from "~components/dashboard/subsettings/WalletSettings";
 import HeadV2 from "~components/popup/HeadV2";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
+import { ErrorTypes } from "~utils/error/error.utils";
 
 export interface TokenSettingsParams {
   id: string;
@@ -82,8 +83,9 @@ export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
     });
   }
 
-  // TODO: Should this be a redirect?
-  if (!token) return null;
+  if (!token) {
+    throw new Error(ErrorTypes.TokenNotFound);
+  }
 
   return (
     <>

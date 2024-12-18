@@ -26,6 +26,7 @@ import HeadV2 from "~components/popup/HeadV2";
 import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
+import { ErrorTypes } from "~utils/error/error.utils";
 
 export interface AppSettingsViewParams {
   url: string;
@@ -102,8 +103,9 @@ export function AppSettingsView({ params: { url } }: AppSettingsViewProps) {
   // remove modal
   const removeModal = useModal();
 
-  // TODO: Should this be a redirect?
-  if (!settings) return <></>;
+  if (!settings) {
+    throw new Error(ErrorTypes.SettingsNotFound);
+  }
 
   return (
     <>

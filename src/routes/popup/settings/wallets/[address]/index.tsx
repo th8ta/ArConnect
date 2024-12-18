@@ -26,6 +26,7 @@ import { formatAddress } from "~utils/format";
 import HeadV2 from "~components/popup/HeadV2";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
+import { ErrorTypes } from "~utils/error/error.utils";
 
 export interface WalletViewParams {
   address: string;
@@ -126,8 +127,9 @@ export function WalletView({ params: { address } }: WalletViewProps) {
   // wallet remove modal
   const removeModal = useModal();
 
-  // TODO: Should this be a redirect?
-  if (!wallet) return <></>;
+  if (!wallet) {
+    throw new Error(ErrorTypes.WalletNotFound);
+  }
 
   return (
     <>

@@ -15,6 +15,8 @@ import Arweave from "arweave";
 import { ensureAllowanceDispatch } from "./allowance";
 import { updateAllowance } from "../sign/allowance";
 import BigNumber from "bignumber.js";
+import { isError } from "~utils/error/error.utils";
+import { ERR_MSG_USER_CANCELLED_AUTH } from "~utils/auth/auth.constants";
 
 type ReturnType = {
   arConfetti: string | false;
@@ -110,7 +112,14 @@ const background: BackgroundModuleFunction<ReturnType> = async (
         type: "BUNDLED"
       }
     };
-  } catch {
+  } catch (err) {
+    if (isError(err) && err.message === ERR_MSG_USER_CANCELLED_AUTH) {
+      throw err;
+    }
+
+    // TODO: If there's an error in the first request, the previous (already accepted) AuthRequest's UI should probably
+    // reflect that. Maybe we could even reuse the same AuthRequest item instead of creating a separated one.
+
     // sign & post if there is something wrong with turbo
     // add ArConnect tags to the tx object
     for (const arcTag of signedTxTags) {

@@ -26,7 +26,8 @@ export default class Application {
   }
 
   /**
-   * Get all settings for the app
+   * Private method used to retrieve all settings for an app
+   * @returns settings objects or an empty object
    */
   async #getSettings() {
     const settings = await this.#storage.get<Record<string, any>>(
@@ -191,6 +192,16 @@ export default class Application {
 export interface AppInfo {
   name?: string;
   logo?: string;
+}
+
+/**
+ * App Logo info to be used to derive the proper placeholder
+ * extends AppInfo's name and logo
+ * adding an optional type: "default" | "gateway" and placeholder
+ */
+export interface AppLogoInfo extends AppInfo {
+  type?: "default" | "gateway";
+  placeholder?: string;
 }
 
 /**

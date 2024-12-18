@@ -32,6 +32,8 @@ import BigNumber from "bignumber.js";
 import { useCurrentAuthRequest } from "~utils/auth/auth.hooks";
 import { HeadAuth } from "~components/HeadAuth";
 import { AuthButtons } from "~components/auth/AuthButtons";
+import { getTagValue } from "~tokens/aoTokens/ao";
+import { humanizeTimestampTags } from "~utils/timestamp";
 
 export function SignAuthRequestView() {
   const { authRequest, acceptRequest, rejectRequest } =
@@ -93,12 +95,28 @@ export function SignAuthRequestView() {
 
     // @ts-expect-error
     const tags = transaction.get("tags") as Tag[];
-
-    return tags.map((tag) => ({
+    const decodedTags = tags.map((tag) => ({
       name: tag.get("name", { decode: true, string: true }),
       value: tag.get("value", { decode: true, string: true })
     }));
+
+    return humanizeTimestampTags(decodedTags);
   }, [transaction]);
+
+  const headerTitle = useMemo(() => {
+    if (!tags.length) return browser.i18n.getMessage("titles_sign");
+
+    const actionValue = getTagValue("Action", tags);
+    const isAOTransaction = tags.some(
+      (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
+    );
+
+    if (isAOTransaction && actionValue) {
+      return actionValue.replace(/-/g, " ");
+    }
+
+    return browser.i18n.getMessage("titles_sign");
+  }, [tags]);
 
   // Check if it's a printTx
   const isPrintTx = useMemo(() => {
@@ -208,7 +226,7 @@ export function SignAuthRequestView() {
   return (
     <Wrapper>
       <div>
-        <HeadAuth title={browser.i18n.getMessage("titles_sign")} />
+        <HeadAuth title={headerTitle} />
         <Spacer y={0.75} />
         {(!page && (
           <Section>
@@ -225,7 +243,11 @@ export function SignAuthRequestView() {
                 </PropertyName>
               </div>
             ) : (
-              <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
+              +fiatPrice > 0 && (
+                <FiatAmount>
+                  {formatFiatBalance(fiatPrice, currency)}
+                </FiatAmount>
+              )
             )}
             <AmountTitle>
               {isPrintTx

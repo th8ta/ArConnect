@@ -20,6 +20,7 @@ import { concatGatewayURL } from "~gateways/utils";
 import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { getTokenInfo } from "~tokens/aoTokens/router";
+import { AO_NATIVE_TOKEN, AO_NATIVE_TOKEN_INFO } from "~utils/ao_import";
 
 export interface AddTokenDashboardViewProps extends CommonRouteProps {
   isQuickSetting?: boolean;
@@ -48,11 +49,17 @@ export function AddTokenDashboardView({
         throw new Error("Token already added");
       }
 
-      aoTokens.push({
+      const tokenToImport = {
         ...token,
         processId: targetInput.state,
         type: tokenType
-      });
+      };
+
+      if (tokenToImport.processId === AO_NATIVE_TOKEN) {
+        aoTokens.unshift(tokenToImport);
+      } else {
+        aoTokens.push(tokenToImport);
+      }
       await ExtensionStorage.set("ao_tokens", aoTokens);
       setToast({
         type: "success",
@@ -71,7 +78,11 @@ export function AddTokenDashboardView({
         //TODO double check
         isAddress(targetInput.state);
 
-        const token = await getTokenInfo(targetInput.state);
+        const isAoToken = targetInput.state === AO_NATIVE_TOKEN;
+
+        const token = isAoToken
+          ? AO_NATIVE_TOKEN_INFO
+          : await getTokenInfo(targetInput.state);
         setToken(token);
         setLoading(false);
       } catch (err) {

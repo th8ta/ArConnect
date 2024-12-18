@@ -1,4 +1,16 @@
 {
+  "fallback": {
+    "message": "哎呀，有些不对劲，稍后再试。",
+    "description": "Fallback error message"
+  },
+  "reload": {
+    "message": "重新加载",
+    "description": "Reload button text"
+  },
+  "commonErrorInfo": {
+    "message": "错误信息",
+    "description": "Additional Fallback error message"
+  },
   "extensionDescription": {
       "message": "Arweave 的安全钱包管理",
       "description": "Extension description"
@@ -1321,6 +1333,10 @@
       "message": "点击查看您最近签署的交易",
       "description": "View last tx prompt content"
   },
+  "view_transaction_details": {
+    "message": "查看交易详情",
+    "description": "View transaction details link text"
+  },
   "sign_item": {
       "message": "签署项目",
       "description": "Sign message popup title"
@@ -1328,6 +1344,24 @@
   "batch_sign_items": {
       "message": "批量签署项目",
       "description": "批量签署消息弹出标题"
+  },
+  "titles_decrypt": {
+    "message": "Decrypt",
+    "description": "Request decrypt authorization password"
+  },
+  "decrypt_description": {
+    "message": "$APPNAME$ wants to decrypt and access the following data:",
+    "description": "Description for decrypting some data",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "permafacts.arweave.dev"
+      }
+    }
+  },
+  "decrypt_authorize": {
+    "message": "授权",
+    "description": "Authorize button label"
   },
   "titles_signature": {
       "message": "签署消息",
@@ -2291,6 +2325,10 @@
     "tokenRequestLoading": {
       "message": "Adding token...",
       "description": "Loading message for AuthRequest of type token"
+    },
+    "decryptRequestLoading": {
+      "message": "Decrypting...",
+      "description": "Loading message for AuthRequest of type decrypt"
     },
     "signRequestLoading": {
       "message": "Signing...",

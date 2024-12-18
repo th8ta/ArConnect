@@ -126,12 +126,18 @@ export async function createAuthPopup(
   moduleAppData: ModuleAppData
 ) {
   const unlock = await popupMutex.lock();
-  const wallets = await getWallets();
 
-  // TODO: What about getActiveAddress()?
+  const [activeAddress, wallets] = await Promise.all([
+    getActiveAddress(),
+    getWallets()
+  ]);
 
-  if (wallets.length === 0) {
+  const hasWallets = activeAddress && wallets.length > 0;
+
+  if (!hasWallets) {
     openOrSelectWelcomePage(true);
+
+    unlock();
 
     throw new Error(ERR_MSG_NO_WALLETS_ADDED);
   }
@@ -149,22 +155,29 @@ export async function createAuthPopup(
     );
   }
 
-  if (!popupWindowTab) {
-    // TODO: To center this, the injected tab should send the center or dimensions of the screen:
+  try {
+    if (!popupWindowTab) {
+      // TODO: To center this, the injected tab should send the center or dimensions of the screen:
 
-    const window = await browser.windows.create({
-      url: `${browser.runtime.getURL("tabs/auth.html")}#/`,
-      focused: true,
-      type: "popup",
-      width: 385,
-      height: 720
-    });
+      const window = await browser.windows.create({
+        url: `${browser.runtime.getURL("tabs/auth.html")}#/`,
+        focused: true,
+        type: "popup",
+        width: 385,
+        height: 720
+      });
 
-    setPopupTabID(window.tabs[0].id);
-  } else {
-    log(LOG_GROUP.AUTH, "reusePopupTabID =", POPUP_TAB_ID);
+      setPopupTabID(window.tabs[0].id);
+    } else {
+      log(LOG_GROUP.AUTH, "reusePopupTabID =", POPUP_TAB_ID);
 
-    await browser.windows.update(popupWindowTab.windowId, { focused: true });
+      await browser.windows.update(popupWindowTab.windowId, { focused: true });
+    }
+  } catch (err) {
+    console.warn(
+      `Could not ${popupWindowTab ? "focus" : "open"} "tabs/auth.html":`,
+      err
+    );
   }
 
   let authID: string | undefined;

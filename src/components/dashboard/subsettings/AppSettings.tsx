@@ -27,6 +27,7 @@ import styled from "styled-components";
 import Arweave from "arweave";
 import { defaultGateway, suggestedGateways, testnets } from "~gateways/gateway";
 import type { CommonRouteProps } from "~wallets/router/router.types";
+import { ErrorTypes } from "~utils/error/error.utils";
 
 export interface AppSettingsDashboardViewParams {
   url: string;
@@ -107,8 +108,9 @@ export function AppSettingsDashboardView({
   // remove modal
   const removeModal = useModal();
 
-  // TODO: Should this be a redirect?
-  if (!settings) return <></>;
+  if (!settings) {
+    throw new Error(ErrorTypes.SettingsNotFound);
+  }
 
   return (
     <>

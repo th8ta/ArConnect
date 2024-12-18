@@ -17,6 +17,7 @@ import type { KeystoneSigner } from "~wallets/hardware/keystone";
 import browser from "webextension-polyfill";
 import { fetchTokenByProcessId } from "~lib/transactions";
 import { timeoutPromise } from "~utils/promises/timeout";
+import type { DecodedTag } from "~api/modules/sign/tags";
 
 export type AoInstance = ReturnType<typeof connect>;
 
@@ -34,6 +35,13 @@ export const defaultAoTokens: TokenInfo[] = [
     Denomination: 12,
     Logo: "26yDr08SuwvNQ4VnhAfV4IjJcOOlQ4tAQLc1ggrCPu0",
     processId: "NG-0lVX882MG5nhARrSzyprEK6ejonHpdUmaaMPsHE8"
+  },
+  {
+    Name: "Wrapped AR",
+    Ticker: "wAR",
+    Denomination: 12,
+    Logo: "L99jaxRKQKJt9CqoJtPaieGPEhJD3wNhR4iGqc8amXs",
+    processId: "xU9zFkq3X2ZQ6olwNVvr1vUWIjc3kXTWr7xKQD6dh10"
   }
 ];
 
@@ -413,7 +421,7 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
 /**
  * Find the value for a tag name
  */
-export const getTagValue = (tagName: string, tags: Tag[]) =>
+export const getTagValue = (tagName: string, tags: (Tag | DecodedTag)[]) =>
   tags.find((t) => t.name === tagName)?.value;
 
 export const sendAoTransfer = async (

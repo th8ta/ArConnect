@@ -13,6 +13,7 @@ import Arweave from "arweave";
 import { requestUserAuthorization } from "../../../utils/auth/auth.utils";
 import BigNumber from "bignumber.js";
 import { createDataItem } from "~utils/data_item";
+import { EventType, trackDirect } from "~utils/analytics";
 
 const background: BackgroundModuleFunction<number[]> = async (
   appData,
@@ -28,6 +29,8 @@ const background: BackgroundModuleFunction<number[]> = async (
   const app = new Application(appData.url);
   const allowance = await app.getAllowance();
   const alwaysAsk = allowance.enabled && allowance.limit.eq(BigNumber("0"));
+  let isTransferTx = false;
+  let amount = "0";
 
   if (
     dataItem.tags?.some(
@@ -37,6 +40,7 @@ const background: BackgroundModuleFunction<number[]> = async (
       (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
     )
   ) {
+    isTransferTx = true;
     try {
       const quantityTag = dataItem.tags?.find((tag) => tag.name === "Quantity");
       if (quantityTag) {
@@ -48,6 +52,7 @@ const background: BackgroundModuleFunction<number[]> = async (
         }
 
         quantityTag.value = quantityBigNum.toFixed(0, BigNumber.ROUND_FLOOR);
+        amount = quantityTag.value;
       }
     } catch (e) {
       if (e?.message === "INVALID_QUANTITY") {
@@ -116,6 +121,9 @@ const background: BackgroundModuleFunction<number[]> = async (
     // remove keyfile
     freeDecryptedWallet(decryptedWallet.keyfile);
 
+    // analytics
+    await trackSigned(app, appData.url, dataItem.target, amount, isTransferTx);
+
     return Array.from<number>(dataEntry.getRaw());
   } else {
     // create bundlr tx as a data entry
@@ -142,8 +150,31 @@ const background: BackgroundModuleFunction<number[]> = async (
     } catch (e) {
       throw new Error(e?.message || e);
     }
+    // analytics
+    await trackSigned(app, appData.url, dataItem.target, amount, isTransferTx);
+
     return Array.from<number>(dataEntry.getRaw());
   }
 };
+
+async function trackSigned(
+  app: Application,
+  appUrl: string,
+  tokenId: string,
+  amount: string,
+  isTransferTx: boolean
+) {
+  try {
+    if (isTransferTx && amount !== "0") {
+      const appInfo = await app.getAppData();
+      await trackDirect(EventType.SIGNED, {
+        appName: appInfo.name,
+        appUrl,
+        tokenId,
+        amount
+      });
+    }
+  } catch {}
+}
 
 export default background;

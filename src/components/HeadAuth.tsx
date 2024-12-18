@@ -1,12 +1,13 @@
 import type React from "react";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import type { AppInfo } from "~applications/application";
+import type { AppInfo, AppLogoInfo } from "~applications/application";
 import Application from "~applications/application";
 import HeadV2 from "~components/popup/HeadV2";
 import { useAuthRequests } from "~utils/auth/auth.hooks";
 import type { AuthRequestStatus } from "~utils/auth/auth.types";
 import browser from "webextension-polyfill";
+import { generateLogoPlaceholder } from "~utils/urls/getAppIconPlaceholder";
 
 export interface HeadAuthProps {
   title?: string;
@@ -30,7 +31,7 @@ export const HeadAuth: React.FC<HeadAuthProps> = ({
   const { name: fallbackName, logo: fallbackLogo } = appInfoProp;
   const { tabID = null, url = "" } =
     authRequests[currentAuthRequestIndex] || {};
-  const [appInfo, setAppInfo] = useState<AppInfo>(appInfoProp);
+  const [appLogoInfo, setAppLogoInfo] = useState<AppLogoInfo>(appInfoProp);
 
   useEffect(() => {
     async function loadAppInfo() {
@@ -38,17 +39,16 @@ export const HeadAuth: React.FC<HeadAuthProps> = ({
 
       const app = new Application(url);
       const appInfo = await app.getAppData();
+      const appLogoPlaceholder = await generateLogoPlaceholder(url);
 
-      // TODO: The fallback to get the name from the URL might not work properly as it might be the name of a gateway.
-      // It might be better to just show a lock icon as fallback. Also, this logic might be better placed inside the
-      // `Application` class.
-
-      setAppInfo({
+      setAppLogoInfo({
         name:
           appInfo.name ||
           fallbackName ||
           new URL(url).hostname.split(".").slice(-2).join("."),
-        logo: appInfo.logo || fallbackLogo
+        logo: appInfo.logo || fallbackLogo,
+        type: appLogoPlaceholder?.type,
+        placeholder: appLogoPlaceholder?.placeholder
       });
     }
 
@@ -72,7 +72,7 @@ export const HeadAuth: React.FC<HeadAuthProps> = ({
         showOptions={false}
         showBack={!!back}
         back={back}
-        appInfo={appInfo}
+        appInfo={appLogoInfo}
         onAppInfoClick={handleAppInfoClicked}
       />
 

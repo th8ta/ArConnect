@@ -7,11 +7,13 @@ import {
   ARCONNECT_DARK_THEME,
   ARCONNECT_LIGHT_THEME,
   Provider as ThemeProvider,
-  type ArconnectTheme
+  type ArconnectTheme,
+  type DisplayTheme
 } from "@arconnect/components";
-
-const ARCONNECT_THEME_BACKGROUND_COLOR = "ARCONNECT_THEME_BACKGROUND_COLOR";
-const ARCONNECT_THEME_TEXT_COLOR = "ARCONNECT_THEME_TEXT_COLOR";
+import {
+  ARCONNECT_THEME_BACKGROUND_COLOR,
+  ARCONNECT_THEME_TEXT_COLOR
+} from "~utils/storage.utils";
 
 /**
  * Modify the theme if the active wallet is a hardware wallet. We transform the
@@ -54,19 +56,27 @@ export function ArConnectThemeProvider({ children }: PropsWithChildren<{}>) {
         theme === "dark" ? ARCONNECT_DARK_THEME : ARCONNECT_LIGHT_THEME
       )}
     >
-      <ThemeBackgroundObserver />
+      <ThemeBackgroundObserver theme={theme} />
 
       {children}
     </ThemeProvider>
   );
 }
 
-export function ThemeBackgroundObserver() {
+interface ThemeBackgroundObserverProps {
+  theme?: DisplayTheme;
+}
+
+export function ThemeBackgroundObserver({
+  theme
+}: ThemeBackgroundObserverProps) {
   const styledComponentsTheme = useStyledComponentsTheme();
   const backgroundColor = styledComponentsTheme.background;
   const textColor = styledComponentsTheme.primaryText;
 
   useEffect(() => {
+    if (!theme) return;
+
     let formattedBackgroundColor = "";
 
     if (backgroundColor.length === 3 || backgroundColor.length === 6) {
@@ -82,10 +92,17 @@ export function ThemeBackgroundObserver() {
         ARCONNECT_THEME_BACKGROUND_COLOR,
         formattedBackgroundColor
       );
+
+      document.documentElement.style.setProperty(
+        "--backgroundColor",
+        formattedBackgroundColor
+      );
     }
-  }, [backgroundColor]);
+  }, [theme, backgroundColor]);
 
   useEffect(() => {
+    if (!theme) return;
+
     let formattedTextColor = "";
 
     if (textColor.length === 3 || textColor.length === 6) {
@@ -98,8 +115,13 @@ export function ThemeBackgroundObserver() {
 
     if (formattedTextColor) {
       localStorage.setItem(ARCONNECT_THEME_TEXT_COLOR, formattedTextColor);
+
+      document.documentElement.style.setProperty(
+        "--textColor",
+        formattedTextColor
+      );
     }
-  }, [textColor]);
+  }, [theme, textColor]);
 
   return null;
 }
