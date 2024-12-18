@@ -1,3 +1,4 @@
+import type { JWKInterface } from "arweave/web/lib/wallet";
 import {
   createContext,
   useCallback,
@@ -6,12 +7,9 @@ import {
   useState,
   type PropsWithChildren
 } from "react";
-import {
-  AuthenticationService,
-  type AuthenticateData
-} from "~utils/authentication/authentication.service";
+import { AuthenticationService } from "~utils/authentication/authentication.service";
 import type { AuthMethod, DbWallet } from "~utils/authentication/fakeDB";
-import { WalletsService } from "~utils/wallets/wallets.service";
+import { WalletService } from "~utils/wallets/wallets.service";
 import { WalletUtils } from "~utils/wallets/wallets.utils";
 
 export type AuthStatus =
@@ -20,31 +18,40 @@ export type AuthStatus =
   | "authError"
   | "noAuth"
   | "noWallets"
-  | "noShard"
+  | "noShares"
   // TODO: Do not mix auth loading with regular loading...
   | "loading"
   | "locked"
   | "unlocked";
 
+interface WalletInfo extends DbWallet {
+  isActive: boolean;
+  isReady: boolean;
+}
+
 interface AuthContextState {
   authStatus: AuthStatus;
+  authMethod: null | AuthMethod;
   userId: null | string;
   wallets: DbWallet[];
 }
 
 interface AuthContextData extends AuthContextState {
   authenticate: (authMethod: AuthMethod) => Promise<void>;
+  addWallet: (jwk: JWKInterface) => void;
 }
 
 const AUTH_CONTEXT_INITIAL_STATE: AuthContextState = {
   authStatus: "unknown",
+  authMethod: null,
   userId: null,
   wallets: []
 };
 
 export const AuthContext = createContext<AuthContextData>({
   ...AUTH_CONTEXT_INITIAL_STATE,
-  authenticate: async () => null
+  authenticate: async () => null,
+  addWallet: () => null
 });
 
 interface AuthProviderProps extends PropsWithChildren {}
@@ -64,8 +71,50 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [authStatus]);
 
+  // TODO: Need to observe storage to keep track of new wallets, removed wallets or active wallet changes... Or just
+  // migrate wallet management to Mobx altogether for both extensions...
+
+  const addWallet = useCallback((jwk: JWKInterface) => {
+    // TODO: Add wallet to ExtensionStorage, but make sure to:
+    // - Remove/update alarm to NOT remove it.
+    // - Rotate it with newly generated passwords?
+    // - Storage in the embedded wallet must be temp (memory).
+    // - Router should force users out the auth screens
+    // - See if signing, etc. works.
+
+    WalletUtils.storeEncryptedWalletJWK(jwk);
+
+    const wallet: WalletInfo = {
+      isActive: false, // TODO: Should be true if this is a new wallet...
+      isReady: true
+    };
+
+    // Optimistically add wallet.
+    // TODO: We could consider calling `initEmbeddedWallet` again instead, which will make sure the wallet has been
+    // properly added to the backend as well.
+
+    setAuthContextState(({ wallets: prevWallets }) => {
+      const wallets = prevWallets;
+
+      if (
+        !wallets.find((prevWallet) => prevWallet.address === wallet.address)
+      ) {
+        wallets.push(wallet);
+      }
+
+      return {
+        ...AUTH_CONTEXT_INITIAL_STATE,
+        authStatus: "unlocked",
+        wallets
+      };
+    });
+  }, []);
+
   const initEmbeddedWallet = useCallback(async (authMethod?: AuthMethod) => {
-    let authStatus = "noAuth" as AuthStatus;
+    setAuthContextState({
+      ...AUTH_CONTEXT_INITIAL_STATE,
+      authStatus: "authLoading"
+    });
 
     // TODO: Handle errors:
 
@@ -76,50 +125,76 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (!authentication.userId) {
       setAuthContextState({
         ...AUTH_CONTEXT_INITIAL_STATE,
-        authStatus
+        authStatus: "noAuth"
       });
 
       return;
     }
 
-    const wallets = await WalletsService.fetchWallets();
+    const wallets = await WalletService.fetchWallets();
+
+    let authStatus = "noAuth" as AuthStatus;
 
     if (wallets.length > 0) {
-      const deviceNonce = WalletUtils.getDeviceNonce();
-      const deviceShares = WalletUtils.getDeviceShares();
+      // TODO: TODO: We need to keep track of the last used one, not the last created one:
+      const deviceSharesInfo = WalletUtils.getDeviceSharesInfo();
 
-      if (deviceNonce && deviceShares.length > 0) {
+      let deviceNonce = WalletUtils.getDeviceNonce();
+
+      if (deviceNonce && deviceSharesInfo.length > 0) {
         // TODO: The need to rotate might come in `wallets`, so this call below could already rotate the deviceNonce,
         // send the old value and also rotate the wallet if needed...
 
         // TODO: This step can be deferred until the wallet is going to be used...:
         // TODO: Do this sequentially for each available deviceShare until one works:
         const authShareResponse =
-          await WalletsService.fetchFirstAvailableAuthShare({
+          await WalletService.fetchFirstAvailableAuthShare({
             deviceNonce,
-            deviceShares
+            deviceSharesInfo
           });
 
         if (authShareResponse) {
-          if (authShareResponse.regenerateWallet) {
-            let oldDeviceNonce = WalletUtils.getDeviceNonce();
+          const { authShare, walletAddress, rotateChallenge } =
+            authShareResponse;
 
-            deviceNonce = WalletUtils.updateDeviceNonce();
+          let { deviceShare } = authShareResponse;
 
-            // TODO: We need the public key and/or address to validate it's fine:
-            const newShares = WalletUtils.regenerateShares([
-              authShare,
-              deviceShares
-            ]);
+          const jwk = await WalletUtils.generateWalletJWKFromShares(
+            walletAddress,
+            [authShare, deviceShare]
+          );
+
+          if (rotateChallenge) {
+            const oldDeviceNonce = deviceNonce;
+            const newDeviceNonce = WalletUtils.generateDeviceNonce();
+
+            const { authShare: newAuthShare, deviceShare: newDeviceShare } =
+              await WalletUtils.generateWalletWorkShares(jwk);
+
+            const challengeSignature =
+              await WalletUtils.generateChallengeSignature(
+                rotateChallenge,
+                jwk
+              );
 
             // TODO: This wallet needs to be regenerated as well and the authShare updated. If this is not done after X
             // "warnings", the Shards entry will be removed anyway.
-            await WalletsService.rotateDeviceShares({
+            await WalletService.rotateAuthShare({
+              walletAddress,
               oldDeviceNonce,
-              deviceNonce,
-              newShares
+              newDeviceNonce,
+              authShare: newAuthShare,
+              challengeSignature
             });
+
+            deviceNonce = newDeviceNonce;
+            deviceShare = newDeviceShare;
           }
+
+          WalletUtils.storeDeviceNonce(deviceNonce);
+          WalletUtils.storeDeviceShare(deviceShare, walletAddress);
+
+          addWallet(jwk);
 
           // TODO: Rebuild pk, generate random password, store encrypted in storage.
 
@@ -133,6 +208,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } else {
       authStatus = "noWallets";
     }
+
+    setAuthContextState({
+      ...AUTH_CONTEXT_INITIAL_STATE,
+      authStatus,
+      wallets
+    });
   }, []);
 
   const isInitializedRef = useRef(false);
@@ -151,7 +232,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       setAuthContextState({
         ...AUTH_CONTEXT_INITIAL_STATE,
-        authStatus: "authLoading"
+        authStatus: "authLoading",
+        authMethod
       });
 
       // TODO: Handle errors:
@@ -164,7 +246,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     <AuthContext.Provider
       value={{
         ...authContextState,
-        authenticate
+        authenticate,
+        addWallet
       }}
     >
       {children}

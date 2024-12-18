@@ -2,9 +2,12 @@ import { useAuth } from "~utils/authentication/authentication.hooks";
 import { WalletService } from "~utils/wallets/wallets.service";
 import { WalletUtils } from "~utils/wallets/wallets.utils";
 import { Link } from "~wallets/router/components/link/Link";
+import Arweave from "arweave";
+import { defaultGateway } from "~gateways/gateway";
+import { MockedFeatureFlags } from "~utils/authentication/fakeDB";
 
 export function GenerateWalletEmbeddedView() {
-  const { authMethod } = useAuth();
+  const { authMethod, addWallet } = useAuth();
 
   // TODO:
   // Eagerly after we know the user is not authenticated:
@@ -118,39 +121,31 @@ export function GenerateWalletEmbeddedView() {
     const jwk = await WalletUtils.generateWalletJWK(seedPhrase);
     const { authShare, deviceShare } =
       await WalletUtils.generateWalletWorkShares(jwk);
-
-    // Maybe load some feature flags from our side, just in case?
-    if (embeddedWalletConfig.maintainSeedPhrase) {
-      WalletUtils.storeSeedPhrase(seedPhrase, jwk);
-    }
-
-    // TODO: This should probably be generated on init in the provider. Instead, the getter should just reload the wallet
-    // (so that it re-initializes) if the deviceNonce is missing at some point (which should not happen unless someone
-    // is tampering with it).
-
+    const deviceSharePublicKey = await WalletUtils.generateSharePublicKey(
+      deviceShare
+    );
+    const arweave = new Arweave(defaultGateway);
+    const walletAddress = await arweave.wallets.jwkToAddress(jwk);
     const deviceNonce =
       WalletUtils.getDeviceNonce() || WalletUtils.generateDeviceNonce();
 
     await WalletService.createWallet({
-      deviceNonce,
       walletType: "public",
       publicKey: jwk.n,
-      authShare
+      deviceNonce,
+      authShare,
+      deviceSharePublicKey,
+      canBeUsedToRecoverAccount: false
     });
 
     WalletUtils.storeDeviceNonce(deviceNonce);
-    WalletUtils.storeDeviceShare(deviceShare);
+    WalletUtils.storeDeviceShare(deviceShare, walletAddress);
 
-    // TODO Just call addWallet from AuthenticationProvider to to this:
+    if (MockedFeatureFlags.maintainSeedPhrase) {
+      WalletUtils.storeEncryptedSeedPhrase(seedPhrase, jwk);
+    }
 
-    const randomPassword = WalletUtils.generateRandomPassword();
-
-    WalletUtils.storeKeyfile(jwk, randomPassword);
-
-    // TODO: Generate new wallet and simply add it to mockedAuthenticateData and ExtensionStorage, then make sure the
-    // router forces users out the auth screens and see if signing, etc. works.
-
-    // TODO: Should the wallet auto-connect to the page?
+    addWallet(jwk);
   };
 
   return (
@@ -168,7 +163,7 @@ export function GenerateWalletEmbeddedView() {
           <button>Add this device to an existing account</button>
         </Link>
       ) : (
-        <Link to="/auth/add-device">
+        <Link to="/auth/add-auth-provider">
           <button>Add {authMethod} to an existing account</button>
         </Link>
       )}

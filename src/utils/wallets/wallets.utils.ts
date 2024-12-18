@@ -1,20 +1,30 @@
 import * as bip39 from "bip39-web-crypto";
-import { getWalletKeyLength, type WalletKeyLengths } from "~wallets";
-import { jwkFromMnemonic, pkcs8ToJwk } from "~wallets/generator";
+import {
+  addWallet,
+  getWalletKeyLength,
+  updatePassword,
+  type WalletKeyLengths
+} from "~wallets";
+import {
+  checkPasswordValid,
+  jwkFromMnemonic,
+  pkcs8ToJwk
+} from "~wallets/generator";
 import * as SSS from "shamir-secret-sharing";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { defaultGateway } from "~gateways/gateway";
 import Arweave from "arweave";
 import { nanoid } from "nanoid";
+import { setDecryptionKey } from "~wallets/auth";
 
 async function generateSeedPhrase() {
-  console.log("1. generateSeedPhrase");
+  console.log("generateSeedPhrase()");
 
   return bip39.generateMnemonic();
 }
 
 async function generateWalletJWK(seedPhrase: string): Promise<JWKInterface> {
-  console.log("2. generateWalletJWK");
+  console.log("generateWalletJWK()");
 
   let generatedKeyfile: JWKInterface | null = null;
   let walletKeyLength: WalletKeyLengths | null = null;
@@ -35,8 +45,6 @@ async function generateWalletJWK(seedPhrase: string): Promise<JWKInterface> {
     // TODO: Send this to Sentry or whatever...
   }
 
-  console.log("attempts =", attempts);
-
   return generatedKeyfile;
 }
 
@@ -48,9 +56,9 @@ export interface WorkShares {
 async function generateWalletWorkShares(
   jwk: JWKInterface
 ): Promise<WorkShares> {
-  console.log("3. generateWalletShards");
+  console.log("generateWalletWorkShares");
 
-  const privateKey = await window.crypto.subtle.importKey(
+  const privateKeyJWK = await window.crypto.subtle.importKey(
     "jwk",
     jwk,
     { name: "RSA-PSS", hash: "SHA-256" },
@@ -58,109 +66,192 @@ async function generateWalletWorkShares(
     ["sign"]
   );
 
-  console.log("Re-exporting");
-
-  const exportedKeyBuffer = await window.crypto.subtle.exportKey(
+  const privateKeyPKCS8 = await window.crypto.subtle.exportKey(
     "pkcs8",
-    privateKey
+    privateKeyJWK
   );
-
-  const exportedKey = new Uint8Array(exportedKeyBuffer);
 
   // Wanna know why these are called "shares" and not shards?
   // See https://discuss.hashicorp.com/t/is-it-shards-or-shares-in-shamir-secret-sharing/38978/3
 
   const [authShareBuffer, deviceShareBuffer] = await SSS.split(
-    exportedKey,
+    new Uint8Array(privateKeyPKCS8),
     2,
     2
   );
 
+  // TODO: Need to add Buffer polyfill
   return {
-    authShare: btoa(authShareBuffer),
-    deviceShare: btoa(deviceShareBuffer)
+    authShare: Buffer.from(authShareBuffer).toString("base64"),
+    deviceShare: Buffer.from(deviceShareBuffer).toString("base64")
   };
 }
 
 async function generateWalletRecoveryShares(jwk: JWKInterface) {
-  // const reconstructedMixed = await SSS.combine([share1, share4]);
-  // const reconstructedJWK = await pkcs8ToJwk(reconstructed1);
-  /*
+  console.log("generateWalletRecoveryShares()");
 
-  const arweave = new Arweave(defaultGateway);
-
-  const originalAddress = await arweave.wallets
-    .jwkToAddress(reconstructedJWK)
-    .catch(() => null);
-  console.log("originalAddress =", originalAddress);
-
-  console.log("What about integrity?");
-
-  try {
-    // This functions throws a DataError already if integrity fails:
-    const reconstructedMixedJWK = await pkcs8ToJwk(reconstructedMixed);
-
-    // Most likely nothing below this line will run anyway:
-    const reconstructedMixedAddress = await arweave.wallets
-      .jwkToAddress(reconstructedMixedJWK)
-      .catch(() => null);
-    console.log("reconstructedMixedAddress =", reconstructedMixedAddress);
-    console.log(originalAddress === reconstructedMixedAddress); // false
-  } catch (err) {
-    console.log("The key material has been tampered with", err);
-  }
-
-  */
+  // TODO: Add implementation once the backup shares view is added.
 }
 
 function generateDeviceNonce(): string {
+  console.log("generateDeviceNonce()");
+
   return `${new Date().toISOString()}-${nanoid()}`;
 }
 
 function generateRandomPassword(): string {
-  return "";
+  console.log("generateRandomPassword()");
+
+  return Buffer.from(crypto.getRandomValues(new Uint8Array(512))).toString(
+    "base64"
+  );
 }
 
-function generateWalletJWKFromShards(
-  walletAddressORSIMILAR: string,
-  shards: string[]
-): JWKInterface {
-  // TODO: Thus, it is the responsibility of users of this library to verify the integrity of the reconstructed secret.
+async function generateWalletJWKFromShares(
+  // TODO: Do we want to use the walletAddress or maybe better a hash?
+  walletAddress: string,
+  shares: string[]
+): Promise<JWKInterface> {
+  console.log("generateWalletJWKFromShares()");
+
+  const privateKeyPKCS8 = await SSS.combine(
+    shares.map((share) => new Uint8Array(Buffer.from(share, "base64")))
+  );
+
+  // This functions throws a DataError if integrity fails:
+  const privateKeyJWK = await pkcs8ToJwk(privateKeyPKCS8);
+
+  const arweave = new Arweave(defaultGateway);
+
+  // Most likely nothing below this line will run anyway:
+  const addressCandidate = await arweave.wallets
+    .jwkToAddress(privateKeyJWK)
+    .catch(() => null);
+
+  // From SSS' docs:
+  // > Thus, it is the responsibility of users of this library to verify the integrity of the reconstructed secret.
+
+  if (addressCandidate !== walletAddress) {
+    throw new Error(`Unexpected generated address`);
+  }
+
+  return privateKeyJWK;
 }
+
+function generateShareJWK(share: string): Promise<JWKInterface> {
+  console.log("generateShareJWK()");
+
+  const shareBuffer = new Uint8Array(Buffer.from(share, "base64"));
+
+  return pkcs8ToJwk(shareBuffer);
+}
+
+async function generateSharePublicKey(share: string): Promise<string> {
+  console.log("generateSharePublicKey()");
+
+  const shareJWK = await generateShareJWK(share);
+
+  return shareJWK?.n || null;
+}
+
+async function generateChallengeSignature(
+  challenge: string,
+  jwk: JWKInterface
+): Promise<string> {
+  console.log("generateChallengeSignature()");
+
+  // TODO
+}
+
+// Data (localStorage):
+
+const DEVICE_NONCE_KEY = "DEVICE_NONCE_KEY";
+
+// TODO: Load, parse and validate
+let _deviceNonce: string | null =
+  localStorage.getItem(DEVICE_NONCE_KEY) || null;
+
+const DEVICE_SHARES_INFO_KEY = "DEVICE_SHARES_INFO";
+
+export interface DeviceShareInfo {
+  deviceShare: string;
+  // TODO: Do we want to use the walletAddress or maybe better a hash?
+  walletAddress: string;
+  createdAt: number;
+}
+
+// TODO: Load, parse and validate
+let _deviceSharesInfo: Record<string, DeviceShareInfo> =
+  localStorage.getItem(DEVICE_SHARES_INFO_KEY) || {};
 
 // Getters:
 
 function getDeviceNonce(): string {
+  console.log("getDeviceNonce()");
+
   return _deviceNonce;
 }
 
-function getDeviceShares(): string[] {
-  return [""];
-}
+function getDeviceSharesInfo(): DeviceShareInfo[] {
+  console.log("getDeviceSharesInfo()");
 
-function getKeyfile(): JWKInterface {}
+  return Object.values(_deviceSharesInfo).sort(
+    (a, b) => b.createdAt - a.createdAt
+  );
+}
 
 // Storage:
 
-function storeSeedPhrase(seedPhrase: string, jwk: JWKInterface) {}
+function storeEncryptedSeedPhrase(seedPhrase: string, jwk: JWKInterface) {
+  console.log("storeEncryptedSeedPhrase()");
 
-const DEVICE_NONCE_KEY = "DEVICE_NONCE_KEY";
-
-let _deviceNonce: string | null =
-  localStorage.getItem(DEVICE_NONCE_KEY) || null;
+  // TODO
+}
 
 function storeDeviceNonce(deviceNonce: string) {
+  console.log("storeDeviceNonce()");
+
   _deviceNonce = deviceNonce;
 
-  localStorage.setItem(DEVICE_NONCE_KEY, deviceNonce);
+  localStorage.setItem(DEVICE_NONCE_KEY, _deviceNonce);
 }
 
 function storeDeviceShare(
-  walletAddressORSIMILAR: string,
-  deviceShare: string
-) {}
+  deviceShare: string,
+  // TODO: Do we want to use the walletAddress or maybe better a hash?
+  walletAddress: string
+) {
+  console.log("storeDeviceShare()");
 
-function storeWalletJWK(jwk: JWKInterface, password: string) {}
+  const deviceShareInfo: DeviceShareInfo = {
+    deviceShare,
+    walletAddress,
+    createdAt: Date.now()
+  };
+
+  _deviceSharesInfo[walletAddress] = deviceShareInfo;
+
+  localStorage.setItem(DEVICE_SHARES_INFO_KEY, _deviceSharesInfo);
+}
+
+async function storeEncryptedWalletJWK(jwk: JWKInterface): Promise<void> {
+  // This password is only used for the current session. As soon as the page is reloaded, the wallet(s)' private key
+  // must be reconstructed using the authShare and the deviceShare and added to the ExtensionStorage object again,
+  // using a different random password:
+
+  let randomPassword: string = "";
+
+  do {
+    randomPassword = generateRandomPassword();
+  } while (!checkPasswordValid(randomPassword));
+
+  await setDecryptionKey(randomPassword);
+
+  // TODO: Consider calling this periodically to rotate the random passwords. We might need to use a Mutex for this...
+  // updatePassword(randomPassword);
+
+  return addWallet(jwk, randomPassword);
+}
 
 export const WalletUtils = {
   // Generation:
@@ -169,16 +260,18 @@ export const WalletUtils = {
   generateWalletWorkShares,
   generateWalletRecoveryShares,
   generateDeviceNonce,
-  generateRandomPassword,
-  generateWalletJWKFromShards,
+  generateWalletJWKFromShares,
+  generateShareJWK,
+  generateSharePublicKey,
+  generateChallengeSignature,
 
   // Getters:
   getDeviceNonce,
-  getDeviceShares,
+  getDeviceSharesInfo,
 
   // Storage:
-  storeSeedPhrase,
   storeDeviceNonce,
   storeDeviceShare,
-  storeWalletJWK
+  storeEncryptedSeedPhrase,
+  storeEncryptedWalletJWK
 };

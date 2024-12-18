@@ -20,8 +20,11 @@ export type EmbeddedRoutePath =
   | "/auth/import-wallet"
   | "/auth/recover-account"
   | "/auth/restore-shards";
-// | "/account/backup"
-// | "/account/export";
+// | "/account"
+// | "/account/generate-wallet"
+// | "/account/import-wallet"
+// | "/account/backup-shards"
+// | "/account/export-wallet";
 
 export const EmbeddedPaths = {
   Authenticate: "/auth",
