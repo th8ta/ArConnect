@@ -1,25 +1,40 @@
-import { WalletsService } from "~utils/wallets/wallets.service";
+import { useAuth } from "~utils/authentication/authentication.hooks";
+import { WalletService } from "~utils/wallets/wallets.service";
 import { WalletUtils } from "~utils/wallets/wallets.utils";
-import { Link } from "~wallets/router/components/link/Link";
 
 export function RestoreShardsEmbeddedView() {
-  // TODO: Where does this walletAddress come from? What do we store in localStorage for each shard? Shouldn't this be a hash?
+  const { addWallet } = useAuth();
 
-  const handleContinue = async (
-    walletAddress: string,
-    recoveryShare: string
-  ) => {
-    // TODO: This registers a "recovery" event on the backend:
-    const recoveryChallenge =
-      WalletsService.fetchRecoveryChallenge(walletAddress);
+  const handleRestore = async () => {
+    // TODO: arAonnectRecoveryFile should be uploaded by the user and should probably contain recovery shares for all
+    // wallets. In this case, how do we pick which one to use?
 
-    const recoveryChallengeSignature = null;
+    // TODO: This changes a bit if we use a 2/3 SSS with a recoveryDeviceShare:
 
-    const authRecoveryShare = WalletsService.resolveRecoveryChallenge(
+    const { walletAddress, recoveryShare } = recoveryShareFile;
+
+    const recoveryShareJWT = WalletUtils.generateShareJWK(recoveryShare);
+    const recoverySharePublicKey = recoveryShareJWT.n;
+
+    const { recoveryChallenge, rotateChallenge } =
+      WalletService.initiateWalletRecovery(
+        walletAddress,
+        recoverySharePublicKey
+      );
+
+    const recoveryChallengeSignature = WalletUtils.generateChallengeSignature(
+      recoveryChallenge,
+      recoveryShareJWT
+    );
+
+    const authRecoveryShare = WalletService.resolveRecoveryChallenge(
       recoveryChallengeSignature
     );
 
-    const jwk = WalletUtils.generateWalletJWKFromShards(walletAddress, [
+    const oldDeviceNonce = WalletUtils.getDeviceNonce();
+    const newDeviceNonce = WalletUtils.generateDeviceNonce();
+
+    const jwk = await WalletUtils.generateWalletJWKFromShares(walletAddress, [
       authRecoveryShare,
       recoveryShare
     ]);
@@ -27,46 +42,30 @@ export function RestoreShardsEmbeddedView() {
     const { authShare, deviceShare } =
       await WalletUtils.generateWalletWorkShares(jwk);
 
-    // TODO: The new authShare needs to be updated to the backend, meaning also changing the deviceNonce
-    const oldDeviceNonce = WalletUtils.getDeviceNonce();
-
-    if (!oldDeviceNonce) throw new Error("Missing `deviceNonce`");
-
-    const deviceNonce = WalletUtils.generateDeviceNonce();
+    const rotateChallengeSignature =
+      await WalletUtils.generateChallengeSignature(rotateChallenge, jwk);
 
     // TODO: This wallet needs to be regenerated as well and the authShare updated. If this is not done after X
     // "warnings", the Shards entry will be removed anyway.
-    await WalletsService.rotateDeviceShares({
+    await WalletService.rotateAuthShare({
+      walletAddress,
       oldDeviceNonce,
-      newDeviceNonce: deviceNonce,
-      newShares: [authShare, deviceShare]
+      newDeviceNonce,
+      authShare,
+      challengeSignature: rotateChallengeSignature
     });
 
-    // TODO: Maybe WalletUtils.updateDeviceNonce(); already does this:
-    WalletUtils.storeDeviceNonce(deviceNonce);
-    WalletUtils.storeDeviceShare(deviceShare);
+    WalletUtils.storeDeviceNonce(newDeviceNonce);
+    WalletUtils.storeDeviceShare(deviceShare, walletAddress);
 
-    // TODO Just call addWallet from AuthenticationProvider to to this:
-
-    const randomPassword = WalletUtils.generateRandomPassword();
-
-    WalletUtils.storeKeyfile(jwk, randomPassword);
-
-    // TODO: Generate new wallet and simply add it to mockedAuthenticateData and ExtensionStorage, then make sure the
-    // router forces users out the auth screens and see if signing, etc. works.
-
-    // TODO: Should the wallet auto-connect to the page?
+    addWallet(jwk);
   };
 
   return (
     <div>
       <h3>Restore Shards</h3>
       <p>...</p>
-      <button onClick={handleContinue}>Continue</button>
-
-      <Link to="/auth/recover-account">
-        <button>Lost my credentials</button>
-      </Link>
+      <button onClick={handleRestore}>Restore</button>
     </div>
   );
 }

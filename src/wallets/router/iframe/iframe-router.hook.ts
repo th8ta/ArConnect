@@ -31,7 +31,7 @@ const AUTH_STATUS_TO_OVERRIDE: Record<
   authError: "/__OVERRIDES/loading",
   noAuth: null,
   noWallets: null,
-  noShard: null,
+  noShares: null,
   loading: "/__OVERRIDES/loading",
   locked: "/__OVERRIDES/unlock",
   unlocked: null
@@ -70,7 +70,7 @@ export function useAuthStatusOverride(
       );
     }
 
-    if (authStatus === "noShard") {
+    if (authStatus === "noShares") {
       return routeTrapMatches(
         location,
         [EmbeddedPaths.RestoreShards, EmbeddedPaths.GenerateWallet],
@@ -78,7 +78,7 @@ export function useAuthStatusOverride(
       );
     }
 
-    // TODO: Wha if we are here but the wallet, for whatever reason, is not in the wallet provider / ExtensionStore?
+    // TODO: What if we are here but the wallet, for whatever reason, is not in the wallet provider / ExtensionStore?
 
     // if (authStatus === "unlocked")
 

@@ -49,21 +49,32 @@ interface DbKeyShare {
   // Common:
   userId: string;
   walletId: string;
+  walletAddress: string;
   createdAt: Date;
-  rotatedAt: Date;
+  deviceNonceRotatedAt: Date;
+  sharesRotatedAt: Date;
   lastRequestedAt: Date;
   usagesAfterExpiration: number;
 
   // D + A SSS:
   deviceNonce: string;
   authShare: string;
-  // deviceSharePublicKey: string; // Not needed because we already have the device nonce...
+  deviceSharePublicKey: string;
 
   // RB + RA + RD SSS:
-  walletAddress: string;
   recoveryAuthShare: string;
   recoveryBackupSharePublicKey: string;
   recoveryDeviceSharePublicKey: string;
 }
 
 const keyShareByDeviceNonce: Record<string, DbKeyShare> = {};
+
+function getKeyShareForDevice(deviceNonce: string, walletAddress: string) {}
+
+export const FakeDB = {
+  getKeyShareForDevice
+};
+
+export const MockedFeatureFlags = {
+  maintainSeedPhrase: false
+} as const;

@@ -46,6 +46,8 @@ export interface CommonArConnectEmbeddedOptions {
   onClose?: () => boolean;
   onResize?: () => boolean;
   onAuth?: (userDetails: UserDetails) => boolean;
+
+  // TODO: Maybe not, as we should not drift too far away from the BE wallet API:
   onBalance?: (balances: Record<string, number>) => boolean;
   onInfo?: (data: AuthRequest | Notification) => boolean;
 

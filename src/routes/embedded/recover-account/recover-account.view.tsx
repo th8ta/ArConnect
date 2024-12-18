@@ -1,14 +1,12 @@
-import { useAuth } from "~utils/authentication/authentication.hooks";
+import { Link } from "~wallets/router/components/link/Link";
 
 export function RecoverAccountEmbeddedView() {
-  const { authStatus } = useAuth();
-
   return (
     <div>
       <h3>Recover Account</h3>
       <p>...</p>
-      {authStatus === "noAuth" ? <p>Auth lost</p> : null}
-      {authStatus === "noShard" ? <p>Shards lost but auth preserved</p> : null}
+      <button disabled>Recover Account</button>
+      <Link to="/auth">Back</Link>
     </div>
   );
 }

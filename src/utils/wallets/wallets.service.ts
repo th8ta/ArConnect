@@ -1,49 +1,68 @@
-import type { DbWallet } from "~utils/authentication/fakeDB";
-import type { AuthShardFromOtherShard } from "~utils/wallets/wallets.utils";
+import { FakeDB, type DbWallet } from "~utils/authentication/fakeDB";
+import type { DeviceShareInfo } from "~utils/wallets/wallets.utils";
 
 async function fetchWallets(): Promise<DbWallet[]> {
   return Promise.resolve([]);
 }
 
 export interface CreateWalletParams {
-  // TODO: Local wallets for those that do not want anything to do with our server/db:
-  walletType: "local" | "secret" | "private" | "public";
   // TODO: Bring in the B64 utils and types from Othent
+
+  // TODO: Local wallets for those that do not want anything to do with our server/db:
+  walletType: "secret" | "private" | "public"; // TODO: Add "local"?
   publicKey: string;
-  //address,
   deviceNonce: string;
-  authShardFromDeviceShard: AuthShardFromOtherShard;
-  authShardFromRecoveryShard: AuthShardFromOtherShard;
-  // recoverable?
+  authShare: string;
+  deviceSharePublicKey: string;
+  canBeUsedToRecoverAccount: boolean;
 }
 
-async function createWallet(wallet: CreateWalletParams) {}
+async function createWallet(wallet: CreateWalletParams) {
+  FakeDB.addWallet();
+}
 
 export interface FetchFirstAvailableAuthShareParams {
   deviceNonce: string;
-  deviceShares: string[];
+  deviceSharesInfo: DeviceShareInfo[];
+}
+
+export interface FetchFirstAvailableAuthShareReturn {
+  walletAddress: string;
+  authShare: string;
+  deviceShare: string;
+  rotateChallenge?: string;
 }
 
 async function fetchFirstAvailableAuthShare({
   deviceNonce,
-  deviceShares
-}: FetchFirstAvailableAuthShareParams): Promise<string> {
-  return Promise.resolve("");
+  deviceSharesInfo
+}: FetchFirstAvailableAuthShareParams): Promise<FetchFirstAvailableAuthShareReturn> {
+  return new Promise(async (resolve, reject) => {
+    for (const deviceSharesInfoItem of deviceSharesInfo) {
+      await FakeDB.getShareForDevice(
+        deviceNonce,
+        deviceSharesInfoItem.walletAddress
+      );
+    }
+  });
 }
 
-async function updateDeviceNonce(deviceNonce: string): Promise<void> {}
-
-export interface UpdateShardParams {
-  deviceNonce: string;
+export interface RotateDeviceShardParams {
+  walletAddress: string;
+  oldDeviceNonce?: string;
+  newDeviceNonce: string;
   authShare: string;
+  challengeSignature: string;
 }
 
-async function updateShard({}: UpdateShardParams): Promise<void> {}
+async function rotateAuthShare({}: RotateDeviceShardParams) {
+  // TODO: Take into account challengeSignature needs to be used as key too. Also, `oldDeviceNonce` might be `undefined`
+  // but only when `initiateWalletRecovery` has been called before...
+}
 
-export const WalletsService = {
+export const WalletService = {
   fetchWallets,
   createWallet,
   fetchFirstAvailableAuthShare,
-  updateDeviceNonce,
-  updateShard
+  rotateAuthShare
 };
