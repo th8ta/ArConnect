@@ -407,7 +407,7 @@ export function ConnectAuthRequestView() {
         style={{ display: "flex", flexDirection: "column", gap: "24px" }}
       >
         <div style={{ textAlign: "center" }}>
-          <PrimaryText fontSize={20} fontWeight={700}>
+          <PrimaryText fontSize={20} fontWeight={600}>
             Confirm permissions for{appInfo.name || url}
           </PrimaryText>
           <SecondaryText>{url}</SecondaryText>
@@ -574,7 +574,7 @@ const ConnectToApp = styled(Text).attrs({
   noMargin: true
 })`
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 600;
   color: ${(props) => props.theme.primaryTextv2};
 `;
 
@@ -583,7 +583,7 @@ const Gateway = styled(Text).attrs({
 })`
   color: ${(props) => props.theme.secondaryTextv2};
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 const ConnectWalletWrapper = styled.div`
@@ -615,7 +615,7 @@ export const AccountInitial = styled.span`
   text-align: center;
   font-size: 20px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 600;
   line-height: normal;
 `;
 
@@ -623,7 +623,7 @@ const WalletName = styled(Text).attrs({
   noMargin: true
 })`
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${(props) => props.theme.primaryTextv2};
 `;
 
@@ -632,7 +632,7 @@ const SecondaryText = styled(Text).attrs({
 })<{ fontSize?: number }>`
   color: ${(props) => props.theme.secondaryTextv2};
   font-size: ${(props) => props.fontSize || 14}px;
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 const PrimaryText = styled(Text).attrs({
@@ -640,7 +640,7 @@ const PrimaryText = styled(Text).attrs({
 })<{ fontSize?: number; fontWeight?: number; textAlign?: string }>`
   color: ${(props) => props.theme.primaryTextv2};
   font-size: ${(props) => props.fontSize || 14}px;
-  font-weight: ${(props) => props.fontWeight || 600};
+  font-weight: ${(props) => props.fontWeight || 500};
   text-align: ${(props) => props.textAlign || "left"};
 `;
 
@@ -649,7 +649,7 @@ const ChangeText = styled(Text).attrs({
 })`
   color: ${(props) => props.theme.primary};
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
 `;
 
