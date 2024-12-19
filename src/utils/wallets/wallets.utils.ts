@@ -16,6 +16,10 @@ import { defaultGateway } from "~gateways/gateway";
 import Arweave from "arweave";
 import { nanoid } from "nanoid";
 import { setDecryptionKey } from "~wallets/auth";
+import {
+  INVALID_DEVICE_NONCE_ERR_MSG,
+  INVALID_DEVICE_SHARES_INFO_ERR_MSG
+} from "~utils/wallets/wallets.constants";
 
 async function generateSeedPhrase() {
   console.log("generateSeedPhrase()");
@@ -161,15 +165,40 @@ async function generateChallengeSignature(
   console.log("generateChallengeSignature()");
 
   // TODO
+
+  return Promise.resolve("");
 }
 
 // Data (localStorage):
 
+// Device Nonce:
+
 const DEVICE_NONCE_KEY = "DEVICE_NONCE_KEY";
 
-// TODO: Load, parse and validate
-let _deviceNonce: string | null =
-  localStorage.getItem(DEVICE_NONCE_KEY) || null;
+type DeviceNonce =
+  `${number}-${number}-${number}T${number}:${number}:${number}.${number}Z-${string}`;
+
+function loadDeviceNonce(): DeviceNonce | null {
+  let deviceNonce = localStorage.getItem(DEVICE_NONCE_KEY) || null;
+
+  if (
+    deviceNonce === null ||
+    /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)\-\w{21}/.test(
+      deviceNonce
+    )
+  )
+    return deviceNonce as DeviceNonce;
+
+  if (process.env.NODE_ENV === "development") {
+    throw new Error(INVALID_DEVICE_NONCE_ERR_MSG);
+  } else {
+    console.warn(INVALID_DEVICE_NONCE_ERR_MSG);
+  }
+}
+
+let _deviceNonce: DeviceNonce | null = loadDeviceNonce();
+
+// Device Shares:
 
 const DEVICE_SHARES_INFO_KEY = "DEVICE_SHARES_INFO";
 
@@ -180,9 +209,29 @@ export interface DeviceShareInfo {
   createdAt: number;
 }
 
-// TODO: Load, parse and validate
-let _deviceSharesInfo: Record<string, DeviceShareInfo> =
-  localStorage.getItem(DEVICE_SHARES_INFO_KEY) || {};
+function loadDeviceSharesInfo(): Record<string, DeviceShareInfo> {
+  try {
+    let deviceSharesInfo = JSON.parse(
+      localStorage.getItem(DEVICE_SHARES_INFO_KEY)
+    );
+
+    // TODO: Add additional validation...
+
+    if (typeof deviceSharesInfo !== "object") {
+      deviceSharesInfo = null;
+    }
+
+    return deviceSharesInfo as Record<string, DeviceShareInfo>;
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      throw new Error(`${INVALID_DEVICE_SHARES_INFO_ERR_MSG}: ${err?.message}`);
+    } else {
+      console.warn(`${INVALID_DEVICE_SHARES_INFO_ERR_MSG}: ${err?.message}`);
+    }
+  }
+}
+
+let _deviceSharesInfo: Record<string, DeviceShareInfo> = loadDeviceSharesInfo();
 
 // Getters:
 
@@ -208,7 +257,7 @@ function storeEncryptedSeedPhrase(seedPhrase: string, jwk: JWKInterface) {
   // TODO
 }
 
-function storeDeviceNonce(deviceNonce: string) {
+function storeDeviceNonce(deviceNonce: DeviceNonce) {
   console.log("storeDeviceNonce()");
 
   _deviceNonce = deviceNonce;
@@ -231,7 +280,10 @@ function storeDeviceShare(
 
   _deviceSharesInfo[walletAddress] = deviceShareInfo;
 
-  localStorage.setItem(DEVICE_SHARES_INFO_KEY, _deviceSharesInfo);
+  localStorage.setItem(
+    DEVICE_SHARES_INFO_KEY,
+    JSON.stringify(_deviceSharesInfo)
+  );
 }
 
 async function storeEncryptedWalletJWK(jwk: JWKInterface): Promise<void> {
