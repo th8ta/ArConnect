@@ -1,37 +1,21 @@
-import type { AuthMethod } from "~utils/authentication/fakeDB";
-import { sleep } from "~utils/promises/sleep";
+import {
+  FakeDB,
+  type AuthMethod,
+  type DbAuthenticateData
+} from "~utils/authentication/fakeDB";
 
-export interface AuthenticateData {
-  userId: string;
-}
-
-// TODO: Store AuthenticateData as "session data"
-
-async function refreshSession(): Promise<AuthenticateData | null> {
-  await sleep(5000);
-
-  if (DB.hasUser())
-    // TODO: But wallets need to be re-fetched either way (this needs to send the device shad again)
-    // so that we get the corresponding auth shard back.
-    // return  ? mockedAuthenticateData : null;
-
-    return null;
+async function refreshSession(): Promise<DbAuthenticateData | null> {
+  return FakeDB.refreshSession();
 }
 
 async function authenticate(
   authMethod: AuthMethod
-): Promise<AuthenticateData | null> {
-  await sleep(5000);
-
-  mockedAuthenticateData.authMethod = authMethod;
-
-  // TODO: Filter if shardHash matches
-
-  return mockedAuthenticateData;
+): Promise<DbAuthenticateData | null> {
+  return FakeDB.authenticate(authMethod);
 }
 
 async function signOut(): Promise<void> {
-  await sleep(5000);
+  // TODO
 }
 
 async function recoverAccount(): Promise<void> {

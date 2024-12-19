@@ -45,11 +45,10 @@ export interface CommonArConnectEmbeddedOptions {
   onOpen?: () => boolean;
   onClose?: () => boolean;
   onResize?: () => boolean;
-  onAuth?: (userDetails: UserDetails) => boolean;
-
-  // TODO: Maybe not, as we should not drift too far away from the BE wallet API:
-  onBalance?: (balances: Record<string, number>) => boolean;
-  onInfo?: (data: AuthRequest | Notification) => boolean;
+  // TODO: Maybe yes, maybe not (we should not drift too far away from the BE wallet API)
+  // onAuth?: (userDetails: UserDetails) => boolean;
+  // onBalance?: (balances: Record<string, number>) => boolean;
+  // onInfo?: (data: AuthRequest | Notification) => boolean;
 
   // Other:
   replaceArProtocolLinks?: boolean;
@@ -175,6 +174,7 @@ export function initArConnectEmbedded(options: ArConnectEmbeddedOptions) {
     resize(resizeMessage.data);
   });
 
+  /*
   isomorphicOnMessage("embedded_auth", (authMessage) => {
     if (options.onAuth && options.onAuth(authMessage.data) === false) return;
 
@@ -196,6 +196,7 @@ export function initArConnectEmbedded(options: ArConnectEmbeddedOptions) {
     // TODO: Probably, authRequst and notification do not include details. They
     // are only sent to display a small "warning"/"alert" or counter icon somewhere.
   });
+  */
 
   return {
     iframeElement,
