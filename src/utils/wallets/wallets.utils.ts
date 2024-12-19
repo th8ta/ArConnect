@@ -175,7 +175,7 @@ async function generateChallengeSignature(
 
 const DEVICE_NONCE_KEY = "DEVICE_NONCE_KEY";
 
-type DeviceNonce =
+export type DeviceNonce =
   `${number}-${number}-${number}T${number}:${number}:${number}.${number}Z-${string}`;
 
 function loadDeviceNonce(): DeviceNonce | null {

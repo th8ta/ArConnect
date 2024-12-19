@@ -1,5 +1,8 @@
 import { FakeDB, type DbWallet } from "~utils/authentication/fakeDB";
-import type { DeviceShareInfo } from "~utils/wallets/wallets.utils";
+import type {
+  DeviceNonce,
+  DeviceShareInfo
+} from "~utils/wallets/wallets.utils";
 
 async function fetchWallets(): Promise<DbWallet[]> {
   return Promise.resolve([]);
@@ -9,20 +12,25 @@ export interface CreateWalletParams {
   // TODO: Bring in the B64 utils and types from Othent
 
   // TODO: Local wallets for those that do not want anything to do with our server/db:
-  walletType: "secret" | "private" | "public"; // TODO: Add "local"?
   publicKey: string;
+  walletType: "secret" | "private" | "public"; // TODO: Add "local"?
   deviceNonce: string;
   authShare: string;
   deviceSharePublicKey: string;
   canBeUsedToRecoverAccount: boolean;
+
+  source: {
+    type: "imported" | "generated";
+    from: "seedPhrase" | "binary" | "keyFile" | "shareFile";
+  };
 }
 
-async function createWallet(wallet: CreateWalletParams) {
-  FakeDB.addWallet();
+async function createWallet(wallet: CreateWalletParams): Promise<DbWallet> {
+  return FakeDB.addWallet(wallet);
 }
 
 export interface FetchFirstAvailableAuthShareParams {
-  deviceNonce: string;
+  deviceNonce: DeviceNonce;
   deviceSharesInfo: DeviceShareInfo[];
 }
 
@@ -37,12 +45,27 @@ async function fetchFirstAvailableAuthShare({
   deviceNonce,
   deviceSharesInfo
 }: FetchFirstAvailableAuthShareParams): Promise<FetchFirstAvailableAuthShareReturn> {
+  // TODO: Should we also send signatures for this?
+
   return new Promise(async (resolve, reject) => {
     for (const deviceSharesInfoItem of deviceSharesInfo) {
-      await FakeDB.getShareForDevice(
+      const { walletAddress, deviceShare } = deviceSharesInfoItem;
+
+      const { authShare, rotateChallenge } = await FakeDB.getKeyShareForDevice(
         deviceNonce,
-        deviceSharesInfoItem.walletAddress
-      );
+        walletAddress
+      ).catch(() => null);
+
+      if (authShare) {
+        resolve({
+          walletAddress,
+          authShare,
+          deviceShare,
+          rotateChallenge
+        });
+
+        break;
+      }
     }
   });
 }

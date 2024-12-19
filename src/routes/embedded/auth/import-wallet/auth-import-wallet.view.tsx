@@ -27,13 +27,18 @@ export function AuthImportWalletEmbeddedView() {
     const deviceNonce =
       WalletUtils.getDeviceNonce() || WalletUtils.generateDeviceNonce();
 
-    await WalletService.createWallet({
-      walletType: "public",
+    const dbWallet = await WalletService.createWallet({
       publicKey: jwk.n,
+      walletType: "public",
       deviceNonce,
       authShare,
       deviceSharePublicKey,
-      canBeUsedToRecoverAccount: false
+      canBeUsedToRecoverAccount: false,
+
+      source: {
+        type: "generated",
+        from: "seedPhrase"
+      }
     });
 
     WalletUtils.storeDeviceNonce(deviceNonce);
@@ -43,7 +48,7 @@ export function AuthImportWalletEmbeddedView() {
       WalletUtils.storeEncryptedSeedPhrase(importedSeedPhrase, jwk);
     }
 
-    addWallet(jwk);
+    addWallet(jwk, dbWallet);
   };
 
   return (

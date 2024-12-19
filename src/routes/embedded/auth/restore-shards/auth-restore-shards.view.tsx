@@ -8,7 +8,7 @@ const mockedRecoveryShareFileData = {
 } as const;
 
 export function AuthRestoreShardsEmbeddedView() {
-  const { addWallet } = useAuth();
+  const { activateWallet } = useAuth();
 
   const handleRestore = async () => {
     // TODO: arAonnectRecoveryFile should be uploaded by the user and should probably contain recovery shares for all
@@ -64,7 +64,7 @@ export function AuthRestoreShardsEmbeddedView() {
     WalletUtils.storeDeviceNonce(newDeviceNonce);
     WalletUtils.storeDeviceShare(deviceShare, walletAddress);
 
-    addWallet(jwk);
+    activateWallet(jwk);
   };
 
   return (
