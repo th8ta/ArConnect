@@ -8,6 +8,7 @@ import {
   EmbeddedPaths,
   type EmbeddedRoutePath
 } from "~wallets/router/iframe/iframe.routes";
+import { PopupPaths } from "~wallets/router/popup/popup.routes";
 import type {
   WanderRoutePath,
   BaseLocationHook,
@@ -19,6 +20,7 @@ import {
   isRouteRedirect,
   routeTrapInside,
   routeTrapMatches,
+  routeTrapOutside,
   withRouterRedirects
 } from "~wallets/router/router.utils";
 
@@ -40,10 +42,10 @@ const AUTH_STATUS_TO_OVERRIDE: Record<
 
 export function useAuthStatusOverride(
   location?: RoutePath
-): null | ExtensionRouteOverride | RouteRedirect<EmbeddedRoutePath> {
+): null | ExtensionRouteOverride | RouteRedirect<ArConnectRoutePath> {
   const { authStatus, promptToBackUp } = useAuth();
 
-  console.log("authStatus =", authStatus);
+  // console.log("authStatus =", authStatus);
 
   // TODO: Memo this:
 
@@ -89,7 +91,7 @@ export function useAuthStatusOverride(
             [EmbeddedPaths.AccountBackupShares],
             EmbeddedPaths.AccountBackupShares
           )
-        : routeTrapInside(location, EmbeddedPaths.Account);
+        : routeTrapOutside(location, EmbeddedPaths.Auth, PopupPaths.Home);
     }
   }
 
@@ -104,7 +106,7 @@ export const useEmbeddedLocation: BaseLocationHook = () => {
     useAuthRequestsLocation();
 
   if (override) {
-    console.log("override =", override);
+    // console.log("override =", override);
 
     return [override, isRouteRedirect(override) ? wavigate : NOOP];
   }

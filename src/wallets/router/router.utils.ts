@@ -73,10 +73,20 @@ export function routeTrapMatches<T extends RoutePath>(
     : (`${REDIRECT_PREFIX}${redirectTo.slice(1)}` as RouteRedirect<T>);
 }
 
+export function routeTrapOutside<T extends RoutePath>(
+  location: RoutePath,
+  baseRoute: T,
+  redirectTo: T
+): null | RouteRedirect<T> {
+  return location === baseRoute || location.startsWith(`${baseRoute}/`)
+    ? (`${REDIRECT_PREFIX}${redirectTo.slice(1)}` as RouteRedirect<T>)
+    : null;
+}
+
 export function BodyScroller() {
   const { location } = useLocation();
 
-  console.log("location =", location);
+  // console.log("location =", location);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -211,7 +221,7 @@ export function withRouterRedirects(
     useEffect(() => {
       if (!redirectLocation) return;
 
-      console.log("redirectLocation =", redirectLocation);
+      // console.log("redirectLocation =", redirectLocation);
 
       navigate(redirectLocation);
     }, [redirectLocation]);

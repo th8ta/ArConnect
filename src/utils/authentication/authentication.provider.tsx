@@ -10,8 +10,10 @@ import {
 } from "react";
 import { AuthenticationService } from "~utils/authentication/authentication.service";
 import type { AuthMethod, DbWallet } from "~utils/authentication/fakeDB";
+import { ExtensionStorage } from "~utils/storage";
 import { WalletService } from "~utils/wallets/wallets.service";
 import { WalletUtils } from "~utils/wallets/wallets.utils";
+import { getWallets } from "~wallets";
 
 export type AuthStatus =
   | "unknown"
@@ -41,7 +43,7 @@ interface AuthContextState {
 
 interface AuthContextData extends AuthContextState {
   authenticate: (authMethod: AuthMethod) => Promise<void>;
-  addWallet: (jwk: JWKInterface, dbWallet: DbWallet) => void;
+  addWallet: (jwk: JWKInterface, dbWallet: DbWallet) => Promise<void>;
   activateWallet: (jwk: JWKInterface) => void;
   skipBackUp: (doNotAskAgain: boolean) => void;
   registerBackUp: () => Promise<void>;
@@ -59,7 +61,7 @@ const AUTH_CONTEXT_INITIAL_STATE: AuthContextState = {
 export const AuthContext = createContext<AuthContextData>({
   ...AUTH_CONTEXT_INITIAL_STATE,
   authenticate: async () => null,
-  addWallet: () => null,
+  addWallet: async () => null,
   activateWallet: () => null,
   skipBackUp: () => null,
   registerBackUp: async () => null
@@ -104,7 +106,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // migrate wallet management to Mobx altogether for both extensions...
 
   const addWallet = useCallback(
-    (jwk: JWKInterface, dbWallet: DbWallet) => {
+    async (jwk: JWKInterface, dbWallet: DbWallet) => {
       // TODO: Add wallet to ExtensionStorage, but make sure to:
       // - Remove/update alarm to NOT remove it.
       // - Rotate it with newly generated passwords?
@@ -112,7 +114,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // - Router should force users out the auth screens
       // - See if signing, etc. works.
 
-      WalletUtils.storeEncryptedWalletJWK(jwk);
+      await WalletUtils.storeEncryptedWalletJWK(jwk);
+
+      console.log("WALLET ADDED =", await getWallets());
 
       // Optimistically add wallet.
       // TODO: We could consider calling `initEmbeddedWallet` again instead, which will make sure the wallet has been
@@ -170,13 +174,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
       authMethod
     });
 
-    // TODO: Handle errors:
+    // TODO: Relocate this reset and handle storage better:
 
+    try {
+      // We want to use `ExtensionStorage` as in-memory storage, but even setting it as "session", it's not a properly
+      // implemented "any storage" abstraction:
+      await ExtensionStorage.clear(true);
+    } catch (err) {
+      console.warn("Error clearing ExtensionStorage");
+
+      // At this point, there might already be valid data in `localStorage` (e.g. gateways) so we cannot simply do
+      // `localStorage.clear()`, unfortunately. For that, this reset needs to be moved to the (background) setup script.
+      localStorage.removeItem("wallets");
+      localStorage.removeItem("active_address");
+    }
+
+    // TODO: Handle errors:
     const authentication = authMethod
       ? await AuthenticationService.authenticate(authMethod)
       : await AuthenticationService.refreshSession();
 
-    if (!authentication.userId) {
+    if (!authentication?.userId) {
       setAuthContextState((prevAuthContextState) => ({
         ...prevAuthContextState,
         authStatus: "noAuth"
@@ -267,7 +285,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           });
 
           // TODO: Better to update the backend to return the Wallet object and pass it here, instead of the jwk:
-          addWallet(jwk, dbWallet);
+          await addWallet(jwk, dbWallet);
 
           // TODO: Rebuild pk, generate random password, store encrypted in storage.
 

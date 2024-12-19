@@ -3,14 +3,20 @@ import { type Gateway } from "~gateways/gateway";
 import { Storage } from "@plasmohq/storage";
 
 /**
- * Default local extension storage, with values
- * that are NOT copied to window.localStorage
+ * Default extension storage:
+ * - In the BE version, values are NOT copied to `localStorage`.
+ * - In the Embedded version, values are copied to `localStorage` (NOT memory), and are not cleared automatically
+ *   despite using `area: "session"`.
  */
-export const ExtensionStorage = new Storage({
-  area: "local"
-  // This copies the data to localStorage:
-  // allCopied: true,
-});
+export const ExtensionStorage =
+  import.meta.env.VITE_PUBLIC_APP_TYPE === "embedded"
+    ? new Storage({
+        area: "session",
+        allCopied: true
+      })
+    : new Storage({
+        area: "local"
+      });
 
 /**
  * Temporary storage for submitted transfers, with values
