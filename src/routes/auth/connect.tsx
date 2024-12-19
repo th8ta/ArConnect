@@ -110,8 +110,10 @@ export function ConnectAuthRequestView() {
     );
   }, [requestedPermissions, requestedPermCopy]);
 
-  // unlock
-  async function unlock() {
+  // connect
+  async function connect() {
+    if (!url) return;
+
     const unlockRes = await globalUnlock(passwordInput.state);
 
     if (!unlockRes) {
@@ -122,17 +124,6 @@ export function ConnectAuthRequestView() {
         duration: 2200
       });
     }
-
-    // listen for enter to connect
-    window.addEventListener("keydown", async (e) => {
-      if (e.key !== "Enter") return;
-      await connect();
-    });
-  }
-
-  // connect
-  async function connect() {
-    if (!url) return;
 
     // get existing permissions
     const app = new Application(url);
@@ -198,7 +189,7 @@ export function ConnectAuthRequestView() {
     } else if (page === "confirm") {
       setPage("unlock");
     } else if (page === "unlock") {
-      await unlock();
+      await connect();
     }
   }
 
@@ -289,7 +280,7 @@ export function ConnectAuthRequestView() {
           autoFocus
           onKeyDown={(e) => {
             if (e.key !== "Enter") return;
-            unlock();
+            connect();
           }}
         />
       </Section>
