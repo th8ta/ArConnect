@@ -150,7 +150,7 @@ export function AuthGenerateWalletEmbeddedView() {
       WalletUtils.storeEncryptedSeedPhrase(seedPhrase, jwk);
     }
 
-    addWallet(jwk, dbWallet);
+    await addWallet(jwk, dbWallet);
   };
 
   return (

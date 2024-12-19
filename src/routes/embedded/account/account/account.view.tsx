@@ -12,6 +12,10 @@ export function AccountEmbeddedView() {
 
       <pre>{JSON.stringify(wallets, null, 2)}</pre>
 
+      <Link to="/">
+        <button>Home</button>
+      </Link>
+
       <Link to="/account/generate-wallet">
         <button>Generate Wallet</button>
       </Link>

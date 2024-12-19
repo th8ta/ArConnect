@@ -12,6 +12,9 @@ export default function Graph({
 }: Omit<HTMLProps<HTMLDivElement>, "data"> & GraphProps) {
   const theme = useDisplayTheme();
 
+  // TODO: Remove this once the issue with useStorage hook's default values is resolved:
+  if (!data) return null;
+
   return (
     <GraphSection size="slim">
       <Wrapper {...(props as any)} displayTheme={theme}>

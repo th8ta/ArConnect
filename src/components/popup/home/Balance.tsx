@@ -106,6 +106,8 @@ export default function Balance() {
 
   useEffect(() => {
     if (
+      // TODO: Remove this once the issue with useStorage hook's default values is resolved:
+      !historicalBalance ||
       balance.toNumber() !== historicalBalance[historicalBalance.length - 1]
     ) {
       setLoading(true);

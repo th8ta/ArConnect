@@ -48,14 +48,16 @@ export function AuthImportWalletEmbeddedView() {
       WalletUtils.storeEncryptedSeedPhrase(importedSeedPhrase, jwk);
     }
 
-    addWallet(jwk, dbWallet);
+    await addWallet(jwk, dbWallet);
   };
 
   return (
     <div>
       <h3>Import Wallet</h3>
       <p>...</p>
-      <button onClick={handleImport}>Import</button>
+      <button onClick={handleImport} disabled>
+        Import
+      </button>
       <Link to="/auth/generate-wallet">Back</Link>
     </div>
   );

@@ -127,6 +127,8 @@ async function addWallet(
     recoveryDeviceSharePublicKey: ""
   });
 
+  // TODO: Persist these
+
   return wallet;
 }
 
@@ -150,6 +152,8 @@ async function getKeyShareForDevice(
   });
 
   // TODO: Update `keyShare` dates and add logic for rotation.
+
+  // TODO: Persist these
 
   return Promise.resolve({
     authShare: keyShare.authShare,
@@ -175,6 +179,8 @@ async function authenticate(
     userId: nanoid(),
     authMethod
   };
+
+  // TODO: Persist these
 
   return currentSession;
 }

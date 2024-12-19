@@ -20,6 +20,7 @@ import {
   INVALID_DEVICE_NONCE_ERR_MSG,
   INVALID_DEVICE_SHARES_INFO_ERR_MSG
 } from "~utils/wallets/wallets.constants";
+import { ExtensionStorage } from "~utils/storage";
 
 async function generateSeedPhrase() {
   console.log("generateSeedPhrase()");
@@ -47,6 +48,9 @@ async function generateWalletJWK(seedPhrase: string): Promise<JWKInterface> {
 
   if (attempts > 1) {
     // TODO: Send this to Sentry or whatever...
+    console.warn(
+      "Took multiple attempts to generate a wallet with the right length!"
+    );
   }
 
   return generatedKeyfile;
@@ -60,7 +64,7 @@ export interface WorkShares {
 async function generateWalletWorkShares(
   jwk: JWKInterface
 ): Promise<WorkShares> {
-  console.log("generateWalletWorkShares");
+  console.log("generateWalletWorkShares()");
 
   const privateKeyJWK = await window.crypto.subtle.importKey(
     "jwk",
@@ -75,6 +79,17 @@ async function generateWalletWorkShares(
     privateKeyJWK
   );
 
+  console.log(
+    "privateKeyPKCS8 =",
+    privateKeyPKCS8.byteLength,
+    "Uint8Array(privateKeyPKCS8).length =",
+    new Uint8Array(privateKeyPKCS8).length,
+    "Uint8Array(privateKeyPKCS8).byteLength =",
+    new Uint8Array(privateKeyPKCS8).byteLength,
+    "getWalletKeyLength",
+    await getWalletKeyLength(jwk)
+  );
+
   // Wanna know why these are called "shares" and not shards?
   // See https://discuss.hashicorp.com/t/is-it-shards-or-shares-in-shamir-secret-sharing/38978/3
 
@@ -82,6 +97,25 @@ async function generateWalletWorkShares(
     new Uint8Array(privateKeyPKCS8),
     2,
     2
+  );
+
+  /*
+  const justTest = await window.crypto.subtle.importKey(
+    "raw",
+    new Uint8Array(authShareBuffer),
+    { name: "RSA-PSS", hash: "SHA-256" },
+    true,
+    ["sign"]
+  );
+
+  console.log("justTest =", justTest)
+  */
+
+  console.log(
+    "deviceShareBuffer.length =",
+    deviceShareBuffer.length,
+    "deviceShareBuffer.byteLength =",
+    deviceShareBuffer.byteLength
   );
 
   // TODO: Need to add Buffer polyfill
@@ -142,12 +176,39 @@ async function generateWalletJWKFromShares(
   return privateKeyJWK;
 }
 
-function generateShareJWK(share: string): Promise<JWKInterface> {
+async function generateShareJWK(share: string): Promise<JWKInterface> {
   console.log("generateShareJWK()");
 
+  return Promise.resolve({
+    n: ""
+  } as any);
+
+  /*
   const shareBuffer = new Uint8Array(Buffer.from(share, "base64"));
 
+  console.log(1);
+
+  const shareKeyPKCS8 = await window.crypto.subtle.importKey(
+    "raw",
+    shareBuffer,
+    { name: "RSA-PSS", hash: "SHA-256" },
+    true,
+    ["sign"]
+  );
+
+  console.log(2);
+
+  const shareKeyJWK = await window.crypto.subtle.exportKey(
+    "jwk",
+    shareKeyPKCS8
+  );
+
+  console.log(
+    "shareKeyJWK =", shareKeyJWK,
+  );
+
   return pkcs8ToJwk(shareBuffer);
+  */
 }
 
 async function generateSharePublicKey(share: string): Promise<string> {
@@ -217,8 +278,8 @@ function loadDeviceSharesInfo(): Record<string, DeviceShareInfo> {
 
     // TODO: Add additional validation...
 
-    if (typeof deviceSharesInfo !== "object") {
-      deviceSharesInfo = null;
+    if (typeof deviceSharesInfo !== "object" || !deviceSharesInfo) {
+      deviceSharesInfo = {};
     }
 
     return deviceSharesInfo as Record<string, DeviceShareInfo>;
@@ -298,6 +359,8 @@ async function storeEncryptedWalletJWK(jwk: JWKInterface): Promise<void> {
   } while (!checkPasswordValid(randomPassword));
 
   await setDecryptionKey(randomPassword);
+
+  console.log("decryptionKey =", await ExtensionStorage.get("decryption_key"));
 
   // TODO: Consider calling this periodically to rotate the random passwords. We might need to use a Mutex for this...
   // updatePassword(randomPassword);
