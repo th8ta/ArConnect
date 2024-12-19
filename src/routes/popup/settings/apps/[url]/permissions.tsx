@@ -8,6 +8,7 @@ import Checkbox from "~components/Checkbox";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
 import { ErrorTypes } from "~utils/error/error.utils";
+import { LoadingView } from "~components/page/common/loading/loading.view";
 
 export interface AppPermissionsViewParams {
   url: string;
@@ -26,7 +27,7 @@ export function AppPermissionsView({
   const [settings, updateSettings] = app.hook();
 
   if (!settings) {
-    throw new Error(ErrorTypes.SettingsNotFound);
+    return <LoadingView />;
   }
 
   return (
