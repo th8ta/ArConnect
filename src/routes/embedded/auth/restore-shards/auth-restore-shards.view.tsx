@@ -2,6 +2,11 @@ import { useAuth } from "~utils/authentication/authentication.hooks";
 import { WalletService } from "~utils/wallets/wallets.service";
 import { WalletUtils } from "~utils/wallets/wallets.utils";
 
+const mockedRecoveryShareFileData = {
+  walletAddress: "",
+  recoveryShare: ""
+} as const;
+
 export function AuthRestoreShardsEmbeddedView() {
   const { addWallet } = useAuth();
 
@@ -11,7 +16,7 @@ export function AuthRestoreShardsEmbeddedView() {
 
     // TODO: This changes a bit if we use a 2/3 SSS with a recoveryDeviceShare:
 
-    const { walletAddress, recoveryShare } = recoveryShareFile;
+    const { walletAddress, recoveryShare } = mockedRecoveryShareFileData;
 
     const recoveryShareJWT = await WalletUtils.generateShareJWK(recoveryShare);
     const recoverySharePublicKey = recoveryShareJWT.n;
@@ -22,10 +27,11 @@ export function AuthRestoreShardsEmbeddedView() {
         recoverySharePublicKey
       );
 
-    const recoveryChallengeSignature = WalletUtils.generateChallengeSignature(
-      recoveryChallenge,
-      recoveryShareJWT
-    );
+    const recoveryChallengeSignature =
+      await WalletUtils.generateChallengeSignature(
+        recoveryChallenge,
+        recoveryShareJWT
+      );
 
     const authRecoveryShare = await WalletService.resolveRecoveryChallenge(
       recoveryChallengeSignature

@@ -60,9 +60,32 @@ async function rotateAuthShare({}: RotateDeviceShardParams) {
   // but only when `initiateWalletRecovery` has been called before...
 }
 
+export interface InitiateWalletRecoveryReturn {
+  recoveryChallenge: string;
+  rotateChallenge: string;
+}
+
+async function initiateWalletRecovery(
+  walletAddress: string,
+  recoverySharePublicKey: string
+): Promise<InitiateWalletRecoveryReturn> {
+  return Promise.resolve({
+    recoveryChallenge: "",
+    rotateChallenge: ""
+  });
+}
+
+async function resolveRecoveryChallenge(
+  challengeSignature: string
+): Promise<string> {
+  return Promise.resolve("");
+}
+
 export const WalletService = {
   fetchWallets,
   createWallet,
   fetchFirstAvailableAuthShare,
-  rotateAuthShare
+  rotateAuthShare,
+  initiateWalletRecovery,
+  resolveRecoveryChallenge
 };
