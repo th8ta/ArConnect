@@ -97,10 +97,10 @@ async function generateWalletRecoveryShares(jwk: JWKInterface) {
   // TODO: Add implementation once the backup shares view is added.
 }
 
-function generateDeviceNonce(): string {
+function generateDeviceNonce(): DeviceNonce {
   console.log("generateDeviceNonce()");
 
-  return `${new Date().toISOString()}-${nanoid()}`;
+  return `${new Date().toISOString()}-${nanoid()}` as DeviceNonce;
 }
 
 function generateRandomPassword(): string {
@@ -235,7 +235,7 @@ let _deviceSharesInfo: Record<string, DeviceShareInfo> = loadDeviceSharesInfo();
 
 // Getters:
 
-function getDeviceNonce(): string {
+function getDeviceNonce(): DeviceNonce {
   console.log("getDeviceNonce()");
 
   return _deviceNonce;
