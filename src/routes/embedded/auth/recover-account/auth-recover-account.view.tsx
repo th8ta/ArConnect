@@ -1,6 +1,6 @@
 import { Link } from "~wallets/router/components/link/Link";
 
-export function RecoverAccountEmbeddedView() {
+export function AuthRecoverAccountEmbeddedView() {
   return (
     <div>
       <h3>Recover Account</h3>

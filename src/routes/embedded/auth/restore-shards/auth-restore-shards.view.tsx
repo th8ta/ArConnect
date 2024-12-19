@@ -2,7 +2,7 @@ import { useAuth } from "~utils/authentication/authentication.hooks";
 import { WalletService } from "~utils/wallets/wallets.service";
 import { WalletUtils } from "~utils/wallets/wallets.utils";
 
-export function RestoreShardsEmbeddedView() {
+export function AuthRestoreShardsEmbeddedView() {
   const { addWallet } = useAuth();
 
   const handleRestore = async () => {
@@ -13,11 +13,11 @@ export function RestoreShardsEmbeddedView() {
 
     const { walletAddress, recoveryShare } = recoveryShareFile;
 
-    const recoveryShareJWT = WalletUtils.generateShareJWK(recoveryShare);
+    const recoveryShareJWT = await WalletUtils.generateShareJWK(recoveryShare);
     const recoverySharePublicKey = recoveryShareJWT.n;
 
     const { recoveryChallenge, rotateChallenge } =
-      WalletService.initiateWalletRecovery(
+      await WalletService.initiateWalletRecovery(
         walletAddress,
         recoverySharePublicKey
       );
@@ -27,7 +27,7 @@ export function RestoreShardsEmbeddedView() {
       recoveryShareJWT
     );
 
-    const authRecoveryShare = WalletService.resolveRecoveryChallenge(
+    const authRecoveryShare = await WalletService.resolveRecoveryChallenge(
       recoveryChallengeSignature
     );
 

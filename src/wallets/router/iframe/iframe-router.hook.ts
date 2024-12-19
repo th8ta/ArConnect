@@ -17,6 +17,7 @@ import type {
 import {
   isRouteOverride,
   isRouteRedirect,
+  routeTrapInside,
   routeTrapMatches,
   withRouterRedirects
 } from "~wallets/router/router.utils";
@@ -40,7 +41,7 @@ const AUTH_STATUS_TO_OVERRIDE: Record<
 export function useAuthStatusOverride(
   location?: RoutePath
 ): null | ExtensionRouteOverride | RouteRedirect<EmbeddedRoutePath> {
-  const { authStatus } = useAuth();
+  const { authStatus, promptToBackUp } = useAuth();
 
   console.log("authStatus =", authStatus);
 
@@ -50,8 +51,8 @@ export function useAuthStatusOverride(
     if (authStatus === "noAuth") {
       return routeTrapMatches(
         location,
-        [EmbeddedPaths.Authenticate, EmbeddedPaths.RecoverAccount],
-        EmbeddedPaths.Authenticate
+        [EmbeddedPaths.Auth, EmbeddedPaths.AuthRecoverAccount],
+        EmbeddedPaths.Auth
       );
     }
 
@@ -59,32 +60,37 @@ export function useAuthStatusOverride(
       return routeTrapMatches(
         location,
         [
-          EmbeddedPaths.GenerateWallet,
-          EmbeddedPaths.AddDevice,
-          EmbeddedPaths.AddAuthProvider,
-          EmbeddedPaths.ImportWallet
+          EmbeddedPaths.AuthGenerateWallet,
+          EmbeddedPaths.AuthAddDevice,
+          EmbeddedPaths.AuthAddAuthProvider,
+          EmbeddedPaths.AuthImportWallet
           // EmbeddedPaths.AddDevice/<SOMETHING>
           // EmbeddedPaths.AddAuthProvider/<SOMETHING>
         ],
-        EmbeddedPaths.GenerateWallet
+        EmbeddedPaths.AuthGenerateWallet
       );
     }
 
     if (authStatus === "noShares") {
       return routeTrapMatches(
         location,
-        [EmbeddedPaths.RestoreShards, EmbeddedPaths.GenerateWallet],
-        EmbeddedPaths.RestoreShards
+        [EmbeddedPaths.AuthRestoreShards, EmbeddedPaths.AuthGenerateWallet],
+        EmbeddedPaths.AuthRestoreShards
       );
     }
 
-    // TODO: What if we are here but the wallet, for whatever reason, is not in the wallet provider / ExtensionStore?
+    if (authStatus === "unlocked") {
+      // TODO: What if we are here but the wallet, for whatever reason, is not in the wallet provider / ExtensionStore?
+      // TODO: We need a routeOffLimits to keep users away from /auth after they authenticate (except for confirmation screen while it has location state data)
 
-    // if (authStatus === "unlocked")
-
-    // TODO: force user to be outside /auth (except for confirmation screen while it has location state data)
-    // TODO: What about the backup and export wallet pages? What would be their path prefix?
-    // TODO: Deploy already to vercel with screenshots and a bit better components to show to people
+      return promptToBackUp
+        ? routeTrapMatches(
+            location,
+            [EmbeddedPaths.AccountBackupShares],
+            EmbeddedPaths.AccountBackupShares
+          )
+        : routeTrapInside(location, EmbeddedPaths.Account);
+    }
   }
 
   return AUTH_STATUS_TO_OVERRIDE[authStatus];

@@ -1,15 +1,24 @@
-import { GenerateWalletEmbeddedView } from "~routes/embedded/generate-wallet/generate-wallet.view";
-import { AddDeviceEmbeddedView } from "~routes/embedded/add-device/add-device.view";
-import { AuthenticateEmbeddedView } from "~routes/embedded/authenticate/authenticate.view";
-import { ImportWalletEmbeddedView } from "~routes/embedded/import-wallet/import-wallet.view";
-import { RestoreShardsEmbeddedView } from "~routes/embedded/restore-shards/restore-shards.view";
 import { AUTH_ROUTES } from "~wallets/router/auth/auth.routes";
 import { getExtensionOverrides } from "~wallets/router/extension/extension.routes";
 import { POPUP_ROUTES } from "~wallets/router/popup/popup.routes";
 import type { RouteConfig } from "~wallets/router/router.types";
 import { isRouteOverride, prefixRoutes } from "~wallets/router/router.utils";
-import { RecoverAccountEmbeddedView } from "~routes/embedded/recover-account/recover-account.view";
-import { AddAuthProviderEmbeddedView } from "~routes/embedded/add-auth-provider/add-auth-provider.view";
+
+// Authentication Views:
+import { AuthEmbeddedView } from "~routes/embedded/auth/auth/auth.view";
+import { AuthGenerateWalletEmbeddedView } from "~routes/embedded/auth/generate-wallet/auth-generate-wallet.view";
+import { AuthAddDeviceEmbeddedView } from "~routes/embedded/auth/add-device/auth-add-device.view";
+import { AuthAddAuthProviderEmbeddedView } from "~routes/embedded/auth/add-auth-provider/auth-add-auth-provider.view";
+import { AuthImportWalletEmbeddedView } from "~routes/embedded/auth/import-wallet/auth-import-wallet.view";
+import { AuthRestoreShardsEmbeddedView } from "~routes/embedded/auth/restore-shards/auth-restore-shards.view";
+import { AuthRecoverAccountEmbeddedView } from "~routes/embedded/auth/recover-account/auth-recover-account.view";
+
+// Account Management Views:
+import { AccountEmbeddedView } from "~routes/embedded/account/account/account.view";
+import { AccountGenerateWalletEmbeddedView } from "~routes/embedded/account/generate-wallet/account-generate-wallet.view";
+import { AccountImportWalletEmbeddedView } from "~routes/embedded/account/import-wallet/account-import-wallet.view";
+import { AccountBackupSharesEmbeddedView } from "~routes/embedded/account/backup-shares/account-backup-shares.view";
+import { AccountExportWalletEmbeddedView } from "~routes/embedded/account/export-wallet/account-export-wallet.view";
 
 export type EmbeddedRoutePath =
   | "/auth"
@@ -17,52 +26,87 @@ export type EmbeddedRoutePath =
   | "/auth/add-device"
   | "/auth/add-auth-provider"
   | "/auth/import-wallet"
+  | "/auth/restore-shards"
   | "/auth/recover-account"
-  | "/auth/restore-shards";
-// | "/account"
-// | "/account/generate-wallet"
-// | "/account/import-wallet"
-// | "/account/backup-shards"
-// | "/account/export-wallet";
+  | "/account"
+  | "/account/generate-wallet"
+  | "/account/import-wallet"
+  | "/account/backup-shares"
+  | "/account/export-wallet";
 
 export const EmbeddedPaths = {
-  Authenticate: "/auth",
-  GenerateWallet: "/auth/generate-wallet",
-  AddDevice: "/auth/add-device",
-  AddAuthProvider: "/auth/add-auth-provider",
-  ImportWallet: "/auth/import-wallet",
-  RecoverAccount: "/auth/recover-account",
-  RestoreShards: "/auth/restore-shards"
+  // TODO: Consider nesting these instead:
+
+  // Authentication:
+  Auth: "/auth",
+  AuthGenerateWallet: "/auth/generate-wallet",
+  AuthAddDevice: "/auth/add-device",
+  AuthAddAuthProvider: "/auth/add-auth-provider",
+  AuthImportWallet: "/auth/import-wallet",
+  AuthRestoreShards: "/auth/restore-shards",
+  AuthRecoverAccount: "/auth/recover-account",
+
+  // Account Management:
+  Account: "/account",
+  AccountGenerateWallet: "/account/generate-wallet",
+  AccountImportWallet: "/account/import-wallet",
+  AccountBackupShares: "/account/backup-shares",
+  AccountExportWallet: "/account/export-wallet"
 } as const satisfies Record<string, EmbeddedRoutePath>;
 
 const IFRAME_OWN_ROUTES = [
+  // Authentication:
+
   {
-    path: EmbeddedPaths.Authenticate,
-    component: AuthenticateEmbeddedView
+    path: EmbeddedPaths.Auth,
+    component: AuthEmbeddedView
   },
   {
-    path: EmbeddedPaths.GenerateWallet,
-    component: GenerateWalletEmbeddedView
+    path: EmbeddedPaths.AuthGenerateWallet,
+    component: AuthGenerateWalletEmbeddedView
   },
   {
-    path: EmbeddedPaths.AddDevice,
-    component: AddDeviceEmbeddedView
+    path: EmbeddedPaths.AuthAddDevice,
+    component: AuthAddDeviceEmbeddedView
   },
   {
-    path: EmbeddedPaths.AddAuthProvider,
-    component: AddAuthProviderEmbeddedView
+    path: EmbeddedPaths.AuthAddAuthProvider,
+    component: AuthAddAuthProviderEmbeddedView
   },
   {
-    path: EmbeddedPaths.ImportWallet,
-    component: ImportWalletEmbeddedView
+    path: EmbeddedPaths.AuthImportWallet,
+    component: AuthImportWalletEmbeddedView
   },
   {
-    path: EmbeddedPaths.RecoverAccount,
-    component: RecoverAccountEmbeddedView
+    path: EmbeddedPaths.AuthRestoreShards,
+    component: AuthRestoreShardsEmbeddedView
   },
   {
-    path: EmbeddedPaths.RestoreShards,
-    component: RestoreShardsEmbeddedView
+    path: EmbeddedPaths.AuthRecoverAccount,
+    component: AuthRecoverAccountEmbeddedView
+  },
+
+  // Account Management:
+
+  {
+    path: EmbeddedPaths.Account,
+    component: AccountEmbeddedView
+  },
+  {
+    path: EmbeddedPaths.AccountGenerateWallet,
+    component: AccountGenerateWalletEmbeddedView
+  },
+  {
+    path: EmbeddedPaths.AccountImportWallet,
+    component: AccountImportWalletEmbeddedView
+  },
+  {
+    path: EmbeddedPaths.AccountBackupShares,
+    component: AccountBackupSharesEmbeddedView
+  },
+  {
+    path: EmbeddedPaths.AccountExportWallet,
+    component: AccountExportWalletEmbeddedView
   }
 ] as const satisfies RouteConfig<EmbeddedRoutePath>[];
 

@@ -1,7 +1,7 @@
 import { useAuth } from "~utils/authentication/authentication.hooks";
 import { Link } from "~wallets/router/components/link/Link";
 
-export function AddAuthProviderEmbeddedView() {
+export function AuthAddAuthProviderEmbeddedView() {
   const { authMethod } = useAuth();
 
   return (
