@@ -6,7 +6,7 @@ import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
 import { MockedFeatureFlags } from "~utils/authentication/fakeDB";
 
-export function GenerateWalletEmbeddedView() {
+export function AuthGenerateWalletEmbeddedView() {
   const { authMethod, addWallet } = useAuth();
 
   // TODO:

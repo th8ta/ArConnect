@@ -7,7 +7,7 @@ import { MockedFeatureFlags } from "~utils/authentication/fakeDB";
 import { WalletService } from "~utils/wallets/wallets.service";
 import { useAuth } from "~utils/authentication/authentication.hooks";
 
-export function ImportWalletEmbeddedView() {
+export function AuthImportWalletEmbeddedView() {
   const { addWallet } = useAuth();
 
   const handleImport = async () => {

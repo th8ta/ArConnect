@@ -34,24 +34,32 @@ interface AuthContextState {
   authMethod: null | AuthMethod;
   userId: null | string;
   wallets: DbWallet[];
+  promptToBackUp: boolean;
+  backedUp: boolean;
 }
 
 interface AuthContextData extends AuthContextState {
   authenticate: (authMethod: AuthMethod) => Promise<void>;
   addWallet: (jwk: JWKInterface) => void;
+  skipBackUp: (doNotAskAgain: boolean) => void;
+  registerBackUp: () => Promise<void>;
 }
 
 const AUTH_CONTEXT_INITIAL_STATE: AuthContextState = {
   authStatus: "unknown",
   authMethod: null,
   userId: null,
-  wallets: []
+  wallets: [],
+  promptToBackUp: true,
+  backedUp: false
 };
 
 export const AuthContext = createContext<AuthContextData>({
   ...AUTH_CONTEXT_INITIAL_STATE,
   authenticate: async () => null,
-  addWallet: () => null
+  addWallet: () => null,
+  skipBackUp: () => null,
+  registerBackUp: async () => null
 });
 
 interface AuthProviderProps extends PropsWithChildren {}
@@ -70,6 +78,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
       coverElement.setAttribute("aria-hidden", "true");
     }
   }, [authStatus]);
+
+  const skipBackUp = useCallback((doNotAskAgain: boolean) => {
+    // TODO: Persist lastPromptData (local?) and doNotAskAgain (server?)...
+
+    setAuthContextState((prevAuthContextState) => ({
+      ...prevAuthContextState,
+      promptToBackUp: false
+    }));
+  }, []);
+
+  const registerBackUp = useCallback(async () => {
+    // TODO: Do we need to register this on the server? Here or on from the view itself?
+
+    setAuthContextState((prevAuthContextState) => ({
+      ...prevAuthContextState,
+      backedUp: true
+    }));
+  }, []);
 
   // TODO: Need to observe storage to keep track of new wallets, removed wallets or active wallet changes... Or just
   // migrate wallet management to Mobx altogether for both extensions...
@@ -247,7 +273,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       value={{
         ...authContextState,
         authenticate,
-        addWallet
+        addWallet,
+        skipBackUp,
+        registerBackUp
       }}
     >
       {children}

@@ -1,6 +1,6 @@
 import { Link } from "~wallets/router/components/link/Link";
 
-export function AddDeviceEmbeddedView() {
+export function AuthAddDeviceEmbeddedView() {
   return (
     <div>
       <h3>Add Device</h3>
