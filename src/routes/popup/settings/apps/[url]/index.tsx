@@ -51,24 +51,8 @@ export function AppSettingsView({ params: { url } }: AppSettingsViewProps) {
   const arweave = new Arweave(defaultGateway);
 
   // allowance spent qty
-  const spent = useMemo(() => {
-    const val = settings?.allowance?.spent;
-
-    if (!val) return "0";
-    return val.toString();
-  }, [settings]);
-
-  const isAllowanceDisabled = useMemo(() => {
-    return !settings?.allowance?.enabled;
-  }, [settings?.allowance?.enabled]);
 
   // allowance limit
-  const limit = useMemo(() => {
-    const val = settings?.allowance?.limit;
-
-    if (!val) return arweave.ar.arToWinston("0.1");
-    return val.toString();
-  }, [settings]);
 
   // active gateway
   const gateway = useMemo(() => {
@@ -95,8 +79,6 @@ export function AppSettingsView({ params: { url } }: AppSettingsViewProps) {
 
   // custom gateway input
   const customGatewayInput = useInput();
-
-  const limitInput = useInput();
 
   useEffect(() => {
     if (!isCustom || !settings.gateway) return;
@@ -425,10 +407,6 @@ const Wrapper = styled.div`
   height: calc(100vh - 80px);
 `;
 
-const InfoIcon = styled(InformationIcon)`
-  color: ${(props) => props.theme.secondaryTextv2};
-`;
-
 const TitleV1 = styled(Text).attrs({
   heading: true
 })`
@@ -443,20 +421,6 @@ const TitleV2 = styled(Text).attrs({
   margin-bottom: 0.6em;
   font-size: 1rem;
   font-weight: 500;
-`;
-
-const NumberInputV2 = styled(InputV2)`
-  /* Chrome, Safari, Edge, Opera */
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  /* Firefox */
-  &[type="number"] {
-    -moz-appearance: textfield;
-  }
 `;
 
 const ResetButton = styled.span`
@@ -488,19 +452,11 @@ const PolicyOption = styled.div`
   cursor: pointer;
 `;
 
-const SecondaryText = styled(Text).attrs({
-  noMargin: true
-})<{ fontSize?: number }>`
-  color: ${(props) => props.theme.secondaryTextv2};
-  font-size: ${(props) => props.fontSize || 14}px;
-  font-weight: 600;
-`;
-
 const PrimaryText = styled(Text).attrs({
   noMargin: true
 })<{ fontSize?: number; fontWeight?: number; textAlign?: string }>`
   color: ${(props) => props.theme.primaryTextv2};
   font-size: ${(props) => props.fontSize || 14}px;
-  font-weight: ${(props) => props.fontWeight || 600};
+  font-weight: ${(props) => props.fontWeight || 500};
   text-align: ${(props) => props.textAlign || "left"};
 `;

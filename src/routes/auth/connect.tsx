@@ -677,6 +677,7 @@ const CustomPermissionsInfo = styled.div`
   align-items: center;
   gap: 10px;
   align-self: stretch;
+  border: 1px solid #333;
   border-radius: 8px;
 `;
 
