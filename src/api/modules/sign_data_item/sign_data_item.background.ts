@@ -14,6 +14,7 @@ import { requestUserAuthorization } from "../../../utils/auth/auth.utils";
 import BigNumber from "bignumber.js";
 import { createDataItem } from "~utils/data_item";
 import { EventType, trackDirect } from "~utils/analytics";
+import { checkIfUserNeedsToSign } from "../sign/sign_policy";
 
 const background: BackgroundModuleFunction<number[]> = async (
   appData,
@@ -27,8 +28,8 @@ const background: BackgroundModuleFunction<number[]> = async (
   }
 
   const app = new Application(appData.url);
-  const allowance = await app.getAllowance();
-  const alwaysAsk = allowance.enabled && allowance.limit.eq(BigNumber("0"));
+  // const allowance = await app.getAllowance();
+  // const alwaysAsk = allowance.enabled && allowance.limit.eq(BigNumber("0"));
   let isTransferTx = false;
   let amount = "0";
 
@@ -74,6 +75,13 @@ const background: BackgroundModuleFunction<number[]> = async (
 
   // grab the user's keyfile
   const decryptedWallet = await getActiveKeyfile(appData);
+
+  const signPolicy = await app.getSignPolicy();
+  const alwaysAsk = checkIfUserNeedsToSign(
+    signPolicy,
+    dataItem,
+    decryptedWallet.type
+  );
 
   // create app
 

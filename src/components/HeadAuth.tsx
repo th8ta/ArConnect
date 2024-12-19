@@ -13,12 +13,14 @@ export interface HeadAuthProps {
   title?: string;
   back?: () => void;
   appInfo?: AppInfo;
+  showHead?: boolean;
 }
 
 export const HeadAuth: React.FC<HeadAuthProps> = ({
   title,
   back,
-  appInfo: appInfoProp = { name: "ArConnect" }
+  appInfo: appInfoProp = { name: "ArConnect" },
+  showHead = true
 }) => {
   const [areLogsExpanded, setAreLogsExpanded] = useState(false);
   const { authRequests, currentAuthRequestIndex, setCurrentAuthRequestIndex } =
@@ -29,13 +31,17 @@ export const HeadAuth: React.FC<HeadAuthProps> = ({
   // fallback value:
 
   const { name: fallbackName, logo: fallbackLogo } = appInfoProp;
-  const { tabID = null, url = "" } =
-    authRequests[currentAuthRequestIndex] || {};
+  const {
+    tabID = null,
+    url = "",
+    type
+  } = authRequests[currentAuthRequestIndex] || {};
+  const isConnectType = type === "connect";
   const [appLogoInfo, setAppLogoInfo] = useState<AppLogoInfo>(appInfoProp);
 
   useEffect(() => {
     async function loadAppInfo() {
-      if (!url) return;
+      if (!url || isConnectType) return;
 
       const app = new Application(url);
       const appInfo = await app.getAppData();
@@ -53,7 +59,7 @@ export const HeadAuth: React.FC<HeadAuthProps> = ({
     }
 
     loadAppInfo();
-  }, [url, fallbackName, fallbackLogo]);
+  }, [url, fallbackName, fallbackLogo, isConnectType]);
 
   const handleAppInfoClicked = tabID
     ? () => {
@@ -67,14 +73,16 @@ export const HeadAuth: React.FC<HeadAuthProps> = ({
 
   return (
     <>
-      <HeadV2
-        title={title}
-        showOptions={false}
-        showBack={!!back}
-        back={back}
-        appInfo={appLogoInfo}
-        onAppInfoClick={handleAppInfoClicked}
-      />
+      {showHead && (
+        <HeadV2
+          title={title}
+          showOptions={isConnectType}
+          showBack={!!back}
+          back={back}
+          appInfo={!isConnectType && appLogoInfo}
+          onAppInfoClick={!isConnectType && handleAppInfoClicked}
+        />
+      )}
 
       {process.env.NODE_ENV === "development" && authRequests.length > 0 ? (
         <DivTransactionTracker>

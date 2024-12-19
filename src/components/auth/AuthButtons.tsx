@@ -15,6 +15,7 @@ export interface AuthButtonsProps {
   authRequest?: AuthRequest;
   primaryButtonProps?: AuthButtonProps;
   secondaryButtonProps?: AuthButtonProps;
+  showAuthStatus?: boolean;
 }
 
 // TODO: Consider creating a similar component without the `authRequest` to be reused everywhere where the "continue"
@@ -23,7 +24,8 @@ export interface AuthButtonsProps {
 export function AuthButtons({
   authRequest,
   primaryButtonProps,
-  secondaryButtonProps
+  secondaryButtonProps,
+  showAuthStatus = true
 }: AuthButtonsProps) {
   const showPrimaryButton = !!primaryButtonProps?.onClick;
   const showSecondaryButton = !!secondaryButtonProps?.onClick;
@@ -51,7 +53,7 @@ export function AuthButtons({
 
   return (
     <>
-      {authRequest ? (
+      {showAuthStatus && authRequest ? (
         <PStatusLabel status={authRequest.status}>
           {browser.i18n.getMessage(`${authRequest.status}TransactionStatusAt`) +
             " "}

@@ -26,6 +26,13 @@ import HeadV2 from "~components/popup/HeadV2";
 import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
+import Checkbox from "~components/Checkbox";
+
+const signPolicyOptions = [
+  "always_ask",
+  "ask_when_spending",
+  "auto_confirm"
+] as const;
 
 export interface AppSettingsViewParams {
   url: string;
@@ -134,7 +141,7 @@ export function AppSettingsView({ params: { url } }: AppSettingsViewProps) {
             </ResetButton>
           </Flex>
           <Spacer y={1} />
-          <Flex alignItems="center" justifyContent="space-between">
+          {/* <Flex alignItems="center" justifyContent="space-between">
             <Flex alignItems="center" justifyContent="center">
               <TitleV1>{browser.i18n.getMessage("allowance")}</TitleV1>
               <TooltipV2
@@ -244,6 +251,33 @@ export function AppSettingsView({ params: { url } }: AppSettingsViewProps) {
               </ResetButton>
             </TooltipV2>
           </Flex>
+          <Spacer y={1} /> */}
+          <TitleV2>{browser.i18n.getMessage("permission_settings")}</TitleV2>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+          >
+            {signPolicyOptions.map((option) => (
+              <PolicyOption
+                key={option}
+                onClick={() =>
+                  updateSettings((val) => ({ ...val, signPolicy: option }))
+                }
+              >
+                <Checkbox
+                  size={16}
+                  onChange={() =>
+                    updateSettings((val) => ({ ...val, signPolicy: option }))
+                  }
+                  checked={settings?.signPolicy === option}
+                />
+                <div>
+                  <PrimaryText fontSize={16}>
+                    {browser.i18n.getMessage(option)}
+                  </PrimaryText>
+                </div>
+              </PolicyOption>
+            ))}
+          </div>
           <Spacer y={1} />
           <TitleV2>{browser.i18n.getMessage("gateway")}</TitleV2>
           <SelectV2
@@ -442,4 +476,28 @@ export const Flex = styled.div<{ alignItems: string; justifyContent: string }>`
   display: flex;
   align-items: ${(props) => props.alignItems};
   justify-content: ${(props) => props.justifyContent};
+`;
+
+const PolicyOption = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+`;
+
+const SecondaryText = styled(Text).attrs({
+  noMargin: true
+})<{ fontSize?: number }>`
+  color: ${(props) => props.theme.secondaryTextv2};
+  font-size: ${(props) => props.fontSize || 14}px;
+  font-weight: 600;
+`;
+
+const PrimaryText = styled(Text).attrs({
+  noMargin: true
+})<{ fontSize?: number; fontWeight?: number; textAlign?: string }>`
+  color: ${(props) => props.theme.primaryTextv2};
+  font-size: ${(props) => props.fontSize || 14}px;
+  font-weight: ${(props) => props.fontWeight || 600};
+  text-align: ${(props) => props.textAlign || "left"};
 `;

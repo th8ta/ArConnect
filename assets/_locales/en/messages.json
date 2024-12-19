@@ -974,7 +974,7 @@
     "description": "Wallet label"
   },
   "enter_your_password": {
-    "message": "Enter your password...",
+    "message": "Enter your password",
     "description": "Enter password placeholder"
   },
   "connect": {
@@ -2405,5 +2405,65 @@
         "example": "10"
       }
     }
+  },
+  "connect_to_app": {
+    "message": "Connect to $APPNAME$",
+    "description": "Connect to app title",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "ArConnect"
+      }
+    }
+  },
+  "always_ask": {
+    "message": "Always ask",
+    "description": "Always ask"
+  },
+  "always_ask_description": {
+    "message": "Review and confirm every transaction and message.",
+    "description": "Always ask description"
+  },
+  "ask_when_spending": {
+    "message": "Ask when spending",
+    "description": "Ask when spending"
+  },
+  "ask_when_spending_description": {
+    "message": "Review and confirm transactions only when assets are being transferred.",
+    "description": "Ask when spending description"
+  },
+  "auto_confirm": {
+    "message": "Auto-confirm",
+    "description": "Auto-confirm"
+  },
+  "auto_confirm_description": {
+    "message": "Automatically sign every transaction and message.",
+    "description": "Auto-confirm description"
+  },
+  "custom_permissions": {
+    "message": "Custom permissions",
+    "description": "Custom permissions"
+  },
+  "set_custom_permissions": {
+    "message": "Set custom permissions",
+    "description": "Set custom permissions"
+  },
+  "permission_settings": {
+    "message": "Permission Settings",
+    "description": "Permission settings title"
+  },
+  "select_account": {
+    "message": "Select an account to connect to $APPNAME$",
+    "description": "Select account title",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "ArConnect"
+      }
+    }
+  },
+  "review": {
+    "message": "Review",
+    "description": "Review title"
   }
 }
