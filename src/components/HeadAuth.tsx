@@ -53,8 +53,8 @@ export const HeadAuth: React.FC<HeadAuthProps> = ({
           fallbackName ||
           new URL(url).hostname.split(".").slice(-2).join("."),
         logo: appInfo.logo || fallbackLogo,
-        type: appLogoPlaceholder.type,
-        placeholder: appLogoPlaceholder.placeholder
+        type: appLogoPlaceholder?.type,
+        placeholder: appLogoPlaceholder?.placeholder
       });
     }
 

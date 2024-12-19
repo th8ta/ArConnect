@@ -1,5 +1,22 @@
 import type { AppLogoInfo } from "~applications/application";
 import { isGateway } from "./isGateway";
+
+/**
+ * Ensures a URL has a valid HTTP/HTTPS protocol prefix.
+ * If no protocol is present, HTTPS is added as the default.
+ *
+ * @param url - The URL string to normalize
+ * @returns The URL with a valid protocol prefix
+ */
+function ensureUrlProtocol(url: string): string {
+  try {
+    const hasProtocol = /^https?:\/\//i.test(url);
+    return hasProtocol ? url : `https://${url}`;
+  } catch {
+    return url;
+  }
+}
+
 /**
  * Generates a logo placeholder based on the base domain.
  * If the URL is a gateway (determined by a GET call), it uses the first two letters of the subdomain.
@@ -11,6 +28,7 @@ export async function generateLogoPlaceholder(
   url: string
 ): Promise<AppLogoInfo | undefined> {
   try {
+    url = ensureUrlProtocol(url);
     const { hostname } = new URL(url);
 
     const parts = hostname.split(".");
@@ -21,7 +39,8 @@ export async function generateLogoPlaceholder(
       parts.length > 1 ? parts.slice(1).join(".") : null;
 
     const isGatewayUrl =
-      !!candidateGatewayUrl && (await isGateway(candidateGatewayUrl));
+      !!candidateGatewayUrl &&
+      (await isGateway(ensureUrlProtocol(candidateGatewayUrl)));
 
     if (isGatewayUrl) {
       // For gateways, take the first two letters of the first subdomain

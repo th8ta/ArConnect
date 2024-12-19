@@ -27,6 +27,7 @@ import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
 import Checkbox from "~components/Checkbox";
+import { ErrorTypes } from "~utils/error/error.utils";
 
 const signPolicyOptions = [
   "always_ask",
@@ -109,8 +110,9 @@ export function AppSettingsView({ params: { url } }: AppSettingsViewProps) {
   // remove modal
   const removeModal = useModal();
 
-  // TODO: Should this be a redirect?
-  if (!settings) return <></>;
+  if (!settings) {
+    throw new Error(ErrorTypes.SettingsNotFound);
+  }
 
   return (
     <>

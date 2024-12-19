@@ -1,4 +1,16 @@
 {
+  "fallback": {
+    "message": "哎呀，有些不对劲，稍后再试。",
+    "description": "Fallback error message"
+  },
+  "reload": {
+    "message": "重新加载",
+    "description": "Reload button text"
+  },
+  "commonErrorInfo": {
+    "message": "错误信息",
+    "description": "Additional Fallback error message"
+  },
   "extensionDescription": {
       "message": "Arweave 的安全钱包管理",
       "description": "Extension description"

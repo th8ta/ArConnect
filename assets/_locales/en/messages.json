@@ -1,4 +1,16 @@
 {
+  "fallback": {
+    "message": "Oops, something isn't right. Try again later.",
+    "description": "Fallback error message"
+  },
+  "reload": {
+    "message": "Reload",
+    "description": "Reload button text"
+  },
+  "commonErrorInfo": {
+    "message": "Error Info",
+    "description": "Additional Fallback error message"
+  },
   "extensionDescription": {
     "message": "Secure wallet management for Arweave",
     "description": "Extension description"
