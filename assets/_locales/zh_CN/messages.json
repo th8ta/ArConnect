@@ -12,7 +12,7 @@
     "description": "Additional Fallback error message"
   },
   "loading": {
-    "message": "加载中",
+    "message": "加载中...",
     "description": "Loading text"
   },
   "extensionDescription": {
