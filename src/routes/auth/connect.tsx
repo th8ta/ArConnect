@@ -31,8 +31,6 @@ import { EventType, trackEvent } from "~utils/analytics";
 import Application, { type SignPolicy } from "~applications/application";
 import { defaultGateway } from "~gateways/gateway";
 import { CheckIcon, CloseIcon } from "@iconicicons/react";
-import { defaultAllowance } from "~applications/allowance";
-import Arweave from "arweave";
 import Permissions from "../../components/auth/Permissions";
 import { HeadAuth } from "~components/HeadAuth";
 import { AuthButtons } from "~components/auth/AuthButtons";
@@ -59,8 +57,6 @@ export function ConnectAuthRequestView() {
 
   const wallet = useActiveWallet();
 
-  const arweave = new Arweave(defaultGateway);
-
   const { authRequest, acceptRequest, rejectRequest } =
     useCurrentAuthRequest("connect");
 
@@ -76,8 +72,6 @@ export function ConnectAuthRequestView() {
 
   // page
   const [page, setPage] = useState<Page>("connect");
-
-  const allowanceInput = useInput();
 
   // password input
   const passwordInput = useInput();
@@ -218,10 +212,6 @@ export function ConnectAuthRequestView() {
   }, [url, authRequestPermissions]);
 
   useEffect(() => setPermissions(requestedPermissions), [requestedPermissions]);
-
-  useEffect(() => {
-    allowanceInput.setState(arweave.ar.winstonToAr(defaultAllowance.limit));
-  }, []);
 
   const UnlockPage = () => (
     <UnlockWrapper>
@@ -364,9 +354,10 @@ export function ConnectAuthRequestView() {
       >
         <SecondaryText fontSize={16}>
           {browser.i18n.getMessage("connect_request_1", [appInfo.name || url])}
-          <PrimaryText fontSize={16}>
-            {wallet?.nickname} ({formatAddress(activeAddress || "", 4)})
-          </PrimaryText>
+          <span>
+            {" "}
+            {wallet?.nickname} ({formatAddress(activeAddress || "", 4)}){" "}
+          </span>
           {browser.i18n.getMessage("connect_request_2")}
         </SecondaryText>
         <SecondaryText>{url}</SecondaryText>
@@ -581,6 +572,7 @@ const ConnectToApp = styled(Text).attrs({
   font-size: 22px;
   font-weight: 600;
   color: ${(props) => props.theme.primaryTextv2};
+  line-height: 120%;
 `;
 
 const Gateway = styled(Text).attrs({
@@ -589,6 +581,7 @@ const Gateway = styled(Text).attrs({
   color: ${(props) => props.theme.secondaryTextv2};
   font-size: 14px;
   font-weight: 500;
+  line-height: 150%;
 `;
 
 const ConnectWalletWrapper = styled.div`
@@ -638,6 +631,12 @@ const SecondaryText = styled(Text).attrs({
   color: ${(props) => props.theme.secondaryTextv2};
   font-size: ${(props) => props.fontSize || 14}px;
   font-weight: 500;
+
+  span {
+    color: ${(props) => props.theme.primaryTextv2};
+    font-size: ${(props) => props.fontSize || 14}px;
+    font-weight: 500;
+  }
 `;
 
 const PrimaryText = styled(Text).attrs({

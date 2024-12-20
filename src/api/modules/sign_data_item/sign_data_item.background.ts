@@ -4,11 +4,7 @@ import type { BackgroundModuleFunction } from "~api/background/background-module
 import { ArweaveSigner, createData } from "arbundles";
 import Application from "~applications/application";
 import { getActiveKeyfile, getActiveWallet } from "~wallets";
-import {
-  signAuth,
-  signAuthKeystone,
-  type AuthKeystoneData
-} from "../sign/sign_auth";
+import { signAuthKeystone, type AuthKeystoneData } from "../sign/sign_auth";
 import Arweave from "arweave";
 import { requestUserAuthorization } from "../../../utils/auth/auth.utils";
 import BigNumber from "bignumber.js";
@@ -60,17 +56,6 @@ const background: BackgroundModuleFunction<number[]> = async (
         throw new Error("Quantity must be a valid positive non-zero number.");
       }
     }
-    try {
-      await requestUserAuthorization(
-        {
-          type: "signDataItem",
-          data: dataItem
-        },
-        appData
-      );
-    } catch {
-      throw new Error("User rejected the sign data item request");
-    }
   }
 
   // grab the user's keyfile
@@ -82,11 +67,6 @@ const background: BackgroundModuleFunction<number[]> = async (
     dataItem,
     decryptedWallet.type
   );
-
-  // create app
-
-  // create arweave client
-  const arweave = new Arweave(await app.getGatewayConfig());
 
   // get options and data
   const { data, ...options } = dataItem;
@@ -104,16 +84,12 @@ const background: BackgroundModuleFunction<number[]> = async (
     // allowance or sign auth
     try {
       if (alwaysAsk) {
-        // get address
-        const address = await arweave.wallets.jwkToAddress(
-          decryptedWallet.keyfile
-        );
-
-        await signAuth(
-          appData,
-          // @ts-expect-error
-          dataEntry.toJSON(),
-          address
+        await requestUserAuthorization(
+          {
+            type: "signDataItem",
+            data: dataItem
+          },
+          appData
         );
       }
     } catch (e) {

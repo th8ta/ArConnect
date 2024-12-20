@@ -104,7 +104,7 @@ const background: BackgroundModuleFunction<ReturnType> = async (
     await uploadDataToTurbo(dataEntry, await app.getBundler());
 
     // update allowance spent amount (in winstons)
-    await updateAllowance(appData.url, price);
+    // await updateAllowance(appData.url, price);
 
     // show notification
     await signNotification(0, dataEntry.id, appData.url, "dispatch");
@@ -154,7 +154,7 @@ const background: BackgroundModuleFunction<ReturnType> = async (
     }
 
     // update allowance spent amount (in winstons)
-    await updateAllowance(appData.url, price);
+    // await updateAllowance(appData.url, price);
 
     // show notification
     await signNotification(price, transaction.id, appData.url);
