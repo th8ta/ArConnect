@@ -2481,5 +2481,29 @@
   "review": {
     "message": "Review",
     "description": "Review title"
+  },
+  "connect_request_1": {
+    "message": "$APPNAME$ wants to connect with",
+    "description": "Connect request 1",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "ArConnect"
+      }
+    }
+  },
+  "connect_request_2": {
+    "message": "with the following permissions",
+    "description": "Connect request 2"
+  },
+  "confirm_permissions": {
+    "message": "Confirm permissions for $APPNAME$",
+    "description": "Confirm permissions for app",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "ArConnect"
+      }
+    }
   }
 }

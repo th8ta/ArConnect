@@ -117,3 +117,9 @@ export const resetAllPermissions = async (): Promise<void> => {
     isResetInProgress = false;
   }
 };
+
+export const signPolicyOptions = [
+  "always_ask",
+  "ask_when_spending",
+  "auto_confirm"
+] as const;

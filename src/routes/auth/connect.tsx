@@ -7,7 +7,11 @@ import {
   useInput,
   useToasts
 } from "@arconnect/components";
-import { permissionData, type PermissionType } from "~applications/permissions";
+import {
+  permissionData,
+  signPolicyOptions,
+  type PermissionType
+} from "~applications/permissions";
 import { useCurrentAuthRequest } from "~utils/auth/auth.hooks";
 import { AnimatePresence, motion } from "framer-motion";
 import { unlock as globalUnlock } from "~wallets/auth";
@@ -38,11 +42,7 @@ import { useActiveWallet } from "~wallets/hooks";
 import Checkbox from "~components/Checkbox";
 import { Eye, EyeOff } from "@untitled-ui/icons-react";
 
-const signPolicyOptions = [
-  "always_ask",
-  "ask_when_spending",
-  "auto_confirm"
-] as const;
+type Page = "unlock" | "connect" | "permissions" | "review" | "confirm";
 
 export function ConnectAuthRequestView() {
   // active address
@@ -74,9 +74,7 @@ export function ConnectAuthRequestView() {
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
   // page
-  const [page, setPage] = useState<
-    "unlock" | "connect" | "permissions" | "review" | "confirm"
-  >("connect");
+  const [page, setPage] = useState<Page>("connect");
 
   const allowanceInput = useInput();
 
@@ -360,11 +358,11 @@ export function ConnectAuthRequestView() {
         style={{ display: "flex", flexDirection: "column", gap: "16px" }}
       >
         <SecondaryText fontSize={16}>
-          {appInfo.name || url} wants to connect with{" "}
+          {browser.i18n.getMessage("connect_request_1", [appInfo.name || url])}
           <PrimaryText fontSize={16}>
             {wallet?.nickname} ({formatAddress(activeAddress || "", 4)})
           </PrimaryText>
-          with the following permissions the following permissions
+          {browser.i18n.getMessage("connect_request_2")}
         </SecondaryText>
         <SecondaryText>{url}</SecondaryText>
         <div
@@ -408,11 +406,13 @@ export function ConnectAuthRequestView() {
       >
         <div style={{ textAlign: "center" }}>
           <PrimaryText fontSize={20} fontWeight={600}>
-            Confirm permissions for{appInfo.name || url}
+            {browser.i18n.getMessage("confirm_permissions", [
+              appInfo.name || url
+            ])}
           </PrimaryText>
           <SecondaryText>{url}</SecondaryText>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <PolicyOptionContainer>
           {signPolicyOptions.map((option) => (
             <PolicyOption key={option} onClick={() => setSignPolicy(option)}>
               <Checkbox
@@ -427,7 +427,7 @@ export function ConnectAuthRequestView() {
               </div>
             </PolicyOption>
           ))}
-        </div>
+        </PolicyOptionContainer>
         <CustomPermissionsButton onClick={() => setPage("permissions")}>
           <PrimaryText fontSize={16}>
             {browser.i18n.getMessage(
@@ -651,6 +651,12 @@ const ChangeText = styled(Text).attrs({
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+`;
+
+const PolicyOptionContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 `;
 
 const PolicyOption = styled.div`

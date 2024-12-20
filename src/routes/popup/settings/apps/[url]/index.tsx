@@ -29,12 +29,7 @@ import { useLocation } from "~wallets/router/router.utils";
 import Checkbox from "~components/Checkbox";
 import { ErrorTypes } from "~utils/error/error.utils";
 import { LoadingView } from "~components/page/common/loading/loading.view";
-
-const signPolicyOptions = [
-  "always_ask",
-  "ask_when_spending",
-  "auto_confirm"
-] as const;
+import { signPolicyOptions } from "~applications/permissions";
 
 export interface AppSettingsViewParams {
   url: string;

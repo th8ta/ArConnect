@@ -2467,5 +2467,29 @@
     "review": {
       "message": "审核",
       "description": "Review title"
+    },
+    "connect_request_1": {
+      "message": "$APPNAME$ 想要连接到",
+      "description": "Connect request 1",
+      "placeholders": {
+        "appname": {
+          "content": "$1",
+          "example": "ArConnect"
+        }
+      }
+    },
+    "connect_request_2": {
+      "message": "以下权限",
+      "description": "Connect request 2"
+    },
+    "confirm_permissions": {
+      "message": "确认 $APPNAME$ 的权限",
+      "description": "Confirm permissions for app",
+      "placeholders": {
+        "appname": {
+          "content": "$1",
+          "example": "ArConnect"
+        }
+      }
     }
 }
