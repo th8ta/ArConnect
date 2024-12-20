@@ -591,7 +591,7 @@ const ConnectWalletWrapper = styled.div`
   align-items: center;
   align-self: stretch;
   border-radius: 10px;
-  background: #333;
+  background: ${(props) => props.theme.backgroundSecondary};
 `;
 
 export const AccountSquircle = styled(Squircle)`
@@ -677,7 +677,7 @@ const CustomPermissionsButton = styled(Button)`
   align-items: center;
   align-self: stretch;
   border-radius: 8px;
-  background: #333;
+  background: ${(props) => props.theme.backgroundSecondary};
 `;
 
 const CustomPermissionsInfo = styled.div`
@@ -687,7 +687,7 @@ const CustomPermissionsInfo = styled.div`
   align-items: center;
   gap: 10px;
   align-self: stretch;
-  border: 1px solid #333;
+  border: 1px solid ${(props) => props.theme.backgroundSecondary};
   border-radius: 8px;
 `;
 
