@@ -1,6 +1,13 @@
 import type Transaction from "arweave/web/lib/transaction";
 import { type Gateway } from "~gateways/gateway";
 import { Storage } from "@plasmohq/storage";
+import { useStorage as usePlasmoStorage } from "@plasmohq/storage/hook";
+import { useMemo, useRef } from "react";
+
+console.log(
+  "import.meta.env.VITE_PUBLIC_APP_TYPE =",
+  import.meta.env.VITE_PUBLIC_APP_TYPE
+);
 
 /**
  * Default extension storage:
@@ -48,3 +55,15 @@ export interface RawStoredTransfer {
   gateway: Gateway;
   transaction: ReturnType<Transaction["toJSON"]>;
 }
+
+export const useStorage: typeof usePlasmoStorage = ((rawKey, onInit) => {
+  const [value, ...otherReturnValues] = usePlasmoStorage(rawKey, onInit);
+
+  const returnValue = useMemo(() => {
+    return typeof onInit === "function" ? onInit(value) : value ?? onInit;
+  }, [value]);
+
+  if (returnValue === null) debugger;
+
+  return [returnValue, ...otherReturnValues];
+}) as any;

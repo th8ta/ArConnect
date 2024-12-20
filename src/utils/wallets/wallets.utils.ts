@@ -244,7 +244,7 @@ function loadDeviceNonce(): DeviceNonce | null {
 
   if (
     deviceNonce === null ||
-    /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)\-\w{21}/.test(
+    /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)\-[\w_-]{21}/.test(
       deviceNonce
     )
   )

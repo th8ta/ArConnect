@@ -9,6 +9,7 @@ export default defineConfig({
   define: {
     "process.env": {
       ...(process?.env || {})
+      // VITE_PUBLIC_APP_TYPE: "embedded",
     }
   },
   resolve: {

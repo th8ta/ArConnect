@@ -15,7 +15,7 @@ import { useCurrentAuthRequest } from "~utils/auth/auth.hooks";
 import { AnimatePresence, motion } from "framer-motion";
 import { unlock as globalUnlock } from "~wallets/auth";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
 import { addApp } from "~applications";

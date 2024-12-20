@@ -1,6 +1,6 @@
 import { type MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import HardwareWalletIcon, {
   hwIconAnimateProps
@@ -59,6 +59,8 @@ export default function WalletHeader() {
     },
     []
   );
+
+  console.log("wallets =", wallets);
 
   // is the wallet selector open
   const [isOpen, setOpen] = useState(false);

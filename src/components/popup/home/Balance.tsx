@@ -1,7 +1,7 @@
 import { formatFiatBalance } from "~tokens/currency";
 import { Loading } from "@arconnect/components-rebrand";
 import { useEffect, useMemo, useState, type HTMLProps } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { useBalance } from "~wallets/hooks";
 import { getAr24hChange, useArPrice } from "~lib/coingecko";
@@ -72,6 +72,15 @@ export default function Balance() {
       }
     })();
   }, [balance, currency]);
+
+  // balance history
+  const [historicalBalance, setHistoricalBalance] = useStorage<number[]>(
+    {
+      key: "historical_balance",
+      instance: ExtensionStorage
+    },
+    []
+  );
 
   return (
     <BalanceHead>

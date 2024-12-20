@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { defaultConfig } from "./config";
 import { connect, dryrun } from "@permaweb/aoconnect";
 import { type Tag } from "arweave/web/lib/transaction";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { Quantity } from "ao-tokens";
 import { Arweave, ArweaveSigner, createData } from "arbundles";

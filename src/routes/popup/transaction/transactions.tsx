@@ -2,7 +2,7 @@ import HeadV2 from "~components/popup/HeadV2";
 import browser from "webextension-polyfill";
 import { useEffect, useMemo, useState } from "react";
 import { ExtensionStorage } from "~utils/storage";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { gql } from "~gateways/api";
 import styled from "styled-components";
 import { Empty, TitleMessage } from "../notifications";

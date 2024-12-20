@@ -2,8 +2,8 @@ import { Text } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
-import { useStorage } from "@plasmohq/storage/hook";
 import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
+import { useStorage } from "~utils/storage";
 
 export const SignSettingsDashboardView = () => {
   const [transferRequirePassword, setTransferRequirePassword] = useStorage(

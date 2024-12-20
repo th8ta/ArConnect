@@ -1,6 +1,6 @@
 import { Spacer, Text, useInput } from "@arconnect/components-rebrand";
 import { useEffect, useMemo, useState } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { SettingsList } from "./list/BaseElement";
 import { useRoute } from "wouter";

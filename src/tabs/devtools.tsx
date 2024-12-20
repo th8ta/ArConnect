@@ -1,6 +1,6 @@
 import { Card, Spacer, Text } from "@arconnect/components-rebrand";
 import { useEffect, useMemo, useState } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { getTab } from "~applications/tab";
 import { getAppURL } from "~utils/format";

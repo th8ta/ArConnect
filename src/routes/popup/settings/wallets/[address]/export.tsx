@@ -8,7 +8,7 @@ import {
 } from "@arconnect/components-rebrand";
 import { type StoredWallet } from "~wallets";
 import { useMemo, useState } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { ExtensionStorage } from "~utils/storage";
 import { downloadFile } from "~utils/file";

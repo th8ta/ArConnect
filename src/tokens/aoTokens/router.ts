@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getTagValue, Id, Owner, type Message, type TokenInfo } from "./ao";
 import { getAoTokens } from "~tokens";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { dryrun } from "@permaweb/aoconnect/browser";
 
