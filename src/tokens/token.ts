@@ -180,7 +180,7 @@ export async function getInteractionsTxsForAddress(
             }
           }
         }
-      }    
+      }
     `,
     { contractId, address },
     gateway
