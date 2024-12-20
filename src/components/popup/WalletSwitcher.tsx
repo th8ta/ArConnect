@@ -11,7 +11,7 @@ import { concatGatewayURL } from "~gateways/utils";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { formatTokenBalance } from "~tokens/currency";
 import type { HardwareApi } from "~wallets/hardware";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";

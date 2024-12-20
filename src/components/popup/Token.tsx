@@ -8,7 +8,7 @@ import {
 } from "react";
 import { hoverEffect, useTheme } from "~utils/theme";
 import { loadTokenLogo, type Token } from "~tokens/token";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { ButtonV2, Text, TooltipV2 } from "@arconnect/components";
 import { useArPrice } from "~lib/coingecko";

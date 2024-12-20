@@ -9,7 +9,7 @@ import {
 } from "@arconnect/components";
 import type { Token, TokenType } from "~tokens/token";
 import { Token as aoToken } from "ao-tokens";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { AnimatePresence } from "framer-motion";
 import { TrashIcon } from "@iconicicons/react";

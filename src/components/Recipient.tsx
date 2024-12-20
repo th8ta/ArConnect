@@ -6,7 +6,7 @@ import {
   InputV2
 } from "@arconnect/components";
 import { ChevronDownIcon, ChevronUpIcon } from "@iconicicons/react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { useMemo, useState } from "react";
 import styled from "styled-components";
 import browser from "webextension-polyfill";

@@ -32,7 +32,7 @@ import {
   fractionedToBalance,
   getCurrencySymbol
 } from "~tokens/currency";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import {
   ExtensionStorage,
   TRANSFER_TX_STORAGE,

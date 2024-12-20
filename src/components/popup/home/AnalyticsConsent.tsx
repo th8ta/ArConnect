@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Button, Text } from "@arconnect/components";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { CloseIcon } from "@iconicicons/react";
 import type { Variants } from "framer-motion";

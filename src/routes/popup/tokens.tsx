@@ -18,7 +18,7 @@ import {
 } from "~tokens/aoTokens/ao";
 import { ExtensionStorage } from "~utils/storage";
 import { syncAoTokens } from "~tokens/aoTokens/sync";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 
 export function TokensView() {
   const { navigate } = useLocation();

@@ -16,7 +16,7 @@ import { Edit02, Share04, Upload01 } from "@untitled-ui/icons-react";
 import { uploadUserAvatar, getUserAvatar } from "~lib/avatar";
 import { CheckIcon, CopyIcon } from "@iconicicons/react";
 import { EventType, trackEvent } from "~utils/analytics";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import browser from "webextension-polyfill";
 // import { getAllArNSNames } from "~lib/arns";

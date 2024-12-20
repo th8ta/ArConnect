@@ -10,7 +10,7 @@ import { DREContract, DRENode } from "@arconnect/warp-dre";
 import { usePrice, usePriceHistory } from "~lib/redstone";
 import { useEffect, useMemo, useState } from "react";
 import { getDreForToken, useTokens } from "~tokens";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { getCommunityUrl } from "~utils/format";
 import { useLocation } from "~wallets/router/router.utils";

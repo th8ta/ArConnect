@@ -51,7 +51,7 @@ import { useContact } from "~contacts/hooks";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 import BigNumber from "bignumber.js";
 import { fetchTokenByProcessId } from "~lib/transactions";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import type { StoredWallet } from "~wallets";
 import type {
   ArConnectRoutePath,

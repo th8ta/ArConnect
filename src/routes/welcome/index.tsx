@@ -4,7 +4,7 @@ import { ArrowRightIcon, KeyIcon } from "@iconicicons/react";
 import Screenshots from "~components/welcome/Screenshots";
 import { AnimatePresence, motion } from "framer-motion";
 import styled, { keyframes } from "styled-components";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import browser from "webextension-polyfill";
 import {
   type MutableRefObject,

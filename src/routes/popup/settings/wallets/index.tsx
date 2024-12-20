@@ -1,7 +1,7 @@
 import { concatGatewayURL } from "~gateways/utils";
 import { ButtonV2, Spacer, useInput } from "@arconnect/components";
 import { useEffect, useState } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import type { StoredWallet } from "~wallets";

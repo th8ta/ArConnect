@@ -4,7 +4,7 @@ import { InputV2, Spacer, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { EventType, trackEvent } from "~utils/analytics";
 
 export function SignSettingsDashboardView() {

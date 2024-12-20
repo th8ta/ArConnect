@@ -1,5 +1,5 @@
 import { ButtonV2, Section, TooltipV2, useToasts } from "@arconnect/components";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { CheckIcon, CopyIcon } from "@iconicicons/react";
 import { formatAddress } from "~utils/format";

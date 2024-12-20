@@ -7,7 +7,7 @@ import {
   useToasts
 } from "@arconnect/components";
 import type { Token, TokenType } from "~tokens/token";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { TrashIcon } from "@iconicicons/react";
 import { removeToken } from "~tokens";

@@ -4,7 +4,7 @@ import { gql } from "~gateways/api";
 import Graph, { GraphText } from "~components/popup/Graph";
 import { Loading, TooltipV2 } from "@arconnect/components";
 import { useEffect, useMemo, useState, type HTMLProps } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { useBalance } from "~wallets/hooks";
 import { useArPrice } from "~lib/coingecko";
@@ -107,9 +107,10 @@ export default function Balance() {
   useEffect(() => {
     if (
       // TODO: Remove this once the issue with useStorage hook's default values is resolved:
-      !historicalBalance ||
+      // !historicalBalance ||
       balance.toNumber() !== historicalBalance[historicalBalance.length - 1]
     ) {
+      console.log("LOADING");
       setLoading(true);
     } else {
       setLoading(false);

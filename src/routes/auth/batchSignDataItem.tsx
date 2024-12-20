@@ -16,7 +16,7 @@ import styled from "styled-components";
 import SignDataItemDetails from "~components/signDataItem";
 import { Quantity, Token } from "ao-tokens";
 import { ExtensionStorage } from "~utils/storage";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { checkPassword } from "~wallets/auth";
 import { timeoutPromise } from "~utils/promises/timeout";
 import { HeadAuth } from "~components/HeadAuth";

@@ -7,7 +7,7 @@ import {
 import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
 import { AnimatePresence, motion } from "framer-motion";
 import { hoverEffect, useTheme } from "~utils/theme";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ArrowLeftIcon } from "@iconicicons/react";
 import { useAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";

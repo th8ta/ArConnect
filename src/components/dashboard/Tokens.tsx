@@ -1,4 +1,4 @@
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { useRoute } from "wouter";
 import { useEffect, useMemo, useState } from "react";
