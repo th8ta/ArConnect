@@ -90,6 +90,9 @@ export function ConnectAuthRequestView() {
 
   const [showPassword, setShowPassword] = useState(false);
 
+  const connectHeaderHeight =
+    process.env.NODE_ENV === "development" ? 320 : 365;
+
   const isCustomPermissions = useMemo(() => {
     if (requestedPermissions.length !== requestedPermCopy.length) return true;
 
@@ -288,7 +291,7 @@ export function ConnectAuthRequestView() {
   const ConnectPage = () => (
     <ConnectPageContent>
       <ConnectPageSection>
-        <ConnectPageSectionHeader>
+        <ConnectPageSectionHeader height={connectHeaderHeight}>
           <AppIconsWrapper>
             <IconWrapper src={appInfo.logo} alt={appInfo.name} />
             <IconWrapper
@@ -699,9 +702,11 @@ const ConnectPageSection = styled(Section)`
   padding-bottom: 0px;
 `;
 
-const ConnectPageSectionHeader = styled.div`
+const ConnectPageSectionHeader = styled.div<{
+  height?: number;
+}>`
   text-align: center;
-  height: 320px;
+  height: ${(props) => props.height || 320}px;
   display: flex;
   flex-direction: column;
   justify-content: center;
