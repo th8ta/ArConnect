@@ -53,6 +53,8 @@ export const alarms = {
 
         invokeAlarms(name);
 
+        if (periodInMs <= 0) return;
+
         alarmWithTimer.scheduledTime = Date.now() + periodInMs;
 
         alarmWithTimer.intervalID = setInterval(() => {

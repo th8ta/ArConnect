@@ -56,14 +56,17 @@ export interface RawStoredTransfer {
   transaction: ReturnType<Transaction["toJSON"]>;
 }
 
-export const useStorage: typeof usePlasmoStorage = ((rawKey, onInit) => {
-  const [value, ...otherReturnValues] = usePlasmoStorage(rawKey, onInit);
+export const useStorage: typeof usePlasmoStorage =
+  process.env.PLASMO_PUBLIC_APP_TYPE === "extension"
+    ? usePlasmoStorage
+    : (((rawKey, onInit) => {
+        const [value, ...otherReturnValues] = usePlasmoStorage(rawKey, onInit);
 
-  const returnValue = useMemo(() => {
-    return typeof onInit === "function" ? onInit(value) : value ?? onInit;
-  }, [value]);
+        const returnValue = useMemo(() => {
+          return typeof onInit === "function" ? onInit(value) : value ?? onInit;
+        }, [value]);
 
-  if (returnValue === null) debugger;
+        if (returnValue === null) debugger;
 
-  return [returnValue, ...otherReturnValues];
-}) as any;
+        return [returnValue, ...otherReturnValues];
+      }) as any);

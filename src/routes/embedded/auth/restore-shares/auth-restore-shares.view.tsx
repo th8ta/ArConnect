@@ -7,7 +7,7 @@ const mockedRecoveryShareFileData = {
   recoveryShare: ""
 } as const;
 
-export function AuthRestoreShardsEmbeddedView() {
+export function AuthRestoreSharesEmbeddedView() {
   const { activateWallet } = useAuth();
 
   const handleRestore = async () => {

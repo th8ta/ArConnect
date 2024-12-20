@@ -8,6 +8,7 @@ import {
   useState,
   type PropsWithChildren
 } from "react";
+import { setupBackgroundService } from "~api/background/background-setup";
 import { AuthenticationService } from "~utils/authentication/authentication.service";
 import type { AuthMethod, DbWallet } from "~utils/authentication/fakeDB";
 import { ExtensionStorage } from "~utils/storage";
@@ -167,6 +168,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [wallets]
   );
 
+  const backgroundInitRef = useRef(false);
+
   const initEmbeddedWallet = useCallback(async (authMethod?: AuthMethod) => {
     setAuthContextState({
       ...AUTH_CONTEXT_INITIAL_STATE,
@@ -201,6 +204,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }));
 
       return;
+    }
+
+    if (!backgroundInitRef.current) {
+      console.log("Initializing background services...");
+
+      backgroundInitRef.current = true;
+
+      setupBackgroundService();
     }
 
     const dbWallets = await WalletService.fetchWallets();

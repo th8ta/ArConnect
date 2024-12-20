@@ -10,7 +10,7 @@ import { AuthGenerateWalletEmbeddedView } from "~routes/embedded/auth/generate-w
 import { AuthAddDeviceEmbeddedView } from "~routes/embedded/auth/add-device/auth-add-device.view";
 import { AuthAddAuthProviderEmbeddedView } from "~routes/embedded/auth/add-auth-provider/auth-add-auth-provider.view";
 import { AuthImportWalletEmbeddedView } from "~routes/embedded/auth/import-wallet/auth-import-wallet.view";
-import { AuthRestoreShardsEmbeddedView } from "~routes/embedded/auth/restore-shards/auth-restore-shards.view";
+import { AuthRestoreSharesEmbeddedView } from "~routes/embedded/auth/restore-shares/auth-restore-shares.view";
 import { AuthRecoverAccountEmbeddedView } from "~routes/embedded/auth/recover-account/auth-recover-account.view";
 
 // Account Management Views:
@@ -80,7 +80,7 @@ const IFRAME_OWN_ROUTES = [
   },
   {
     path: EmbeddedPaths.AuthRestoreShards,
-    component: AuthRestoreShardsEmbeddedView
+    component: AuthRestoreSharesEmbeddedView
   },
   {
     path: EmbeddedPaths.AuthRecoverAccount,
