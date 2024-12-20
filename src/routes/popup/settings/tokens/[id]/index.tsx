@@ -21,6 +21,7 @@ import HeadV2 from "~components/popup/HeadV2";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
 import { ErrorTypes } from "~utils/error/error.utils";
+import { LoadingView } from "~components/page/common/loading/loading.view";
 
 export interface TokenSettingsParams {
   id: string;
@@ -84,7 +85,7 @@ export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
   }
 
   if (!token) {
-    throw new Error(ErrorTypes.TokenNotFound);
+    return <LoadingView />;
   }
 
   return (

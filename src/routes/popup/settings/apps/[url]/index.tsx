@@ -27,6 +27,7 @@ import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
 import { ErrorTypes } from "~utils/error/error.utils";
+import { LoadingView } from "~components/page/common/loading/loading.view";
 
 export interface AppSettingsViewParams {
   url: string;
@@ -104,7 +105,7 @@ export function AppSettingsView({ params: { url } }: AppSettingsViewProps) {
   const removeModal = useModal();
 
   if (!settings) {
-    throw new Error(ErrorTypes.SettingsNotFound);
+    return <LoadingView />;
   }
 
   return (

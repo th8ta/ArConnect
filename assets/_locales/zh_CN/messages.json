@@ -11,6 +11,10 @@
     "message": "错误信息",
     "description": "Additional Fallback error message"
   },
+  "loading": {
+    "message": "加载中...",
+    "description": "Loading text"
+  },
   "extensionDescription": {
       "message": "Arweave 的安全钱包管理",
       "description": "Extension description"

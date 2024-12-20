@@ -28,6 +28,7 @@ import Arweave from "arweave";
 import { defaultGateway, suggestedGateways, testnets } from "~gateways/gateway";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { ErrorTypes } from "~utils/error/error.utils";
+import { LoadingView } from "~components/page/common/loading/loading.view";
 
 export interface AppSettingsDashboardViewParams {
   url: string;
@@ -109,7 +110,7 @@ export function AppSettingsDashboardView({
   const removeModal = useModal();
 
   if (!settings) {
-    throw new Error(ErrorTypes.SettingsNotFound);
+    return <LoadingView />;
   }
 
   return (

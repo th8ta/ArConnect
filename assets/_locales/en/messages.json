@@ -11,6 +11,10 @@
     "message": "Error Info",
     "description": "Additional Fallback error message"
   },
+  "loading": {
+    "message": "Loading...",
+    "description": "Loading text"
+  },
   "extensionDescription": {
     "message": "Secure wallet management for Arweave",
     "description": "Extension description"
