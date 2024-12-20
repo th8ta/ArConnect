@@ -90,9 +90,6 @@ export function ConnectAuthRequestView() {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const connectHeaderHeight =
-    process.env.NODE_ENV === "development" ? 320 : 365;
-
   const isCustomPermissions = useMemo(() => {
     if (requestedPermissions.length !== requestedPermCopy.length) return true;
 
@@ -291,7 +288,7 @@ export function ConnectAuthRequestView() {
   const ConnectPage = () => (
     <ConnectPageContent>
       <ConnectPageSection>
-        <ConnectPageSectionHeader height={connectHeaderHeight}>
+        <ConnectPageSectionHeader>
           <AppIconsWrapper>
             <IconWrapper src={appInfo.logo} alt={appInfo.name} />
             <IconWrapper
@@ -450,7 +447,7 @@ export function ConnectAuthRequestView() {
 
   return (
     <Wrapper>
-      <div>
+      <>
         <HeadAuth
           showHead={!["connect", "unlock"].includes(page)}
           title={browser.i18n.getMessage(page)}
@@ -478,7 +475,7 @@ export function ConnectAuthRequestView() {
             {page === "permissions" && <PermissionsPage />}
           </AnimatePresence>
         </ContentWrapper>
-      </div>
+      </>
 
       {page !== "permissions" && (
         <Section>
@@ -567,6 +564,9 @@ const AppIconsWrapper = styled.div``;
 
 const ConnectPageContent = styled.div`
   width: 100vw;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
 const ConnectToApp = styled(Text).attrs({
@@ -702,12 +702,10 @@ const ConnectPageSection = styled(Section)`
   padding-bottom: 0px;
 `;
 
-const ConnectPageSectionHeader = styled.div<{
-  height?: number;
-}>`
+const ConnectPageSectionHeader = styled.div`
   text-align: center;
-  height: ${(props) => props.height || 320}px;
   display: flex;
+  flex: 1;
   flex-direction: column;
   justify-content: center;
 `;
