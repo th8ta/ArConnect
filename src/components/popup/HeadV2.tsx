@@ -164,7 +164,7 @@ export default function HeadV2({
             open={isOpen}
             close={() => setOpen(false)}
             exactTop={true}
-            showOptions={showOptions}
+            showOptions={false}
           />
 
           {isOpen && <CloseLayer onClick={() => setOpen(false)} />}

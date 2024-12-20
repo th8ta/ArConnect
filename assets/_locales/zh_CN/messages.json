@@ -2491,5 +2491,9 @@
           "example": "ArConnect"
         }
       }
+    },
+    "change": {
+      "message": "更换",
+      "description": "Change text"
     }
 }

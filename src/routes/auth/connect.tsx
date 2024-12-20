@@ -41,6 +41,7 @@ import Squircle from "~components/Squircle";
 import { useActiveWallet } from "~wallets/hooks";
 import Checkbox from "~components/Checkbox";
 import { Eye, EyeOff } from "@untitled-ui/icons-react";
+import { CloseLayer } from "~components/popup/WalletHeader";
 
 type Page = "unlock" | "connect" | "permissions" | "review" | "confirm";
 
@@ -337,7 +338,7 @@ export function ConnectAuthRequestView() {
               </div>
             </div>
             <ChangeText onClick={() => setSwitcherOpen((prev) => !prev)}>
-              Change
+              {browser.i18n.getMessage("change")}
             </ChangeText>
             <WalletSwitcher
               open={switcherOpen}
@@ -345,7 +346,11 @@ export function ConnectAuthRequestView() {
               showOptions={false}
               exactTop={true}
               noPadding={true}
+              maxHeight={180}
             />
+            {switcherOpen && (
+              <CloseLayer onClick={() => setSwitcherOpen(false)} />
+            )}
           </ConnectWalletWrapper>
         </div>
       </ConnectPageSection>
@@ -451,7 +456,7 @@ export function ConnectAuthRequestView() {
 
   return (
     <Wrapper>
-      <div style={{ flex: 1 }}>
+      <div>
         <HeadAuth
           showHead={!["connect", "unlock"].includes(page)}
           title={browser.i18n.getMessage(page)}

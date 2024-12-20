@@ -2505,5 +2505,9 @@
         "example": "ArConnect"
       }
     }
+  },
+  "change": {
+    "message": "Change",
+    "description": "Change text"
   }
 }
