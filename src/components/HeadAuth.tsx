@@ -1,6 +1,6 @@
 import type React from "react";
 import { useEffect, useState } from "react";
-import styled from "styled-components";
+import styled, { type DefaultTheme } from "styled-components";
 import type { AppInfo, AppLogoInfo } from "~applications/application";
 import Application from "~applications/application";
 import HeadV2 from "~components/popup/HeadV2";
@@ -145,34 +145,48 @@ const DivTransactionsList = styled.div`
   display: flex;
   gap: 8px;
   padding: 16px;
-  border-bottom: 1px solid rgb(31, 30, 47);
+  border-bottom: 1px solid
+    ${({ theme }) =>
+      theme.displayTheme === "dark" ? "rgb(31, 30, 47)" : "rgb(224, 225, 208)"};
   height: 12px;
 `;
 
 interface AuthRequestIndicatorProps {
   isCurrent: boolean;
   status: AuthRequestStatus;
+  theme: DefaultTheme;
 }
 
-const colorsByStatus: Record<AuthRequestStatus, string> = {
-  pending: "white",
-  accepted: "green",
-  rejected: "red",
-  aborted: "grey",
-  error: "red"
+const colorsByStatus: Record<
+  AuthRequestStatus,
+  { light: string; dark: string }
+> = {
+  pending: { light: "black", dark: "white" },
+  accepted: { light: "green", dark: "green" },
+  rejected: { light: "red", dark: "red" },
+  aborted: { light: "grey", dark: "grey" },
+  error: { light: "red", dark: "red" }
 };
 
 function getAuthRequestButtonIndicatorBorderColor({
-  status
+  status,
+  theme
 }: AuthRequestIndicatorProps) {
-  return colorsByStatus[status];
+  return theme.displayTheme === "dark"
+    ? colorsByStatus[status].dark
+    : colorsByStatus[status].light;
 }
 
 function getAuthRequestButtonIndicatorBackgroundColor({
   isCurrent,
-  status
+  status,
+  theme
 }: AuthRequestIndicatorProps) {
-  return isCurrent ? colorsByStatus[status] : "transparent";
+  return isCurrent
+    ? theme.displayTheme === "dark"
+      ? colorsByStatus[status].dark
+      : colorsByStatus[status].light
+    : "transparent";
 }
 
 const ButtonTransactionButton = styled.button<AuthRequestIndicatorProps>`
@@ -185,27 +199,34 @@ const ButtonTransactionButton = styled.button<AuthRequestIndicatorProps>`
 `;
 
 const DivTransactionButtonSpacer = styled.button`
-  background: rgba(255, 255, 255, 0.125);
+  background: ${({ theme }) =>
+    theme.displayTheme === "dark"
+      ? "rgba(255, 255, 255, 0.125)"
+      : "rgba(0, 0, 0, 0.125)"};
   border-radius: 128px;
   flex: 1 0 auto;
 `;
 
 const ButtonExpandLogs = styled.button`
-  border: 2px solid white;
+  border: 2px solid
+    ${({ theme }) => (theme.displayTheme === "dark" ? "white" : "black")};
   border-radius: 128px;
   width: 12px;
 `;
 
 const DivLogWrapper = styled.div`
   position: absolute;
-  background: black;
+  background: ${({ theme }) =>
+    theme.displayTheme === "dark" ? "black" : "white"};
   top: 100%;
   left: 0;
   right: 0;
   height: 50vh;
   overflow: scroll;
   z-index: 1;
-  border-bottom: 1px solid rgb(31, 30, 47);
+  border-bottom: 1px solid
+    ${({ theme }) =>
+      theme.displayTheme === "dark" ? "rgb(31, 30, 47)" : "rgb(224, 225, 208)"};
 `;
 
 function getAuthRequestLogIndicatorStyles(props: AuthRequestIndicatorProps) {
