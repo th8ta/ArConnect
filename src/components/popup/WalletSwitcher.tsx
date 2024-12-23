@@ -34,7 +34,8 @@ export default function WalletSwitcher({
   close,
   showOptions = true,
   exactTop = false,
-  noPadding = false
+  noPadding = false,
+  maxHeight
 }: Props) {
   const { navigate } = useLocation();
 
@@ -174,6 +175,7 @@ export default function WalletSwitcher({
         <SwitcherPopover exactTop={exactTop} variants={popoverAnimation}>
           <Wrapper noPadding={!!noPadding}>
             <WalletsCard
+              maxHeight={maxHeight}
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -317,8 +319,8 @@ const Wrapper = styled(Section)<{ noPadding: boolean }>`
   padding: 0 15px;
 `;
 
-const WalletsCard = styled(Card)`
-  max-height: 80vh;
+const WalletsCard = styled(Card)<{ maxHeight?: number }>`
+  max-height: ${(props) => (props.maxHeight ? `${props.maxHeight}px` : "80vh")};
   overflow-y: auto;
   padding: 0;
 `;
@@ -469,6 +471,7 @@ interface Props {
   showOptions?: boolean;
   exactTop?: boolean;
   noPadding?: boolean;
+  maxHeight?: number;
 }
 
 interface DisplayedWallet {

@@ -36,9 +36,9 @@ export async function ensureAllowanceDispatch(
       );
     }
 
-    if (allowance.enabled) {
-      await allowanceAuth(appData, allowance, price, alwaysAsk);
-    }
+    // if (allowance.enabled) {
+    //   await allowanceAuth(appData, allowance, price, alwaysAsk);
+    // }
   } catch (e) {
     freeDecryptedWallet(keyfile);
     throw new Error(e?.message || e);

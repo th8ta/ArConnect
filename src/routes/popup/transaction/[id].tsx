@@ -57,6 +57,7 @@ import type {
   ArConnectRoutePath,
   CommonRouteProps
 } from "~wallets/router/router.types";
+import { ErrorTypes } from "~utils/error/error.utils";
 
 // pull contacts and check if to address is in contacts
 
@@ -81,8 +82,9 @@ export function TransactionView({
   const { navigate, back } = useLocation();
   const { back: backPath } = useSearchParams<{ back?: string }>();
 
-  // TODO: Should this be a redirect?
-  if (!id) return <></>;
+  if (!id) {
+    throw new Error(ErrorTypes.MissingTxId);
+  }
 
   // fetch tx data
   const [transaction, setTransaction] = useState<GQLNodeInterface>();
