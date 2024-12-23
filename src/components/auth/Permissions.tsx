@@ -80,6 +80,7 @@ export default function Permissions({
 
       <Section>
         <AuthButtons
+          showAuthStatus={false}
           authRequest={connectAuthRequest}
           primaryButtonProps={{
             label: browser.i18n.getMessage("save"),

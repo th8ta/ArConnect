@@ -8,7 +8,6 @@ import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
 import { AnimatePresence } from "framer-motion";
 import { useTheme } from "~utils/theme";
 import { useStorage } from "@plasmohq/storage/hook";
-import { ArrowLeftIcon } from "@iconicicons/react";
 import { useAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import HardwareWalletIcon, {
@@ -23,6 +22,7 @@ import { svgie } from "~utils/svgies";
 import type { AppLogoInfo } from "~applications/application";
 import Squircle from "~components/Squircle";
 import { useLocation } from "~wallets/router/router.utils";
+import { ArrowNarrowLeft } from "@untitled-ui/icons-react";
 
 export interface HeadV2Props {
   title: string;
@@ -164,7 +164,7 @@ export default function HeadV2({
             open={isOpen}
             close={() => setOpen(false)}
             exactTop={true}
-            showOptions={showOptions}
+            showOptions={false}
           />
 
           {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
@@ -210,10 +210,10 @@ const HeadWrapper = styled(Section)<{
 
 const BackButton = styled.button`
   position: absolute;
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   top: 50%;
-  left: 0;
+  left: 12px;
   transform: translate(0, -50%);
   display: flex;
   align-items: center;
@@ -241,10 +241,10 @@ const BackButton = styled.button`
   }
 `;
 
-const BackButtonIcon = styled(ArrowLeftIcon)`
+const BackButtonIcon = styled(ArrowNarrowLeft)`
   font-size: 1rem;
-  width: 1em;
-  height: 1em;
+  width: 1.5em;
+  height: 1.5em;
   color: rgb(${(props) => props.theme.primaryText});
   z-index: 2;
 

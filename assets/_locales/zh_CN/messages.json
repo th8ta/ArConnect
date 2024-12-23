@@ -982,7 +982,7 @@
       "description": "Wallet label"
   },
   "enter_your_password": {
-      "message": "输入您的密码...",
+      "message": "输入您的密码",
       "description": "Enter password placeholder"
   },
   "connect": {
@@ -2407,5 +2407,93 @@
           "example": "10"
         }
       }
+    },
+    "connect_to_app": {
+      "message": "连接到 $APPNAME$",
+      "description": "连接到应用标题",
+      "placeholders": {
+        "appname": {
+          "content": "$1",
+          "example": "ArConnect"
+        }
+      }
+    },
+    "always_ask": {
+        "message": "始终询问",
+        "description": "Always ask"
+    },
+    "always_ask_description": {
+        "message": "审核并确认每笔交易和消息。",
+        "description": "Always ask description"
+    },
+    "ask_when_spending": {
+        "message": "花费时询问",
+        "description": "Ask when spending"
+    },
+    "ask_when_spending_description": {
+        "message": "仅在资产被转移时审核并确认交易。",
+        "description": "Ask when spending description"
+    },
+    "auto_confirm": {
+        "message": "自动确认",
+        "description": "Auto-confirm"
+    },
+    "auto_confirm_description": {
+        "message": "自动签署每笔交易和消息。",
+        "description": "Auto-confirm description"
+    },
+    "custom_permissions": {
+        "message": "自定义权限",
+        "description": "Custom permissions"
+    },
+    "set_custom_permissions": {
+        "message": "设置自定义权限",
+        "description": "Set custom permissions"
+    },
+    "permission_settings": {
+        "message": "权限设置",
+        "description": "Permission settings title"
+    },
+    "select_account": {
+        "message": "选择一个账户连接到 $APPNAME$",
+        "description": "Select account title",
+        "placeholders": {
+            "appname": {
+                "content": "$1",
+                "example": "ArConnect"
+            }
+        }
+    },
+    "review": {
+      "message": "审核",
+      "description": "Review title"
+    },
+    "connect_request_1": {
+      "message": "$APPNAME$ 想要连接到",
+      "description": "Connect request 1",
+      "placeholders": {
+        "appname": {
+          "content": "$1",
+          "example": "ArConnect"
+        }
+      }
+    },
+    "connect_request_2": {
+      "message": "以下权限",
+      "description": "Connect request 2"
+    },
+    "confirm_permissions": {
+      "message": "确认 $APPNAME$ 的权限",
+      "description": "Confirm permissions for app",
+      "placeholders": {
+        "appname": {
+          "content": "$1",
+          "example": "ArConnect"
+        }
+      }
+    },
+    "change": {
+      "message": "更换",
+      "description": "Change text"
     }
 }
