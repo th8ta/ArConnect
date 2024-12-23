@@ -8,6 +8,7 @@ import {
 } from "~utils/assertions";
 import { signAuthKeystone, type AuthKeystoneData } from "../sign/sign_auth";
 import Arweave from "arweave";
+import { requestUserAuthorization } from "~utils/auth/auth.utils";
 
 const background: BackgroundModuleFunction<number[]> = async (
   appData,
@@ -22,6 +23,14 @@ const background: BackgroundModuleFunction<number[]> = async (
   const dataToSign = new Uint8Array(data);
 
   isArrayBuffer(dataToSign);
+
+  await requestUserAuthorization(
+    {
+      type: "signature",
+      message: data
+    },
+    appData
+  );
 
   // hash the message
   const hash = await crypto.subtle.digest(options.hashAlgorithm, dataToSign);

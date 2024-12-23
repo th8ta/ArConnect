@@ -10,6 +10,7 @@ import styled from "styled-components";
 import { createCoinWithAnimation } from "~api/modules/sign/animation";
 import { arconfettiIcon } from "~api/modules/sign/utils";
 import { EventType, trackEvent } from "~utils/analytics";
+import { ErrorTypes } from "~utils/error/error.utils";
 
 export interface SettingDashboardViewProps {
   setting: SettingType;
@@ -136,8 +137,11 @@ export function SettingDashboardView({ setting }: SettingDashboardViewProps) {
       );
 
     default:
-      // TODO: Should this be a redirect?
-      return <></>;
+      throw new Error(
+        setting.type
+          ? ErrorTypes.MissingSettingsType
+          : ErrorTypes.UnexpectedSettingsType
+      );
   }
 }
 

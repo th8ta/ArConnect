@@ -17,6 +17,8 @@ import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
+import { ErrorTypes } from "~utils/error/error.utils";
+import { LoadingView } from "~components/page/common/loading/loading.view";
 
 export interface ExportWalletViewParams {
   address: string;
@@ -87,8 +89,9 @@ export function ExportWalletView({
     }
   }
 
-  // TODO: Should this be a redirect?
-  if (!wallet) return <></>;
+  if (!wallet) {
+    return <LoadingView />;
+  }
 
   return (
     <>
