@@ -15,6 +15,7 @@ import { ERR_MSG_NO_WALLETS_ADDED } from "~utils/auth/auth.constants";
 
 const PUBLIC_SEGMENT_WRITEKEY = "J97E4cvSZqmpeEdiUQNC2IxS1Kw4Cwxm";
 
+// TODO: uncomment this once we have fix
 // const analytics = AnalyticsBrowser.load({
 //   writeKey: PUBLIC_SEGMENT_WRITEKEY
 // });
