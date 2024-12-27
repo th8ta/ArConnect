@@ -101,15 +101,16 @@ export function setupBackgroundService() {
   browser.webNavigation.onBeforeNavigate.addListener(handleProtocol);
 
   // print to the permaweb (only on chrome)
-  if (typeof chrome !== "undefined") {
-    chrome.printerProvider.onGetCapabilityRequested.addListener(
-      handleGetCapabilities
-    );
+  // TODO: uncomment this once we have a proper solution
+  // if (typeof chrome !== "undefined") {
+  //   chrome.printerProvider.onGetCapabilityRequested.addListener(
+  //     handleGetCapabilities
+  //   );
 
-    chrome.printerProvider.onGetPrintersRequested.addListener(
-      handleGetPrinters
-    );
+  //   chrome.printerProvider.onGetPrintersRequested.addListener(
+  //     handleGetPrinters
+  //   );
 
-    chrome.printerProvider.onPrintRequested.addListener(handlePrint);
-  }
+  //   chrome.printerProvider.onPrintRequested.addListener(handlePrint);
+  // }
 }
