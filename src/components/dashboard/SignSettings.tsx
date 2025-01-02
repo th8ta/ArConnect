@@ -16,7 +16,7 @@ export const SignSettingsDashboardView = () => {
       key: "signatureAllowance",
       instance: ExtensionStorage
     },
-    (v) => (v === undefined ? 10 : Number(v))
+    10
   );
 
   const [signatureAllowanceEnabled, setSignatureAllowanceEnabled] = useStorage(
@@ -24,7 +24,7 @@ export const SignSettingsDashboardView = () => {
       key: "signatureAllowanceEnabled",
       instance: ExtensionStorage
     },
-    (v) => (v === undefined ? true : Boolean(v))
+    true
   );
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {

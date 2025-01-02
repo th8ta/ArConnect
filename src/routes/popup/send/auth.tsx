@@ -67,8 +67,10 @@ export function SendAuthView({ params: { tokenID } }: SendAuthViewProps) {
 
   useEffect(() => {
     const fetchSignAllowance = async () => {
-      const allowance = await ExtensionStorage.get("signatureAllowance");
-      const enabled = await ExtensionStorage.get("signatureAllowanceEnabled");
+      const allowance =
+        (await ExtensionStorage.get("signatureAllowance")) ?? 10;
+      const enabled =
+        (await ExtensionStorage.get("signatureAllowanceEnabled")) ?? true;
       setSignAllowance(Number(allowance));
       setSignAllowanceEnabled(enabled === "true" || enabled === undefined);
     };

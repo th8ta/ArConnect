@@ -138,7 +138,10 @@ export function ConfirmView({
         const data: TransactionData = await TempTransactionStorage.get("send");
         if (data) {
           const qty = BigNumber(data.qty);
-          if (allowanceEnabled && qty.lt(Number(allowance))) {
+          if (
+            !allowanceEnabled ||
+            (allowanceEnabled && qty.lte(Number(allowance)))
+          ) {
             setNeedsSign(false);
           } else {
             setNeedsSign(true);
@@ -395,7 +398,10 @@ export function ConfirmView({
       isLocalWallet(decryptedWallet);
       const keyfile = decryptedWallet.keyfile;
 
-      if (allowanceEnabled && transactionAmount.lte(allowance)) {
+      if (
+        !allowanceEnabled ||
+        (allowanceEnabled && transactionAmount.lte(allowance))
+      ) {
         try {
           convertedTransaction.setOwner(keyfile.n);
 

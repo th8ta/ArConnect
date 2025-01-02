@@ -480,7 +480,7 @@
     "description": "Transfer settings description"
   },
   "enable_transfer_settings": {
-    "message": "Enable transfer settings",
+    "message": "Enable Transfer Settings",
     "description": "Enable transfer settings title"
   },
   "setting_display_theme": {
