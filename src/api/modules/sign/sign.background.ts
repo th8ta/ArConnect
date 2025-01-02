@@ -139,7 +139,7 @@ const background: BackgroundModuleFunction<BackgroundResult> = async (
   }
 
   // notify the user of the signing
-  await signNotification(price, transaction.id, appData.url);
+  // await signNotification(price, transaction.id, appData.url);
 
   // update allowance spent amount (in winstons)
   // await updateAllowance(appData.url, price);

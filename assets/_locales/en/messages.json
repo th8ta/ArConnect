@@ -471,9 +471,17 @@
     "message": "Sign notification",
     "description": "Sign notification settings title"
   },
-  "setting_sign_settings": {
-    "message": "Sign settings",
-    "description": "Sign settings title"
+  "setting_transfer_settings": {
+    "message": "Transfer settings",
+    "description": "Transfer settings title"
+  },
+  "setting_transfer_settings_description": {
+    "message": "Allowance for requiring password when transferring",
+    "description": "Transfer settings description"
+  },
+  "enable_transfer_settings": {
+    "message": "Enable transfer settings",
+    "description": "Enable transfer settings title"
   },
   "setting_display_theme": {
     "message": "Theme",
@@ -542,10 +550,6 @@
   "setting_setting_arconfetti_description": {
     "message": "Show animation on wallet usage",
     "description": "ArConfetti settings description"
-  },
-  "setting_sign_notification_description": {
-    "message": "Notify when signing a transaction",
-    "description": "Sign notification settings description"
   },
   "setting_display_theme_description": {
     "message": "The theme of the extension UI",

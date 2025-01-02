@@ -62,11 +62,15 @@ export function SendAuthView({ params: { tokenID } }: SendAuthViewProps) {
   const [loading, setLoading] = useState(false);
 
   const [signAllowance, setSignAllowance] = useState<number>(10);
+  const [signAllowanceEnabled, setSignAllowanceEnabled] =
+    useState<boolean>(true);
 
   useEffect(() => {
     const fetchSignAllowance = async () => {
       const allowance = await ExtensionStorage.get("signatureAllowance");
+      const enabled = await ExtensionStorage.get("signatureAllowanceEnabled");
       setSignAllowance(Number(allowance));
+      setSignAllowanceEnabled(enabled === "true" || enabled === undefined);
     };
     fetchSignAllowance();
   }, []);
@@ -220,7 +224,7 @@ export function SendAuthView({ params: { tokenID } }: SendAuthViewProps) {
     );
 
     // Check if the transaction amount is less than the signature allowance
-    if (transactionAmount.lte(signAllowance)) {
+    if (signAllowanceEnabled && transactionAmount.lte(signAllowance)) {
       // Process transaction without user signing
       try {
         // Decrypt wallet without user input
