@@ -62,15 +62,16 @@ export const SignSettingsDashboardView = () => {
           setChecked={setSignatureAllowanceEnabled}
         />
       </ToggleSwitchWrapper>
-      <InputV2
-        label={browser.i18n.getMessage("password_allowance")}
-        type="number"
-        value={editingValue}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        disabled={!signatureAllowanceEnabled}
-        fullWidth
-      />
+      {signatureAllowanceEnabled && (
+        <InputV2
+          label={browser.i18n.getMessage("password_allowance")}
+          type="number"
+          value={editingValue}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          fullWidth
+        />
+      )}
     </Wrapper>
   );
 };
