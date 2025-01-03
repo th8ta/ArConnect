@@ -36,7 +36,7 @@ import { HeadAuth } from "~components/HeadAuth";
 import { AuthButtons } from "~components/auth/AuthButtons";
 import arconnectLogo from "url:/assets/ecosystem/arconnect.svg";
 import Squircle from "~components/Squircle";
-import { useActiveWallet } from "~wallets/hooks";
+import { useActiveWallet, useAskPassword } from "~wallets/hooks";
 import Checkbox from "~components/Checkbox";
 import { Eye, EyeOff } from "@untitled-ui/icons-react";
 import { CloseLayer } from "~components/popup/WalletHeader";
@@ -51,6 +51,8 @@ export function ConnectAuthRequestView() {
   });
 
   const [signPolicy, setSignPolicy] = useState<SignPolicy>("always_ask");
+
+  const askPassword = useAskPassword();
 
   // permissions to add
   const [permissions, setPermissions] = useState<PermissionType[]>([]);
@@ -104,18 +106,20 @@ export function ConnectAuthRequestView() {
   }, [requestedPermissions, requestedPermCopy]);
 
   // connect
-  async function connect() {
+  async function connect(checkPassword = true) {
     if (!url) return;
 
-    const unlockRes = await globalUnlock(passwordInput.state);
+    if (checkPassword) {
+      const unlockRes = await globalUnlock(passwordInput.state);
 
-    if (!unlockRes) {
-      passwordInput.setStatus("error");
-      return setToast({
-        type: "error",
-        content: browser.i18n.getMessage("invalidPassword"),
-        duration: 2200
-      });
+      if (!unlockRes) {
+        passwordInput.setStatus("error");
+        return setToast({
+          type: "error",
+          content: browser.i18n.getMessage("invalidPassword"),
+          duration: 2200
+        });
+      }
     }
 
     // get existing permissions
@@ -180,7 +184,11 @@ export function ConnectAuthRequestView() {
     } else if (page === "review") {
       setPage("confirm");
     } else if (page === "confirm") {
-      setPage("unlock");
+      if (!askPassword) {
+        return connect(false);
+      } else {
+        setPage("unlock");
+      }
     } else if (page === "unlock") {
       await connect();
     }
@@ -483,7 +491,7 @@ export function ConnectAuthRequestView() {
             authRequest={authRequest}
             primaryButtonProps={{
               label: browser.i18n.getMessage(
-                page === "unlock"
+                page === "unlock" || (page === "confirm" && !askPassword)
                   ? "connect"
                   : page !== "confirm"
                   ? "next"

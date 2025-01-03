@@ -107,7 +107,7 @@ const background: BackgroundModuleFunction<ReturnType> = async (
     // await updateAllowance(appData.url, price);
 
     // show notification
-    await signNotification(0, dataEntry.id, appData.url, "dispatch");
+    // await signNotification(0, dataEntry.id, appData.url, "dispatch");
 
     // remove wallet from memory
     freeDecryptedWallet(keyfile);
@@ -157,7 +157,7 @@ const background: BackgroundModuleFunction<ReturnType> = async (
     // await updateAllowance(appData.url, price);
 
     // show notification
-    await signNotification(price, transaction.id, appData.url);
+    // await signNotification(price, transaction.id, appData.url);
 
     // remove wallet from memory
     freeDecryptedWallet(keyfile);

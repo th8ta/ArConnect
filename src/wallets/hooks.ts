@@ -11,6 +11,7 @@ import type { StoredWallet } from "~wallets";
 import Arweave from "arweave";
 import BigNumber from "bignumber.js";
 import { retryWithDelayAndTimeout } from "~utils/promises/retry";
+import { isPasswordFresh } from "./auth";
 
 /**
  * Wallets with details hook
@@ -161,3 +162,20 @@ export function useDebounce<T>(value: T, delay: number): T {
 
   return debouncedValue;
 }
+
+/**
+ * Hook to determine if a password prompt should be shown to the user
+ *
+ * @description Returns true when the stored password has expired and user needs to re-enter it.
+ *
+ * @returns {boolean} True if password prompt should be shown, false otherwise
+ */
+export const useAskPassword = (): boolean => {
+  const [askPassword, setAskPassword] = useState(false);
+
+  useEffect(() => {
+    isPasswordFresh().then((isFresh) => setAskPassword(!isFresh));
+  }, []);
+
+  return askPassword;
+};
