@@ -13,8 +13,9 @@ import styled from "styled-components";
 import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { useRemoveCover } from "~wallets/setup/non/non-wallet-setup.hook";
 import { useWallets } from "~utils/wallets/wallets.hooks";
+import { WalletsProvider } from "~utils/wallets/wallets.provider";
 
-export default function DevTools() {
+function DevTools() {
   useRemoveCover();
 
   // fetch app data
@@ -50,24 +51,32 @@ export default function DevTools() {
   const { walletStatus } = useWallets();
 
   return (
+    <Wrapper>
+      {walletStatus === "noWallets" && <NoWallets />}
+      <CardBody>
+        <Title>ArConnect {browser.i18n.getMessage("devtools")}</Title>
+        <ConnectionText>
+          {browser.i18n.getMessage(
+            connected ? "appConnected" : "appNotConnected"
+          )}
+          <ConnectionStatus connected={connected} />
+        </ConnectionText>
+        <Spacer y={1.5} />
+        {(!connected && app && <Connector appUrl={app.url} />) ||
+          (connected && app && (
+            <AppSettingsDashboardView noTitle params={{ url: app.url }} />
+          ))}
+      </CardBody>
+    </Wrapper>
+  );
+}
+
+export default function DevToolsRoot() {
+  return (
     <ArConnectThemeProvider>
-      <Wrapper>
-        {walletStatus === "noWallets" && <NoWallets />}
-        <CardBody>
-          <Title>ArConnect {browser.i18n.getMessage("devtools")}</Title>
-          <ConnectionText>
-            {browser.i18n.getMessage(
-              connected ? "appConnected" : "appNotConnected"
-            )}
-            <ConnectionStatus connected={connected} />
-          </ConnectionText>
-          <Spacer y={1.5} />
-          {(!connected && app && <Connector appUrl={app.url} />) ||
-            (connected && app && (
-              <AppSettingsDashboardView noTitle params={{ url: app.url }} />
-            ))}
-        </CardBody>
-      </Wrapper>
+      <WalletsProvider>
+        <DevTools />
+      </WalletsProvider>
     </ArConnectThemeProvider>
   );
 }

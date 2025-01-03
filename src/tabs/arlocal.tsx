@@ -31,8 +31,9 @@ import axios from "axios";
 import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { useRemoveCover } from "~wallets/setup/non/non-wallet-setup.hook";
 import { useWallets } from "~utils/wallets/wallets.hooks";
+import { WalletsProvider } from "~utils/wallets/wallets.provider";
 
-export default function ArLocal() {
+function ArLocal() {
   useRemoveCover();
 
   // testnet data
@@ -158,52 +159,60 @@ export default function ArLocal() {
   const { walletStatus } = useWallets();
 
   return (
+    <Wrapper>
+      {walletStatus === "noWallets" && <NoWallets />}
+      <CardBody>
+        <Title>
+          ArLocal {browser.i18n.getMessage("devtools")}
+          <Spacer x={0.2} />
+          <Text noMargin>by ArConnect</Text>
+        </Title>
+        <ConnectionText>
+          {browser.i18n.getMessage(online ? "testnetLive" : "testnetDown")}
+          <ConnectionStatus connected={online} />
+        </ConnectionText>
+        <Spacer y={1.5} />
+        <InputWithBtn>
+          <InputWrapper>
+            <Input
+              {...testnetInput.bindings}
+              type="text"
+              label={browser.i18n.getMessage("testnetGatewayUrlLabel")}
+              placeholder="http://localhost:1984"
+              fullWidth
+            />
+          </InputWrapper>
+          <RefreshButton
+            secondary
+            onClick={() => loadTestnet()}
+            refreshing={loadingTestnet}
+          >
+            <RefreshIcon />
+          </RefreshButton>
+        </InputWithBtn>
+        <Spacer y={1} />
+        {(!online && <Tutorial />) || (
+          <>
+            <Mint arweave={arweave} />
+            <Spacer y={1} />
+            <ArLocalTransaction arweave={arweave} />
+            <Spacer y={1} />
+            <Button fullWidth secondary loading={mining} onClick={mine}>
+              {browser.i18n.getMessage("mine")}
+            </Button>
+          </>
+        )}
+      </CardBody>
+    </Wrapper>
+  );
+}
+
+export default function ArLocalRoot() {
+  return (
     <ArConnectThemeProvider>
-      <Wrapper>
-        {walletStatus === "noWallets" && <NoWallets />}
-        <CardBody>
-          <Title>
-            ArLocal {browser.i18n.getMessage("devtools")}
-            <Spacer x={0.2} />
-            <Text noMargin>by ArConnect</Text>
-          </Title>
-          <ConnectionText>
-            {browser.i18n.getMessage(online ? "testnetLive" : "testnetDown")}
-            <ConnectionStatus connected={online} />
-          </ConnectionText>
-          <Spacer y={1.5} />
-          <InputWithBtn>
-            <InputWrapper>
-              <Input
-                {...testnetInput.bindings}
-                type="text"
-                label={browser.i18n.getMessage("testnetGatewayUrlLabel")}
-                placeholder="http://localhost:1984"
-                fullWidth
-              />
-            </InputWrapper>
-            <RefreshButton
-              secondary
-              onClick={() => loadTestnet()}
-              refreshing={loadingTestnet}
-            >
-              <RefreshIcon />
-            </RefreshButton>
-          </InputWithBtn>
-          <Spacer y={1} />
-          {(!online && <Tutorial />) || (
-            <>
-              <Mint arweave={arweave} />
-              <Spacer y={1} />
-              <ArLocalTransaction arweave={arweave} />
-              <Spacer y={1} />
-              <Button fullWidth secondary loading={mining} onClick={mine}>
-                {browser.i18n.getMessage("mine")}
-              </Button>
-            </>
-          )}
-        </CardBody>
-      </Wrapper>
+      <WalletsProvider>
+        <ArLocal />
+      </WalletsProvider>
     </ArConnectThemeProvider>
   );
 }
