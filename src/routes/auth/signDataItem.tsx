@@ -31,7 +31,11 @@ import prettyBytes from "pretty-bytes";
 import { formatFiatBalance } from "~tokens/currency";
 import useSetting from "~settings/hook";
 import { getPrice } from "~lib/coingecko";
-import type { TokenInfo, TokenInfoWithProcessId } from "~tokens/aoTokens/ao";
+import {
+  getTagValue,
+  type TokenInfo,
+  type TokenInfoWithProcessId
+} from "~tokens/aoTokens/ao";
 import { ChevronUpIcon, ChevronDownIcon } from "@iconicicons/react";
 import { getUserAvatar } from "~lib/avatar";
 import { LogoWrapper, Logo, WarningIcon } from "~components/popup/Token";
@@ -43,6 +47,7 @@ import { Degraded, WarningWrapper } from "~routes/popup/send";
 import { useCurrentAuthRequest } from "~utils/auth/auth.hooks";
 import { HeadAuth } from "~components/HeadAuth";
 import { AuthButtons } from "~components/auth/AuthButtons";
+import { humanizeTimestampTags } from "~utils/timestamp";
 
 export function SignDataItemAuthRequestView() {
   const { authRequest, acceptRequest, rejectRequest } =
@@ -59,12 +64,12 @@ export function SignDataItemAuthRequestView() {
   const [mismatch, setMismatch] = useState<boolean>(false);
   const { setToast } = useToasts();
 
-  const recipient =
-    data?.tags?.find((tag) => tag.name === "Recipient")?.value || "";
-  const quantity =
-    data?.tags?.find((tag) => tag.name === "Quantity")?.value || "0";
-  const transfer = data?.tags?.some(
-    (tag) => tag.name === "Action" && tag.value === "Transfer"
+  const tags = useMemo(() => humanizeTimestampTags(data?.tags || []), [data]);
+  const recipient = useMemo(() => getTagValue("Recipient", tags) || "", [tags]);
+  const quantity = useMemo(() => getTagValue("Quantity", tags) || "0", [tags]);
+  const transfer = useMemo(
+    () => tags.some((tag) => tag.name === "Action" && tag.value === "Transfer"),
+    [tags]
   );
 
   const process = data?.target;
@@ -113,6 +118,21 @@ export function SignDataItemAuthRequestView() {
   const fiatPrice = useMemo(() => +(amount || 0) * price, [amount]);
 
   const passwordInput = useInput();
+
+  const headerTitle = useMemo(() => {
+    if (!tags?.length) return browser.i18n.getMessage("sign_item");
+
+    const actionValue = getTagValue("Action", tags);
+    const isAOTransaction = tags.some(
+      (tag) => tag.name === "Data-Protocol" && tag.value === "ao"
+    );
+
+    if (isAOTransaction && actionValue) {
+      return actionValue.replace(/-/g, " ");
+    }
+
+    return browser.i18n.getMessage("sign_item");
+  }, [tags]);
 
   // sign message
   async function sign() {
@@ -252,7 +272,7 @@ export function SignDataItemAuthRequestView() {
   return (
     <Wrapper ref={parentRef}>
       <div>
-        <HeadAuth title={browser.i18n.getMessage("sign_item")} />
+        <HeadAuth title={headerTitle} />
         {mismatch && transfer && (
           <Degraded>
             <WarningWrapper>
@@ -294,7 +314,11 @@ export function SignDataItemAuthRequestView() {
           </div>
           {transfer && (
             <>
-              <FiatAmount>{formatFiatBalance(fiatPrice, currency)}</FiatAmount>
+              {+fiatPrice > 0 && (
+                <FiatAmount>
+                  {formatFiatBalance(fiatPrice, currency)}
+                </FiatAmount>
+              )}
               <AmountTitle
                 ref={childRef}
                 style={{
