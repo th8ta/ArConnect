@@ -15,12 +15,11 @@ import styled from "styled-components";
 
 import SignDataItemDetails from "~components/signDataItem";
 import { Quantity, Token } from "ao-tokens";
-import { ExtensionStorage } from "~utils/storage";
-import { useStorage } from "@plasmohq/storage/hook";
 import { checkPassword } from "~wallets/auth";
 import { timeoutPromise } from "~utils/promises/timeout";
 import { HeadAuth } from "~components/HeadAuth";
 import { AuthButtons } from "~components/auth/AuthButtons";
+import { useAskPassword } from "~wallets/hooks";
 
 export function BatchSignDataItemAuthRequestView() {
   const { authRequest, acceptRequest, rejectRequest } =
@@ -30,11 +29,11 @@ export function BatchSignDataItemAuthRequestView() {
   const [loading, setLoading] = useState<boolean>(false);
   const [transaction, setTransaction] = useState<any | null>(null);
   const [transactionList, setTransactionList] = useState<any | null>(null);
-  const [password, setPassword] = useState<boolean>(false);
   const passwordInput = useInput();
+  const askPassword = useAskPassword();
 
   async function sign() {
-    if (password) {
+    if (askPassword) {
       const checkPw = await checkPassword(passwordInput.state);
 
       if (!checkPw) {
@@ -50,14 +49,6 @@ export function BatchSignDataItemAuthRequestView() {
 
     acceptRequest();
   }
-
-  const [signatureAllowance] = useStorage(
-    {
-      key: "signatureAllowance",
-      instance: ExtensionStorage
-    },
-    10
-  );
 
   useEffect(() => {
     const fetchTransactionList = async () => {
@@ -90,10 +81,6 @@ export function BatchSignDataItemAuthRequestView() {
                   );
                   amount = tokenAmount.toLocaleString();
                   name = tokenInfo.Name;
-                  console.log(signatureAllowance, Number(amount));
-                  if (signatureAllowance > Number(amount)) {
-                    setPassword(true);
-                  }
                 } catch (error) {
                   console.error("Token fetch timed out or failed", error);
                   amount = quantity;
@@ -147,7 +134,7 @@ export function BatchSignDataItemAuthRequestView() {
       <Section>
         {!transaction ? (
           <>
-            {password && (
+            {askPassword && (
               <>
                 <PasswordWrapper>
                   <InputV2
@@ -171,7 +158,7 @@ export function BatchSignDataItemAuthRequestView() {
               authRequest={authRequest}
               primaryButtonProps={{
                 label: browser.i18n.getMessage("sign_authorize_all"),
-                disabled: (password && !passwordInput.state) || loading,
+                disabled: (askPassword && !passwordInput.state) || loading,
                 onClick: sign
               }}
               secondaryButtonProps={{

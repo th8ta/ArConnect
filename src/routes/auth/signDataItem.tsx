@@ -1,5 +1,4 @@
 import {
-  ButtonV2,
   InputV2,
   Loading,
   Section,
@@ -47,6 +46,7 @@ import { Degraded, WarningWrapper } from "~routes/popup/send";
 import { useCurrentAuthRequest } from "~utils/auth/auth.hooks";
 import { HeadAuth } from "~components/HeadAuth";
 import { AuthButtons } from "~components/auth/AuthButtons";
+import { useAskPassword } from "~wallets/hooks";
 import { humanizeTimestampTags } from "~utils/timestamp";
 
 export function SignDataItemAuthRequestView() {
@@ -55,7 +55,6 @@ export function SignDataItemAuthRequestView() {
 
   const { authID, data, url } = authRequest;
 
-  const [password, setPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [tokenName, setTokenName] = useState<string>("");
   const [logo, setLogo] = useState<string>("");
@@ -63,6 +62,7 @@ export function SignDataItemAuthRequestView() {
   const [showTags, setShowTags] = useState<boolean>(false);
   const [mismatch, setMismatch] = useState<boolean>(false);
   const { setToast } = useToasts();
+  const askPassword = useAskPassword();
 
   const tags = useMemo(() => humanizeTimestampTags(data?.tags || []), [data]);
   const recipient = useMemo(() => getTagValue("Recipient", tags) || "", [tags]);
@@ -83,14 +83,6 @@ export function SignDataItemAuthRequestView() {
   const parentRef = useRef(null);
   const childRef = useRef(null);
   useAdjustAmountTitleWidth(parentRef, childRef, formattedAmount);
-
-  const [signatureAllowance] = useStorage(
-    {
-      key: "signatureAllowance",
-      instance: ExtensionStorage
-    },
-    10
-  );
 
   // active address
   const [activeAddress] = useStorage<string>(
@@ -136,7 +128,7 @@ export function SignDataItemAuthRequestView() {
 
   // sign message
   async function sign() {
-    if (password) {
+    if (askPassword) {
       const checkPw = await checkPassword(passwordInput.state);
       if (!checkPw) {
         setToast({
@@ -150,16 +142,6 @@ export function SignDataItemAuthRequestView() {
 
     await acceptRequest();
   }
-
-  useEffect(() => {
-    if (amount === null) return;
-
-    if (signatureAllowance < amount?.toNumber()) {
-      setPassword(true);
-    } else {
-      setPassword(false);
-    }
-  }, [signatureAllowance, amount]);
 
   useEffect(() => {
     if (!tokenName) return;
@@ -225,7 +207,7 @@ export function SignDataItemAuthRequestView() {
   // listen for enter to reset
   useEffect(() => {
     const listener = async (e: KeyboardEvent) => {
-      if (password) return;
+      if (askPassword) return;
       if (e.key !== "Enter") return;
       await sign();
     };
@@ -233,7 +215,7 @@ export function SignDataItemAuthRequestView() {
     window.addEventListener("keydown", listener);
 
     return () => window.removeEventListener("keydown", listener);
-  }, [authID, password]);
+  }, [authID, askPassword]);
 
   useEffect(() => {
     if (tokenName && !logo) {
@@ -395,7 +377,7 @@ export function SignDataItemAuthRequestView() {
         </Section>
       </div>
       <Section>
-        {password && (
+        {askPassword && (
           <>
             <PasswordWrapper>
               <InputV2
