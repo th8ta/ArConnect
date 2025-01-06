@@ -6,7 +6,7 @@ import {
   TooltipV2,
   useToasts
 } from "@arconnect/components";
-import type { Token, TokenType } from "~tokens/token";
+import type { TokenType } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { TrashIcon } from "@iconicicons/react";
@@ -20,7 +20,6 @@ import { CopyButton } from "~components/dashboard/subsettings/WalletSettings";
 import HeadV2 from "~components/popup/HeadV2";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
-import { ErrorTypes } from "~utils/error/error.utils";
 import { LoadingView } from "~components/page/common/loading/loading.view";
 
 export interface TokenSettingsParams {
@@ -32,17 +31,8 @@ export type TokenSettingsProps = CommonRouteProps<TokenSettingsParams>;
 export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
   const { navigate } = useLocation();
 
-  // tokens
-  const [tokens, setTokens] = useStorage<Token[]>(
-    {
-      key: "tokens",
-      instance: ExtensionStorage
-    },
-    []
-  );
-
   // ao tokens
-  const [aoTokens] = useStorage<any[]>(
+  const [aoTokens, setAoTokens] = useStorage<any[]>(
     {
       key: "ao_tokens",
       instance: ExtensionStorage
@@ -52,30 +42,21 @@ export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
 
   const { setToast } = useToasts();
 
-  const { token, isAoToken } = useMemo(() => {
+  const token = useMemo(() => {
     const aoToken = aoTokens.find((ao) => ao.processId === id);
-    if (aoToken) {
-      return {
-        token: {
-          ...aoToken,
-          id: aoToken.processId,
-          name: aoToken.Name,
-          ticker: aoToken.Ticker
-          // Map additional AO token properties as needed
-        },
-        isAoToken: true
-      };
-    }
-    const regularToken = tokens.find((t) => t.id === id);
+
     return {
-      token: regularToken,
-      isAoToken: false
+      ...aoToken,
+      id: aoToken.processId,
+      name: aoToken.Name,
+      ticker: aoToken.Ticker
+      // Map additional AO token properties as needed
     };
-  }, [tokens, aoTokens, id]);
+  }, [aoTokens, id]);
 
   // update token type
   function updateType(type: TokenType) {
-    setTokens((allTokens) => {
+    setAoTokens((allTokens) => {
       const tokenIndex = allTokens.findIndex((t) => t.id === id);
       if (tokenIndex !== -1) {
         allTokens[tokenIndex].type = type;

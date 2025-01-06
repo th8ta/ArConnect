@@ -1,6 +1,6 @@
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { Token, TokenType } from "~tokens/token";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
@@ -13,15 +13,6 @@ import { TokenListItem } from "~components/popup/list/TokenListItem";
 
 export function TokensSettingsView() {
   const { navigate } = useLocation();
-
-  // tokens
-  const [tokens] = useStorage<Token[]>(
-    {
-      key: "tokens",
-      instance: ExtensionStorage
-    },
-    []
-  );
 
   const [aoTokens] = useStorage<TokenInfoWithBalance[]>(
     {
@@ -41,17 +32,6 @@ export function TokensSettingsView() {
       name: token.Name
     }));
   }, [aoTokens]);
-
-  const [aoSettingsState, setaoSettingsState] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      const currentSetting = await ExtensionStorage.get<boolean>(
-        "setting_ao_support"
-      );
-      setaoSettingsState(currentSetting);
-    })();
-  }, []);
 
   // search
   const searchInput = useInput();
@@ -102,30 +82,12 @@ export function TokensSettingsView() {
           <div
             style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
           >
-            <Label style={{ paddingLeft: "4px", margin: "0" }}>
-              {browser.i18n.getMessage("assets")}
-            </Label>
-            {tokens.filter(filterSearchResults).map((token) => (
-              <TokenListItem token={token} active={false} key={token.id} />
-            ))}
-
-            {enhancedAoTokens.length > 0 && aoSettingsState && (
-              <>
-                <Label style={{ paddingLeft: "4px", margin: "0" }}>
-                  {browser.i18n.getMessage("ao_tokens")}
-                </Label>
-                {enhancedAoTokens.filter(filterSearchResults).map((token) => (
-                  <div onClick={() => handleTokenClick(token)} key={token.id}>
-                    <TokenListItem
-                      token={token}
-                      ao={true}
-                      active={false}
-                      key={token.id}
-                    />
-                  </div>
-                ))}
-              </>
-            )}
+            {enhancedAoTokens.length > 0 &&
+              enhancedAoTokens.filter(filterSearchResults).map((token) => (
+                <div onClick={() => handleTokenClick(token)} key={token.id}>
+                  <TokenListItem token={token} active={false} key={token.id} />
+                </div>
+              ))}
           </div>
         </div>
         <ActionBar>

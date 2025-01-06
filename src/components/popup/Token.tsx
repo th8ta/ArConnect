@@ -7,7 +7,7 @@ import {
   useState
 } from "react";
 import { hoverEffect, useTheme } from "~utils/theme";
-import { loadTokenLogo, type Token } from "~tokens/token";
+import { type Token } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { ButtonV2, Text, TooltipV2 } from "@arconnect/components";
@@ -15,7 +15,6 @@ import { useArPrice } from "~lib/coingecko";
 import { usePrice } from "~lib/redstone";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
-import * as viewblock from "~lib/viewblock";
 import Squircle from "~components/Squircle";
 import useSetting from "~settings/hook";
 import styled from "styled-components";
@@ -96,22 +95,18 @@ export default function Token({ onClick, ...props }: Props) {
   useEffect(() => {
     (async () => {
       if (!props?.id || logo) return;
-      if (!props?.ao) {
-        setLogo(viewblock.getTokenLogo(props.id));
-        setLogo(await loadTokenLogo(props.id, props.defaultLogo, theme));
+
+      if (props.defaultLogo) {
+        const logo = await getUserAvatar(props.defaultLogo);
+        setLogo(logo);
       } else {
-        if (props.defaultLogo) {
-          const logo = await getUserAvatar(props.defaultLogo);
-          setLogo(logo);
-        } else {
-          setLogo(arweaveLogo);
-        }
+        setLogo(arweaveLogo);
       }
     })();
   }, [props, theme, logo, arweaveLogo]);
 
   useEffect(() => {
-    if (props?.ao && !props.defaultLogo) {
+    if (!props.defaultLogo) {
       setLogo(arweaveLogo);
     }
   }, [arweaveLogo]);
@@ -154,7 +149,7 @@ export default function Token({ onClick, ...props }: Props) {
             <Logo src={logo || ""} alt="" key={props.id} />
           </LogoWrapper>
           <TokenName>{props.name || props.ticker || "???"}</TokenName>
-          {props?.ao && <Image src={aoLogo} alt="ao logo" />}
+          <Image src={aoLogo} alt="ao logo" />
         </LogoAndDetails>
 
         <BalanceSection>

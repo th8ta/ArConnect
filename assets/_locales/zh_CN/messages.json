@@ -451,10 +451,6 @@
     "message": "货币",
     "description": "Select currency"
   },
-  "setting_dre_node": {
-      "message": "Warp DRE 节点",
-      "description": "Warp DRE node setting title"
-  },
   "setting_arverify": {
       "message": "ArVerify 阈值",
       "description": "ArVerify settings title"

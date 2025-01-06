@@ -1,12 +1,8 @@
 import { useLocation } from "~wallets/router/router.utils";
 import { ButtonV2, Section, useToasts, Loading } from "@arconnect/components";
 import { EditIcon } from "@iconicicons/react";
-import {
-  getAoTokens,
-  getAoTokensAutoImportRestrictedIds,
-  useTokens
-} from "~tokens";
-import { useEffect, useMemo, useState } from "react";
+import { getAoTokens, getAoTokensAutoImportRestrictedIds } from "~tokens";
+import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import Token from "~components/popup/Token";
 import styled from "styled-components";
@@ -27,8 +23,7 @@ export function TokensView() {
   const [hasNextPage, setHasNextPage] = useState<boolean | undefined>(
     undefined
   );
-  // all tokens
-  const tokens = useTokens();
+
   // ao Tokens
   const [aoTokens] = useAoTokens();
 
@@ -43,12 +38,6 @@ export function TokensView() {
       instance: ExtensionStorage
     },
     false
-  );
-
-  // assets
-  const assets = useMemo(
-    () => tokens.filter((token) => token.type === "asset"),
-    [tokens]
   );
 
   function handleTokenClick(tokenId: string) {
@@ -160,17 +149,6 @@ export function TokensView() {
               e.preventDefault();
               removeAoToken(token);
             }}
-          />
-        ))}
-        {assets.map((token, i) => (
-          <Token
-            {...token}
-            onClick={() => navigate(`/token/${token.id}`)}
-            onSettingsClick={(e) => {
-              e.preventDefault();
-              navigate(`/quick-settings/tokens/${token.id}`);
-            }}
-            key={i}
           />
         ))}
         {aoTokensCache.map((token) => (
