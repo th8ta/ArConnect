@@ -2499,5 +2499,13 @@
     "change": {
       "message": "更换",
       "description": "Change text"
+    },
+    "create_a_new_account": {
+        "message": "创建新账户",
+        "description": "Create a new account button text"
+    },
+    "import_an_existing_account": {
+        "message": "导入现有账户",
+        "description": "Import an existing account button text"
     }
 }

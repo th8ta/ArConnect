@@ -2513,5 +2513,13 @@
   "change": {
     "message": "Change",
     "description": "Change text"
+  },
+  "create_a_new_account": {
+    "message": "Create a new account",
+    "description": "Create a new account button text"
+  },
+  "import_an_existing_account": {
+    "message": "Import an existing account",
+    "description": "Import an existing account button text"
   }
 }

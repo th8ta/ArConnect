@@ -9,7 +9,7 @@ import {
   Provider as ThemeProvider,
   type ArconnectTheme,
   type DisplayTheme
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import {
   ARCONNECT_THEME_BACKGROUND_COLOR,
   ARCONNECT_THEME_TEXT_COLOR
