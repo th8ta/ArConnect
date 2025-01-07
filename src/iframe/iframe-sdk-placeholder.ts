@@ -120,6 +120,7 @@ export function initArConnectEmbedded(options: ArConnectEmbeddedOptions) {
 
   // TODO: How to inject theme and fonts?
   // TODO: Add a shadow DOM to add the styles.
+  // TODO: Inject site URL and favicon (activeTab.url).
 
   document.body.appendChild(iframeElement);
 
