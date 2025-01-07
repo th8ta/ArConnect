@@ -16,12 +16,8 @@ export function AccountEmbeddedView() {
         <button>Home</button>
       </Link>
 
-      <Link to="/account/generate-wallet">
-        <button>Generate Wallet</button>
-      </Link>
-
-      <Link to="/account/import-wallet">
-        <button>Import Wallet</button>
+      <Link to="/account/add-wallet">
+        <button>Add Wallet</button>
       </Link>
 
       <Link to="/account/backup-shares">

@@ -1,0 +1,52 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.li {
+}
+
+.button {
+  border-radius: 4px;
+  border: 2px dotted rgba(255, 255, 255, 0.25);
+  font-family: monospace !important;
+  color: white;
+}
+
+.button:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.button.primary {
+  border: 2px solid transparent;
+  background: white;
+  color: black;
+
+  &:not(:disabled):hover {
+    background: yellow;
+  }
+}
+
+.button.secondary {
+  border: 2px solid white;
+
+  &:not(:disabled):hover {
+    border: 2px solid yellow;
+    color: yellow;
+  }
+}
+
+.button.dev {
+  border: 2px solid lime;
+  color: lime;
+
+  &:not(:disabled):hover {
+    border: 2px solid lime;
+    color: lime;
+  }
+}

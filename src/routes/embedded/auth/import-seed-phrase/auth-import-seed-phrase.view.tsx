@@ -1,17 +1,22 @@
-import { useAuth } from "~utils/authentication/authentication.hooks";
-import { WalletService } from "~utils/wallets/wallets.service";
-import { WalletUtils } from "~utils/wallets/wallets.utils";
-import { Link } from "~wallets/router/components/link/Link";
+import type { JWKInterface } from "arweave/web/lib/wallet";
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
+import { WalletUtils } from "~utils/wallets/wallets.utils";
+import { Link } from "~wallets/router/components/link/Link";
 import { MockedFeatureFlags } from "~utils/authentication/fakeDB";
+import { WalletService } from "~utils/wallets/wallets.service";
+import { useAuth } from "~utils/authentication/authentication.hooks";
 
-export function AuthGenerateWalletEmbeddedView() {
-  const { authMethod, addWallet } = useAuth();
+export function AuthImportSeedPhraseEmbeddedView() {
+  const { addWallet } = useAuth();
 
-  const handleContinue = async () => {
-    const seedPhrase = await WalletUtils.generateSeedPhrase();
-    const jwk = await WalletUtils.generateWalletJWK(seedPhrase);
+  const handleImport = async () => {
+    // TODO: Add inputs to grab these:
+    const importedSeedPhrase: string | null = null;
+    const importedJWK: JWKInterface | null = null;
+
+    const jwk =
+      importedJWK || (await WalletUtils.generateWalletJWK(importedSeedPhrase));
     const { authShare, deviceShare } =
       await WalletUtils.generateWalletWorkShares(jwk);
     const deviceSharePublicKey = await WalletUtils.generateSharePublicKey(
@@ -39,8 +44,8 @@ export function AuthGenerateWalletEmbeddedView() {
     WalletUtils.storeDeviceNonce(deviceNonce);
     WalletUtils.storeDeviceShare(deviceShare, walletAddress);
 
-    if (MockedFeatureFlags.maintainSeedPhrase) {
-      WalletUtils.storeEncryptedSeedPhrase(seedPhrase, jwk);
+    if (importedSeedPhrase && MockedFeatureFlags.maintainSeedPhrase) {
+      WalletUtils.storeEncryptedSeedPhrase(importedSeedPhrase, jwk);
     }
 
     await addWallet(jwk, dbWallet);
@@ -48,12 +53,12 @@ export function AuthGenerateWalletEmbeddedView() {
 
   return (
     <div>
-      <h3>Generate Wallet</h3>
-      <p>
-        TODO: This view should be replaced with a simple loader or add something
-        similar to that in here...
-      </p>
-      <button onClick={handleContinue}>Continue</button>
+      <h3>Import Wallet</h3>
+      <p>...</p>
+      <button onClick={handleImport} disabled>
+        Import
+      </button>
+      <Link to="/auth/add-wallet">Back</Link>
     </div>
   );
 }

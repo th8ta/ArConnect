@@ -62,14 +62,16 @@ export function useAuthStatusOverride(
       return routeTrapMatches(
         location,
         [
+          EmbeddedPaths.AuthAddWallet,
           EmbeddedPaths.AuthGenerateWallet,
+          EmbeddedPaths.AuthImportSeedPhrase,
+          EmbeddedPaths.AuthImportKeyfile,
           EmbeddedPaths.AuthAddDevice,
-          EmbeddedPaths.AuthAddAuthProvider,
-          EmbeddedPaths.AuthImportWallet
+          EmbeddedPaths.AuthAddAuthProvider
           // EmbeddedPaths.AddDevice/<SOMETHING>
           // EmbeddedPaths.AddAuthProvider/<SOMETHING>
         ],
-        EmbeddedPaths.AuthGenerateWallet
+        EmbeddedPaths.AuthAddWallet
       );
     }
 

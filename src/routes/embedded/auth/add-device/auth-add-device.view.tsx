@@ -6,7 +6,7 @@ export function AuthAddDeviceEmbeddedView() {
       <h3>Add Device</h3>
       <p>...</p>
       <button disabled>Add Device</button>
-      <Link to="/auth/generate-wallet">Back</Link>
+      <Link to="/auth/add-wallet">Back</Link>
     </div>
   );
 }
