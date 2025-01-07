@@ -129,10 +129,6 @@
     "**/msgpackr": ">=1.10.1",
     "human-crypto-keys/node-forge": "^1.3.1",
     "human-crypto-keys/crypto-key-composer/node-forge": "^1.3.1",
-    "axios": "^1.7.2",
-    "@iconicicons/react": "^1.5.1",
-    "framer-motion": "^7.5.3",
-    "nanoid": "^4.0.1",
-    "uuid": "^9.0.1"
+    "axios": "^1.7.2"
   }
 }
