@@ -2518,8 +2518,40 @@
     "message": "Create a new account",
     "description": "Create a new account button text"
   },
+  "create_a_new_account_description": {
+    "message": "Your account name is stored locally and will only be visible to you.",
+    "description": "Create a new account description"
+  },
+  "import_an_account": {
+    "message": "Import an account",
+    "description": "Import an account button text"
+  },
+  "name_your_account": {
+    "message": "Name your account",
+    "description": "Name your account input placeholder"
+  },
+  "backup_your_account": {
+    "message": "Backup your account",
+    "description": "Backup your account button text"
+  },
+  "confirm_your_recovery_phrase": {
+    "message": "Confirm your recovery phrase",
+    "description": "Confirm your recovery phrase button text"
+  },
+  "create_a_password": {
+    "message": "Create a password",
+    "description": "Create a password button text"
+  },
+  "step": {
+    "message": "Step",
+    "description": "Step text"
+  },
   "import_an_existing_account": {
     "message": "Import an existing account",
     "description": "Import an existing account button text"
+  },
+  "need_help": {
+    "message": "Need help?",
+    "description": "Need help button text"
   }
 }

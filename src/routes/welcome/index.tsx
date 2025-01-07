@@ -14,19 +14,7 @@ import { PageType, trackPage } from "~utils/analytics";
 import { useLocation } from "~wallets/router/router.utils";
 import WanderIcon from "url:assets/icon.svg";
 import WanderTextIcon from "url:assets/icon-text.svg";
-import StarIcon from "~components/welcome/StarIcon";
-
-const stars = [
-  { left: 178, top: 70, opacity: 0.4, size: 41 },
-  { right: 72.8, top: 81, opacity: 0.4, size: 60 },
-  { right: 429, top: 199, opacity: 0.4, size: 41 },
-  { left: 429, top: 292, opacity: 0.2, size: 60 },
-  { right: 161, bottom: 464, opacity: 0.4, size: 94 },
-  { left: 78, bottom: 382, opacity: 0.4, size: 41 },
-  { right: 528, bottom: 253, opcaity: 0.4, size: 41 },
-  { left: 456, bottom: 199, opacity: 0.4, size: 95 },
-  { right: 132, bottom: 101, opacity: 0.4, size: 60 }
-];
+import StarIcons from "~components/welcome/StarIcons";
 
 export function HomeWelcomeView() {
   const { navigate } = useLocation();
@@ -72,7 +60,7 @@ export function HomeWelcomeView() {
 
   return (
     <Wrapper>
-      <StarImages />
+      <StarIcons />
       <Panel>
         <WelcomeContent>
           <ImagesWrapper>
@@ -95,7 +83,7 @@ export function HomeWelcomeView() {
               ref={startButton}
               onClick={async () => {
                 await animate(startButton);
-                navigate("/start/1");
+                navigate("/generate/1");
               }}
             >
               {browser.i18n.getMessage("create_a_new_account")}
@@ -121,10 +109,6 @@ export function HomeWelcomeView() {
     </Wrapper>
   );
 }
-
-const StarImages = () => {
-  return stars.map((star, index) => <StarIcon key={index} {...star} />);
-};
 
 const Wrapper = styled.div`
   display: flex;

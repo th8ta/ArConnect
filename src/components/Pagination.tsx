@@ -1,48 +1,37 @@
-import type { DisplayTheme } from "@arconnect/components";
+import { Text } from "@arconnect/components-rebrand";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
-import { useTheme } from "~utils/theme";
-
-export enum Status {
-  COMPLETED = "completed",
-  ACTIVE = "active",
-  FUTURE = "future"
-}
+import { motion } from "framer-motion";
 
 type PaginationProps = {
-  status: Status;
-  hidden: "leftHidden" | "rightHidden" | "none";
-  title: string;
-  index: number;
+  currentPage: number;
+  totalPages: number;
+  subtitle: string;
 };
 
 const Pagination: React.FC<PaginationProps> = ({
-  status,
-  hidden,
-  title,
-  index
+  currentPage,
+  totalPages,
+  subtitle
 }) => {
-  const theme = useTheme();
+  // Calculate width percentage properly
+  const widthPercentage = Math.max((currentPage / totalPages) * 100, 0);
 
   return (
-    <StepWrapper>
-      <FlexContainer>
-        <LineWrapper>
-          <Line hidden={hidden === "leftHidden"} roundedEnd="right" />
-        </LineWrapper>
-        <Circle status={status} displayTheme={theme}>
-          {status === Status.ACTIVE || status === Status.FUTURE ? (
-            index
-          ) : (
-            <CheckIcon />
-          )}
-        </Circle>
-        <LineWrapper>
-          <Line roundedEnd="left" hidden={hidden === "rightHidden"} />
-        </LineWrapper>
-      </FlexContainer>
-      {browser.i18n.getMessage(title)}
-    </StepWrapper>
+    <PaginationContainer>
+      <InactivePagination>
+        <ActivePagination
+          style={{ width: `${widthPercentage}%` }}
+          initial={{ width: 0 }}
+          animate={{ width: `${widthPercentage}%` }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+        />
+      </InactivePagination>
+      <Text size="sm" weight="medium" noMargin>
+        {browser.i18n.getMessage("step")} {currentPage}:{" "}
+        {browser.i18n.getMessage(subtitle)}
+      </Text>
+    </PaginationContainer>
   );
 };
 
@@ -61,89 +50,28 @@ export const CheckIcon = () => (
   </svg>
 );
 
-const LineWrapper = styled.div`
-  flex: 1;
-`;
-
-const Line = styled.div<{ roundedEnd?: "left" | "right"; hidden?: boolean }>`
-  display: ${(props) => props.hidden && "none"};
-  height: 0.125rem;
-  ${(props) => {
-    switch (props.roundedEnd) {
-      case "left":
-        return `
-          border-top-left-radius: 0.625rem;
-          border-bottom-left-radius: 0.625rem;
-        `;
-      case "right":
-        return `
-          border-top-right-radius: 0.625rem;
-          border-bottom-right-radius: 0.625rem;
-        `;
-      default:
-        return "";
-    }
-  }}
-  background-color: rgba(171, 154, 255, 0.7);
-`;
-
-const StepWrapper = styled.div`
-  display: flex;
-  width: 4.5rem;
-  flex-direction: column;
-  align-items: center;
-  color: #aeadcd;
-  font-size: 0.75rem;
-`;
-
-const FlexContainer = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  align-items: center;
+const PaginationContainer = styled.div`
   width: 100%;
-`;
-
-const Circle = styled.div<{
-  status?: Status;
-  displayTheme: DisplayTheme;
-}>`
-  width: 1.25rem;
-  height: 1.25rem;
-  background-color: ${(props) => {
-    switch (props.status) {
-      case Status.ACTIVE:
-        return props.displayTheme === "light"
-          ? "#EBEBF1"
-          : "rgba(171, 154, 255, 0.15)";
-      case Status.COMPLETED:
-        return "#AB9AFF";
-      case Status.FUTURE:
-        return props.displayTheme === "light" ? "#FFFFFF" : "none";
-      default:
-        return "#FFFFFF";
-    }
-  }};
-  font-size: 0.625rem;
-  color: ${(props) => (props.displayTheme === "light" ? "#000" : "#EBEBF1")};
-  transition: all 0.23s ease-in-out;
-  border-radius: 50%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-
-  ${(props) =>
-    props.status !== Status.COMPLETED &&
-    `
-    ::before {
-      content: "";
-      position: absolute;
-      width: 1.125rem;
-      height: 1.125rem;
-      border: 1px solid #ab9aff; 
-      border-radius: 50%;
-    }
-  `}
+  flex-direction: column;
+  gap: 0.5rem;
 `;
+
+const InactivePagination = styled.div`
+  display: flex;
+  height: 4px;
+  width: 100%;
+  align-items: center;
+  align-self: stretch;
+  border-radius: 50px;
+  background: rgba(107, 87, 249, 0.5);
+`;
+
+const ActivePagination = styled(motion.div)`
+  height: 100%;
+  border-radius: 50px;
+  background: #6b57f9;
+  min-width: 0;
+`;
+
 export default Pagination;

@@ -1,30 +1,27 @@
 import { AnimatePresence, type Variants, motion } from "framer-motion";
-import {
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState
-} from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 import { Card, Spacer, useToasts } from "@arconnect/components";
+import { Text } from "@arconnect/components-rebrand";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { jwkFromMnemonic } from "~wallets/generator";
-import { ArrowLeftIcon } from "@iconicicons/react";
 import browser from "webextension-polyfill";
 import * as bip39 from "bip39-web-crypto";
 import styled from "styled-components";
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
-import Pagination, { Status } from "~components/Pagination";
+import Pagination from "~components/Pagination";
 import { getWalletKeyLength } from "~wallets";
 import { useLocation } from "~wallets/router/router.utils";
 import type { CommonRouteProps } from "~wallets/router/router.types";
+import WanderIcon from "url:assets/icon.svg";
+import WanderTextIcon from "url:assets/icon-text.svg";
 
 // Shared:
 import { PasswordWelcomeView } from "./load/password";
 import { ThemeWelcomeView } from "./load/theme";
 
 // Generate:
+import { CreateAccountView } from "./generate/account";
 import { BackupWelcomeView } from "./generate/backup";
 import { ConfirmWelcomeView } from "./generate/confirm";
 import { GenerateDoneWelcomeView } from "./generate/done";
@@ -33,12 +30,14 @@ import { GenerateDoneWelcomeView } from "./generate/done";
 import { WalletsWelcomeView } from "./load/wallets";
 import { LoadDoneWelcomeView } from "./load/done";
 import { Redirect } from "~wallets/router/components/redirect/Redirect";
-
+import StarIcons from "~components/welcome/StarIcons";
+import { ArrowNarrowLeft } from "@untitled-ui/icons-react";
 // Wallet generate pages:
 
 // TODO: Use a nested router instead:
 const ViewsBySetupMode = {
   generate: [
+    CreateAccountView,
     PasswordWelcomeView,
     BackupWelcomeView,
     ConfirmWelcomeView,
@@ -54,10 +53,19 @@ const ViewsBySetupMode = {
 } as const;
 
 const VIEW_TITLES_BY_SETUP_MODE = {
-  generate: ["password", "backup", "confirm", "setting_display_theme", "done"],
-  load: ["password", "setting_wallets", "setting_display_theme", "done"]
+  generate: "create_a_new_account",
+  load: "import_an_account"
 } as const;
 
+const VIEW_SUBTITLES_BY_SETUP_MODE = {
+  generate: [
+    "name_your_account",
+    "backup_your_account",
+    "confirm_your_recovery_phrase",
+    "create_a_password"
+  ],
+  load: []
+};
 export type WelcomeSetupMode = "generate" | "load";
 
 export interface SetupWelcomeViewParams {
@@ -72,8 +80,9 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
   const { setupMode, page: pageParam } = params;
   const page = Number(pageParam);
 
-  const pageTitles = VIEW_TITLES_BY_SETUP_MODE[setupMode];
-  const pageCount = pageTitles.length;
+  const pageTitle = VIEW_TITLES_BY_SETUP_MODE[setupMode];
+  const pageSubtitle = VIEW_SUBTITLES_BY_SETUP_MODE[setupMode][page - 1];
+  const pageCount = ViewsBySetupMode[setupMode].length;
 
   // temporarily stored password
   const [password, setPassword] = useState("");
@@ -85,7 +94,11 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
   const [generatedWallet, setGeneratedWallet] = useState<GeneratedWallet>({});
 
   const navigateToPreviousPage = () => {
-    navigate(`/${setupMode}/${page - 1}`);
+    if (page === 1) {
+      navigate("/");
+    } else {
+      navigate(`/${setupMode}/${page - 1}`);
+    }
   };
 
   async function generateWallet() {
@@ -139,6 +152,10 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
     return {};
   }
 
+  function setAccountName(name: string) {
+    setGeneratedWallet((val) => ({ ...val, nickname: name }));
+  }
+
   useEffect(() => {
     generateWallet();
   }, [setupMode]);
@@ -160,8 +177,8 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
   if (
     isNaN(page) ||
     page < 1 ||
-    page > pageCount ||
-    (page !== 1 && password === "")
+    page > pageCount
+    // || (page !== 1 && password === "")
   ) {
     return <Redirect to={`/${setupMode}/1`} />;
   }
@@ -174,43 +191,47 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
 
   return (
     <Wrapper>
+      <Header>
+        <HeaderIconWrapper>
+          <Image
+            width="57.61px"
+            height="27px"
+            src={WanderIcon}
+            alt="Wander Icon"
+          />
+          <Image
+            width="116.759px"
+            height="24.111px"
+            src={WanderTextIcon}
+            alt="Wander Text Icon"
+          />
+        </HeaderIconWrapper>
+        <Text variant="secondary" size="base" weight="medium">
+          {browser.i18n.getMessage("need_help")}
+        </Text>
+      </Header>
+      <StarIcons screen="setup" />
       <Spacer y={2} />
       <SetupCard>
         <HeaderContainer>
-          {page === 1 ? (
-            <Spacer />
-          ) : (
+          <CardHeader>
             <BackButton onClick={navigateToPreviousPage} />
-          )}
+            <Text style={{ fontSize: 22, margin: "auto" }} weight="bold">
+              {browser.i18n.getMessage(pageTitle)}
+            </Text>
+            <Spacer x={1.75} />
+          </CardHeader>
           <PaginationContainer>
-            {pageTitles.map((title, i) => (
-              <Pagination
-                key={i}
-                index={i + 1}
-                status={
-                  page === i + 1
-                    ? Status.ACTIVE
-                    : page > i + 1
-                    ? Status.COMPLETED
-                    : Status.FUTURE
-                }
-                title={title}
-                hidden={
-                  i === 0
-                    ? "leftHidden"
-                    : i === pageCount - 1
-                    ? "rightHidden"
-                    : "none"
-                }
-              />
-            ))}
+            <Pagination
+              currentPage={page}
+              totalPages={pageCount}
+              subtitle={pageSubtitle}
+            />
           </PaginationContainer>
-          <Spacer />
         </HeaderContainer>
-        <Spacer y={1.5} />
         <PasswordContext.Provider value={{ password, setPassword }}>
           <WalletContext.Provider
-            value={{ wallet: generatedWallet, generateWallet }}
+            value={{ wallet: generatedWallet, generateWallet, setAccountName }}
           >
             <Content>
               <PageWrapper style={{ height: contentSize }}>
@@ -235,14 +256,38 @@ const PaginationContainer = styled.div`
   align-items: center;
 `;
 
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 64px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+`;
+
+const HeaderIconWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 9.65px;
+`;
+
 const Content = styled.div`
-  padding: 0 24px 20px;
   overflow: hidden;
+  height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
 const PageWrapper = styled.div`
   position: relative;
   transition: height 0.17s ease;
+  height: 100%;
+  display: flex;
+  flex: 1;
 `;
 
 const pageAnimation: Variants = {
@@ -261,23 +306,25 @@ const Page = styled(motion.div).attrs({
 })`
   position: absolute;
   width: 100%;
-  height: max-content;
+  height: 100%;
   left: 0;
   top: 0;
+  display: flex;
+  flex-direction: column;
 `;
 
 const HeaderContainer = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  padding: 20px 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
 `;
 
-const BackButton = styled(ArrowLeftIcon)<{ hidden?: boolean }>`
+const BackButton = styled(ArrowNarrowLeft)<{ hidden?: boolean }>`
   font-size: 1.6rem;
   display: ${(props) => props.hidden && "none"}
-  width: 1em;
-  height: 1em;
-  color: #aeadcd;
+  width: 1.5em;
+  height: 1.5em;
+  color: ${(props) => props.theme.secondaryText};
   z-index: 2;
 
   &:hover {
@@ -296,11 +343,25 @@ const Wrapper = styled.div`
   width: 100vw;
   min-height: 100vh;
   flex-direction: column;
+  position: relative;
+  background: radial-gradient(50% 50% at 50% 50%, #26126f 0%, #1c1c1d 86.5%);
 `;
 
+const Image = styled.img``;
+
 const SetupCard = styled(Card)`
-  padding: 0;
-  width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  background: #121212;
+  width: 377.5px;
+  height: 600px;
+`;
+
+const CardHeader = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 export const PasswordContext = createContext({
@@ -310,16 +371,19 @@ export const PasswordContext = createContext({
 
 export const WalletContext = createContext<WalletContextValue>({
   wallet: {},
-  generateWallet: (retry?: boolean) => Promise.resolve({})
+  generateWallet: (retry?: boolean) => Promise.resolve({}),
+  setAccountName: (name: string) => {}
 });
 
 interface WalletContextValue {
   wallet: GeneratedWallet;
   generateWallet: (retry?: boolean) => Promise<GeneratedWallet>;
+  setAccountName: (name: string) => void;
 }
 
 interface GeneratedWallet {
   address?: string;
   mnemonic?: string;
   jwk?: JWKInterface;
+  nickname?: string;
 }

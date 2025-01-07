@@ -2504,8 +2504,40 @@
         "message": "创建新账户",
         "description": "Create a new account button text"
     },
+    "create_a_new_account_description": {
+        "message": "您的账户名称存储在本地，仅您可见。",
+        "description": "Create a new account description"
+    },
+    "import_an_account": {
+        "message": "导入账户",
+        "description": "Import an account button text"
+    },
+    "name_your_account": {
+        "message": "命名您的账户",
+        "description": "Name your account input placeholder"
+    },
+    "backup_your_account": {
+        "message": "备份您的账户",
+        "description": "Backup your account button text"
+    },
+    "confirm_your_recovery_phrase": {
+        "message": "确认您的恢复短语",
+        "description": "Confirm your recovery phrase button text"
+    },
+    "create_a_password": {
+        "message": "创建密码",
+        "description": "Create a password button text"
+    },
+    "step": {
+        "message": "步骤",
+        "description": "Step text"
+    },
     "import_an_existing_account": {
         "message": "导入现有账户",
         "description": "Import an existing account button text"
+    },
+    "need_help": {
+        "message": "需要帮助？",
+        "description": "Need help button text"
     }
 }
