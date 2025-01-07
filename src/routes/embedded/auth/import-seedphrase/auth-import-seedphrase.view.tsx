@@ -3,10 +3,10 @@ import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.compon
 import { DevButtons } from "~components/dev/buttons/buttons.component";
 import { useRef, useState } from "react";
 
-import screenSrc from "url:/assets-beta/figma-screens/import-keyfile.view.png";
-import confirmScreenSrc from "url:/assets-beta/figma-screens/import-keyfile-confirmation.view.png";
+import screenSrc from "url:/assets-beta/figma-screens/import-seedphrase.view.png";
+import confirmScreenSrc from "url:/assets-beta/figma-screens/import-seedphrase-confirmation.view.png";
 
-export function AuthImportKeyfileEmbeddedView() {
+export function AuthImportSeedphraseEmbeddedView() {
   const { importWallet, lastWallet, clearLastWallet } = useAuth();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -34,7 +34,7 @@ export function AuthImportKeyfileEmbeddedView() {
             isDisabled: true
           },
           {
-            label: "No, upload again",
+            label: "No, try again",
             onClick: () => clearLastWallet()
           },
           {
@@ -45,13 +45,13 @@ export function AuthImportKeyfileEmbeddedView() {
       />
     </DevFigmaScreen>
   ) : (
-    <DevFigmaScreen title="Import private key" src={screenSrc}>
-      <textarea ref={textareaRef} placeholder="Upload keyfile"></textarea>
+    <DevFigmaScreen title="Enter seedphrase" src={screenSrc}>
+      <textarea ref={textareaRef} placeholder="Enter seedphrase"></textarea>
 
       <DevButtons
         config={[
           {
-            label: "Upload",
+            label: "Import",
             onClick: handleImportWallet
           },
           {
