@@ -33,7 +33,7 @@ export const tabs = {
 
   query: async () => {
     const parentURL =
-      window.location === window.parent.location
+      window.location.href === window.parent.location.href
         ? document.location.href
         : document.referrer;
 
