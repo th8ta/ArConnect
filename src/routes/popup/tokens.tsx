@@ -14,7 +14,6 @@ import {
 } from "~tokens/aoTokens/ao";
 import { ExtensionStorage } from "~utils/storage";
 import { syncAoTokens } from "~tokens/aoTokens/sync";
-import { useStorage } from "@plasmohq/storage/hook";
 
 export function TokensView() {
   const { navigate } = useLocation();
@@ -31,14 +30,6 @@ export function TokensView() {
   const [aoTokensCache] = useAoTokensCache();
 
   const { setToast } = useToasts();
-
-  const [aoSupport] = useStorage<boolean>(
-    {
-      key: "setting_ao_support",
-      instance: ExtensionStorage
-    },
-    false
-  );
 
   function handleTokenClick(tokenId: string) {
     navigate(`/send/transfer/${tokenId}`);
@@ -112,7 +103,6 @@ export function TokensView() {
   };
 
   async function searchAoTokens() {
-    if (!aoSupport) return;
     try {
       setIsLoading(true);
       const { hasNextPage } = await syncAoTokens();
@@ -123,10 +113,8 @@ export function TokensView() {
   }
 
   useEffect(() => {
-    if (aoSupport) {
-      searchAoTokens();
-    }
-  }, [aoSupport]);
+    searchAoTokens();
+  }, []);
 
   return (
     <>
@@ -171,7 +159,7 @@ export function TokensView() {
           />
         ))}
 
-        {aoSupport && hasNextPage && (
+        {hasNextPage && (
           <ButtonV2
             disabled={isLoading}
             style={{ alignSelf: "center", marginTop: "5px" }}

@@ -47,8 +47,11 @@ export function TokenSettingsDashboardView({
 
   const [loading, setLoading] = useState(false);
 
+  console.log({ aoTokens });
+
   const token = useMemo(() => {
     const aoToken = aoTokens.find((ao) => ao.processId === id);
+    if (!aoToken) return;
 
     return {
       ...aoToken,
@@ -61,7 +64,7 @@ export function TokenSettingsDashboardView({
   // update token type
   function updateType(type: TokenType) {
     setAoTokens((allTokens) => {
-      const tokenIndex = allTokens.findIndex((t) => t.id === id);
+      const tokenIndex = allTokens.findIndex((t) => t.processId === id);
       if (tokenIndex !== -1) {
         allTokens[tokenIndex].type = type;
       }

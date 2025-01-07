@@ -1992,10 +1992,6 @@
           }
       }
   },
-  "setting_ao_support": {
-      "message": "ao 支持",
-      "description": "ao support settings title"
-  },
   "setting_ao_support_description": {
       "message": "在您的钱包中显示 ao 代币（测试版）",
       "description": "ao support settings description"

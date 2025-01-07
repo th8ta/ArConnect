@@ -44,6 +44,7 @@ export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
 
   const token = useMemo(() => {
     const aoToken = aoTokens.find((ao) => ao.processId === id);
+    if (!aoToken) return;
 
     return {
       ...aoToken,

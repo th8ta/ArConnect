@@ -17,7 +17,7 @@ export function TokensDashboardView() {
   const [matches, params] = useRoute<{ id?: string }>("/tokens/:id?");
 
   // tokens
-  const [aoTokens, setAoTokens] = useStorage<TokenInfoWithBalance[]>(
+  const [aoTokens] = useStorage<TokenInfoWithBalance[]>(
     {
       key: "ao_tokens",
       instance: ExtensionStorage
@@ -81,7 +81,7 @@ export function TokensDashboardView() {
         <Reorder.Group
           as="div"
           axis="y"
-          onReorder={setAoTokens}
+          onReorder={() => {}}
           values={aoTokens}
           style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}
         >
