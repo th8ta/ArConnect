@@ -124,13 +124,24 @@ export function ConfirmView({
     10
   );
 
+  const [allowanceEnabled] = useStorage<boolean>(
+    {
+      key: "signatureAllowanceEnabled",
+      instance: ExtensionStorage
+    },
+    true
+  );
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data: TransactionData = await TempTransactionStorage.get("send");
         if (data) {
           const qty = BigNumber(data.qty);
-          if (qty.lt(Number(allowance))) {
+          if (
+            !allowanceEnabled ||
+            (allowanceEnabled && qty.lte(Number(allowance)))
+          ) {
             setNeedsSign(false);
           } else {
             setNeedsSign(true);
@@ -161,7 +172,7 @@ export function ConfirmView({
 
     fetchData();
     trackPage(PageType.CONFIRM_SEND);
-  }, [allowance]);
+  }, [allowance, allowanceEnabled]);
 
   const [wallets] = useStorage<StoredWallet[]>(
     {
@@ -387,7 +398,10 @@ export function ConfirmView({
       isLocalWallet(decryptedWallet);
       const keyfile = decryptedWallet.keyfile;
 
-      if (transactionAmount.lte(allowance)) {
+      if (
+        !allowanceEnabled ||
+        (allowanceEnabled && transactionAmount.lte(allowance))
+      ) {
         try {
           convertedTransaction.setOwner(keyfile.n);
 

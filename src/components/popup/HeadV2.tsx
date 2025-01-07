@@ -8,7 +8,6 @@ import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
 import { AnimatePresence } from "framer-motion";
 import { useTheme } from "~utils/theme";
 import { useStorage } from "~utils/storage";
-import { ArrowLeftIcon } from "@iconicicons/react";
 import { useAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import HardwareWalletIcon, {
@@ -23,6 +22,7 @@ import { svgie } from "~utils/svgies";
 import type { AppLogoInfo } from "~applications/application";
 import Squircle from "~components/Squircle";
 import { useLocation } from "~wallets/router/router.utils";
+import { ArrowNarrowLeft } from "@untitled-ui/icons-react";
 
 export interface HeadV2Props {
   title: string;
@@ -124,9 +124,11 @@ export default function HeadV2({
         </BackButton>
       ) : null}
 
-      <PageTitle>{title}</PageTitle>
+      <PageTitle showLeftMargin={showBack && !showOptions && !!appName}>
+        {title}
+      </PageTitle>
 
-      {appName ? (
+      {!showOptions && appName ? (
         <TooltipV2 content={appName} position="bottomEnd">
           <SquircleWrapper>
             <SquircleImg
@@ -164,7 +166,7 @@ export default function HeadV2({
             open={isOpen}
             close={() => setOpen(false)}
             exactTop={true}
-            showOptions={showOptions}
+            showOptions={false}
           />
 
           {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
@@ -192,8 +194,6 @@ const HeadWrapper = styled(Section)<{
   width: full;
   transition: padding 0.07s ease-in-out, border-color 0.23s ease-in-out;
   padding: ${(props) => (props.padding ? props.padding : "15px")};
-  padding-left: ${(props) =>
-    props.hasBackButton ? "32px" : props.padding || "15px"};
   justify-content: ${(props) => (props.center ? "center" : "space-between")};
   align-items: center;
   background-color: rgba(${(props) => props.theme.background}, 0.75);
@@ -210,10 +210,10 @@ const HeadWrapper = styled(Section)<{
 
 const BackButton = styled.button`
   position: absolute;
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   top: 50%;
-  left: 0;
+  left: 12px;
   transform: translate(0, -50%);
   display: flex;
   align-items: center;
@@ -241,10 +241,10 @@ const BackButton = styled.button`
   }
 `;
 
-const BackButtonIcon = styled(ArrowLeftIcon)`
+const BackButtonIcon = styled(ArrowNarrowLeft)`
   font-size: 1rem;
-  width: 1em;
-  height: 1em;
+  width: 1.5em;
+  height: 1.5em;
   color: rgb(${(props) => props.theme.primaryText});
   z-index: 2;
 
@@ -256,9 +256,10 @@ const BackButtonIcon = styled(ArrowLeftIcon)`
 const PageTitle = styled(Text).attrs({
   subtitle: true,
   noMargin: true
-})`
+})<{ showLeftMargin: boolean }>`
   font-size: 1.3rem;
   font-weight: 500;
+  ${(props) => props.showLeftMargin && `margin-left: 28px;`}
 `;
 
 const AvatarButton = styled.button`

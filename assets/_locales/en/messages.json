@@ -11,6 +11,10 @@
     "message": "Error Info",
     "description": "Additional Fallback error message"
   },
+  "loading": {
+    "message": "Loading...",
+    "description": "Loading text"
+  },
   "extensionDescription": {
     "message": "Secure wallet management for Arweave",
     "description": "Extension description"
@@ -467,9 +471,17 @@
     "message": "Sign notification",
     "description": "Sign notification settings title"
   },
-  "setting_sign_settings": {
-    "message": "Sign settings",
-    "description": "Sign settings title"
+  "setting_transfer_settings": {
+    "message": "Transfer settings",
+    "description": "Transfer settings title"
+  },
+  "setting_transfer_settings_description": {
+    "message": "Allowance for requiring password when transferring",
+    "description": "Transfer settings description"
+  },
+  "enable_transfer_settings": {
+    "message": "Enable Transfer Settings",
+    "description": "Enable transfer settings title"
   },
   "setting_display_theme": {
     "message": "Theme",
@@ -538,10 +550,6 @@
   "setting_setting_arconfetti_description": {
     "message": "Show animation on wallet usage",
     "description": "ArConfetti settings description"
-  },
-  "setting_sign_notification_description": {
-    "message": "Notify when signing a transaction",
-    "description": "Sign notification settings description"
   },
   "setting_display_theme_description": {
     "message": "The theme of the extension UI",
@@ -986,7 +994,7 @@
     "description": "Wallet label"
   },
   "enter_your_password": {
-    "message": "Enter your password...",
+    "message": "Enter your password",
     "description": "Enter password placeholder"
   },
   "connect": {
@@ -2417,5 +2425,93 @@
         "example": "10"
       }
     }
+  },
+  "connect_to_app": {
+    "message": "Connect to $APPNAME$",
+    "description": "Connect to app title",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "ArConnect"
+      }
+    }
+  },
+  "always_ask": {
+    "message": "Always ask",
+    "description": "Always ask"
+  },
+  "always_ask_description": {
+    "message": "Review and confirm every transaction and message.",
+    "description": "Always ask description"
+  },
+  "ask_when_spending": {
+    "message": "Ask when spending",
+    "description": "Ask when spending"
+  },
+  "ask_when_spending_description": {
+    "message": "Review and confirm transactions only when assets are being transferred.",
+    "description": "Ask when spending description"
+  },
+  "auto_confirm": {
+    "message": "Auto-confirm",
+    "description": "Auto-confirm"
+  },
+  "auto_confirm_description": {
+    "message": "Automatically sign every transaction and message.",
+    "description": "Auto-confirm description"
+  },
+  "custom_permissions": {
+    "message": "Custom permissions",
+    "description": "Custom permissions"
+  },
+  "set_custom_permissions": {
+    "message": "Set custom permissions",
+    "description": "Set custom permissions"
+  },
+  "permission_settings": {
+    "message": "Permission Settings",
+    "description": "Permission settings title"
+  },
+  "select_account": {
+    "message": "Select an account to connect to $APPNAME$",
+    "description": "Select account title",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "ArConnect"
+      }
+    }
+  },
+  "review": {
+    "message": "Review",
+    "description": "Review title"
+  },
+  "connect_request_1": {
+    "message": "$APPNAME$ wants to connect with",
+    "description": "Connect request 1",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "ArConnect"
+      }
+    }
+  },
+  "connect_request_2": {
+    "message": "with the following permissions",
+    "description": "Connect request 2"
+  },
+  "confirm_permissions": {
+    "message": "Confirm permissions for $APPNAME$",
+    "description": "Confirm permissions for app",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "ArConnect"
+      }
+    }
+  },
+  "change": {
+    "message": "Change",
+    "description": "Change text"
   }
 }

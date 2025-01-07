@@ -83,9 +83,9 @@ export const basicSettings: (DashboardRouteConfig | Setting)[] = [
 
 export const advancedSettings: (DashboardRouteConfig | Setting)[] = [
   {
-    name: "sign_settings",
-    displayName: "setting_sign_settings",
-    description: "setting_sign_notification_description",
+    name: "transfer_settings",
+    displayName: "setting_transfer_settings",
+    description: "setting_transfer_settings_description",
     icon: BellIcon,
     component: SignSettingsDashboardView
   },

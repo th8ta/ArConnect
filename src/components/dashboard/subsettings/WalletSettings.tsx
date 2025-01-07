@@ -25,7 +25,7 @@ import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { formatAddress } from "~utils/format";
 import type { CommonRouteProps } from "~wallets/router/router.types";
-import { ErrorTypes } from "~utils/error/error.utils";
+import { LoadingView } from "~components/page/common/loading/loading.view";
 
 export interface WalletSettingsDashboardViewParams {
   address: string;
@@ -169,7 +169,7 @@ export function WalletSettingsDashboardView({
   }
 
   if (!wallet) {
-    throw new Error(ErrorTypes.WalletNotFound);
+    return <LoadingView />;
   }
 
   return (

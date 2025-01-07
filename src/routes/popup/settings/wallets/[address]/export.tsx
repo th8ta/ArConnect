@@ -18,6 +18,7 @@ import HeadV2 from "~components/popup/HeadV2";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
 import { ErrorTypes } from "~utils/error/error.utils";
+import { LoadingView } from "~components/page/common/loading/loading.view";
 
 export interface ExportWalletViewParams {
   address: string;
@@ -89,7 +90,7 @@ export function ExportWalletView({
   }
 
   if (!wallet) {
-    throw new Error(ErrorTypes.WalletNotFound);
+    return <LoadingView />;
   }
 
   return (

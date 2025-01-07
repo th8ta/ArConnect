@@ -1,6 +1,6 @@
 import { getSetting } from "~settings";
 import { ExtensionStorage, TempTransactionStorage } from "./storage";
-import { AnalyticsBrowser } from "@segment/analytics-next";
+// import { AnalyticsBrowser } from "@segment/analytics-next";
 import {
   getActiveKeyfile,
   getActiveAddress,
@@ -15,9 +15,9 @@ import { ERR_MSG_NO_WALLETS_ADDED } from "~utils/auth/auth.constants";
 
 const PUBLIC_SEGMENT_WRITEKEY = "J97E4cvSZqmpeEdiUQNC2IxS1Kw4Cwxm";
 
-const analytics = AnalyticsBrowser.load({
-  writeKey: PUBLIC_SEGMENT_WRITEKEY
-});
+// const analytics = AnalyticsBrowser.load({
+//   writeKey: PUBLIC_SEGMENT_WRITEKEY
+// });
 
 export enum EventType {
   FUNDED = "FUNDED",
@@ -69,6 +69,8 @@ export enum PageType {
 }
 
 export const trackPage = async (title: PageType) => {
+  // TODO: remove this once we have a proper solution
+  return;
   const enabled = await getSetting("analytics").getValue();
 
   if (!enabled) return;
@@ -77,9 +79,9 @@ export const trackPage = async (title: PageType) => {
   if (process.env.NODE_ENV === "development") return;
 
   try {
-    await analytics.page("ArConnect Extension", {
-      title
-    });
+    // await analytics.page("ArConnect Extension", {
+    //   title
+    // });
   } catch (err) {
     console.log("err", err);
   }
@@ -118,6 +120,8 @@ export const trackDirect = async (
 };
 
 export const trackEvent = async (eventName: EventType, properties: any) => {
+  // TODO: remove this once we have a proper solution
+  return;
   // first we check if we are allowed to collect data
   const enabled = await getSetting("analytics").getValue();
 
@@ -151,7 +155,7 @@ export const trackEvent = async (eventName: EventType, properties: any) => {
   try {
     const time = Date.now();
 
-    await analytics.track(eventName, { ...properties });
+    // await analytics.track(eventName, { ...properties });
 
     // POST TRACK EVENTS
     // only log login once every hour

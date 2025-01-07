@@ -29,6 +29,7 @@ import styled from "styled-components";
 import { WalletKeySizeErrorModal } from "~components/modals/WalletKeySizeErrorModal";
 import { useLocation } from "~wallets/router/router.utils";
 import type { CommonRouteProps } from "~wallets/router/router.types";
+import { loadTokens } from "~tokens/token";
 
 export type WalletsWelcomeViewProps = CommonRouteProps<SetupWelcomeViewParams>;
 
@@ -165,6 +166,9 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
 
         // add wallet
         await addWallet(jwk, password);
+
+        // load tokens
+        await loadTokens();
       } else if (existingWallets.length < 1) {
         // the user has not migrated, so they need to add a wallet
         return finishUp();
@@ -244,6 +248,9 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
                 try {
                   // add migrated wallets
                   await addWallet(walletsToMigrate, password);
+
+                  // load tokens
+                  await loadTokens();
 
                   // confirmation toast
                   setToast({

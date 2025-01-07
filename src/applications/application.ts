@@ -120,6 +120,15 @@ export default class Application {
   }
 
   /**
+   * Check if the app is present in the storage
+   */
+  async isAppPresent() {
+    const settings = await this.#getSettings();
+
+    return Object.keys(settings).length > 0;
+  }
+
+  /**
    * Gateway config for each individual app
    */
   async getGatewayConfig(): Promise<Gateway> {
@@ -151,6 +160,17 @@ export default class Application {
       limit: BigNumber(allowance.limit),
       spent: BigNumber(allowance.spent)
     };
+  }
+
+  /**
+   * Sign policy for the app
+   */
+  async getSignPolicy(): Promise<
+    "always_ask" | "ask_when_spending" | "auto_confirm"
+  > {
+    const settings = await this.#getSettings();
+
+    return settings.signPolicy || "always_ask";
   }
 
   /**
@@ -205,6 +225,16 @@ export interface AppLogoInfo extends AppInfo {
 }
 
 /**
+ * Sign policy for the app
+ * - **always_ask**: always ask the user to sign
+ * - **ask_when_spending**: ask the user to sign when user assets are being spent or has network fees to be paid else auto sign
+ * - **auto_confirm**: automatically sign every transactions
+ *
+ * @default "always_ask"
+ */
+export type SignPolicy = "always_ask" | "ask_when_spending" | "auto_confirm";
+
+/**
  * Params to add an app with
  */
 export interface InitAppParams extends AppInfo {
@@ -214,4 +244,5 @@ export interface InitAppParams extends AppInfo {
   allowance?: Allowance;
   blocked?: boolean;
   bundler?: string;
+  signPolicy?: SignPolicy;
 }

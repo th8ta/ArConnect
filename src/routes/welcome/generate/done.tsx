@@ -18,6 +18,7 @@ import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "~utils/storage";
 import JSConfetti from "js-confetti";
 import { useLocation } from "~wallets/router/router.utils";
+import { loadTokens } from "~tokens/token";
 
 export function GenerateDoneWelcomeView() {
   const { navigate } = useLocation();
@@ -81,6 +82,9 @@ export function GenerateDoneWelcomeView() {
         : walletRef.current.jwk,
       password
     );
+
+    // load tokens
+    await loadTokens();
 
     // log user onboarded
     await trackEvent(EventType.ONBOARDED, {});

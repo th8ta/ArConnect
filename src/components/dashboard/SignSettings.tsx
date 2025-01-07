@@ -1,82 +1,68 @@
-import { useState, useEffect } from "react";
-import PermissionCheckbox from "~components/auth/PermissionCheckbox";
-import { InputV2, Spacer, Text } from "@arconnect/components";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { InputV2, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "~utils/storage";
 import { EventType, trackEvent } from "~utils/analytics";
+import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 
-export function SignSettingsDashboardView() {
-  const [signSettingsState, setSignSettingsState] = useState(false);
-
-  const [signatureAllowance, setSignatureAllowance] = useStorage({
-    key: "signatureAllowance",
-    instance: ExtensionStorage
-  });
-
+export const SignSettingsDashboardView = () => {
+  const valueChanged = useRef(false);
   const [editingValue, setEditingValue] = useState(null);
 
-  useEffect(() => {
-    async function initializeSettings() {
-      const currentSetting = await ExtensionStorage.get<boolean>(
-        "setting_sign_notification"
-      );
-      setSignSettingsState(currentSetting);
+  const [signatureAllowance, setSignatureAllowance] = useStorage(
+    {
+      key: "signatureAllowance",
+      instance: ExtensionStorage
+    },
+    10
+  );
 
-      // Check if signatureAllowance is set, if not, initialize to 10
-      let allowance = await ExtensionStorage.get("signatureAllowance");
-      if (allowance === undefined || allowance === null) {
-        await ExtensionStorage.set("signatureAllowance", 10);
-        setEditingValue(10);
-      } else {
-        setEditingValue(allowance);
-      }
-    }
+  const [signatureAllowanceEnabled, setSignatureAllowanceEnabled] = useStorage(
+    {
+      key: "signatureAllowanceEnabled",
+      instance: ExtensionStorage
+    },
+    true
+  );
 
-    initializeSettings();
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    valueChanged.current = true;
+    setEditingValue(e.target.value);
   }, []);
 
-  const toggleSignSettings = async () => {
-    const newSetting = !signSettingsState;
-    setSignSettingsState(newSetting);
-    await ExtensionStorage.set("setting_sign_notification", newSetting);
-  };
+  const handleBlur = useCallback(
+    (e: React.FocusEvent<HTMLInputElement>) => {
+      const newAllowance = Number(e.target.value);
 
-  const handleBlur = async (e) => {
-    const newAllowance = Number(e.target.value);
-    if (newAllowance !== signatureAllowance) {
-      trackEvent(EventType.SEND_ALLOWANCE_CHANGE, {
-        before: signatureAllowance,
-        after: newAllowance
-      });
-      setSignatureAllowance(newAllowance);
+      if (newAllowance !== signatureAllowance) {
+        trackEvent(EventType.SEND_ALLOWANCE_CHANGE, {
+          before: signatureAllowance,
+          after: newAllowance
+        });
+        setSignatureAllowance(newAllowance);
+      }
+    },
+    [signatureAllowance]
+  );
 
-      // Save the updated allowance to the extension storage
-      await ExtensionStorage.set("signatureAllowance", newAllowance);
+  useEffect(() => {
+    if (!valueChanged.current) {
+      setEditingValue(signatureAllowance);
     }
-  };
-
-  const handleChange = (e) => {
-    setEditingValue(e.target.value);
-  };
+  }, [signatureAllowance]);
 
   return (
-    <>
-      <Wrapper>
-        <PermissionCheckbox
-          checked={signSettingsState}
-          onChange={toggleSignSettings}
-        >
-          {browser.i18n.getMessage(
-            !!signSettingsState ? "enabled" : "disabled"
-          )}
-          <br />
-          <Text noMargin>
-            {browser.i18n.getMessage("setting_sign_notification_description")}
-          </Text>
-        </PermissionCheckbox>
-        <Spacer y={1.7} />
+    <Wrapper>
+      <ToggleSwitchWrapper>
+        <Text>{browser.i18n.getMessage("enable_transfer_settings")}</Text>
+        <ToggleSwitch
+          checked={signatureAllowanceEnabled}
+          setChecked={setSignatureAllowanceEnabled}
+        />
+      </ToggleSwitchWrapper>
+      {signatureAllowanceEnabled && (
         <InputV2
           label={browser.i18n.getMessage("password_allowance")}
           type="number"
@@ -85,11 +71,18 @@ export function SignSettingsDashboardView() {
           onBlur={handleBlur}
           fullWidth
         />
-      </Wrapper>
-    </>
+      )}
+    </Wrapper>
   );
-}
+};
 
 const Wrapper = styled.div`
   position: relative;
+`;
+
+const ToggleSwitchWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
 `;

@@ -17,6 +17,7 @@ import { updateAllowance } from "../sign/allowance";
 import BigNumber from "bignumber.js";
 import { isError } from "~utils/error/error.utils";
 import { ERR_MSG_USER_CANCELLED_AUTH } from "~utils/auth/auth.constants";
+import { checkIfUserNeedsToSign } from "../sign/sign_policy";
 
 type ReturnType = {
   arConfetti: string | false;
@@ -72,7 +73,13 @@ const background: BackgroundModuleFunction<ReturnType> = async (
   const allowance = await app.getAllowance();
 
   // always ask
-  const alwaysAsk = allowance.enabled && allowance.limit.eq(BigNumber("0"));
+  // const alwaysAsk = allowance.enabled && allowance.limit.eq(BigNumber("0"));
+  const signPolicy = await app.getSignPolicy();
+  const alwaysAsk = checkIfUserNeedsToSign(
+    signPolicy,
+    transaction,
+    decryptedWallet?.type
+  );
 
   // attempt to create a bundle
   try {
@@ -97,10 +104,10 @@ const background: BackgroundModuleFunction<ReturnType> = async (
     await uploadDataToTurbo(dataEntry, await app.getBundler());
 
     // update allowance spent amount (in winstons)
-    await updateAllowance(appData.url, price);
+    // await updateAllowance(appData.url, price);
 
     // show notification
-    await signNotification(0, dataEntry.id, appData.url, "dispatch");
+    // await signNotification(0, dataEntry.id, appData.url, "dispatch");
 
     // remove wallet from memory
     freeDecryptedWallet(keyfile);
@@ -147,10 +154,10 @@ const background: BackgroundModuleFunction<ReturnType> = async (
     }
 
     // update allowance spent amount (in winstons)
-    await updateAllowance(appData.url, price);
+    // await updateAllowance(appData.url, price);
 
     // show notification
-    await signNotification(price, transaction.id, appData.url);
+    // await signNotification(price, transaction.id, appData.url);
 
     // remove wallet from memory
     freeDecryptedWallet(keyfile);

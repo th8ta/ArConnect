@@ -66,11 +66,13 @@ export default function App({
       )}
       <SidePaddingSection size="slim">
         <ListItem
-          title={appName || appUrl}
+          title={<PrimaryText>{appName || appUrl}</PrimaryText>}
           img={appIcon}
-          description={`${browser.i18n.getMessage("gateway")}: ${
-            gateway?.host || ""
-          }`}
+          description={
+            <SecondaryText>{`${browser.i18n.getMessage("gateway")}: ${
+              gateway?.host || ""
+            }`}</SecondaryText>
+          }
           style={{ pointerEvents: "none" }}
         />
         {/* <Wrapper displayTheme={theme}>
@@ -167,6 +169,18 @@ const AppUrl = styled(Text).attrs({
 const AllowanceSpent = styled(AppName)`
   font-size: 1.4rem;
   color: #ffb800;
+`;
+
+const PrimaryText = styled.span`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.primaryTextv2};
+`;
+
+const SecondaryText = styled.span`
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.secondaryTextv2};
 `;
 
 interface Props {
