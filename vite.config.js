@@ -42,6 +42,7 @@ export default defineConfig({
       */
 
       "url:/assets": path.resolve(__dirname, "./assets"),
+      "url:/assets-beta": path.resolve(__dirname, "./assets-beta"),
       "webextension-polyfill": path.resolve(__dirname, "./src/iframe/browser")
     }
   }

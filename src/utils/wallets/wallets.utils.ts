@@ -179,6 +179,14 @@ async function generateWalletJWKFromShares(
 async function generateShareJWK(share: string): Promise<JWKInterface> {
   console.log("generateShareJWK()");
 
+  /*
+
+    TODO: Instead of using a share as a private key to sign, we can simply send a hash of it, the challange and some
+    additional data that the server already has. The server should also verify the IP / IP location.
+
+    hash(share + challenge + userAgent)
+  */
+
   return Promise.resolve({
     n: ""
   } as any);

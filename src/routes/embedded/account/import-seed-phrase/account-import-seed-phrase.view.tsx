@@ -1,11 +1,11 @@
 import { Link } from "~wallets/router/components/link/Link";
 
-export function AccountImportWalletEmbeddedView() {
+export function AccountImportSeedPhraseEmbeddedView() {
   return (
     <div>
-      <h3>Import Another Wallet</h3>
+      <h3>Import Seed Phrase</h3>
       <p>
-        TODO: Copy implementation from AuthImportWalletEmbeddedView once
+        TODO: Copy implementation from AuthImportSeedPhraseEmbeddedView once
         finished.
       </p>
 

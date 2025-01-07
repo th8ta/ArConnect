@@ -7,7 +7,7 @@ import { MockedFeatureFlags } from "~utils/authentication/fakeDB";
 import { WalletService } from "~utils/wallets/wallets.service";
 import { useAuth } from "~utils/authentication/authentication.hooks";
 
-export function AuthImportWalletEmbeddedView() {
+export function AuthImportKeyfileEmbeddedView() {
   const { addWallet } = useAuth();
 
   const handleImport = async () => {
@@ -58,7 +58,7 @@ export function AuthImportWalletEmbeddedView() {
       <button onClick={handleImport} disabled>
         Import
       </button>
-      <Link to="/auth/generate-wallet">Back</Link>
+      <Link to="/auth/add-wallet">Back</Link>
     </div>
   );
 }

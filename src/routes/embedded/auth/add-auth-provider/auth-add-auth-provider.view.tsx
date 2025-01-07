@@ -9,7 +9,7 @@ export function AuthAddAuthProviderEmbeddedView() {
       <h3>Add {authMethod}</h3>
       <p>...</p>
       <button disabled>Add {authMethod}</button>
-      <Link to="/auth/generate-wallet">Back</Link>
+      <Link to="/auth/add-wallet">Back</Link>
     </div>
   );
 }
