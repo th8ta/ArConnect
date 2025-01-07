@@ -43,7 +43,7 @@ const AUTH_STATUS_TO_OVERRIDE: Record<
 export function useAuthStatusOverride(
   location?: RoutePath
 ): null | ExtensionRouteOverride | RouteRedirect<ArConnectRoutePath> {
-  const { authStatus, promptToBackUp } = useAuth();
+  const { authStatus, lastWallet, wallets, promptToBackUp } = useAuth();
 
   // console.log("authStatus =", authStatus);
 
@@ -63,7 +63,6 @@ export function useAuthStatusOverride(
         location,
         [
           EmbeddedPaths.AuthAddWallet,
-          EmbeddedPaths.AuthGenerateWallet,
           EmbeddedPaths.AuthImportSeedPhrase,
           EmbeddedPaths.AuthImportKeyfile,
           EmbeddedPaths.AuthAddDevice,
@@ -78,22 +77,40 @@ export function useAuthStatusOverride(
     if (authStatus === "noShares") {
       return routeTrapMatches(
         location,
-        [EmbeddedPaths.AuthRestoreShards, EmbeddedPaths.AuthGenerateWallet],
+        // TODO: Do we allow simply generating a new wallet?
+        [EmbeddedPaths.AuthRestoreShards, EmbeddedPaths.AuthAddWallet],
         EmbeddedPaths.AuthRestoreShards
       );
     }
 
     if (authStatus === "unlocked") {
+      if (lastWallet && wallets.length === 1) {
+        // If an account has just been created, then show AuthAddWalletConfirmation:
+        // TODO: Create shortcut signature for this case:
+        return routeTrapMatches(
+          location,
+          [
+            EmbeddedPaths.AuthImportSeedPhrase,
+            EmbeddedPaths.AuthImportKeyfile,
+            EmbeddedPaths.AuthConfirmationEmbeddedView
+          ],
+          EmbeddedPaths.AuthConfirmationEmbeddedView
+        );
+      }
+
+      if (promptToBackUp) {
+        // TODO: Create shortcut signature for this case:
+        return routeTrapMatches(
+          location,
+          [EmbeddedPaths.AccountBackupShares],
+          EmbeddedPaths.AccountBackupShares
+        );
+      }
+
       // TODO: What if we are here but the wallet, for whatever reason, is not in the wallet provider / ExtensionStore?
       // TODO: We need a routeOffLimits to keep users away from /auth after they authenticate (except for confirmation screen while it has location state data)
 
-      return promptToBackUp
-        ? routeTrapMatches(
-            location,
-            [EmbeddedPaths.AccountBackupShares],
-            EmbeddedPaths.AccountBackupShares
-          )
-        : routeTrapOutside(location, EmbeddedPaths.Auth, PopupPaths.Home);
+      return routeTrapOutside(location, EmbeddedPaths.Auth, PopupPaths.Home);
     }
   }
 

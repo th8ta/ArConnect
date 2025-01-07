@@ -10,11 +10,17 @@ import {
 } from "react";
 import { setupBackgroundService } from "~api/background/background-setup";
 import { AuthenticationService } from "~utils/authentication/authentication.service";
-import type { AuthMethod, DbWallet } from "~utils/authentication/fakeDB";
+import {
+  MockedFeatureFlags,
+  type AuthMethod,
+  type DbWallet
+} from "~utils/authentication/fakeDB";
 import { ExtensionStorage } from "~utils/storage";
 import { WalletService } from "~utils/wallets/wallets.service";
 import { WalletUtils } from "~utils/wallets/wallets.utils";
 import { getWallets } from "~wallets";
+import Arweave from "arweave";
+import { defaultGateway } from "~gateways/gateway";
 
 export type AuthStatus =
   | "unknown"
@@ -38,13 +44,16 @@ interface AuthContextState {
   authMethod: null | AuthMethod;
   userId: null | string;
   wallets: WalletInfo[];
+  lastWallet: null | DbWallet;
   promptToBackUp: boolean;
   backedUp: boolean;
 }
 
 interface AuthContextData extends AuthContextState {
   authenticate: (authMethod: AuthMethod) => Promise<void>;
-  addWallet: (jwk: JWKInterface, dbWallet: DbWallet) => Promise<void>;
+  generateWallet: () => Promise<void>;
+  importWallet: (jwkOrSeedPhrase: JWKInterface | string) => Promise<void>;
+  clearLastWallet: () => void;
   activateWallet: (jwk: JWKInterface) => void;
   skipBackUp: (doNotAskAgain: boolean) => void;
   registerBackUp: () => Promise<void>;
@@ -55,6 +64,7 @@ const AUTH_CONTEXT_INITIAL_STATE: AuthContextState = {
   authMethod: null,
   userId: null,
   wallets: [],
+  lastWallet: null,
   promptToBackUp: true,
   backedUp: false
 };
@@ -62,7 +72,9 @@ const AUTH_CONTEXT_INITIAL_STATE: AuthContextState = {
 export const AuthContext = createContext<AuthContextData>({
   ...AUTH_CONTEXT_INITIAL_STATE,
   authenticate: async () => null,
-  addWallet: async () => null,
+  generateWallet: async () => null,
+  importWallet: async () => null,
+  clearLastWallet: () => null,
   activateWallet: () => null,
   skipBackUp: () => null,
   registerBackUp: async () => null
@@ -84,6 +96,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
       coverElement.setAttribute("aria-hidden", "true");
     }
   }, [authStatus]);
+
+  const clearLastWallet = useCallback(() => {
+    setAuthContextState(({ lastWallet, ...prevAuthContextState }) => ({
+      ...prevAuthContextState,
+      wallets: prevAuthContextState.wallets.filter(
+        (wallet) => wallet.address !== lastWallet.address
+      ),
+      lastWallet: null
+    }));
+  }, []);
 
   const skipBackUp = useCallback((doNotAskAgain: boolean) => {
     // TODO: Persist lastPromptData (local?) and doNotAskAgain (server?)...
@@ -107,7 +129,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // migrate wallet management to Mobx altogether for both extensions...
 
   const addWallet = useCallback(
-    async (jwk: JWKInterface, dbWallet: DbWallet) => {
+    async (jwk: JWKInterface, dbWallet: DbWallet, isNewWallet = false) => {
       // TODO: Add wallet to ExtensionStorage, but make sure to:
       // - Remove/update alarm to NOT remove it.
       // - Rotate it with newly generated passwords?
@@ -141,11 +163,98 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return {
           ...AUTH_CONTEXT_INITIAL_STATE,
           authStatus: "unlocked",
-          wallets: nextWallets
+          wallets: nextWallets,
+          lastWallet: isNewWallet ? dbWallet : null
         };
       });
     },
     [userId]
+  );
+
+  const generateWallet = useCallback(async () => {
+    const seedPhrase = await WalletUtils.generateSeedPhrase();
+    const jwk = await WalletUtils.generateWalletJWK(seedPhrase);
+    const { authShare, deviceShare } =
+      await WalletUtils.generateWalletWorkShares(jwk);
+    const deviceSharePublicKey = await WalletUtils.generateSharePublicKey(
+      deviceShare
+    );
+    const arweave = new Arweave(defaultGateway);
+    const walletAddress = await arweave.wallets.jwkToAddress(jwk);
+    const deviceNonce =
+      WalletUtils.getDeviceNonce() || WalletUtils.generateDeviceNonce();
+
+    const dbWallet = await WalletService.createWallet({
+      publicKey: jwk.n,
+      walletType: "public",
+      deviceNonce,
+      authShare,
+      deviceSharePublicKey,
+      canBeUsedToRecoverAccount: false,
+
+      source: {
+        type: "generated",
+        from: "seedPhrase"
+      }
+    });
+
+    WalletUtils.storeDeviceNonce(deviceNonce);
+    WalletUtils.storeDeviceShare(deviceShare, walletAddress);
+
+    if (MockedFeatureFlags.maintainSeedPhrase) {
+      WalletUtils.storeEncryptedSeedPhrase(seedPhrase, jwk);
+    }
+
+    await addWallet(jwk, dbWallet, true);
+  }, []);
+
+  const importWallet = useCallback(
+    async (jwkOrSeedPhrase: JWKInterface | string) => {
+      // TODO: DRY this from the function above.
+
+      // TODO: Add inputs to grab these:
+      const importedSeedPhrase: string | null =
+        typeof jwkOrSeedPhrase === "string" ? jwkOrSeedPhrase : null;
+      const importedJWK: JWKInterface | null =
+        typeof jwkOrSeedPhrase === "string" ? null : jwkOrSeedPhrase;
+
+      const jwk =
+        importedJWK ||
+        (await WalletUtils.generateWalletJWK(importedSeedPhrase));
+      const { authShare, deviceShare } =
+        await WalletUtils.generateWalletWorkShares(jwk);
+      const deviceSharePublicKey = await WalletUtils.generateSharePublicKey(
+        deviceShare
+      );
+      const arweave = new Arweave(defaultGateway);
+      const walletAddress = await arweave.wallets.jwkToAddress(jwk);
+      const deviceNonce =
+        WalletUtils.getDeviceNonce() || WalletUtils.generateDeviceNonce();
+
+      const dbWallet = await WalletService.createWallet({
+        publicKey: jwk.n,
+        walletType: "public",
+        deviceNonce,
+        authShare,
+        deviceSharePublicKey,
+        canBeUsedToRecoverAccount: false,
+
+        source: {
+          type: "generated",
+          from: "seedPhrase"
+        }
+      });
+
+      WalletUtils.storeDeviceNonce(deviceNonce);
+      WalletUtils.storeDeviceShare(deviceShare, walletAddress);
+
+      if (importedSeedPhrase && MockedFeatureFlags.maintainSeedPhrase) {
+        WalletUtils.storeEncryptedSeedPhrase(importedSeedPhrase, jwk);
+      }
+
+      await addWallet(jwk, dbWallet, true);
+    },
+    []
   );
 
   const activateWallet = useCallback(
@@ -342,7 +451,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       value={{
         ...authContextState,
         authenticate,
-        addWallet,
+        generateWallet,
+        importWallet,
+        clearLastWallet,
         activateWallet,
         skipBackUp,
         registerBackUp
