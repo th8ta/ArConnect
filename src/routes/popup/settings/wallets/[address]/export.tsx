@@ -11,7 +11,7 @@ import { useMemo, useState } from "react";
 import { useStorage } from "~utils/storage";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { ExtensionStorage } from "~utils/storage";
-import { downloadFile } from "~utils/file";
+import { downloadKeyfile } from "~utils/file";
 import browser from "webextension-polyfill";
 import HeadV2 from "~components/popup/HeadV2";
 import type { CommonRouteProps } from "~wallets/router/router.types";
@@ -68,11 +68,7 @@ export function ExportWalletView({
       );
 
       // download the file
-      downloadFile(
-        JSON.stringify(decrypted, null, 2),
-        "application/json",
-        `arweave-keyfile-${address}.json`
-      );
+      downloadKeyfile(address, decrypted);
 
       // remove wallet from memory
       freeDecryptedWallet(decrypted);

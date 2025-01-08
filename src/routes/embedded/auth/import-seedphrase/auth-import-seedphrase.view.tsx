@@ -7,7 +7,7 @@ import screenSrc from "url:/assets-beta/figma-screens/import-seedphrase.view.png
 import confirmScreenSrc from "url:/assets-beta/figma-screens/import-seedphrase-confirmation.view.png";
 
 export function AuthImportSeedphraseEmbeddedView() {
-  const { importWallet, lastWallet, clearLastWallet } = useAuth();
+  const { importWallet, lastWallet, deleteLastWallet } = useAuth();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -35,7 +35,7 @@ export function AuthImportSeedphraseEmbeddedView() {
           },
           {
             label: "No, try again",
-            onClick: () => clearLastWallet()
+            onClick: () => deleteLastWallet()
           },
           {
             label: "Yes, add",

@@ -107,6 +107,7 @@ const IFRAME_OWN_ROUTES = [
   },
 
   // Authentication Linking:
+
   {
     path: EmbeddedPaths.AuthAddDevice,
     component: AuthAddDeviceEmbeddedView

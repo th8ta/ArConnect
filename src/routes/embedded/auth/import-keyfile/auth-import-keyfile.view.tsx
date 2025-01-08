@@ -1,13 +1,14 @@
 import { useAuth } from "~utils/authentication/authentication.hooks";
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
 import { DevButtons } from "~components/dev/buttons/buttons.component";
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import type { JWKInterface } from "arweave/web/lib/wallet";
 
 import screenSrc from "url:/assets-beta/figma-screens/import-keyfile.view.png";
 import confirmScreenSrc from "url:/assets-beta/figma-screens/import-keyfile-confirmation.view.png";
 
 export function AuthImportKeyfileEmbeddedView() {
-  const { importWallet, lastWallet, clearLastWallet } = useAuth();
+  const { importWallet, lastWallet, deleteLastWallet } = useAuth();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -22,7 +23,9 @@ export function AuthImportKeyfileEmbeddedView() {
 
     // TODO: Make sure the confirmation screen is shown after this...
 
-    await importWallet(textareaRef.current.textContent);
+    const jwk = JSON.parse(textareaElement.value) as JWKInterface;
+
+    await importWallet(jwk);
   };
 
   return lastWallet ? (
@@ -35,7 +38,7 @@ export function AuthImportKeyfileEmbeddedView() {
           },
           {
             label: "No, upload again",
-            onClick: () => clearLastWallet()
+            onClick: () => deleteLastWallet()
           },
           {
             label: "Yes, add",

@@ -1,3 +1,5 @@
+import type { JWKInterface } from "arweave/web/lib/wallet";
+
 /**
  * Read file content as binary
  *
@@ -69,22 +71,30 @@ export const readFileString = (file: File) =>
  * @param contentType File content-type
  * @param fileName Name of the file (with the extension)
  */
-export function downloadFile(
-  content: string,
-  contentType: string,
-  fileName: string
-) {
+function downloadFile(content: string, contentType: string, fileName: string) {
   // create element that downloads the virtual file
   const el = document.createElement("a");
+  const url = `data:${contentType};charset=utf-8,${encodeURIComponent(
+    content
+  )}`;
 
-  el.setAttribute(
-    "href",
-    `data:${contentType};charset=utf-8,${encodeURIComponent(content)}`
-  );
+  el.setAttribute("href", url);
   el.setAttribute("download", fileName);
   el.style.display = "none";
-
   document.body.appendChild(el);
   el.click();
   document.body.removeChild(el);
+
+  setTimeout(() => {
+    // TODO: Do we need to wait before revoking?
+    window.URL.revokeObjectURL(url);
+  }, 1000);
+}
+
+export function downloadKeyfile(address: string, jwk: JWKInterface) {
+  downloadFile(
+    JSON.stringify(jwk, null, 2),
+    "application/json",
+    `arweave-keyfile-${address}.json`
+  );
 }

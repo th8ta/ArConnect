@@ -1,9 +1,14 @@
 import { useRef } from "react";
 import { useAuth } from "~utils/authentication/authentication.hooks";
-import { Link } from "~wallets/router/components/link/Link";
+import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
+import { DevButtons } from "~components/dev/buttons/buttons.component";
+
+import screenSrc from "url:/assets-beta/figma-screens/backup-shares.view.png";
 
 export function AccountBackupSharesEmbeddedView() {
   const { promptToBackUp, skipBackUp, registerBackUp } = useAuth();
+
+  // TODO: What if the user already has more than 3 backup shares?
 
   const checkboxRef = useRef<HTMLInputElement>();
 
@@ -12,26 +17,32 @@ export function AccountBackupSharesEmbeddedView() {
   };
 
   return (
-    <div>
-      <h3>Backup Recovery Shares</h3>
-      <p>...</p>
-
-      <label>
-        <input type="checkbox" ref={checkboxRef} />
-        Do not ask again
-      </label>
-
-      <button disabled>Download Recovery File</button>
+    <DevFigmaScreen title="Account backup" src={screenSrc}>
+      <DevButtons
+        config={[
+          {
+            label: "Back up now",
+            to: "/account/backup-shares/options"
+          },
+          promptToBackUp
+            ? {
+                label: "Back up later",
+                to: "/account",
+                onClick: () => handleSkipClicked()
+              }
+            : {
+                label: "Cancel",
+                to: "/account"
+              }
+        ]}
+      />
 
       {promptToBackUp ? (
-        <Link to="/account" onClick={handleSkipClicked}>
-          <button>Skip</button>
-        </Link>
-      ) : (
-        <Link to="/account">
-          <button>Back</button>
-        </Link>
-      )}
-    </div>
+        <label>
+          <input type="checkbox" ref={checkboxRef} />
+          Do not ask again
+        </label>
+      ) : null}
+    </DevFigmaScreen>
   );
 }

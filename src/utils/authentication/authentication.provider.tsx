@@ -18,9 +18,11 @@ import {
 import { ExtensionStorage } from "~utils/storage";
 import { WalletService } from "~utils/wallets/wallets.service";
 import { WalletUtils } from "~utils/wallets/wallets.utils";
-import { getWallets } from "~wallets";
+import { getKeyfile, getWallets, type LocalWallet } from "~wallets";
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
+import { freeDecryptedWallet } from "~wallets/encryption";
+import { downloadKeyfile as downloadKeyfileUtil } from "~utils/file";
 
 export type AuthStatus =
   | "unknown"
@@ -54,9 +56,12 @@ interface AuthContextData extends AuthContextState {
   generateWallet: () => Promise<void>;
   importWallet: (jwkOrSeedPhrase: JWKInterface | string) => Promise<void>;
   clearLastWallet: () => void;
+  deleteLastWallet: () => void;
   activateWallet: (jwk: JWKInterface) => void;
   skipBackUp: (doNotAskAgain: boolean) => void;
   registerBackUp: () => Promise<void>;
+  downloadKeyfile: (walletAddress: string) => Promise<void>;
+  copySeedphrase: (walletAddress: string) => Promise<void>;
 }
 
 const AUTH_CONTEXT_INITIAL_STATE: AuthContextState = {
@@ -75,9 +80,12 @@ export const AuthContext = createContext<AuthContextData>({
   generateWallet: async () => null,
   importWallet: async () => null,
   clearLastWallet: () => null,
+  deleteLastWallet: () => null,
   activateWallet: () => null,
   skipBackUp: () => null,
-  registerBackUp: async () => null
+  registerBackUp: async () => null,
+  downloadKeyfile: async () => null,
+  copySeedphrase: async () => null
 });
 
 interface AuthProviderProps extends PropsWithChildren {}
@@ -98,13 +106,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [authStatus]);
 
   const clearLastWallet = useCallback(() => {
-    setAuthContextState(({ lastWallet, ...prevAuthContextState }) => ({
+    setAuthContextState((prevAuthContextState) => ({
       ...prevAuthContextState,
-      wallets: prevAuthContextState.wallets.filter(
-        (wallet) => wallet.address !== lastWallet.address
-      ),
       lastWallet: null
     }));
+  }, []);
+
+  const deleteLastWallet = useCallback(() => {
+    setAuthContextState(
+      ({
+        authStatus,
+        wallets: prevWallets,
+        lastWallet,
+        ...prevAuthContextState
+      }) => {
+        const wallets = prevWallets.filter(
+          (wallet) => wallet.address !== lastWallet.address
+        );
+
+        return {
+          ...prevAuthContextState,
+          authStatus: wallets.length === 0 ? "noWallets" : authStatus,
+          wallets,
+          lastWallet: null
+        };
+      }
+    );
   }, []);
 
   const skipBackUp = useCallback((doNotAskAgain: boolean) => {
@@ -123,6 +150,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
       ...prevAuthContextState,
       backedUp: true
     }));
+  }, []);
+
+  const downloadKeyfile = useCallback(async (walletAddress: string) => {
+    // TODO: Add an option to encrypt with a password
+
+    const decryptedWallet = (await getKeyfile(
+      walletAddress
+    )) as LocalWallet<JWKInterface>;
+
+    downloadKeyfileUtil(walletAddress, decryptedWallet.keyfile);
+
+    // TODO: Make sure we use `freeDecryptedWallet` all over the place in the new code for Embedded:
+    freeDecryptedWallet(decryptedWallet.keyfile);
+  }, []);
+
+  const copySeedphrase = useCallback(async (walletAddress: string) => {
+    const seedPhrase = WalletUtils.getDecryptedSeedPhrase(
+      walletAddress,
+      {} as any
+    );
+
+    await navigator.clipboard.writeText(seedPhrase);
   }, []);
 
   // TODO: Need to observe storage to keep track of new wallets, removed wallets or active wallet changes... Or just
@@ -201,8 +250,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     WalletUtils.storeDeviceNonce(deviceNonce);
     WalletUtils.storeDeviceShare(deviceShare, walletAddress);
 
+    // TODO: This flag must be checked on launch and the stored seedphrase should be removed if the flag becomes false.
     if (MockedFeatureFlags.maintainSeedPhrase) {
-      WalletUtils.storeEncryptedSeedPhrase(seedPhrase, jwk);
+      WalletUtils.storeEncryptedSeedPhrase(walletAddress, seedPhrase, jwk);
     }
 
     await addWallet(jwk, dbWallet, true);
@@ -249,7 +299,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       WalletUtils.storeDeviceShare(deviceShare, walletAddress);
 
       if (importedSeedPhrase && MockedFeatureFlags.maintainSeedPhrase) {
-        WalletUtils.storeEncryptedSeedPhrase(importedSeedPhrase, jwk);
+        WalletUtils.storeEncryptedSeedPhrase(
+          walletAddress,
+          importedSeedPhrase,
+          jwk
+        );
       }
 
       await addWallet(jwk, dbWallet, true);
@@ -454,9 +508,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         generateWallet,
         importWallet,
         clearLastWallet,
+        deleteLastWallet,
         activateWallet,
         skipBackUp,
-        registerBackUp
+        registerBackUp,
+        downloadKeyfile,
+        copySeedphrase
       }}
     >
       {children}

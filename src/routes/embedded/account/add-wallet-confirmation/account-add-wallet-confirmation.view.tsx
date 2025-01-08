@@ -5,7 +5,7 @@ import { DevButtons } from "~components/dev/buttons/buttons.component";
 import screenSrc from "url:/assets-beta/figma-screens/add-wallet-confirmation.view.png";
 
 export function AccountAddWalletConfirmationEmbeddedView() {
-  const { lastWalletAddress, clearLastWalletAddress } = useAuth();
+  const { lastWallet, clearLastWallet } = useAuth();
 
   // TODO: Change text to created/imported depending on wallet origin.
 
@@ -17,12 +17,12 @@ export function AccountAddWalletConfirmationEmbeddedView() {
       <DevButtons
         config={[
           {
-            label: lastWalletAddress,
+            label: lastWallet.address,
             isDisabled: true
           },
           {
             label: "Done",
-            onClick: () => clearLastWalletAddress()
+            onClick: () => clearLastWallet()
           }
         ]}
       />
