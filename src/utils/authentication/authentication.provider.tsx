@@ -113,6 +113,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const deleteLastWallet = useCallback(() => {
+    // TODO: It also needs to be deleted from the backend.
+
     setAuthContextState(
       ({
         authStatus,
