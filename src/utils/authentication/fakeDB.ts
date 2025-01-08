@@ -2,6 +2,8 @@ import { nanoid } from "nanoid";
 import { sleep } from "~utils/promises/sleep";
 import type { CreateWalletParams } from "~utils/wallets/wallets.service";
 import type { DeviceNonce } from "~utils/wallets/wallets.utils";
+import Arweave from "arweave";
+import { defaultGateway } from "~gateways/gateway";
 
 export type AuthMethod = "passkey" | "emailPassword" | "google";
 
@@ -30,6 +32,7 @@ export interface DbWallet {
   source: {
     type: "imported" | "generated";
     from: "seedPhrase" | "binary" | "keyFile" | "shareFile";
+    deviceAndLocationInfo: any;
   };
 
   lastUsed: number; // TODO: Derived from wallet log
@@ -70,8 +73,10 @@ const keyShares: DbKeyShare[] = [];
 async function addWallet(
   addWalletParams: CreateWalletParams
 ): Promise<DbWallet> {
-  // TODO: Generate address
-  const walletAddress = "";
+  const arweave = new Arweave(defaultGateway);
+  const walletAddress = await arweave.wallets.ownerToAddress(
+    addWalletParams.publicKey
+  );
 
   // TODO: Check no duplicates (user-chain-address is unique...)
 
@@ -202,5 +207,5 @@ export const FakeDB = {
 };
 
 export const MockedFeatureFlags = {
-  maintainSeedPhrase: false
+  maintainSeedPhrase: true
 } as const;
