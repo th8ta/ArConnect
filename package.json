@@ -82,6 +82,7 @@
     "js-confetti": "^0.11.0",
     "mitt": "^3.0.0",
     "nanoid": "^4.0.0",
+    "node-stdlib-browser": "^1.3.0",
     "plimit-lit": "^3.0.1",
     "pretty-bytes": "^6.0.0",
     "qr-scanner": "^1.4.2",
@@ -131,6 +132,7 @@
     "typescript": "^4.8.2",
     "url": "^0.11.0",
     "vite": "^6.0.3",
+    "vite-plugin-node-stdlib-browser": "^0.2.1",
     "vm-browserify": "^1.1.2"
   },
   "resolutions": {
