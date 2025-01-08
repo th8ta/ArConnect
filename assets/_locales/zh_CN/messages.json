@@ -638,11 +638,11 @@
       "description": "Re-enter input placeholder"
   },
   "enter_password": {
-      "message": "输入您的密码...",
-      "description": "Password input placeholder"
+      "message": "输入密码",
+      "description": "Enter password placeholder"
   },
   "enter_password_again": {
-      "message": "重新输入您的密码...",
+      "message": "确认您的密码",
       "description": "Re-enter password input placeholder"
   },
   "passwords_match": {
@@ -868,7 +868,7 @@
       "description": "Create password title"
   },
   "create_password_paragraph": {
-      "message": "输入一个密码以保护 ArConnect。我们将使用此密码加密您的钱包。",
+      "message": "输入密码以保护您的Wander账户。我们将使用此密码加密您的钱包。",
       "description": "Create password explainer paragraph"
   },
   "password_not_strong": {
@@ -2543,5 +2543,21 @@
     "word_mismatch_error": {
         "message": "错误：单词不匹配",
         "description": "Word mismatch error message"
+    },
+    "enable_permissions": {
+        "message": "启用权限",
+        "description": "Enable permissions button text"
+    },
+    "enable_permissions_description": {
+        "message": "为获得最佳体验，请启用以下权限。您随时可以更改这些设置。",
+        "description": "Enable permissions description"
+    },
+    "enable_notifications_description": {
+        "message": "接收新钱包活动和其他重要事件的通知。",
+        "description": "Enable notifications description"
+    },
+    "enable_analytics_description": {
+        "message": "启用分析功能，帮助我们为您提供最佳的Wander体验。",
+        "description": "Enable analytics description"
     }
 }

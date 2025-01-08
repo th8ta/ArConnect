@@ -642,11 +642,11 @@
     "description": "Re-enter input placeholder"
   },
   "enter_password": {
-    "message": "Enter your password...",
-    "description": "Password input placeholder"
+    "message": "Enter password",
+    "description": "Enter password placeholder"
   },
   "enter_password_again": {
-    "message": "Re-enter your password...",
+    "message": "Confirm your password",
     "description": "Re-enter password input placeholder"
   },
   "passwords_match": {
@@ -872,7 +872,7 @@
     "description": "Create password title"
   },
   "create_password_paragraph": {
-    "message": "Enter a password to secure ArConnect. We'll use this to encrypt your wallets.",
+    "message": "Enter a password to secure your Wander account. We will use this to encrypt your wallets.",
     "description": "Create password explainer paragraph"
   },
   "password_not_strong": {
@@ -2557,5 +2557,21 @@
   "word_mismatch_error": {
     "message": "Error: word does not match",
     "description": "Word mismatch error message"
+  },
+  "enable_permissions": {
+    "message": "Enable permissions",
+    "description": "Enable permissions button text"
+  },
+  "enable_permissions_description": {
+    "message": "For the best experience, please enable the following permissions. You can always change these later.",
+    "description": "Enable permissions description"
+  },
+  "enable_notifications_description": {
+    "message": "Get notified of new wallet activity and other important events.",
+    "description": "Enable notifications description"
+  },
+  "enable_analytics_description": {
+    "message": "Enable analytics to help us provide the best experience for you on Wander.",
+    "description": "Enable analytics description"
   }
 }

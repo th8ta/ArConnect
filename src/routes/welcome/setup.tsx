@@ -32,6 +32,7 @@ import { LoadDoneWelcomeView } from "./load/done";
 import { Redirect } from "~wallets/router/components/redirect/Redirect";
 import StarIcons from "~components/welcome/StarIcons";
 import { ArrowNarrowLeft } from "@untitled-ui/icons-react";
+import { PermissionsWelcomeView } from "./generate/permissions";
 // Wallet generate pages:
 
 // TODO: Use a nested router instead:
@@ -41,8 +42,9 @@ const ViewsBySetupMode = {
     BackupWelcomeView,
     ConfirmWelcomeView,
     PasswordWelcomeView,
-    ThemeWelcomeView,
-    GenerateDoneWelcomeView
+    PermissionsWelcomeView
+    // ThemeWelcomeView,
+    // GenerateDoneWelcomeView
   ],
   load: [
     PasswordWelcomeView,
@@ -62,7 +64,8 @@ const VIEW_SUBTITLES_BY_SETUP_MODE = {
     "name_your_account",
     "backup_your_account",
     "confirm_your_recovery_phrase",
-    "create_a_password"
+    "create_a_password",
+    "enable_permissions"
   ],
   load: []
 };
@@ -177,8 +180,8 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
   if (
     isNaN(page) ||
     page < 1 ||
-    page > pageCount
-    // || (page !== 1 && password === "")
+    page > pageCount ||
+    (page > 4 && password === "")
   ) {
     return <Redirect to={`/${setupMode}/1`} />;
   }
