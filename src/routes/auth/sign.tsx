@@ -3,9 +3,9 @@ import { isSplitTransaction } from "~api/modules/sign/transaction_builder";
 import { formatFiatBalance, formatTokenBalance } from "~tokens/currency";
 import type { DecodedTag } from "~api/modules/sign/tags";
 import type { Tag } from "arweave/web/lib/transaction";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useScanner } from "@arconnect/keystone-sdk";
-import { useActiveWallet } from "~wallets/hooks";
+import { useActiveWallet, useAskPassword } from "~wallets/hooks";
 import { formatAddress } from "~utils/format";
 import { getArPrice } from "~lib/coingecko";
 import type { UR } from "@ngraveio/bc-ur";
@@ -18,7 +18,14 @@ import {
   TagValue,
   TransactionProperty
 } from "~routes/popup/transaction/[id]";
-import { Section, Spacer, Text, useToasts } from "@arconnect/components";
+import {
+  InputV2,
+  Section,
+  Spacer,
+  Text,
+  useInput,
+  useToasts
+} from "@arconnect/components";
 import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
 import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 import Wrapper from "~components/auth/Wrapper";
@@ -34,6 +41,8 @@ import { HeadAuth } from "~components/HeadAuth";
 import { AuthButtons } from "~components/auth/AuthButtons";
 import { getTagValue } from "~tokens/aoTokens/ao";
 import { humanizeTimestampTags } from "~utils/timestamp";
+import styled from "styled-components";
+import { ChevronDownIcon, ChevronUpIcon } from "@iconicicons/react";
 
 export function SignAuthRequestView() {
   const { authRequest, acceptRequest, rejectRequest } =
@@ -55,6 +64,12 @@ export function SignAuthRequestView() {
 
   // currency setting
   const [currency] = useSetting<string>("currency");
+
+  const [showTags, setShowTags] = useState(false);
+
+  // askPassword
+  const askPassword = useAskPassword();
+  const passwordInput = useInput();
 
   // arweave price
   const [arPrice, setArPrice] = useState(0);
@@ -223,6 +238,17 @@ export function SignAuthRequestView() {
   // toast
   const { setToast } = useToasts();
 
+  const sign = async () => {
+    if (!transaction) return;
+    if (wallet.type === "hardware") {
+      // load tx ur
+      if (!page) await loadTransactionUR();
+
+      // update page
+      setPage((val) => (!val ? "qr" : "scanner"));
+    } else await acceptRequest();
+  };
+
   return (
     <Wrapper>
       <div>
@@ -298,18 +324,27 @@ export function SignAuthRequestView() {
 
               <Spacer y={0.1} />
 
-              <PropertyName>
+              <PropertyName
+                style={{
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+                onClick={() => setShowTags(!showTags)}
+              >
                 {browser.i18n.getMessage("transaction_tags")}
+                {showTags ? <ChevronUpIcon /> : <ChevronDownIcon />}
               </PropertyName>
 
               <Spacer y={0.05} />
 
-              {tags.map((tag, i) => (
-                <TransactionProperty key={i}>
-                  <PropertyName>{tag.name}</PropertyName>
-                  <TagValue>{tag.value}</TagValue>
-                </TransactionProperty>
-              ))}
+              {showTags &&
+                tags.map((tag, i) => (
+                  <TransactionProperty key={i}>
+                    <PropertyName>{tag.name}</PropertyName>
+                    <TagValue>{tag.value}</TagValue>
+                  </TransactionProperty>
+                ))}
             </Properties>
           </Section>
         )) || (
@@ -343,6 +378,25 @@ export function SignAuthRequestView() {
       </div>
 
       <Section>
+        {askPassword && (
+          <>
+            <PasswordWrapper>
+              <InputV2
+                placeholder="Enter your password"
+                small
+                {...passwordInput.bindings}
+                label={"Password"}
+                type="password"
+                onKeyDown={async (e) => {
+                  if (e.key !== "Enter") return;
+                  await sign();
+                }}
+                fullWidth
+              />
+            </PasswordWrapper>
+            <Spacer y={1} />
+          </>
+        )}
         <AuthButtons
           authRequest={authRequest}
           primaryButtonProps={
@@ -355,16 +409,7 @@ export function SignAuthRequestView() {
                   disabled:
                     !transaction || loading || authRequest.status !== "pending",
                   loading: !transaction || loading,
-                  onClick: async () => {
-                    if (!transaction) return;
-                    if (wallet.type === "hardware") {
-                      // load tx ur
-                      if (!page) await loadTransactionUR();
-
-                      // update page
-                      setPage((val) => (!val ? "qr" : "scanner"));
-                    } else await acceptRequest();
-                  }
+                  onClick: sign
                 }
           }
           secondaryButtonProps={{
@@ -375,3 +420,12 @@ export function SignAuthRequestView() {
     </Wrapper>
   );
 }
+
+const PasswordWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  p {
+    text-transform: capitalize;
+  }
+`;

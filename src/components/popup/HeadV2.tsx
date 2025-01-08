@@ -124,9 +124,11 @@ export default function HeadV2({
         </BackButton>
       ) : null}
 
-      <PageTitle>{title}</PageTitle>
+      <PageTitle showLeftMargin={showBack && !showOptions && !!appName}>
+        {title}
+      </PageTitle>
 
-      {appName ? (
+      {!showOptions && appName ? (
         <TooltipV2 content={appName} position="bottomEnd">
           <SquircleWrapper>
             <SquircleImg
@@ -192,8 +194,6 @@ const HeadWrapper = styled(Section)<{
   width: full;
   transition: padding 0.07s ease-in-out, border-color 0.23s ease-in-out;
   padding: ${(props) => (props.padding ? props.padding : "15px")};
-  padding-left: ${(props) =>
-    props.hasBackButton ? "32px" : props.padding || "15px"};
   justify-content: ${(props) => (props.center ? "center" : "space-between")};
   align-items: center;
   background-color: rgba(${(props) => props.theme.background}, 0.75);
@@ -256,9 +256,10 @@ const BackButtonIcon = styled(ArrowNarrowLeft)`
 const PageTitle = styled(Text).attrs({
   subtitle: true,
   noMargin: true
-})`
+})<{ showLeftMargin: boolean }>`
   font-size: 1.3rem;
   font-weight: 500;
+  ${(props) => props.showLeftMargin && `margin-left: 28px;`}
 `;
 
 const AvatarButton = styled.button`

@@ -467,9 +467,17 @@
       "message": "签署通知",
       "description": "Sign notification settings title"
   },
-  "setting_sign_settings": {
-      "message": "签名设置",
-      "description": "Sign settings title"
+  "setting_transfer_settings": {
+      "message": "转账设置",
+      "description": "Transfer settings title"
+  },
+  "setting_transfer_settings_description": {
+    "message": "转账时需要密码的额度",
+    "description": "Transfer settings description"
+  },
+  "enable_transfer_settings": {
+    "message": "启用转账设置",
+    "description": "Enable transfer settings title"
   },
   "setting_display_theme": {
       "message": "主题",
@@ -538,10 +546,6 @@
   "setting_setting_arconfetti_description": {
       "message": "在使用钱包时显示动画",
       "description": "ArConfetti settings description"
-  },
-  "setting_sign_notification_description": {
-      "message": "签署交易时通知",
-      "description": "Sign notification settings description"
   },
   "setting_display_theme_description": {
       "message": "扩展 UI 的主题",

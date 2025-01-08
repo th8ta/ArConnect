@@ -1,4 +1,4 @@
-import { unlock } from "~wallets/auth";
+import { setPasswordFreshness, unlock } from "~wallets/auth";
 import {
   InputV2,
   Section,
@@ -11,7 +11,6 @@ import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import { HeadAuth } from "~components/HeadAuth";
 import { AuthButtons } from "~components/auth/AuthButtons";
-import { withPage } from "~components/page/page.utils";
 
 export function UnlockAuthRequestView() {
   // password input
@@ -33,6 +32,8 @@ export function UnlockAuthRequestView() {
         content: browser.i18n.getMessage("invalidPassword"),
         duration: 2200
       });
+    } else {
+      await setPasswordFreshness();
     }
   }
 
