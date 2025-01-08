@@ -1,11 +1,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import nodePolyfills from "vite-plugin-node-stdlib-browser";
 
 // https://vite.dev/config/
 export default defineConfig({
   // root: "./src/iframe/index.html",
-  plugins: [react()],
+  plugins: [react(), nodePolyfills()],
   define: {
     "process.env": {
       ...(process?.env || {})
