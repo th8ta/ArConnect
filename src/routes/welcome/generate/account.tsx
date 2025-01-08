@@ -35,7 +35,7 @@ export function CreateAccountView({ params }: CreateAccountViewProps) {
   }, []);
 
   return (
-    <Wrapper>
+    <Container>
       <Content>
         <Paragraph>
           {browser.i18n.getMessage("create_a_new_account_description")}
@@ -54,11 +54,11 @@ export function CreateAccountView({ params }: CreateAccountViewProps) {
       <Button fullWidth onClick={() => done()}>
         {browser.i18n.getMessage("continue")}
       </Button>
-    </Wrapper>
+    </Container>
   );
 }
 
-const Wrapper = styled.div`
+const Container = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;

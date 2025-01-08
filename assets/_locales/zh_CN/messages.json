@@ -801,18 +801,18 @@
       "message": "备份",
       "description": "Backup title"
   },
-  "backup_wallet_title": {
-      "message": "备份您的钱包",
-      "description": "Backup wallet title"
-  },
   "backup_wallet_content": {
-      "message": "将这 12 个字的助记词保存到密码管理器，或将其写在纸上。永远不要与任何人分享。",
-      "description": "Backup wallet paragraph"
+    "message": "将此12个单词的恢复短语保存到密码管理器，或将其写下来。",
+    "description": "Backup wallet paragraph"
   },
-  "copySeed": {
-      "message": "复制助记词",
-      "description": "Copy seedphrase text"
+  "backup_wallet_warning": {
+    "message": "不要与任何人分享此内容。",
+    "description": "Backup wallet warning"
   },
+    "copySeed": {
+        "message": "复制",
+        "description": "Copy seedphrase text"
+    },
   "done": {
       "message": "完成",
       "description": "Done button text"
@@ -851,12 +851,8 @@
       "message": "密钥文件",
       "description": "Keyfile text"
   },
-  "confirm_seed": {
-      "message": "确认您的助记词",
-      "description": "Confirm seedphrase title"
-  },
   "confirm_seed_paragraph": {
-      "message": "通过在以下部分中完成缺失的助记词单词来验证您的助记词。",
+      "message": "通过填写缺失的单词验证您的恢复短语。",
       "description": "Confirm seedphrase explainer paragraph"
   },
   "correct": {
@@ -2539,5 +2535,13 @@
     "need_help": {
         "message": "需要帮助？",
         "description": "Need help button text"
+    },
+    "complete_recover_phrase": {
+        "message": "完成恢复短语",
+        "description": "Complete recovery phrase button text"
+    },
+    "word_mismatch_error": {
+        "message": "错误：单词不匹配",
+        "description": "Word mismatch error message"
     }
 }

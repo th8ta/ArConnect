@@ -22,7 +22,6 @@ export default function BackupWalletPage({ seed }: Props) {
 
   return (
     <>
-      <Text heading>{browser.i18n.getMessage("backup_wallet_title")}</Text>
       <Paragraph>{browser.i18n.getMessage("backup_wallet_content")}</Paragraph>
       <SeedContainer onClick={() => setShown((val) => !val)}>
         <Seed shown={shown}>{seed}</Seed>

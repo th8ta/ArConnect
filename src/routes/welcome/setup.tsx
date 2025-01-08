@@ -1,7 +1,7 @@
 import { AnimatePresence, type Variants, motion } from "framer-motion";
 import { createContext, useCallback, useEffect, useState } from "react";
-import { Card, Spacer, useToasts } from "@arconnect/components";
-import { Text } from "@arconnect/components-rebrand";
+import { Spacer, useToasts } from "@arconnect/components";
+import { Card, Text } from "@arconnect/components-rebrand";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { jwkFromMnemonic } from "~wallets/generator";
 import browser from "webextension-polyfill";
@@ -38,9 +38,9 @@ import { ArrowNarrowLeft } from "@untitled-ui/icons-react";
 const ViewsBySetupMode = {
   generate: [
     CreateAccountView,
-    PasswordWelcomeView,
     BackupWelcomeView,
     ConfirmWelcomeView,
+    PasswordWelcomeView,
     ThemeWelcomeView,
     GenerateDoneWelcomeView
   ],
@@ -354,7 +354,6 @@ const SetupCard = styled(Card)`
   flex-direction: column;
   gap: 24px;
   padding: 24px;
-  background: #121212;
   width: 377.5px;
   height: 600px;
 `;

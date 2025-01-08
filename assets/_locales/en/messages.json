@@ -805,16 +805,16 @@
     "message": "Backup",
     "description": "Backup title"
   },
-  "backup_wallet_title": {
-    "message": "Backup your wallet",
-    "description": "Backup walet title"
-  },
   "backup_wallet_content": {
-    "message": "Save this 12 word seedphrase to a password manager, or write it down to a paper. Never share it with anyone.",
+    "message": "Save this 12 word recovery phrase to a password manager, or write it down.",
     "description": "Backup wallet paragraph"
   },
+  "backup_wallet_warning": {
+    "message": "Do not share this with anyone.",
+    "description": "Backup wallet warning"
+  },
   "copySeed": {
-    "message": "Copy seedphrase",
+    "message": "Copy",
     "description": "Copy seedphrase text"
   },
   "done": {
@@ -855,12 +855,8 @@
     "message": "Keyfile",
     "description": "Keyfile text"
   },
-  "confirm_seed": {
-    "message": "Confirm your seedphrase",
-    "description": "Confirm seedphrase title"
-  },
   "confirm_seed_paragraph": {
-    "message": "Verify your seedphrase by completing the missing mnemonic words in the following section.",
+    "message": "Verify your recovery phrase by completing the missing words.",
     "description": "Confirm seedphrase explainer paragraph"
   },
   "correct": {
@@ -2553,5 +2549,13 @@
   "need_help": {
     "message": "Need help?",
     "description": "Need help button text"
+  },
+  "complete_recover_phrase": {
+    "message": "Complete recovery phrase",
+    "description": "Complete recovery phrase button text"
+  },
+  "word_mismatch_error": {
+    "message": "Error: word does not match",
+    "description": "Word mismatch error message"
   }
 }

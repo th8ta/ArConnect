@@ -1,5 +1,11 @@
 import { AnimatePresence, motion, type Variants } from "framer-motion";
-import { type DragEvent, useEffect, useMemo, useState } from "react";
+import {
+  type DragEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 import {
   CloseIcon,
   FolderIcon,
@@ -8,7 +14,7 @@ import {
 } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import styled, { keyframes } from "styled-components";
-import { Card, Text } from "@arconnect/components";
+import { Text } from "@arconnect/components-rebrand";
 import { formatAddress } from "~utils/format";
 import { readFileString } from "~utils/file";
 import { wordlists } from "bip39-web-crypto";
@@ -20,7 +26,7 @@ export default function SeedInput({
   onReady,
   defaultLength = 12,
   showHead = true,
-  preFill
+  verifyWords
 }: Props) {
   // length of the seedphrase
   const [activeLength, setActiveLength] = useState<SeedLength>(defaultLength);
@@ -33,23 +39,36 @@ export default function SeedInput({
 
   // words
   const [words, setWords] = useState<string[]>(Array(24).fill(""));
-  const [preFilled, setPreFilled] = useState<
+  const [mismatchedWords, setMismatchedWords] = useState<{
+    [key: number]: boolean;
+  }>({});
+  const [wordsToConfirm, setWordsToConfirm] = useState<
     { [key: number]: string } | undefined
   >();
   const resetWords = () => setWords(Array(24).fill(""));
 
+  const handleInputBlur = useCallback(
+    (index: number) => {
+      if (!verifyMode) return;
+      setMismatchedWords((val) => {
+        const newMismatchedWords = { ...val };
+        newMismatchedWords[index] =
+          words[index] && words[index] !== verifyWords?.[index];
+        return newMismatchedWords;
+      });
+    },
+    [words]
+  );
+
   // pre-filled words
   useEffect(() => {
-    if (!preFill) return;
+    if (!verifyWords) return;
     const preFilledObj: { [key: number]: string } = {};
-    preFill.forEach((word, index) => {
-      if (word !== "") {
-        preFilledObj[index] = word;
-      }
+    verifyWords.forEach((word, index) => {
+      if (word !== "") preFilledObj[index] = word;
     });
-    setPreFilled(preFilledObj);
-    setWords(preFill);
-  }, [preFill]);
+    setWordsToConfirm(preFilledObj);
+  }, [verifyWords]);
 
   // are all the word inputs empty
   const isEmpty = useMemo(() => words.every((word) => word === ""), [words]);
@@ -61,7 +80,9 @@ export default function SeedInput({
       words
         .slice(0, activeLength)
         .map((val) => val.replace(/\s/g, ""))
-        .join(" "),
+        .join(" ")
+        .replaceAll(/\s+/g, " ")
+        .trim(),
     [words, activeLength]
   );
 
@@ -266,10 +287,18 @@ export default function SeedInput({
           </AnimatePresence>
         </Head>
       )}
-      <WordsWrapper>
+      <WordsWrapper verifyMode={verifyMode}>
         {words.slice(0, activeLength).map((word, i) => (
-          <WordInputWrapper key={i}>
-            <Text noMargin>{i + 1}</Text>
+          <WordInputWrapper
+            hide={verifyMode && !wordsToConfirm?.[i]}
+            isConfirmed={verifyMode && wordsToConfirm?.[i] === words[i]}
+            isMismatched={mismatchedWords[i]}
+            onBlur={() => handleInputBlur(i)}
+            key={i}
+          >
+            <Text variant="secondary" noMargin>
+              {i + 1}.
+            </Text>
             <SuggestionWrapper>
               <WordInputSuggestion>
                 {(word !== "" &&
@@ -277,7 +306,6 @@ export default function SeedInput({
                   ""}
               </WordInputSuggestion>
               <WordInput
-                disabled={preFilled && preFilled[i] !== undefined}
                 onPaste={(e) => {
                   // return if verify mode is enabled
                   // we don't want the user to paste in
@@ -358,6 +386,13 @@ export default function SeedInput({
                 }
               />
             </SuggestionWrapper>
+            {verifyMode &&
+              mismatchedWords[i] &&
+              wordsToConfirm?.[i] !== words[i] && (
+                <ErrorText>
+                  {browser.i18n.getMessage("word_mismatch_error")}
+                </ErrorText>
+              )}
           </WordInputWrapper>
         ))}
       </WordsWrapper>
@@ -365,19 +400,11 @@ export default function SeedInput({
   );
 }
 
-const Wrapper = styled(Card)<{ dragging?: boolean }>`
+const Wrapper = styled.div<{ dragging?: boolean }>`
   position: relative;
   padding: 0;
   overflow: hidden;
-  border: ${(props) => (props.dragging ? "2px" : "1px")} solid
-    rgb(
-      ${(props) =>
-        props.dragging ? props.theme.theme : props.theme.cardBorder}
-    );
   transition: all 0.2s ease-in-out;
-  // this fixes overflow-hidden not working
-  // with the blurred drag & drop layer
-  filter: blur(0);
 `;
 
 const Head = styled.div`
@@ -438,24 +465,33 @@ const LengthButton = styled(HeadButton)<{ active?: boolean }>`
   }
 `;
 
-const WordsWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1rem 0.9rem;
-  padding: 1rem 0.8rem;
+const WordsWrapper = styled.div<{ verifyMode?: boolean }>`
+  ${(props) =>
+    props.verifyMode
+      ? `display: flex; flex-direction: column; gap: 1rem;`
+      : `display: grid; grid-template-columns: 1fr 1fr 1fr;gap: 0.5rem 1rem;`}
+  padding-bottom: 1rem;
 `;
 
-const WordInputWrapper = styled.div`
+const WordInputWrapper = styled.div<{
+  hide?: boolean;
+  isConfirmed?: boolean;
+  isMismatched?: boolean;
+}>`
   display: flex;
   align-items: center;
   gap: 0.05rem;
-  padding: 0 0.1rem;
-  border-bottom: 2px solid rgb(${(props) => props.theme.cardBorder});
+  padding: 12px;
   transition: all 0.23s ease-in-out;
-
-  &:focus-within {
-    border-bottom-color: rgb(${(props) => props.theme.theme});
-  }
+  height: 42px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 3.3px 0px rgba(0, 0, 0, 0.07) inset;
+  background: ${(props) => props.theme.input.background.default.default};
+  box-sizing: border-box;
+  ${(props) =>
+    (props.isConfirmed || props.isMismatched) &&
+    `border: 1px solid ${props.isConfirmed ? "#56C980" : "#F1655B"};`}
+  ${(props) => props.hide && `display: none;`}
 `;
 
 const errorShake = keyframes`
@@ -482,6 +518,8 @@ const errorShake = keyframes`
 const WordInput = styled.input.attrs({
   type: "text"
 })`
+  display: flex;
+  flex: 1;
   background-color: transparent;
   border: none;
   padding: 0.15rem 0.25rem;
@@ -489,7 +527,7 @@ const WordInput = styled.input.attrs({
   font-weight: 500;
   outline: none;
   width: 100%;
-  color: rgb(${(props) => props.theme.theme});
+  color: ${(props) => props.theme.primaryText};
   z-index: 2;
   transition: all 0.23s ease-in-out;
 
@@ -512,7 +550,9 @@ const WordInputSuggestion = styled.span`
 `;
 
 const SuggestionWrapper = styled.div`
+  display: flex;
   position: relative;
+  flex: 1;
   z-index: 1;
 
   &:not(:focus-within) {
@@ -582,6 +622,13 @@ const CloseDragLayerButton = styled(CloseIcon)`
   }
 `;
 
+const ErrorText = styled(Text).attrs({ size: "xs", noMargin: true })`
+  top: 29px;
+  right: 58%;
+  position: relative;
+  color: #f1655b;
+`;
+
 const scaleAppearAnimation: Variants = {
   hidden: {
     opacity: 0,
@@ -617,7 +664,7 @@ interface Props {
   onReady?: () => void;
   defaultLength?: SeedLength;
   showHead?: boolean;
-  preFill?: Array<string | undefined>;
+  verifyWords?: Array<string | undefined>;
 }
 
 type SeedLength = 12 | 24;

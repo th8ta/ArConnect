@@ -88,7 +88,6 @@ export function PasswordWelcomeView({ params }: PasswordWelcomeViewProps) {
 
   return (
     <>
-      <Text heading>{browser.i18n.getMessage("create_password")}</Text>
       <Paragraph>
         {browser.i18n.getMessage("create_password_paragraph")}
       </Paragraph>
