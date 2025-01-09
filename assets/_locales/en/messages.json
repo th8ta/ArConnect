@@ -2573,5 +2573,29 @@
   "enable_analytics_description": {
     "message": "Enable analytics to help us provide the best experience for you on Wander.",
     "description": "Enable analytics description"
+  },
+  "go_to_dashboard": {
+    "message": "Go to dashboard",
+    "description": "Go to dashboard button text"
+  },
+  "congratulations": {
+    "message": "Congratulations!",
+    "description": "Congratulations title"
+  },
+  "congratulations_description": {
+    "message": "You have now finished importing your Wander account",
+    "description": "Congratulations description"
+  },
+  "copied": {
+    "message": "Copied",
+    "description": "Copied text"
+  },
+  "copy_failed": {
+    "message": "Failed to copy",
+    "description": "Failed to copy text"
+  },
+  "your_wallet_address_is": {
+    "message": "Your wallet address is",
+    "description": "Your wallet address is"
   }
 }

@@ -2559,5 +2559,29 @@
     "enable_analytics_description": {
         "message": "启用分析功能，帮助我们为您提供最佳的Wander体验。",
         "description": "Enable analytics description"
+    },
+    "go_to_dashboard": {
+        "message": "前往仪表板",
+        "description": "Go to dashboard button text"
+    },
+    "congratulations": {
+        "message": "恭喜！",
+        "description": "Congratulations title"
+    },
+    "congratulations_description": {
+        "message": "您现在已成功导入您的Wander账户",
+        "description": "Congratulations description"
+    },
+    "copied": {
+        "message": "已复制",
+        "description": "Copied text"
+    },
+    "copy_failed": {
+        "message": "复制失败",
+        "description": "Failed to copy text"
+    },
+    "your_wallet_address_is": {
+        "message": "您的钱包地址是",
+        "description": "Your wallet address is"
     }
 }

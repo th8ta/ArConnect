@@ -1,107 +1,23 @@
-import { ButtonV2, Checkbox, Spacer, Text } from "@arconnect/components";
-import { PasswordContext, WalletContext } from "../setup";
-import { type AnsUser, getAnsProfile } from "~lib/ans";
-import { formatAddress } from "~utils/format";
-import Paragraph from "~components/Paragraph";
+import { Button, Text } from "@arconnect/components-rebrand";
+import { WalletContext } from "../setup";
 import browser from "webextension-polyfill";
-import { addWallet } from "~wallets";
-import { useContext, useEffect, useRef, useState } from "react";
-import {
-  EventType,
-  PageType,
-  isUserInGDPRCountry,
-  trackEvent,
-  trackPage
-} from "~utils/analytics";
-import useSetting from "~settings/hook";
-import { ExtensionStorage } from "~utils/storage";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useContext, useEffect } from "react";
+import { PageType, trackPage } from "~utils/analytics";
 import JSConfetti from "js-confetti";
-import { useLocation } from "~wallets/router/router.utils";
-import { loadTokens } from "~tokens/token";
+import WalletIconSvg from "url:~assets/setup/wallet.svg";
+import styled from "styled-components";
+import { CopyToClipboard } from "~components/CopyToClipboard";
+import { formatAddress } from "~utils/format";
+import Squircle from "~components/Squircle";
 
 export function GenerateDoneWelcomeView() {
-  const { navigate } = useLocation();
-
   // wallet context
   const { wallet } = useContext(WalletContext);
-  const walletRef = useRef(wallet);
-
-  // loading
-  const [loading, setLoading] = useState(false);
-
-  // wallet generation taking longer
-  const [showLongWaitMessage, setShowLongWaitMessage] = useState(false);
-
-  // password
-  const { password } = useContext(PasswordContext);
-  const [analytics, setAnalytics] = useSetting<boolean>("analytics");
-  const [answered, setAnswered] = useStorage<boolean>({
-    key: "analytics_consent_answered",
-    instance: ExtensionStorage
-  });
 
   // add generated wallet
   async function done() {
-    if (loading) return;
-
-    const startTime = Date.now();
-
-    setLoading(true);
-    // add wallet
-    let nickname: string;
-
-    if (!walletRef.current.address || !walletRef.current.jwk) {
-      await new Promise((resolve) => {
-        const checkState = setInterval(() => {
-          if (walletRef.current.jwk) {
-            clearInterval(checkState);
-            resolve(null);
-          }
-          if (!showLongWaitMessage) {
-            setShowLongWaitMessage(Date.now() - startTime > 10000);
-          }
-        }, 1000);
-      });
-    }
-
-    try {
-      const ansProfile = (await getAnsProfile(
-        walletRef.current.address
-      )) as AnsUser;
-
-      if (ansProfile) {
-        nickname = ansProfile.currentLabel;
-      }
-    } catch {}
-
-    // add the wallet
-    await addWallet(
-      nickname
-        ? { nickname, wallet: walletRef.current.jwk }
-        : walletRef.current.jwk,
-      password
-    );
-
-    // load tokens
-    await loadTokens();
-
-    // log user onboarded
-    await trackEvent(EventType.ONBOARDED, {});
-
-    if (!analytics && !answered) {
-      await setAnswered(true);
-      await setAnalytics(false);
-    }
-
-    // redirect to getting started pages
-    navigate("/getting-started/1");
-
-    setShowLongWaitMessage(false);
-    setLoading(false);
-
-    // reset before unload
     window.onbeforeunload = null;
+    window.top.close();
   }
 
   useEffect(() => {
@@ -110,55 +26,102 @@ export function GenerateDoneWelcomeView() {
     jsConfetti.addConfetti();
   }, []);
 
-  // determine location
-  useEffect(() => {
-    const getLocation = async () => {
-      try {
-        const loc = await isUserInGDPRCountry();
-        setAnalytics(!loc);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    getLocation();
-  }, []);
-
-  useEffect(() => {
-    walletRef.current = wallet;
-  }, [wallet]);
-
   // Segment
   useEffect(() => {
     trackPage(PageType.ONBOARD_COMPLETE);
   }, []);
 
   return (
-    <>
-      <Text heading>{browser.i18n.getMessage("setup_complete_title")}</Text>
-      <Paragraph>
-        {browser.i18n.getMessage("generated_wallet", [
-          formatAddress(wallet.address || "", 6)
-        ])}
-      </Paragraph>
-      <Checkbox
-        checked={!!analytics}
-        onChange={() => {
-          setAnalytics((prev) => !prev);
-          setAnswered(true);
-        }}
-      >
-        {browser.i18n.getMessage("analytics_title")}
-      </Checkbox>
-      <Spacer y={3} />
-      <ButtonV2 fullWidth onClick={done} loading={loading}>
-        {browser.i18n.getMessage("done")}
-      </ButtonV2>
-      {loading && showLongWaitMessage && (
-        <Text noMargin style={{ textAlign: "center", marginTop: "0.3rem" }}>
-          {browser.i18n.getMessage("longer_than_usual")}
-        </Text>
-      )}
-    </>
+    <Container>
+      <Content>
+        <WalletIcon />
+        <InnerContent>
+          <Text size="lg" weight="bold" noMargin>
+            {browser.i18n.getMessage("congratulations")}
+          </Text>
+          <Text variant="secondary" noMargin>
+            {browser.i18n.getMessage("congratulations_description")}
+          </Text>
+        </InnerContent>
+        <InnerContent>
+          <AccountContainer>
+            <AccountIcon
+              placeholderText={wallet?.nickname?.slice(0, 1) || "A"}
+            />
+            <Text size="base" weight="medium" noMargin>
+              {wallet?.nickname || "Account 1"}
+            </Text>
+          </AccountContainer>
+          <Text size="base" weight="medium" noMargin>
+            {browser.i18n.getMessage("your_wallet_address_is")}
+          </Text>
+          <CopyToClipboard
+            label={formatAddress(wallet.address, 16)}
+            labelAs={Label}
+            text={wallet.address}
+          />
+        </InnerContent>
+      </Content>
+      <Button fullWidth onClick={done}>
+        {browser.i18n.getMessage("go_to_dashboard")}
+      </Button>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  gap: 24px;
+`;
+
+const Content = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 24px;
+`;
+
+const InnerContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+`;
+
+const WalletIcon = styled.img.attrs({
+  src: WalletIconSvg
+})`
+  height: 72px;
+  width: 72px;
+`;
+
+const AccountContainer = styled.div`
+  display: flex;
+  padding: 6px 8px;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  background: ${(props) => props.theme.input.background.default.default};
+  width: max-content;
+`;
+
+const Label = styled(Text).attrs({
+  size: "xs",
+  weight: "medium",
+  noMargin: true
+})``;
+
+const AccountIcon = styled(Squircle)`
+  width: 24px;
+  height: 24px;
+  color: ${(props) => props.theme.theme};
+`;

@@ -1,16 +1,27 @@
 import Paragraph from "~components/Paragraph";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import browser from "webextension-polyfill";
-import { WalletContext, type SetupWelcomeViewParams } from "../setup";
-import { Spacer, useInput } from "@arconnect/components";
-import { PageType, trackPage } from "~utils/analytics";
+import {
+  PasswordContext,
+  WalletContext,
+  type SetupWelcomeViewParams
+} from "../setup";
+import {
+  EventType,
+  isUserInGDPRCountry,
+  PageType,
+  trackEvent,
+  trackPage
+} from "~utils/analytics";
 import { useLocation } from "~wallets/router/router.utils";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import styled from "styled-components";
-import { Button, Text } from "@arconnect/components-rebrand";
+import { Button, Text, Spacer } from "@arconnect/components-rebrand";
 import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
+import { loadTokens } from "~tokens/token";
+import { addWallet } from "~wallets";
 
 export type PermissionsWelcomeViewProps =
   CommonRouteProps<SetupWelcomeViewParams>;
@@ -20,14 +31,22 @@ export function PermissionsWelcomeView({
 }: PermissionsWelcomeViewProps) {
   const { navigate } = useLocation();
 
-  const { setAccountName } = useContext(WalletContext);
+  const { wallet } = useContext(WalletContext);
+  const { password } = useContext(PasswordContext);
+  const walletRef = useRef(wallet);
+
+  // loading
+  const [loading, setLoading] = useState(false);
+
+  // wallet generation taking longer
+  const [showLongWaitMessage, setShowLongWaitMessage] = useState(false);
 
   const [analyticSetting, setAnalyticSetting] = useStorage(
     {
       key: "setting_analytic",
       instance: ExtensionStorage
     },
-    true
+    (v) => v ?? false
   );
 
   const [notificationSetting, setNotificationSetting] = useStorage(
@@ -35,25 +54,93 @@ export function PermissionsWelcomeView({
       key: "setting_notifications",
       instance: ExtensionStorage
     },
-    true
+    (v) => v ?? false
   );
 
-  // input controls
-  const accountInput = useInput("Account 1");
+  const [answered, setAnswered] = useStorage<boolean>({
+    key: "analytics_consent_answered",
+    instance: ExtensionStorage
+  });
 
-  // handle done button
-  function done() {
-    if (!accountInput.state) return;
+  const [, setShowAnnouncement] = useStorage<boolean>({
+    key: "show_announcement",
+    instance: ExtensionStorage
+  });
 
-    setAccountName(accountInput.state);
+  // add generated wallet
+  async function done() {
+    if (loading) return;
 
-    // next page
+    const startTime = Date.now();
+
+    setLoading(true);
+
+    // add wallet
+    if (!walletRef.current.address || !walletRef.current.jwk) {
+      await new Promise((resolve) => {
+        const checkState = setInterval(() => {
+          if (walletRef.current.jwk) {
+            clearInterval(checkState);
+            resolve(null);
+          }
+          if (!showLongWaitMessage) {
+            setShowLongWaitMessage(Date.now() - startTime > 10000);
+          }
+        }, 1000);
+      });
+    }
+
+    // add the wallet
+    await addWallet(
+      {
+        nickname: walletRef.current?.nickname || "Account 1",
+        wallet: walletRef.current.jwk
+      },
+      password
+    );
+
+    // load tokens
+    await loadTokens();
+
+    // log user onboarded
+    await trackEvent(EventType.ONBOARDED, {});
+
+    if (!analyticSetting && !answered) {
+      await setAnswered(true);
+      await setAnalyticSetting(false);
+    }
+
+    // redirect to getting started pages
     navigate(`/${params.setupMode}/${Number(params.page) + 1}`);
+
+    setShowLongWaitMessage(false);
+    setLoading(false);
+
+    // reset before unload
+    window.onbeforeunload = null;
   }
+
+  // determine location
+  useEffect(() => {
+    const getLocation = async () => {
+      try {
+        const loc = await isUserInGDPRCountry();
+        setAnalyticSetting(!loc);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    getLocation();
+  }, []);
+
+  useEffect(() => {
+    walletRef.current = wallet;
+  }, [wallet]);
 
   // Segment
   useEffect(() => {
-    trackPage(PageType.ONBOARD_NEW_ACCOUNT);
+    trackPage(PageType.ONBOARD_PERMISSIONS);
   }, []);
 
   return (
@@ -66,7 +153,10 @@ export function PermissionsWelcomeView({
           <BoxContainer>
             <ToggleSwitch
               checked={analyticSetting}
-              setChecked={setAnalyticSetting}
+              setChecked={(checked) => {
+                setAnalyticSetting(checked);
+                setAnswered(true);
+              }}
               height={31}
               width={51}
             />
@@ -84,7 +174,10 @@ export function PermissionsWelcomeView({
           <BoxContainer>
             <ToggleSwitch
               checked={notificationSetting}
-              setChecked={setNotificationSetting}
+              setChecked={(checked) => {
+                setNotificationSetting(checked);
+                setShowAnnouncement(false);
+              }}
               height={31}
               width={51}
             />
@@ -100,7 +193,7 @@ export function PermissionsWelcomeView({
           </BoxContainer>
         </div>
       </Content>
-      <Button fullWidth onClick={() => done()}>
+      <Button fullWidth onClick={done} loading={loading}>
         {browser.i18n.getMessage("continue")}
       </Button>
     </Container>

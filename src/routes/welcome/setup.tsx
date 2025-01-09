@@ -42,9 +42,8 @@ const ViewsBySetupMode = {
     BackupWelcomeView,
     ConfirmWelcomeView,
     PasswordWelcomeView,
-    PermissionsWelcomeView
-    // ThemeWelcomeView,
-    // GenerateDoneWelcomeView
+    PermissionsWelcomeView,
+    GenerateDoneWelcomeView
   ],
   load: [
     PasswordWelcomeView,
@@ -65,7 +64,8 @@ const VIEW_SUBTITLES_BY_SETUP_MODE = {
     "backup_your_account",
     "confirm_your_recovery_phrase",
     "create_a_password",
-    "enable_permissions"
+    "enable_permissions",
+    ""
   ],
   load: []
 };
@@ -86,6 +86,7 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
   const pageTitle = VIEW_TITLES_BY_SETUP_MODE[setupMode];
   const pageSubtitle = VIEW_SUBTITLES_BY_SETUP_MODE[setupMode][page - 1];
   const pageCount = ViewsBySetupMode[setupMode].length;
+  const isCongratulationsPage = setupMode === "generate" && page === 6;
 
   // temporarily stored password
   const [password, setPassword] = useState("");
@@ -193,7 +194,7 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
   const CurrentView = ViewsBySetupMode[setupMode][page - 1];
 
   return (
-    <Wrapper>
+    <Wrapper isCongratulationsPage={isCongratulationsPage}>
       <Header>
         <HeaderIconWrapper>
           <Image
@@ -215,23 +216,25 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
       </Header>
       <StarIcons screen="setup" />
       <Spacer y={2} />
-      <SetupCard>
-        <HeaderContainer>
-          <CardHeader>
-            <BackButton onClick={navigateToPreviousPage} />
-            <Text style={{ fontSize: 22, margin: "auto" }} weight="bold">
-              {browser.i18n.getMessage(pageTitle)}
-            </Text>
-            <Spacer x={1.75} />
-          </CardHeader>
-          <PaginationContainer>
-            <Pagination
-              currentPage={page}
-              totalPages={pageCount}
-              subtitle={pageSubtitle}
-            />
-          </PaginationContainer>
-        </HeaderContainer>
+      <SetupCard isCongratulationsPage={isCongratulationsPage}>
+        {!isCongratulationsPage && (
+          <HeaderContainer>
+            <CardHeader>
+              <BackButton onClick={navigateToPreviousPage} />
+              <Text style={{ fontSize: 22, margin: "auto" }} weight="bold">
+                {browser.i18n.getMessage(pageTitle)}
+              </Text>
+              <Spacer x={1.75} />
+            </CardHeader>
+            <PaginationContainer>
+              <Pagination
+                currentPage={page}
+                totalPages={pageCount}
+                subtitle={pageSubtitle}
+              />
+            </PaginationContainer>
+          </HeaderContainer>
+        )}
         <PasswordContext.Provider value={{ password, setPassword }}>
           <WalletContext.Provider
             value={{ wallet: generatedWallet, generateWallet, setAccountName }}
@@ -339,7 +342,7 @@ const BackButton = styled(ArrowNarrowLeft)<{ hidden?: boolean }>`
   }
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ isCongratulationsPage?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -347,18 +350,23 @@ const Wrapper = styled.div`
   min-height: 100vh;
   flex-direction: column;
   position: relative;
-  background: radial-gradient(50% 50% at 50% 50%, #26126f 0%, #1c1c1d 86.5%);
+  ${({ isCongratulationsPage }) =>
+    isCongratulationsPage
+      ? `background: linear-gradient(180deg, #26126F 0%, #111 23.74%)`
+      : "background: radial-gradient(50% 50% at 50% 50%, #26126f 0%, #1c1c1d 86.5%)"}
 `;
 
 const Image = styled.img``;
 
-const SetupCard = styled(Card)`
+const SetupCard = styled(Card)<{ isCongratulationsPage?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 24px;
   padding: 24px;
   width: 377.5px;
   height: 600px;
+  ${({ isCongratulationsPage }) =>
+    isCongratulationsPage && `background: transparent; border: none;`}
 `;
 
 const CardHeader = styled.div`

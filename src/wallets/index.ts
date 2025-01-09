@@ -285,7 +285,11 @@ export async function addWallet(
     port: 443,
     protocol: "https"
   });
-  const walletsToAdd = Array.isArray(wallet) ? wallet : [{ wallet }];
+
+  const walletsToAdd = Array.isArray(wallet)
+    ? wallet
+    : // @ts-expect-error
+      [wallet?.wallet ? wallet : { wallet }];
 
   // wallets
   const wallets = await getWallets();
