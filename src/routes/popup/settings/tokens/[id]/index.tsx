@@ -58,7 +58,7 @@ export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
   // update token type
   function updateType(type: TokenType) {
     setAoTokens((allTokens) => {
-      const tokenIndex = allTokens.findIndex((t) => t.id === id);
+      const tokenIndex = allTokens.findIndex((t) => t.processId === id);
       if (tokenIndex !== -1) {
         allTokens[tokenIndex].type = type;
       }

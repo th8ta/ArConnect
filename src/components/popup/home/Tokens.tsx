@@ -1,5 +1,5 @@
 import { Heading, TokenCount, ViewAll } from "../Title";
-import { Spacer } from "@arconnect/components";
+import { Spacer, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Token from "../Token";
@@ -26,6 +26,9 @@ export default function Tokens() {
         </ViewAll>
       </Heading>
       <Spacer y={1} />
+      {aoTokens.length === 0 && (
+        <NoTokens>{browser.i18n.getMessage("no_assets")}</NoTokens>
+      )}
       <TokensList>
         {aoTokens.map((token) => (
           <Token
@@ -52,4 +55,10 @@ const TokensList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.82rem;
+`;
+
+const NoTokens = styled(Text).attrs({
+  noMargin: true
+})`
+  text-align: center;
 `;
