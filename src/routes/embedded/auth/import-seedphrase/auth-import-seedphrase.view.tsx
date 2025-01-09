@@ -26,7 +26,7 @@ export function AuthImportSeedphraseEmbeddedView() {
   };
 
   return lastWallet ? (
-    <DevFigmaScreen title="Import private key" src={confirmScreenSrc}>
+    <DevFigmaScreen title="Enter seedphrase" src={confirmScreenSrc}>
       <DevButtons
         config={[
           {

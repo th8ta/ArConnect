@@ -53,7 +53,14 @@ export function useAuthStatusOverride(
     if (authStatus === "noAuth") {
       return routeTrapMatches(
         location,
-        [EmbeddedPaths.Auth, EmbeddedPaths.AuthRecoverAccount],
+        [
+          EmbeddedPaths.Auth,
+          EmbeddedPaths.AuthMoreProviders,
+          // TODO: These could be simply "anything under  AuthRecoverAccount"
+          EmbeddedPaths.AuthRecoverAccount,
+          EmbeddedPaths.AuthRecoverAccountSeedphrase,
+          EmbeddedPaths.AuthRecoverAccountKeyfile
+        ],
         EmbeddedPaths.Auth
       );
     }
@@ -102,8 +109,11 @@ export function useAuthStatusOverride(
         // TODO: Create shortcut signature for this case:
         return routeTrapMatches(
           location,
-          [EmbeddedPaths.AccountBackupShares],
-          EmbeddedPaths.AccountBackupShares
+          [
+            EmbeddedPaths.AccountBackupSharesReminder,
+            EmbeddedPaths.AccountBackupShares
+          ],
+          EmbeddedPaths.AccountBackupSharesReminder
         );
       }
 

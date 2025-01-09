@@ -1,48 +1,52 @@
-import { useRef } from "react";
 import { useAuth } from "~utils/authentication/authentication.hooks";
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
 import { DevButtons } from "~components/dev/buttons/buttons.component";
 
-import screenSrc from "url:/assets-beta/figma-screens/backup-shares.view.png";
+import screenSrc from "url:/assets-beta/figma-screens/backup-options.view.png";
 
 export function AccountBackupSharesEmbeddedView() {
-  const { promptToBackUp, skipBackUp, registerBackUp } = useAuth();
+  const { promptToBackUp /*, registerBackUp */ } = useAuth();
 
   // TODO: What if the user already has more than 3 backup shares?
 
-  const checkboxRef = useRef<HTMLInputElement>();
+  // TODO: Do we download one file for the whole account or a file per wallet?
 
-  const handleSkipClicked = () => {
-    skipBackUp(checkboxRef?.current.checked);
-  };
+  // TODO: Show confirmation message once backed up and keep the file in-memory
+  // in case the button is clicked again.
 
   return (
     <DevFigmaScreen title="Account backup" src={screenSrc}>
       <DevButtons
         config={[
           {
-            label: "Back up now",
-            to: "/account/backup-shares/options"
+            label: "Google Drive",
+            onClick: () => alert("Not implemented.")
+          },
+          {
+            label: "iCloud",
+            onClick: () => alert("Not implemented.")
+          },
+          {
+            label: "Dropbox",
+            onClick: () => alert("Not implemented.")
+          },
+          {
+            label: "Download Account Recovery File",
+            onClick: () => alert("Not implemented.")
           },
           promptToBackUp
             ? {
-                label: "Back up later",
-                to: "/account",
-                onClick: () => handleSkipClicked()
+                label: "Back",
+                to: "/account/backup-shares/reminder",
+                variant: "secondary"
               }
             : {
                 label: "Cancel",
-                to: "/account"
+                to: "/account",
+                variant: "secondary"
               }
         ]}
       />
-
-      {promptToBackUp ? (
-        <label>
-          <input type="checkbox" ref={checkboxRef} />
-          Do not ask again
-        </label>
-      ) : null}
     </DevFigmaScreen>
   );
 }

@@ -19,22 +19,19 @@ export function AuthEmbeddedView() {
             onClick: () => authenticate("passkey")
           },
           {
-            label: "Email & Password",
-            onClick: () => authenticate("emailPassword")
-          },
-          {
             label: "Google",
             onClick: () => authenticate("google")
-          },
-          {
-            label: "More Options",
-            to: "/auth/more-options"
           },
           {
             label: "ArConnect",
             onClick: () => alert("Not implemented")
             // TODO: Send a message to the SDK to connect using the injected window.arweaveWallet instead
             // TODO: Add special screen when using ArConnect. For MVP, no interface, only proxy.
+          },
+          {
+            label: "More Options",
+            to: "/auth/more-providers",
+            variant: "secondary"
           },
           {
             label: "Recover Account",

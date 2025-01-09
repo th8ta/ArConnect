@@ -1,6 +1,6 @@
 import { Link } from "~wallets/router/components/link/Link";
 
-export function AccountImportSeedPhraseEmbeddedView() {
+export function AccountImportSeedphraseEmbeddedView() {
   return (
     <div>
       <h3>Import Seed Phrase</h3>
