@@ -5,7 +5,13 @@ import type { DeviceNonce } from "~utils/wallets/wallets.utils";
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
 
-export type AuthMethod = "passkey" | "emailPassword" | "google";
+export type AuthMethod =
+  | "passkey"
+  | "google"
+  | "emailPassword"
+  | "facebook"
+  | "apple"
+  | "x";
 
 interface DbAuthMethod {
   type: AuthMethod;
