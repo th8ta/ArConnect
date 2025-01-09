@@ -47,8 +47,6 @@ export function TokenSettingsDashboardView({
 
   const [loading, setLoading] = useState(false);
 
-  console.log({ aoTokens });
-
   const token = useMemo(() => {
     const aoToken = aoTokens.find((ao) => ao.processId === id);
     if (!aoToken) return;
