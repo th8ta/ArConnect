@@ -43,6 +43,7 @@ import { getTagValue } from "~tokens/aoTokens/ao";
 import { humanizeTimestampTags } from "~utils/timestamp";
 import styled from "styled-components";
 import { ChevronDownIcon, ChevronUpIcon } from "@iconicicons/react";
+import { checkPassword } from "~wallets/auth";
 
 export function SignAuthRequestView() {
   const { authRequest, acceptRequest, rejectRequest } =
@@ -240,6 +241,17 @@ export function SignAuthRequestView() {
 
   const sign = async () => {
     if (!transaction) return;
+    if (askPassword) {
+      const checkPw = await checkPassword(passwordInput.state);
+      if (!checkPw) {
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("invalidPassword"),
+          duration: 2400
+        });
+        return;
+      }
+    }
     if (wallet.type === "hardware") {
       // load tx ur
       if (!page) await loadTransactionUR();
