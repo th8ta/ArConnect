@@ -1,6 +1,6 @@
 import { PageType, trackPage } from "~utils/analytics";
 import { useState, useEffect, useMemo } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import {
   ButtonV2,
   InputV2,
@@ -10,7 +10,6 @@ import {
   useInput
 } from "@arconnect/components";
 import browser from "webextension-polyfill";
-import * as viewblock from "~lib/viewblock";
 import {
   ArrowUpRightIcon,
   ChevronDownIcon,
@@ -26,32 +25,23 @@ import Token, {
 } from "~components/popup/Token";
 import useSetting from "~settings/hook";
 import {
-  balanceToFractioned,
   formatFiatBalance,
   formatTokenBalance,
   fractionedToBalance,
   getCurrencySymbol
 } from "~tokens/currency";
 import { useStorage } from "@plasmohq/storage/hook";
-import {
-  ExtensionStorage,
-  TRANSFER_TX_STORAGE,
-  TempTransactionStorage
-} from "~utils/storage";
-import { getDreForToken, useTokens } from "~tokens";
+import { ExtensionStorage, TempTransactionStorage } from "~utils/storage";
 import { loadTokenLogo, type Token as TokenInterface } from "~tokens/token";
 import { useTheme } from "~utils/theme";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import Arweave from "arweave";
 import { useBalance } from "~wallets/hooks";
-import { getArPrice, getPrice } from "~lib/coingecko";
-import redstone from "redstone-api";
+import { getArPrice } from "~lib/coingecko";
 import Collectible from "~components/popup/Collectible";
 import { findGateway } from "~gateways/wayfinder";
 import { useLocation } from "~wallets/router/router.utils";
-import { DREContract, DRENode } from "@arconnect/warp-dre";
-import { isUToken } from "~utils/send";
 import HeadV2 from "~components/popup/HeadV2";
 import SliderMenu from "~components/SliderMenu";
 import Recipient, {
@@ -147,9 +137,6 @@ export function SendView({ params: { id } }: SendViewProps) {
     "token"
   );
 
-  // tokens
-  const tokens = useTokens();
-
   // token that the user is going to send
   const [tokenID, setTokenID] = useStorage<"AR" | string>(
     {
@@ -160,11 +147,9 @@ export function SendView({ params: { id } }: SendViewProps) {
   );
 
   const token = useMemo<TokenInterface>(() => {
-    const matchingTokenInTokens = tokens.find((t) => t.id === tokenID);
-
-    const matchingTokenInAoTokens = !matchingTokenInTokens
-      ? aoTokens.find((aoToken) => aoToken.id === tokenID)
-      : null;
+    const matchingTokenInAoTokens = aoTokens.find(
+      (aoToken) => aoToken.id === tokenID
+    );
     if (matchingTokenInAoTokens) {
       setIsAo(true);
       return {
@@ -179,8 +164,8 @@ export function SendView({ params: { id } }: SendViewProps) {
     }
 
     setIsAo(false);
-    return matchingTokenInTokens || arPlaceholder;
-  }, [tokenID, tokens, aoTokens]);
+    return arPlaceholder;
+  }, [tokenID, aoTokens]);
 
   const degraded = useMemo(() => {
     if (loading) {
@@ -214,7 +199,6 @@ export function SendView({ params: { id } }: SendViewProps) {
 
   useEffect(() => {
     (async () => {
-      setLogo(viewblock.getTokenLogo(token.id));
       setLogo(await loadTokenLogo(token.id, token.defaultLogo, theme));
     })();
   }, [theme, token]);
@@ -242,23 +226,6 @@ export function SendView({ params: { id } }: SendViewProps) {
 
       // placeholder balance
       setBalance(token.balance);
-      if (!isAo) {
-        const dre = await getDreForToken(token.id);
-        const contract = new DREContract(tokenID || id, new DRENode(dre));
-        const result = await contract.query<[number]>(
-          `$.balances.${activeAddress}`
-        );
-
-        setBalance(
-          balanceToFractioned(String(result[0] || 0), {
-            id: token.id,
-            decimals: token.decimals,
-            divisibility: token.divisibility
-          }).toString()
-        );
-      } else {
-        setBalance(token.balance);
-      }
     })();
   }, [token, activeAddress, arBalance.toString(), id]);
 
@@ -274,34 +241,7 @@ export function SendView({ params: { id } }: SendViewProps) {
         return setPrice(arPrice.toString());
       }
 
-      // get price from redstone
-
-      if (isAo) {
-        return setPrice("0");
-      }
-
-      const redstonePromise = redstone.getPrice(token.ticker);
-      const multiplierPromise =
-        currency === "usd"
-          ? 1
-          : await getPrice("usd", currency).catch((err) => {
-              console.warn(`Error fetching price for ${currency}`, err);
-
-              return 0;
-            });
-
-      const [redstoneResponse, multiplier] = await Promise.all([
-        redstonePromise,
-        multiplierPromise
-      ]);
-
-      const redstoneValue = redstoneResponse.value;
-
-      setPrice(
-        redstoneResponse && multiplier
-          ? BigNumber(redstoneValue).multipliedBy(multiplier).toString()
-          : "0"
-      );
+      return setPrice("0");
     })();
   }, [token, currency]);
 
@@ -389,8 +329,6 @@ export function SendView({ params: { id } }: SendViewProps) {
     setShownTokenSelector(false);
   }
 
-  const uToken = isUToken(tokenID);
-
   // qty text size
   const qtySize = useMemo(() => {
     const maxLengthDef = 7;
@@ -415,7 +353,7 @@ export function SendView({ params: { id } }: SendViewProps) {
         decimals: token.decimals,
         divisibility: token.divisibility
       },
-      token.id === "AR" ? "AR" : isAo ? "AO" : "WARP"
+      token.id === "AR" ? "AR" : "AO"
     );
 
     await TempTransactionStorage.set("send", {
@@ -465,7 +403,6 @@ export function SendView({ params: { id } }: SendViewProps) {
               </div>
             </Degraded>
           )}
-
           <RecipientAmountWrapper>
             <SendButton
               fullWidth
@@ -557,16 +494,14 @@ export function SendView({ params: { id } }: SendViewProps) {
               {browser.i18n.getMessage("network_fee")}
             </Text>
           </Datas>
-          {!uToken && (
-            <MessageWrapper>
-              <SendInput
-                {...message.bindings}
-                type="text"
-                placeholder={browser.i18n.getMessage("send_message_optional")}
-                fullWidth
-              />
-            </MessageWrapper>
-          )}
+          <MessageWrapper>
+            <SendInput
+              {...message.bindings}
+              type="text"
+              placeholder={browser.i18n.getMessage("send_message_optional")}
+              fullWidth
+            />
+          </MessageWrapper>
         </SendForm>
         <Spacer y={1} />
         <BottomActions>
@@ -630,16 +565,6 @@ export function SendView({ params: { id } }: SendViewProps) {
                   divisibility={token.Denomination}
                   balance={token.balance || "0"}
                   onClick={() => updateSelectedToken(token.id)}
-                />
-              ))}
-
-            {tokens
-              .filter((token) => token.type === "asset")
-              .map((token, i) => (
-                <Token
-                  {...token}
-                  onClick={() => updateSelectedToken(token.id)}
-                  key={i}
                 />
               ))}
           </TokensList>

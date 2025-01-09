@@ -246,12 +246,9 @@ export async function syncAoTokens() {
   isSyncInProgress = true;
 
   try {
-    const [activeAddress, aoSupport] = await Promise.all([
-      getActiveAddress(),
-      ExtensionStorage.get<boolean>("setting_ao_support")
-    ]);
+    const activeAddress = await getActiveAddress();
 
-    if (!activeAddress || !aoSupport) {
+    if (!activeAddress) {
       lastHasNextPage = false;
       return { hasNextPage: false, syncCount: 0 };
     }
@@ -353,9 +350,6 @@ export async function scheduleImportAoTokens() {
 
   const activeAddress = await getActiveAddress();
   if (!activeAddress) return;
-
-  const aoSupport = await ExtensionStorage.get<boolean>("setting_ao_support");
-  if (!aoSupport) return;
 
   await ExtensionStorage.set(AO_TOKENS_IMPORT_TIMESTAMP, Date.now());
 
