@@ -1,18 +1,13 @@
 import { CompassIcon } from "~components/popup/home/Balance";
 import { currencies } from "~lib/coingecko";
-import { NODES } from "@arconnect/warp-dre";
 import {
   ChartIcon,
-  CloudIcon,
   DollarIcon,
-  InformationIcon,
-  LayersIcon,
   PercentageIcon,
   StarIcon,
   SunIcon
 } from "@iconicicons/react";
 import Setting from "./setting";
-import { CreditCard02 } from "@untitled-ui/icons-react";
 
 export const PREFIX = "setting_";
 
@@ -42,15 +37,6 @@ const settings: Setting[] = [
     type: "pick",
     options: currencies,
     defaultValue: "USD"
-  }),
-  new Setting({
-    name: "dre_node",
-    displayName: "setting_dre_node",
-    icon: CloudIcon,
-    description: "setting_setting_dre_node_description",
-    type: "pick",
-    options: Object.keys(NODES),
-    defaultValue: Object.keys(NODES)[0]
   }),
   /*new Setting({
     name: "arverify",

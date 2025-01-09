@@ -1,6 +1,6 @@
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import WalletHeader from "~components/popup/WalletHeader";
 import NoBalance from "~components/popup/home/NoBalance";
 import Balance from "~components/popup/home/Balance";
@@ -14,7 +14,6 @@ import {
   checkWalletBits
 } from "~utils/analytics";
 import styled from "styled-components";
-import { useTokens } from "~tokens";
 import { useAoTokens } from "~tokens/aoTokens/ao";
 import { useActiveWallet, useBalance } from "~wallets/hooks";
 import BuyButton from "~components/popup/home/BuyButton";
@@ -47,30 +46,19 @@ export function HomeView() {
 
   const balance = useBalance();
 
-  // all tokens
-  const tokens = useTokens();
-
   // ao Tokens
   const [aoTokens, aoTokensLoading] = useAoTokens();
 
   // checking to see if it's a hardware wallet
   const wallet = useActiveWallet();
 
-  // assets
-  const assets = useMemo(
-    () => tokens.filter((token) => token.type === "asset"),
-    [tokens]
-  );
-
   useEffect(() => {
     if (!activeAddress) return;
 
-    const findBalances = async (assets, aoTokens) => {
+    const findBalances = async (aoTokens) => {
       const hasTokensWithBalance =
         aoTokensLoading ||
-        [...assets, ...aoTokens].some((token) =>
-          BigNumber(token.balance || "0").gt(0)
-        );
+        aoTokens.some((token) => BigNumber(token.balance || "0").gt(0));
 
       if (
         hasTokensWithBalance ||
@@ -84,18 +72,11 @@ export function HomeView() {
     };
 
     try {
-      findBalances(assets, aoTokens);
+      findBalances(aoTokens);
     } catch (error) {
       console.log(error);
     }
-  }, [
-    activeAddress,
-    assets,
-    aoTokens,
-    balance,
-    historicalBalance,
-    aoTokensLoading
-  ]);
+  }, [activeAddress, aoTokens, balance, historicalBalance, aoTokensLoading]);
 
   useEffect(() => {
     const trackEventAndPage = async () => {

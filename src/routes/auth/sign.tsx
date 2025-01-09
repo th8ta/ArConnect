@@ -43,6 +43,7 @@ import { getTagValue } from "~tokens/aoTokens/ao";
 import { humanizeTimestampTags } from "~utils/timestamp";
 import styled from "styled-components";
 import { ChevronDownIcon, ChevronUpIcon } from "@iconicicons/react";
+import { checkPassword } from "~wallets/auth";
 
 export function SignAuthRequestView() {
   const { authRequest, acceptRequest, rejectRequest } =
@@ -144,23 +145,6 @@ export function SignAuthRequestView() {
   const recipient = useMemo(() => {
     if (tags.length === 0) return transaction?.target || "";
 
-    // Warp Token
-    const isWarpTx =
-      tags.some(
-        (tag) => tag.name === "App-Name" && tag.value === "SmartWeaveAction"
-      ) && tags.some((tag) => tag.name === "Contract");
-    if (isWarpTx) {
-      const inputTag = tags.find((tag) => tag.name === "Input");
-      if (inputTag?.value) {
-        try {
-          const inputValue = JSON.parse(inputTag.value);
-          if (inputValue?.function === "transfer" && inputValue?.target) {
-            return inputValue.target;
-          }
-        } catch (error) {}
-      }
-    }
-
     // AO Token
     const isAOTransferTx =
       tags.some((tag) => tag.name === "Data-Protocol" && tag.value === "ao") &&
@@ -240,6 +224,17 @@ export function SignAuthRequestView() {
 
   const sign = async () => {
     if (!transaction) return;
+    if (askPassword) {
+      const checkPw = await checkPassword(passwordInput.state);
+      if (!checkPw) {
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("invalidPassword"),
+          duration: 2400
+        });
+        return;
+      }
+    }
     if (wallet.type === "hardware") {
       // load tx ur
       if (!page) await loadTransactionUR();

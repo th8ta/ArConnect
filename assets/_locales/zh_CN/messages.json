@@ -451,10 +451,6 @@
     "message": "货币",
     "description": "Select currency"
   },
-  "setting_dre_node": {
-      "message": "Warp DRE 节点",
-      "description": "Warp DRE node setting title"
-  },
   "setting_arverify": {
       "message": "ArVerify 阈值",
       "description": "ArVerify settings title"
@@ -1995,10 +1991,6 @@
               "example": "Address"
           }
       }
-  },
-  "setting_ao_support": {
-      "message": "ao 支持",
-      "description": "ao support settings title"
   },
   "setting_ao_support_description": {
       "message": "在您的钱包中显示 ao 代币（测试版）",
