@@ -112,11 +112,6 @@ export function useAoTokens({
     instance: ExtensionStorage
   });
 
-  const [aoSetting] = useStorage<boolean>({
-    key: "setting_ao_support",
-    instance: ExtensionStorage
-  });
-
   const [aoTokens] = useStorage<TokenInfo[]>(
     {
       key: "ao_tokens",
@@ -129,11 +124,6 @@ export function useAoTokens({
   useEffect(() => {
     (async () => {
       try {
-        if (!aoSetting) {
-          setTokens([]);
-          return;
-        }
-
         setTokens(
           aoTokens
             .filter((t) => {
@@ -154,11 +144,11 @@ export function useAoTokens({
         );
       } catch {}
     })();
-  }, [aoTokens, aoSetting]);
+  }, [aoTokens]);
 
   useEffect(() => {
     (async () => {
-      if (!activeAddress || !aoSetting) {
+      if (!activeAddress) {
         setBalances([]);
         return;
       }
@@ -230,7 +220,7 @@ export function useAoTokens({
         setLoading(false);
       }
     })();
-  }, [tokens, activeAddress, aoSetting]);
+  }, [tokens, activeAddress]);
   return [tokensWithBalances, loading];
 }
 
@@ -324,11 +314,6 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
     instance: ExtensionStorage
   });
 
-  const [aoSetting] = useStorage<boolean>({
-    key: "setting_ao_support",
-    instance: ExtensionStorage
-  });
-
   const [aoTokens] = useStorage<TokenInfoWithProcessId[]>(
     {
       key: "ao_tokens",
@@ -348,7 +333,7 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
   );
 
   const aoTokensToAdd = useMemo(() => {
-    if (!activeAddress || aoTokensCache.length === 0 || !aoSetting) {
+    if (!activeAddress || aoTokensCache.length === 0) {
       return [];
     }
 
@@ -381,7 +366,7 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
 
   useEffect(() => {
     (async () => {
-      if (!activeAddress || !aoSetting) {
+      if (!activeAddress) {
         return setBalances([]);
       }
 
@@ -413,7 +398,7 @@ export function useAoTokensCache(): [TokenInfoWithBalance[], boolean] {
         setLoading(false);
       }
     })();
-  }, [aoTokensToAdd, activeAddress, aoSetting]);
+  }, [aoTokensToAdd, activeAddress]);
 
   return [tokensWithBalances, loading];
 }

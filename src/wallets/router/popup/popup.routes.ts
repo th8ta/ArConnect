@@ -32,7 +32,6 @@ import { SubscriptionDetailsView } from "~routes/popup/subscriptions/subscriptio
 import { SubscriptionManagementView } from "~routes/popup/subscriptions/subscriptionManagement";
 import { SubscriptionPaymentView } from "~routes/popup/subscriptions/subscriptionPayment";
 import { SubscriptionsView } from "~routes/popup/subscriptions/subscriptions";
-import { AssetView } from "~routes/popup/token/[id]";
 import { TokensView } from "~routes/popup/tokens";
 import { TransactionView } from "~routes/popup/transaction/[id]";
 import { TransactionsView } from "~routes/popup/transaction/transactions";
@@ -190,10 +189,6 @@ export const POPUP_ROUTES = [
   {
     path: PopupPaths.Tokens,
     component: TokensView
-  },
-  {
-    path: PopupPaths.Asset,
-    component: AssetView
   },
   {
     path: PopupPaths.Collectibles,

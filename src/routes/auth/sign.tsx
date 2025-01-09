@@ -145,23 +145,6 @@ export function SignAuthRequestView() {
   const recipient = useMemo(() => {
     if (tags.length === 0) return transaction?.target || "";
 
-    // Warp Token
-    const isWarpTx =
-      tags.some(
-        (tag) => tag.name === "App-Name" && tag.value === "SmartWeaveAction"
-      ) && tags.some((tag) => tag.name === "Contract");
-    if (isWarpTx) {
-      const inputTag = tags.find((tag) => tag.name === "Input");
-      if (inputTag?.value) {
-        try {
-          const inputValue = JSON.parse(inputTag.value);
-          if (inputValue?.function === "transfer" && inputValue?.target) {
-            return inputValue.target;
-          }
-        } catch (error) {}
-      }
-    }
-
     // AO Token
     const isAOTransferTx =
       tags.some((tag) => tag.name === "Data-Protocol" && tag.value === "ao") &&
