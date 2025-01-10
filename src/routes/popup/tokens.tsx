@@ -1,12 +1,8 @@
 import { useLocation } from "~wallets/router/router.utils";
 import { ButtonV2, Section, useToasts, Loading } from "@arconnect/components";
 import { EditIcon } from "@iconicicons/react";
-import {
-  getAoTokens,
-  getAoTokensAutoImportRestrictedIds,
-  useTokens
-} from "~tokens";
-import { useEffect, useMemo, useState } from "react";
+import { getAoTokens, getAoTokensAutoImportRestrictedIds } from "~tokens";
+import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import Token from "~components/popup/Token";
 import styled from "styled-components";
@@ -18,7 +14,6 @@ import {
 } from "~tokens/aoTokens/ao";
 import { ExtensionStorage } from "~utils/storage";
 import { syncAoTokens } from "~tokens/aoTokens/sync";
-import { useStorage } from "~utils/storage";
 
 export function TokensView() {
   const { navigate } = useLocation();
@@ -27,8 +22,7 @@ export function TokensView() {
   const [hasNextPage, setHasNextPage] = useState<boolean | undefined>(
     undefined
   );
-  // all tokens
-  const tokens = useTokens();
+
   // ao Tokens
   const [aoTokens] = useAoTokens();
 
@@ -36,20 +30,6 @@ export function TokensView() {
   const [aoTokensCache] = useAoTokensCache();
 
   const { setToast } = useToasts();
-
-  const [aoSupport] = useStorage<boolean>(
-    {
-      key: "setting_ao_support",
-      instance: ExtensionStorage
-    },
-    false
-  );
-
-  // assets
-  const assets = useMemo(
-    () => tokens.filter((token) => token.type === "asset"),
-    [tokens]
-  );
 
   function handleTokenClick(tokenId: string) {
     navigate(`/send/transfer/${tokenId}`);
@@ -123,7 +103,6 @@ export function TokensView() {
   };
 
   async function searchAoTokens() {
-    if (!aoSupport) return;
     try {
       setIsLoading(true);
       const { hasNextPage } = await syncAoTokens();
@@ -134,10 +113,8 @@ export function TokensView() {
   }
 
   useEffect(() => {
-    if (aoSupport) {
-      searchAoTokens();
-    }
-  }, [aoSupport]);
+    searchAoTokens();
+  }, []);
 
   return (
     <>
@@ -162,17 +139,6 @@ export function TokensView() {
             }}
           />
         ))}
-        {assets.map((token, i) => (
-          <Token
-            {...token}
-            onClick={() => navigate(`/token/${token.id}`)}
-            onSettingsClick={(e) => {
-              e.preventDefault();
-              navigate(`/quick-settings/tokens/${token.id}`);
-            }}
-            key={i}
-          />
-        ))}
         {aoTokensCache.map((token) => (
           <Token
             key={token.id}
@@ -193,7 +159,7 @@ export function TokensView() {
           />
         ))}
 
-        {aoSupport && hasNextPage && (
+        {hasNextPage && (
           <ButtonV2
             disabled={isLoading}
             style={{ alignSelf: "center", marginTop: "5px" }}

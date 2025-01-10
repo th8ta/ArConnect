@@ -28,12 +28,6 @@ import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
-import {
-  getWarpGatewayUrl,
-  isUrlOnline,
-  isUToken,
-  sendRequest
-} from "~utils/send";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 import { concatGatewayURL } from "~gateways/utils";
 import type { JWKInterface } from "arbundles";
@@ -107,7 +101,6 @@ export function ConfirmView({
   const [needsSign, setNeedsSign] = useState<boolean>(true);
   const { setToast } = useToasts();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const uToken = isUToken(tokenID);
 
   const ao = useAo();
 
@@ -207,40 +200,16 @@ export function ConfirmView({
         gateway: gateway
       };
 
-      if (tokenID !== "AR") {
-        // create interaction
-        const tx = await arweave.createTransaction({
-          target,
-          quantity: "0"
-        });
+      const tx = await arweave.createTransaction({
+        target,
+        quantity: fractionedToBalance(amount, token, "AR"),
+        data: message ? decodeURIComponent(message) : undefined
+      });
 
-        const qty = +fractionedToBalance(amount, token, "WARP");
+      addTransferTags(tx);
 
-        tx.addTag("App-Name", "SmartWeaveAction");
-        tx.addTag("App-Version", "0.3.0");
-        tx.addTag("Contract", tokenID);
-        tx.addTag(
-          "Input",
-          JSON.stringify({
-            function: "transfer",
-            target: target,
-            qty: uToken ? Math.floor(qty) : qty
-          })
-        );
-        addTransferTags(tx);
+      storedTx.transaction = tx.toJSON();
 
-        storedTx.transaction = tx.toJSON();
-      } else {
-        const tx = await arweave.createTransaction({
-          target,
-          quantity: fractionedToBalance(amount, token, "AR"),
-          data: message ? decodeURIComponent(message) : undefined
-        });
-
-        addTransferTags(tx);
-
-        storedTx.transaction = tx.toJSON();
-      }
       return storedTx;
     } catch {
       return setToast({
@@ -304,34 +273,15 @@ export function ConfirmView({
       }, 10000);
     });
 
-    if (uToken) {
-      try {
-        const isOnline = await isUrlOnline(getWarpGatewayUrl("gw"));
-        const config = {
-          url: getWarpGatewayUrl(isOnline ? "gw" : "gateway", "sequencer"),
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json"
-          },
-          body: JSON.stringify(transaction)
-        };
-        await sendRequest(config);
-      } catch (err) {
-        console.log("err", err);
-        throw new Error("Unknown error occurred");
-      }
-    } else {
-      try {
-        await Promise.race([
-          arweave.transactions.post(transaction),
-          timeoutPromise
-        ]);
-      } catch (err) {
-        // SEGMENT
-        await trackEvent(EventType.TRANSACTION_INCOMPLETE, {});
-        throw new Error("Error with posting to Arweave");
-      }
+    try {
+      await Promise.race([
+        arweave.transactions.post(transaction),
+        timeoutPromise
+      ]);
+    } catch (err) {
+      // SEGMENT
+      await trackEvent(EventType.TRANSACTION_INCOMPLETE, {});
+      throw new Error("Error with posting to Arweave");
     }
   }
 
@@ -416,16 +366,14 @@ export function ConfirmView({
                 SubscriptionStatus.ACTIVE
               ));
           } catch (e) {
-            if (!uToken) {
-              gateway = fallbackGateway;
-              const fallbackArweave = new Arweave(gateway);
-              await fallbackArweave.transactions.sign(
-                convertedTransaction,
-                keyfile
-              );
-              await submitTx(convertedTransaction, fallbackArweave, type);
-              await trackEvent(EventType.FALLBACK, {});
-            }
+            gateway = fallbackGateway;
+            const fallbackArweave = new Arweave(gateway);
+            await fallbackArweave.transactions.sign(
+              convertedTransaction,
+              keyfile
+            );
+            await submitTx(convertedTransaction, fallbackArweave, type);
+            await trackEvent(EventType.FALLBACK, {});
           }
           setIsLoading(false);
           setToast({
@@ -439,13 +387,11 @@ export function ConfirmView({
             fee: networkFee
           });
           // Redirect
-          uToken
-            ? navigate("/")
-            : navigate(
-                `/send/completed/${
-                  convertedTransaction.id
-                }?back=${encodeURIComponent("/")}`
-              );
+          navigate(
+            `/send/completed/${
+              convertedTransaction.id
+            }?back=${encodeURIComponent("/")}`
+          );
 
           // remove wallet from memory
           freeDecryptedWallet(keyfile);
@@ -485,16 +431,14 @@ export function ConfirmView({
           try {
             await submitTx(convertedTransaction, arweave, type);
           } catch (e) {
-            if (!uToken) {
-              gateway = fallbackGateway;
-              const fallbackArweave = new Arweave(gateway);
-              await fallbackArweave.transactions.sign(
-                convertedTransaction,
-                keyfile
-              );
-              await submitTx(convertedTransaction, fallbackArweave, type);
-              await trackEvent(EventType.FALLBACK, {});
-            }
+            gateway = fallbackGateway;
+            const fallbackArweave = new Arweave(gateway);
+            await fallbackArweave.transactions.sign(
+              convertedTransaction,
+              keyfile
+            );
+            await submitTx(convertedTransaction, fallbackArweave, type);
+            await trackEvent(EventType.FALLBACK, {});
           }
           setIsLoading(false);
           setToast({
@@ -507,13 +451,11 @@ export function ConfirmView({
             amount: tokenID === "AR" ? +transactionAmount : 0,
             fee: networkFee
           });
-          uToken
-            ? navigate("/")
-            : navigate(
-                `/send/completed/${
-                  convertedTransaction.id
-                }?back=${encodeURIComponent("/")}`
-              );
+          navigate(
+            `/send/completed/${
+              convertedTransaction.id
+            }?back=${encodeURIComponent("/")}`
+          );
           freeDecryptedWallet(keyfile);
         } catch (e) {
           freeDecryptedWallet(keyfile);
@@ -698,13 +640,9 @@ export function ConfirmView({
           amount: tokenID === "AR" ? latestTxQty : 0,
           fee: networkFee
         });
-        uToken
-          ? navigate("/")
-          : navigate(
-              `/send/completed/${transaction.id}?back=${encodeURIComponent(
-                "/"
-              )}`
-            );
+        navigate(
+          `/send/completed/${transaction.id}?back=${encodeURIComponent("/")}`
+        );
       } catch (e) {
         console.log(e);
         setToast({
