@@ -23,10 +23,9 @@ export const i18n = {
     const value = dictionary[key]?.message;
 
     if (!value) {
-      console.warn(`Missing ${dictionaryLanguage} translation for ${key}.`);
+      console.warn(`Missing "${dictionaryLanguage}" translation for "${key}".`);
     }
 
-    // TODO: Default to English instead?
-    return value || `<${key}>`;
+    return value || dictionary.en?.message || `<${key}>`;
   }
 };
