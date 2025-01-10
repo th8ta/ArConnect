@@ -60,8 +60,6 @@ export default function WalletHeader() {
     []
   );
 
-  console.log("wallets =", wallets);
-
   // is the wallet selector open
   const [isOpen, setOpen] = useState(false);
 
