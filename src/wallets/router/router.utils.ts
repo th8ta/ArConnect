@@ -3,6 +3,7 @@ import {
   useSearch as useWearch,
   useLocation as useWouterLocation
 } from "wouter";
+import { log, LOG_GROUP } from "~utils/log/log.utils";
 import {
   type RouteConfig,
   type WanderRoutePath,
@@ -85,8 +86,6 @@ export function routeTrapOutside<T extends RoutePath>(
 
 export function BodyScroller() {
   const { location } = useLocation();
-
-  // console.log("location =", location);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -221,7 +220,7 @@ export function withRouterRedirects(
     useEffect(() => {
       if (!redirectLocation) return;
 
-      // console.log("redirectLocation =", redirectLocation);
+      log(LOG_GROUP.ROUTING, `Redirecting to ${redirectLocation}...`);
 
       navigate(redirectLocation);
     }, [redirectLocation]);

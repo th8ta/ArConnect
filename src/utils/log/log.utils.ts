@@ -4,6 +4,7 @@ export enum LOG_GROUP {
   CHUNKS = "CHUNKS",
   GATEWAYS = "GATEWAYS",
   MSG = "MSG",
+  ROUTING = "ROUTING",
   SETUP = "SETUP"
 }
 
@@ -13,6 +14,7 @@ const LOG_GROUPS_ENABLED: Record<LOG_GROUP, boolean> = {
   [LOG_GROUP.CHUNKS]: false,
   [LOG_GROUP.GATEWAYS]: false,
   [LOG_GROUP.MSG]: false,
+  [LOG_GROUP.ROUTING]: false,
   [LOG_GROUP.SETUP]: process.env.NODE_ENV === "development"
 };
 
