@@ -1,10 +1,10 @@
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
-import { useAuth } from "~utils/authentication/authentication.hooks";
+import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import screenSrc from "url:/assets-beta/figma-screens/auth.view.png";
 import { DevButtons } from "~components/dev/buttons/buttons.component";
 
 export function AuthMoreProvidersEmbeddedView() {
-  const { authenticate, authStatus } = useAuth();
+  const { authenticate, authStatus } = useEmbedded();
 
   // TODO: Remember last selection and highlight that one / show it in the main screen (not in "More")
 

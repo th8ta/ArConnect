@@ -1,6 +1,6 @@
 import { DevButtons } from "~components/dev/buttons/buttons.component";
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
-import { useAuth } from "~utils/authentication/authentication.hooks";
+import { useEmbedded } from "~utils/embedded/embedded.hooks";
 
 import screenSrc from "url:/assets-beta/figma-screens/recover-account-keyfile.view.png";
 import { useRef } from "react";
@@ -8,7 +8,7 @@ import { useRef } from "react";
 export function AuthRecoverAccountKeyfileEmbeddedView() {
   const {
     /* tempWallet, clearTempWallet */
-  } = useAuth();
+  } = useEmbedded();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const checkboxRef = useRef<HTMLInputElement>(null);

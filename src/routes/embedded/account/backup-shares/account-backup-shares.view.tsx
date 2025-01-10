@@ -1,11 +1,11 @@
-import { useAuth } from "~utils/authentication/authentication.hooks";
+import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
 import { DevButtons } from "~components/dev/buttons/buttons.component";
 
 import screenSrc from "url:/assets-beta/figma-screens/backup-options.view.png";
 
 export function AccountBackupSharesEmbeddedView() {
-  const { promptToBackUp /*, registerBackUp */ } = useAuth();
+  const { promptToBackUp /*, registerBackUp */ } = useEmbedded();
 
   // TODO: What if the user already has more than 3 backup shares?
 

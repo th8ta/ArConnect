@@ -1,11 +1,11 @@
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
-import { useAuth } from "~utils/authentication/authentication.hooks";
+import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import { DevButtons } from "~components/dev/buttons/buttons.component";
 
 import screenSrc from "url:/assets-beta/figma-screens/add-a-wallet.view.png";
 
 export function AuthAddWalletEmbeddedView() {
-  const { authMethod, generateWallet } = useAuth();
+  const { authMethod, generateWallet } = useEmbedded();
 
   const handleCreateNewWallet = async () => {
     // TODO: Handle errors and loading states.

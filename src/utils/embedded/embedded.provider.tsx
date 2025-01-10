@@ -41,7 +41,7 @@ interface WalletInfo extends DbWallet {
   isReady: boolean;
 }
 
-interface AuthContextState {
+interface EmbeddedContextState {
   authStatus: AuthStatus;
   authMethod: null | AuthMethod;
   userId: null | string;
@@ -51,7 +51,7 @@ interface AuthContextState {
   backedUp: boolean;
 }
 
-interface AuthContextData extends AuthContextState {
+interface EmbeddedContextData extends EmbeddedContextState {
   authenticate: (authMethod: AuthMethod) => Promise<void>;
   generateWallet: () => Promise<void>;
   importWallet: (jwkOrSeedPhrase: JWKInterface | string) => Promise<void>;
@@ -64,7 +64,7 @@ interface AuthContextData extends AuthContextState {
   copySeedphrase: (walletAddress: string) => Promise<void>;
 }
 
-const AUTH_CONTEXT_INITIAL_STATE: AuthContextState = {
+const EMBEDDED_CONTEXT_INITIAL_STATE: EmbeddedContextState = {
   authStatus: "unknown",
   authMethod: null,
   userId: null,
@@ -74,8 +74,8 @@ const AUTH_CONTEXT_INITIAL_STATE: AuthContextState = {
   backedUp: false
 };
 
-export const AuthContext = createContext<AuthContextData>({
-  ...AUTH_CONTEXT_INITIAL_STATE,
+export const EmbeddedContext = createContext<EmbeddedContextData>({
+  ...EMBEDDED_CONTEXT_INITIAL_STATE,
   authenticate: async () => null,
   generateWallet: async () => null,
   importWallet: async () => null,
@@ -88,14 +88,13 @@ export const AuthContext = createContext<AuthContextData>({
   copySeedphrase: async () => null
 });
 
-interface AuthProviderProps extends PropsWithChildren {}
+interface EmbeddedProviderProps extends PropsWithChildren {}
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [authContextState, setAuthContextState] = useState<AuthContextState>(
-    AUTH_CONTEXT_INITIAL_STATE
-  );
+export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
+  const [embeddedContextState, setEmbeddedContextState] =
+    useState<EmbeddedContextState>(EMBEDDED_CONTEXT_INITIAL_STATE);
 
-  const { authStatus, userId, wallets } = authContextState;
+  const { authStatus, userId, wallets } = embeddedContextState;
 
   useEffect(() => {
     if (authStatus !== "unknown") {
@@ -106,7 +105,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [authStatus]);
 
   const clearLastWallet = useCallback(() => {
-    setAuthContextState((prevAuthContextState) => ({
+    setEmbeddedContextState((prevAuthContextState) => ({
       ...prevAuthContextState,
       lastWallet: null
     }));
@@ -115,7 +114,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const deleteLastWallet = useCallback(() => {
     // TODO: It also needs to be deleted from the backend.
 
-    setAuthContextState(
+    setEmbeddedContextState(
       ({
         authStatus,
         wallets: prevWallets,
@@ -139,7 +138,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const skipBackUp = useCallback((doNotAskAgain: boolean) => {
     // TODO: Persist lastPromptData (local?) and doNotAskAgain (server?)...
 
-    setAuthContextState((prevAuthContextState) => ({
+    setEmbeddedContextState((prevAuthContextState) => ({
       ...prevAuthContextState,
       promptToBackUp: false
     }));
@@ -148,7 +147,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const registerBackUp = useCallback(async () => {
     // TODO: Do we need to register this on the server? Here or on from the view itself?
 
-    setAuthContextState((prevAuthContextState) => ({
+    setEmbeddedContextState((prevAuthContextState) => ({
       ...prevAuthContextState,
       backedUp: true
     }));
@@ -196,7 +195,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // TODO: We could consider calling `initEmbeddedWallet` again instead, which will make sure the wallet has been
       // properly added to the backend as well.
 
-      setAuthContextState(({ wallets: prevWallets }) => {
+      setEmbeddedContextState(({ wallets: prevWallets }) => {
         const nextWallets = [...prevWallets];
 
         if (
@@ -212,7 +211,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         return {
-          ...AUTH_CONTEXT_INITIAL_STATE,
+          ...EMBEDDED_CONTEXT_INITIAL_STATE,
           authStatus: "unlocked",
           wallets: nextWallets,
           lastWallet: isNewWallet ? dbWallet : null
@@ -336,8 +335,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const backgroundInitRef = useRef(false);
 
   const initEmbeddedWallet = useCallback(async (authMethod?: AuthMethod) => {
-    setAuthContextState({
-      ...AUTH_CONTEXT_INITIAL_STATE,
+    setEmbeddedContextState({
+      ...EMBEDDED_CONTEXT_INITIAL_STATE,
       authStatus: "authLoading",
       authMethod
     });
@@ -363,7 +362,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       : await AuthenticationService.refreshSession();
 
     if (!authentication?.userId) {
-      setAuthContextState((prevAuthContextState) => ({
+      setEmbeddedContextState((prevAuthContextState) => ({
         ...prevAuthContextState,
         authStatus: "noAuth"
       }));
@@ -390,7 +389,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } satisfies WalletInfo)
     );
 
-    setAuthContextState((prevAuthContextState) => ({
+    setEmbeddedContextState((prevAuthContextState) => ({
       ...prevAuthContextState,
       wallets
     }));
@@ -476,7 +475,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       authStatus = "noWallets";
     }
 
-    setAuthContextState((prevAuthContextState) => ({
+    setEmbeddedContextState((prevAuthContextState) => ({
       ...prevAuthContextState,
       authStatus
     }));
@@ -503,9 +502,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 
   return (
-    <AuthContext.Provider
+    <EmbeddedContext.Provider
       value={{
-        ...authContextState,
+        ...embeddedContextState,
         authenticate,
         generateWallet,
         importWallet,
@@ -519,6 +518,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }}
     >
       {children}
-    </AuthContext.Provider>
+    </EmbeddedContext.Provider>
   );
 }

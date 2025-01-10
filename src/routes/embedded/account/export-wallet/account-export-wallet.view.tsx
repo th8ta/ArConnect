@@ -1,14 +1,13 @@
-import { Link } from "~wallets/router/components/link/Link";
-
-import screenSrc from "url:/assets-beta/figma-screens/export-wallet.view.png";
-import { useAuth } from "~utils/authentication/authentication.hooks";
+import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
 import { DevButtons } from "~components/dev/buttons/buttons.component";
 import { MockedFeatureFlags } from "~utils/authentication/fakeDB";
 import { WalletUtils } from "~utils/wallets/wallets.utils";
 
+import screenSrc from "url:/assets-beta/figma-screens/export-wallet.view.png";
+
 export function AccountExportWalletEmbeddedView() {
-  const { wallets, downloadKeyfile, copySeedphrase } = useAuth();
+  const { wallets, downloadKeyfile, copySeedphrase } = useEmbedded();
   const walletAddress = wallets[0].address;
 
   return (

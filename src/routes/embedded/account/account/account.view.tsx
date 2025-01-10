@@ -1,8 +1,8 @@
-import { useAuth } from "~utils/authentication/authentication.hooks";
+import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import { Link } from "~wallets/router/components/link/Link";
 
 export function AccountEmbeddedView() {
-  const { wallets } = useAuth();
+  const { wallets } = useEmbedded();
 
   // TODO: Add special screen when using ArConnect. For MVP, no interface, only proxy.
 
