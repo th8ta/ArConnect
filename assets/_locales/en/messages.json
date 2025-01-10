@@ -1214,7 +1214,7 @@
     "description": "Dark theme"
   },
   "system_theme": {
-    "message": "System",
+    "message": "System (Default)",
     "description": "System theme"
   },
   "migration_available": {
@@ -2675,5 +2675,17 @@
   "scan_error": {
     "message": "Scan error",
     "description": "Scan error text"
+  },
+  "choose_ui_theme": {
+    "message": "Choose UI theme",
+    "description": "Choose UI theme text"
+  },
+  "choose_ui_theme_description": {
+    "message": "Select the theme of the app UI.",
+    "description": "Select the theme of the app UI description"
+  },
+  "take_a_tour": {
+    "message": "Take a tour",
+    "description": "Take a tour button text"
   }
 }

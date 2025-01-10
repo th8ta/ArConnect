@@ -15,7 +15,12 @@ export function GenerateDoneWelcomeView() {
   const { wallet } = useContext(WalletContext);
 
   // add generated wallet
-  async function done() {
+  async function goToDashboard() {
+    window.onbeforeunload = null;
+    window.top.close();
+  }
+
+  async function takeTour() {
     window.onbeforeunload = null;
     window.top.close();
   }
@@ -62,9 +67,19 @@ export function GenerateDoneWelcomeView() {
           />
         </InnerContent>
       </Content>
-      <Button fullWidth onClick={done}>
-        {browser.i18n.getMessage("go_to_dashboard")}
-      </Button>
+      <Actions>
+        <Button fullWidth onClick={takeTour}>
+          {browser.i18n.getMessage("take_a_tour")}
+        </Button>
+        <Button
+          variant="secondary"
+          fullWidth
+          onClick={goToDashboard}
+          style={{ marginTop: "auto" }}
+        >
+          {browser.i18n.getMessage("go_to_dashboard")}
+        </Button>
+      </Actions>
     </Container>
   );
 }
@@ -87,6 +102,13 @@ const Content = styled.div`
   justify-content: center;
   text-align: center;
   gap: 24px;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
 `;
 
 const InnerContent = styled.div`

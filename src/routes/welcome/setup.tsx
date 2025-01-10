@@ -21,7 +21,7 @@ import { PasswordWelcomeView } from "./load/password";
 import { ThemeWelcomeView } from "./load/theme";
 
 // Generate:
-import { CreateAccountView } from "./generate/account";
+import { AccountWelcomeView } from "./generate/account";
 import { BackupWelcomeView } from "./generate/backup";
 import { ConfirmWelcomeView } from "./generate/confirm";
 import { GenerateDoneWelcomeView } from "./generate/done";
@@ -39,22 +39,39 @@ import { OptionsWelcomView } from "./load/options";
 // TODO: Use a nested router instead:
 const ViewsBySetupMode = {
   generate: [
-    CreateAccountView,
+    AccountWelcomeView,
     BackupWelcomeView,
     ConfirmWelcomeView,
     PasswordWelcomeView,
+    ThemeWelcomeView,
     PermissionsWelcomeView,
     GenerateDoneWelcomeView
   ],
   load: [OptionsWelcomView],
   recoveryPhraseLoad: [
-    WalletsWelcomeView
-    // PasswordWelcomeView,
-    // ThemeWelcomeView,
-    // LoadDoneWelcomeView
+    WalletsWelcomeView,
+    AccountWelcomeView,
+    PasswordWelcomeView,
+    ThemeWelcomeView,
+    PermissionsWelcomeView,
+    GenerateDoneWelcomeView
   ],
-  keyfileLoad: [WalletsWelcomeView],
-  qrLoad: [WalletsWelcomeView]
+  keyfileLoad: [
+    WalletsWelcomeView,
+    AccountWelcomeView,
+    PasswordWelcomeView,
+    ThemeWelcomeView,
+    PermissionsWelcomeView,
+    GenerateDoneWelcomeView
+  ],
+  qrLoad: [
+    WalletsWelcomeView,
+    AccountWelcomeView,
+    PasswordWelcomeView,
+    ThemeWelcomeView,
+    PermissionsWelcomeView,
+    GenerateDoneWelcomeView
+  ]
 } as const;
 
 const VIEW_TITLES_BY_SETUP_MODE = {
@@ -71,13 +88,35 @@ const VIEW_SUBTITLES_BY_SETUP_MODE = {
     "backup_your_account",
     "confirm_your_recovery_phrase",
     "create_a_password",
+    "choose_ui_theme",
     "enable_permissions",
-    ""
+    "congratulations"
   ],
   load: [""],
-  recoveryPhraseLoad: ["enter_recovery_phrase", "", "", ""],
-  keyfileLoad: ["upload_key_file", "", "", ""],
-  qrLoad: ["scan_qr_code", "", "", ""]
+  recoveryPhraseLoad: [
+    "enter_recovery_phrase",
+    "name_your_account",
+    "create_a_password",
+    "choose_ui_theme",
+    "enable_permissions",
+    "congratulations"
+  ],
+  keyfileLoad: [
+    "upload_key_file",
+    "name_your_account",
+    "create_a_password",
+    "choose_ui_theme",
+    "enable_permissions",
+    "congratulations"
+  ],
+  qrLoad: [
+    "scan_qr_code",
+    "name_your_account",
+    "create_a_password",
+    "choose_ui_theme",
+    "enable_permissions",
+    "congratulations"
+  ]
 };
 export type WelcomeSetupMode =
   | "generate"
@@ -101,7 +140,7 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
   const pageTitle = VIEW_TITLES_BY_SETUP_MODE[setupMode];
   const pageSubtitle = VIEW_SUBTITLES_BY_SETUP_MODE[setupMode][page - 1];
   const pageCount = ViewsBySetupMode[setupMode].length;
-  const isCongratulationsPage = setupMode === "generate" && page === 6;
+  const isCongratulationsPage = setupMode !== "load" && pageCount === page;
   const hidePagination = setupMode === "load" && page === 1;
 
   // temporarily stored password
@@ -114,7 +153,9 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
   const [generatedWallet, setGeneratedWallet] = useState<GeneratedWallet>({});
 
   const navigateToPreviousPage = () => {
-    if (page === 1) {
+    if (setupMode !== "generate" && setupMode !== "load" && page === 1) {
+      navigate("/load/1");
+    } else if (page === 1) {
       navigate("/");
     } else {
       navigate(`/${setupMode}/${page - 1}`);
@@ -200,7 +241,8 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
     isNaN(page) ||
     page < 1 ||
     page > pageCount ||
-    (page > 4 && password === "")
+    (setupMode === "generate" && page > 4 && password === "") ||
+    (setupMode !== "generate" && page > 3 && password === "")
   ) {
     return <Redirect to={`/${setupMode}/1`} />;
   }

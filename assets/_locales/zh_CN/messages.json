@@ -1202,7 +1202,7 @@
       "description": "Dark theme"
   },
   "system_theme": {
-      "message": "系统",
+      "message": "系统（默认）",
       "description": "System theme"
   },
   "migration_available": {
@@ -2661,5 +2661,17 @@
     "scan_error": {
         "message": "扫描错误",
         "description": "Scan error text"
+    },
+    "choose_ui_theme": {
+        "message": "选择UI主题",
+        "description": "Choose UI theme text"
+    },
+    "choose_ui_theme_description": {
+        "message": "选择应用的UI主题。",
+        "description": "Select the theme of the app UI description"
+    },
+    "take_a_tour": {
+        "message": "开始使用",
+        "description": "Take a tour button text"
     }
 }

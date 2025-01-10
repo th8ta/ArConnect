@@ -9,9 +9,9 @@ import type { CommonRouteProps } from "~wallets/router/router.types";
 import styled from "styled-components";
 import { Button, Input } from "@arconnect/components-rebrand";
 
-export type CreateAccountViewProps = CommonRouteProps<SetupWelcomeViewParams>;
+export type AccountWelcomeViewProps = CommonRouteProps<SetupWelcomeViewParams>;
 
-export function CreateAccountView({ params }: CreateAccountViewProps) {
+export function AccountWelcomeView({ params }: AccountWelcomeViewProps) {
   const { navigate } = useLocation();
 
   const { setAccountName } = useContext(WalletContext);
