@@ -10,7 +10,6 @@ export default defineConfig({
   define: {
     "process.env": {
       ...(process?.env || {})
-      // VITE_PUBLIC_APP_TYPE: "embedded",
     }
   },
   resolve: {
@@ -31,19 +30,11 @@ export default defineConfig({
       "~utils": path.resolve(__dirname, "./src/utils"),
       "~wallets": path.resolve(__dirname, "./src/wallets"),
 
-      /*
-      "plasmohq/storage": path.resolve(
-        __dirname,
-        "./src/iframe/plasmohq/storage"
-      ),
-      "plasmohq/storage/hook": path.resolve(
-        __dirname,
-        "./src/iframe/plasmohq/storage/hook"
-      ),
-      */
-
+      // Assets:
       "url:/assets": path.resolve(__dirname, "./assets"),
       "url:/assets-beta": path.resolve(__dirname, "./assets-beta"),
+
+      // Polyfill `webextension-polyfill` for embedded, as that's not a BE but a regular SPA:
       "webextension-polyfill": path.resolve(__dirname, "./src/iframe/browser")
     }
   }
