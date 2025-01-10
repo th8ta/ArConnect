@@ -20,6 +20,8 @@ import { wordlists, mnemonicToSeed } from "bip39-web-crypto";
 export async function jwkFromMnemonic(mnemonic: string) {
   // TODO: We use `mnemonicToSeed` from `bip39-web-crypto` here instead of using `getKeyPairFromMnemonic`, which
   // internally uses `bip39`. Instead, we should just be using `getKeyPairFromMnemonic` and lazy load this dependency:
+  //
+  // For additional context, see https://www.notion.so/community-labs/Human-Crypto-Keys-reported-Bug-d3a8910dabb6460da814def62665181a
 
   const seedBuffer = await mnemonicToSeed(mnemonic);
 
