@@ -2659,5 +2659,21 @@
   "open_webcam": {
     "message": "Open webcam",
     "description": "Open webcam button text"
+  },
+  "camera_permission_denied": {
+    "message": "Camera permission denied",
+    "description": "Camera permission denied"
+  },
+  "progress": {
+    "message": "Progress",
+    "description": "Progress text"
+  },
+  "invalid_qr_code": {
+    "message": "Invalid QR code",
+    "description": "Invalid QR code text"
+  },
+  "scan_error": {
+    "message": "Scan error",
+    "description": "Scan error text"
   }
 }

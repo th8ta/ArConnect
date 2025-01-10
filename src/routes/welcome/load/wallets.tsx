@@ -23,7 +23,7 @@ import {
   useModal,
   useToasts
 } from "@arconnect/components-rebrand";
-import KeystoneButton from "~components/hardware/KeystoneButton";
+// import KeystoneButton from "~components/hardware/KeystoneButton";
 import Migrate from "~components/welcome/load/Migrate";
 import SeedInput from "~components/SeedInput";
 import Paragraph from "~components/Paragraph";
@@ -36,6 +36,7 @@ import { loadTokens } from "~tokens/token";
 import { defaultGateway } from "~gateways/gateway";
 import Arweave from "arweave";
 import { Webcam01 } from "@untitled-ui/icons-react";
+import QRLoopScanner from "~components/welcome/load/QRLoopScanner";
 
 export type WalletsWelcomeViewProps = CommonRouteProps<SetupWelcomeViewParams>;
 
@@ -43,6 +44,7 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
   const { navigate } = useLocation();
 
   const [mnemonicLength, setMnemonicLength] = useState<number>(12);
+  const [scanMode, setScanMode] = useState(false);
 
   // password context
   const { password } = useContext(PasswordContext);
@@ -127,7 +129,7 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
   }, [loadedWallet, mnemonicLength]);
 
   // done
-  async function done() {
+  async function done(directWallet?: string | JWKInterface) {
     if (loading) return;
     setLoading(true);
 
@@ -143,10 +145,12 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
       setLoading(false);
     };
 
+    const walletToLoad = directWallet || loadedWallet;
+
     // validate mnemonic
-    if (typeof loadedWallet === "string") {
+    if (typeof walletToLoad === "string") {
       try {
-        isValidMnemonic(loadedWallet);
+        isValidMnemonic(walletToLoad);
       } catch (e) {
         console.log("Invalid mnemonic provided", e);
         setToast({
@@ -163,25 +167,25 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
       // they already have wallets added
       const existingWallets = await getWallets();
 
-      if (loadedWallet) {
+      if (walletToLoad) {
         // load jwk from seedphrase input state
         const startTime = Date.now();
 
         let jwk =
-          typeof loadedWallet === "string"
-            ? await jwkFromMnemonic(loadedWallet)
-            : loadedWallet;
+          typeof walletToLoad === "string"
+            ? await jwkFromMnemonic(walletToLoad)
+            : walletToLoad;
 
         let { actualLength, expectedLength } = await getWalletKeyLength(jwk);
         if (expectedLength !== actualLength) {
-          if (typeof loadedWallet !== "string") {
+          if (typeof walletToLoad !== "string") {
             walletModal.setOpen(true);
             finishUp();
             return;
           } else {
             while (expectedLength !== actualLength) {
               setShowLongWaitMessage(Date.now() - startTime > 30000);
-              jwk = await jwkFromMnemonic(loadedWallet);
+              jwk = await jwkFromMnemonic(walletToLoad);
               ({ actualLength, expectedLength } = await getWalletKeyLength(
                 jwk
               ));
@@ -289,8 +293,8 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
         )}
         {!wallet?.address ? (
           <Actions>
-            <KeystoneButton onSuccess={keystoneDone} />
-            <Button fullWidth onClick={done} loading={loading}>
+            {/* <KeystoneButton onSuccess={keystoneDone} /> */}
+            <Button fullWidth onClick={() => done()} loading={loading}>
               {browser.i18n.getMessage(
                 isValidRecoveryPhrase ? "continue" : "complete_recover_phrase"
               )}
@@ -409,8 +413,8 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
         )}
         {!wallet?.address ? (
           <Actions>
-            <KeystoneButton onSuccess={keystoneDone} />
-            <Button fullWidth onClick={done} loading={loading}>
+            {/* <KeystoneButton onSuccess={keystoneDone} /> */}
+            <Button fullWidth onClick={() => done()} loading={loading}>
               {browser.i18n.getMessage("continue")}
             </Button>
             {loading && showLongWaitMessage && (
@@ -445,25 +449,47 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
             <Paragraph>
               {browser.i18n.getMessage("scan_qr_code_description")}
             </Paragraph>
-            <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                flex: 1,
+                gap: 24
+              }}
+            >
               <Text size="sm" weight="medium" noMargin>
                 {browser.i18n.getMessage("scan_qr_code_instruction")}
               </Text>
-              <div
-                style={{
-                  display: "flex",
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <Button fullWidth variant="secondary" style={{ gap: 8 }}>
-                  <Webcam01 height={24} width={24} />
-                  <Text weight="bold" noMargin>
-                    {browser.i18n.getMessage("open_webcam")}
-                  </Text>
-                </Button>
-              </div>
+              {scanMode ? (
+                <QRLoopScanner
+                  onResult={(result) => {
+                    setLoadedWallet(result);
+                    setScanMode(false);
+                    done(result);
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center"
+                  }}
+                >
+                  <Button
+                    fullWidth
+                    variant="secondary"
+                    style={{ gap: 8 }}
+                    onClick={() => setScanMode(true)}
+                  >
+                    <Webcam01 height={24} width={24} />
+                    <Text weight="bold" noMargin>
+                      {browser.i18n.getMessage("open_webcam")}
+                    </Text>
+                  </Button>
+                </div>
+              )}
             </div>
           </Content>
         ) : (
@@ -486,7 +512,7 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
         )}
         {!wallet?.address ? (
           <Actions>
-            <KeystoneButton onSuccess={keystoneDone} />
+            {/* <KeystoneButton onSuccess={keystoneDone} /> */}
             {/* <Button fullWidth onClick={done} loading={loading}>
               {browser.i18n.getMessage("continue")}
             </Button> */}

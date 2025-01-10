@@ -2645,5 +2645,21 @@
     "open_webcam": {
         "message": "打开摄像头",
         "description": "Open webcam button text"
+    },
+    "camera_permission_denied": {
+        "message": "摄像头权限被拒绝",
+        "description": "Camera permission denied"
+    },
+    "progress": {
+        "message": "进度",
+        "description": "Progress text"
+    },
+    "invalid_qr_code": {
+        "message": "无效的二维码",
+        "description": "Invalid QR code text"
+    },
+    "scan_error": {
+        "message": "扫描错误",
+        "description": "Scan error text"
     }
 }
