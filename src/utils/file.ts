@@ -86,7 +86,6 @@ function downloadFile(content: string, contentType: string, fileName: string) {
   document.body.removeChild(el);
 
   setTimeout(() => {
-    // TODO: Do we need to wait before revoking?
     window.URL.revokeObjectURL(url);
   }, 1000);
 }
