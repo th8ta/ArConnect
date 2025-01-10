@@ -974,7 +974,7 @@
     "description": "Provide seedphrase for title in load wallet setup"
   },
   "provide_seedphrase_paragraph": {
-    "message": "Drag and drop your keyfile or enter the 12 word seedphrase you saved when you generated your wallet. Make sure it is in the right order.",
+    "message": "Enter the recovery phrase generated for your wallet. Please ensure it is in the correct order.",
     "description": "Explainer about the seedphrase loading"
   },
   "sign_in": {
@@ -2597,5 +2597,67 @@
   "your_wallet_address_is": {
     "message": "Your wallet address is",
     "description": "Your wallet address is"
+  },
+  "choose_how_to_add_your_account": {
+    "message": "Choose how you want to add your account.",
+    "description": "Choose how you want to add your account."
+  },
+  "enter_recovery_phrase": {
+    "message": "Enter recovery phrase",
+    "description": "Enter recovery phrase title"
+  },
+  "recovery_phrase_length_selector": {
+    "message": "I have a $LENGTH$-word recovery phrase",
+    "description": "Recovery phrase length selector",
+    "placeholders": {
+      "length": {
+        "content": "$1",
+        "example": "24"
+      }
+    }
+  },
+  "yes_import": {
+    "message": "Yes, import",
+    "description": "Yes, import button text"
+  },
+  "no_import": {
+    "message": "No, try again",
+    "description": "No, try again button text"
+  },
+  "found_account_with_phrase": {
+    "message": "We found this account with the matching recovery phrase.",
+    "description": "Found account with phrase"
+  },
+  "upload_key_file": {
+    "message": "Upload key file",
+    "description": "Upload key file button text"
+  },
+  "upload_key_file_description": {
+    "message": "Upload the keyfile/private key generated for your wallet.",
+    "description": "Upload key file description"
+  },
+  "click_to_upload": {
+    "message": "Click to upload",
+    "description": "Click to upload text"
+  },
+  "or_drag_and_drop_your_keyfile": {
+    "message": "or drag and drop your keyfile",
+    "description": "or drag and drop your keyfile text"
+  },
+  "scan_qr_code": {
+    "message": "Scan QR code",
+    "description": "Scan QR code text"
+  },
+  "scan_qr_code_description": {
+    "message": "You can find your QR code on the Wander Mobile App",
+    "description": "Scan QR code description"
+  },
+  "scan_qr_code_instruction": {
+    "message": "Settings -> Accounts -> Generate QR Code",
+    "description": "Instruction to find QR code"
+  },
+  "open_webcam": {
+    "message": "Open webcam",
+    "description": "Open webcam button text"
   }
 }

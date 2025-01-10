@@ -966,7 +966,7 @@
       "description": "Provide seedphrase for title in load wallet setup"
   },
   "provide_seedphrase_paragraph": {
-      "message": "拖放您的密钥文件或输入您生成钱包时保存的 12 个字的助记词。确保其顺序正确。",
+      "message": "输入为您的钱包生成的恢复短语。请确保顺序正确。",
       "description": "Explainer about the seedphrase loading"
   },
   "sign_in": {
@@ -2583,5 +2583,67 @@
     "your_wallet_address_is": {
         "message": "您的钱包地址是",
         "description": "Your wallet address is"
+    },
+    "choose_how_to_add_your_account": {
+        "message": "选择如何添加您的账户",
+        "description": "Choose how you want to add your account."
+    },
+    "enter_recovery_phrase": {
+        "message": "输入恢复短语",
+        "description": "Enter recovery phrase title"
+    },
+    "recovery_phrase_length_selector": {
+        "message": "我有一个 $LENGTH$-word 恢复短语",
+        "description": "Recovery phrase length selector",
+        "placeholders": {
+            "length": {
+                "content": "$1",
+                "example": "24"
+            }
+        }
+    },
+    "yes_import": {
+        "message": "是的，导入",
+        "description": "Yes, import button text"
+    },
+    "no_import": {
+        "message": "不，重试",
+        "description": "No, try again button text"
+    },
+    "found_account_with_phrase": {
+        "message": "我们找到了这个账户，与匹配的恢复短语。",
+        "description": "Found account with phrase"
+    },
+    "upload_key_file": {
+        "message": "上传密钥文件",
+        "description": "Upload key file button text"
+    },
+    "upload_key_file_description": {
+        "message": "上传为您的钱包生成的密钥文件/私钥。",
+        "description": "Upload key file description"
+    },
+    "click_to_upload": {
+        "message": "点击上传",
+        "description": "Click to upload text"
+    },
+    "or_drag_and_drop_your_keyfile": {
+        "message": "或拖放您的密钥文件",
+        "description": "or drag and drop your keyfile text"
+    },
+    "scan_qr_code": {
+        "message": "扫描二维码",
+        "description": "Scan QR code text"
+    },
+    "scan_qr_code_description": {
+        "message": "您可以在Wander手机应用上找到您的二维码。",
+        "description": "Scan QR code description"
+    },
+    "scan_qr_code_instruction": {
+        "message": "设置 -> 账户 -> 生成二维码",
+        "description": "Instruction to find QR code"
+    },
+    "open_webcam": {
+        "message": "打开摄像头",
+        "description": "Open webcam button text"
     }
 }

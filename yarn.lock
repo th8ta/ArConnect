@@ -12,7 +12,7 @@
 
 "@arconnect/components-rebrand@git+https://github.com/arconnectio/components-rebrand.git#master":
   version "1.0.0"
-  resolved "git+https://github.com/arconnectio/components-rebrand.git#5b4be3c5a66fe92d288163f77900b48ea35c75d3"
+  resolved "git+https://github.com/arconnectio/components-rebrand.git#acdba2d559faf0542fda116e5afeb1559be06f7d"
   dependencies:
     "@iconicicons/react" "^1.5.1"
     "@untitled-ui/icons-react" "^0.1.4"

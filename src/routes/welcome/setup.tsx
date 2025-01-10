@@ -33,6 +33,7 @@ import { Redirect } from "~wallets/router/components/redirect/Redirect";
 import StarIcons from "~components/welcome/StarIcons";
 import { ArrowNarrowLeft } from "@untitled-ui/icons-react";
 import { PermissionsWelcomeView } from "./generate/permissions";
+import { OptionsWelcomView } from "./load/options";
 // Wallet generate pages:
 
 // TODO: Use a nested router instead:
@@ -45,17 +46,23 @@ const ViewsBySetupMode = {
     PermissionsWelcomeView,
     GenerateDoneWelcomeView
   ],
-  load: [
-    PasswordWelcomeView,
-    WalletsWelcomeView,
-    ThemeWelcomeView,
-    LoadDoneWelcomeView
-  ]
+  load: [OptionsWelcomView],
+  recoveryPhraseLoad: [
+    WalletsWelcomeView
+    // PasswordWelcomeView,
+    // ThemeWelcomeView,
+    // LoadDoneWelcomeView
+  ],
+  keyfileLoad: [WalletsWelcomeView],
+  qrLoad: [WalletsWelcomeView]
 } as const;
 
 const VIEW_TITLES_BY_SETUP_MODE = {
   generate: "create_a_new_account",
-  load: "import_an_account"
+  load: "import_an_account",
+  recoveryPhraseLoad: "import_an_account",
+  keyfileLoad: "import_an_account",
+  qrLoad: "import_an_account"
 } as const;
 
 const VIEW_SUBTITLES_BY_SETUP_MODE = {
@@ -67,9 +74,17 @@ const VIEW_SUBTITLES_BY_SETUP_MODE = {
     "enable_permissions",
     ""
   ],
-  load: []
+  load: [""],
+  recoveryPhraseLoad: ["enter_recovery_phrase", "", "", ""],
+  keyfileLoad: ["upload_key_file", "", "", ""],
+  qrLoad: ["scan_qr_code", "", "", ""]
 };
-export type WelcomeSetupMode = "generate" | "load";
+export type WelcomeSetupMode =
+  | "generate"
+  | "load"
+  | "recoveryPhraseLoad"
+  | "keyfileLoad"
+  | "qrLoad";
 
 export interface SetupWelcomeViewParams {
   setupMode: WelcomeSetupMode;
@@ -87,6 +102,7 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
   const pageSubtitle = VIEW_SUBTITLES_BY_SETUP_MODE[setupMode][page - 1];
   const pageCount = ViewsBySetupMode[setupMode].length;
   const isCongratulationsPage = setupMode === "generate" && page === 6;
+  const hidePagination = setupMode === "load" && page === 1;
 
   // temporarily stored password
   const [password, setPassword] = useState("");
@@ -161,7 +177,9 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
   }
 
   useEffect(() => {
-    generateWallet();
+    if (setupMode === "generate") {
+      generateWallet();
+    }
   }, [setupMode]);
 
   // animate content sice
@@ -187,7 +205,13 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
     return <Redirect to={`/${setupMode}/1`} />;
   }
 
-  if (setupMode !== "generate" && setupMode !== "load") {
+  if (
+    setupMode !== "generate" &&
+    setupMode !== "load" &&
+    setupMode !== "recoveryPhraseLoad" &&
+    setupMode !== "keyfileLoad" &&
+    setupMode !== "qrLoad"
+  ) {
     return <Redirect to="/" />;
   }
 
@@ -226,18 +250,25 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
               </Text>
               <Spacer x={1.75} />
             </CardHeader>
-            <PaginationContainer>
-              <Pagination
-                currentPage={page}
-                totalPages={pageCount}
-                subtitle={pageSubtitle}
-              />
-            </PaginationContainer>
+            {!hidePagination && (
+              <PaginationContainer>
+                <Pagination
+                  currentPage={page}
+                  totalPages={pageCount}
+                  subtitle={pageSubtitle}
+                />
+              </PaginationContainer>
+            )}
           </HeaderContainer>
         )}
         <PasswordContext.Provider value={{ password, setPassword }}>
           <WalletContext.Provider
-            value={{ wallet: generatedWallet, generateWallet, setAccountName }}
+            value={{
+              wallet: generatedWallet,
+              generateWallet,
+              setAccountName,
+              setWallet: (wallet) => setGeneratedWallet(wallet)
+            }}
           >
             <Content>
               <PageWrapper style={{ height: contentSize }}>
@@ -381,12 +412,14 @@ export const PasswordContext = createContext({
 
 export const WalletContext = createContext<WalletContextValue>({
   wallet: {},
+  setWallet: (wallet: GeneratedWallet) => {},
   generateWallet: (retry?: boolean) => Promise.resolve({}),
   setAccountName: (name: string) => {}
 });
 
 interface WalletContextValue {
   wallet: GeneratedWallet;
+  setWallet: (wallet: GeneratedWallet) => void;
   generateWallet: (retry?: boolean) => Promise<GeneratedWallet>;
   setAccountName: (name: string) => void;
 }

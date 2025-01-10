@@ -14,18 +14,20 @@ const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   subtitle
 }) => {
-  // Calculate width percentage properly
-  const widthPercentage = Math.max((currentPage / totalPages) * 100, 0);
-
   return (
     <PaginationContainer>
       <InactivePagination>
-        <ActivePagination
-          style={{ width: `${widthPercentage}%` }}
-          initial={{ width: 0 }}
-          animate={{ width: `${widthPercentage}%` }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-        />
+        {[...Array(totalPages)].map((_, index) => (
+          <PaginationDot key={index}>
+            {index <= currentPage - 1 && (
+              <ActiveDot
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              />
+            )}
+          </PaginationDot>
+        ))}
       </InactivePagination>
       <Text size="sm" weight="medium" noMargin>
         {browser.i18n.getMessage("step")} {currentPage}:{" "}
@@ -59,19 +61,29 @@ const PaginationContainer = styled.div`
 
 const InactivePagination = styled.div`
   display: flex;
-  height: 4px;
+  height: 8px;
   width: 100%;
   align-items: center;
-  align-self: stretch;
-  border-radius: 50px;
-  background: rgba(107, 87, 249, 0.5);
+  gap: 0.5rem;
+  justify-content: stretch;
 `;
 
-const ActivePagination = styled(motion.div)`
+const PaginationDot = styled.div`
+  width: 100%;
+  height: 4px;
+  border-radius: 50px;
+  background: rgba(107, 87, 249, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+`;
+
+const ActiveDot = styled(motion.div)`
+  width: 100%;
   height: 100%;
   border-radius: 50px;
-  background: #6b57f9;
-  min-width: 0;
+  background: ${(props) => props.theme.theme};
 `;
 
 export default Pagination;

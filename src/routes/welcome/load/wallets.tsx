@@ -9,17 +9,20 @@ import {
 import type { KeystoneAccount } from "~wallets/hardware/keystone";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { ArrowRightIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
-import { PasswordContext, type SetupWelcomeViewParams } from "../setup";
 import {
-  ButtonV2,
+  PasswordContext,
+  WalletContext,
+  type SetupWelcomeViewParams
+} from "../setup";
+import {
+  Button,
   ModalV2,
   Spacer,
   Text,
   useModal,
   useToasts
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import KeystoneButton from "~components/hardware/KeystoneButton";
 import Migrate from "~components/welcome/load/Migrate";
 import SeedInput from "~components/SeedInput";
@@ -30,14 +33,22 @@ import { WalletKeySizeErrorModal } from "~components/modals/WalletKeySizeErrorMo
 import { useLocation } from "~wallets/router/router.utils";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { loadTokens } from "~tokens/token";
+import { defaultGateway } from "~gateways/gateway";
+import Arweave from "arweave";
+import { Webcam01 } from "@untitled-ui/icons-react";
 
 export type WalletsWelcomeViewProps = CommonRouteProps<SetupWelcomeViewParams>;
 
 export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
   const { navigate } = useLocation();
 
+  const [mnemonicLength, setMnemonicLength] = useState<number>(12);
+
   // password context
   const { password } = useContext(PasswordContext);
+
+  // wallet context
+  const { wallet, setWallet } = useContext(WalletContext);
 
   // wallet generation taking longer
   const [showLongWaitMessage, setShowLongWaitMessage] = useState(false);
@@ -102,8 +113,22 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
   // the seedphrase component
   const [loadedWallet, setLoadedWallet] = useState<JWKInterface | string>();
 
+  const isValidRecoveryPhrase = useMemo(() => {
+    if (typeof loadedWallet === "string") {
+      try {
+        const length = isValidMnemonic(loadedWallet);
+        return length === mnemonicLength;
+      } catch {
+        return false;
+      }
+    }
+
+    return false;
+  }, [loadedWallet, mnemonicLength]);
+
   // done
   async function done() {
+    if (loading) return;
     setLoading(true);
 
     // prevent user from closing the window
@@ -164,18 +189,22 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
           }
         }
 
+        const arweave = new Arweave(defaultGateway);
+        const address = await arweave.wallets.getAddress(jwk);
+        setWallet({ address, jwk });
+
         // add wallet
-        await addWallet(jwk, password);
+        // await addWallet(jwk, password);
 
         // load tokens
-        await loadTokens();
+        // await loadTokens();
       } else if (existingWallets.length < 1) {
         // the user has not migrated, so they need to add a wallet
         return finishUp();
       }
 
       // continue to the next page
-      navigate(`/${params.setupMode}/${Number(params.page) + 1}`);
+      // navigate(`/${params.setupMode}/${Number(params.page) + 1}`);
     } catch (e) {
       console.log("Failed to load wallet", e);
       setToast({
@@ -199,6 +228,14 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
     navigate(`/${params.setupMode}/${Number(params.page) + 1}`);
   }
 
+  function handleYesImport() {
+    navigate(`/${params.setupMode}/${Number(params.page) + 1}`);
+  }
+
+  function handleNoImport() {
+    setWallet({});
+  }
+
   // migration available
   const migrationAvailable = useMemo(
     () => walletsToMigrate.length > 0,
@@ -208,93 +245,321 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
   // migration cancelled
   const [migrationCancelled, setMigrationCancelled] = useState(false);
 
-  return (
-    <>
-      <Text heading>{browser.i18n.getMessage("provide_seedphrase")}</Text>
-      <Paragraph>
-        {browser.i18n.getMessage("provide_seedphrase_paragraph")}
-      </Paragraph>
-      <SeedInput onChange={(val) => setLoadedWallet(val)} onReady={done} />
-      {migrationAvailable && (
-        <Migrate
-          wallets={walletsToMigrate}
-          noMigration={migrationCancelled}
-          onMigrateClick={() => {
-            migrationModal.setOpen(true);
-            setMigrationCancelled(false);
-          }}
-        />
-      )}
-      <Spacer y={1.25} />
-      <KeystoneButton onSuccess={keystoneDone} />
-      <Spacer y={1} />
-      <ButtonV2 fullWidth onClick={done} loading={loading}>
-        {browser.i18n.getMessage("next")}
-        <ArrowRightIcon style={{ marginLeft: "5px" }} />
-      </ButtonV2>
-      {loading && showLongWaitMessage && (
-        <Text style={{ textAlign: "center", marginTop: "0.3rem" }}>
-          {browser.i18n.getMessage("longer_than_usual")}
-        </Text>
-      )}
-      <ModalV2
-        {...migrationModal.bindings}
-        root={document.getElementById("__plasmo")}
-        actions={
-          <>
-            <ButtonV2
-              fullWidth
-              onClick={async () => {
-                try {
-                  // add migrated wallets
-                  await addWallet(walletsToMigrate, password);
+  if (params.setupMode === "recoveryPhraseLoad") {
+    return (
+      <Container>
+        {!wallet?.address ? (
+          <Content>
+            <Paragraph>
+              {browser.i18n.getMessage("provide_seedphrase_paragraph")}
+            </Paragraph>
+            <SeedInput
+              onChange={setLoadedWallet}
+              onReady={done}
+              onMnemonicLengthChange={setMnemonicLength}
+            />
+            {migrationAvailable && (
+              <Migrate
+                wallets={walletsToMigrate}
+                noMigration={migrationCancelled}
+                onMigrateClick={() => {
+                  migrationModal.setOpen(true);
+                  setMigrationCancelled(false);
+                }}
+              />
+            )}
+          </Content>
+        ) : (
+          <Content
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center"
+            }}
+          >
+            <Text size="md" weight="medium" noMargin>
+              {browser.i18n.getMessage("found_account_with_phrase")}
+            </Text>
+            <AddressContainer>
+              <Text size="sm" weight="medium" noMargin>
+                {wallet.address}
+              </Text>
+            </AddressContainer>
+          </Content>
+        )}
+        {!wallet?.address ? (
+          <Actions>
+            <KeystoneButton onSuccess={keystoneDone} />
+            <Button fullWidth onClick={done} loading={loading}>
+              {browser.i18n.getMessage(
+                isValidRecoveryPhrase ? "continue" : "complete_recover_phrase"
+              )}
+            </Button>
+            {loading && showLongWaitMessage && (
+              <Text
+                variant="secondary"
+                size="sm"
+                noMargin
+                style={{ textAlign: "center" }}
+              >
+                {browser.i18n.getMessage("longer_than_usual")}
+              </Text>
+            )}
+          </Actions>
+        ) : (
+          <Actions>
+            <Button fullWidth onClick={handleYesImport}>
+              {browser.i18n.getMessage("yes_import")}
+            </Button>
+            <Button variant="secondary" fullWidth onClick={handleNoImport}>
+              {browser.i18n.getMessage("no_import")}
+            </Button>
+          </Actions>
+        )}
+        <ModalV2
+          {...migrationModal.bindings}
+          root={document.getElementById("__plasmo")}
+          actions={
+            <>
+              <Button
+                fullWidth
+                onClick={async () => {
+                  try {
+                    // add migrated wallets
+                    await addWallet(walletsToMigrate, password);
 
-                  // load tokens
-                  await loadTokens();
+                    // load tokens
+                    await loadTokens();
 
-                  // confirmation toast
-                  setToast({
-                    type: "info",
-                    content: browser.i18n.getMessage("migration_confirmation"),
-                    duration: 2200
-                  });
+                    // confirmation toast
+                    setToast({
+                      type: "info",
+                      content: browser.i18n.getMessage(
+                        "migration_confirmation"
+                      ),
+                      duration: 2200
+                    });
+                    migrationModal.setOpen(false);
+
+                    // TODO:
+                    // remove old storage
+                    // await ExtensionStorage.remove(OLD_STORAGE_NAME);
+                  } catch {}
+                }}
+              >
+                {browser.i18n.getMessage("migrate")}
+              </Button>
+              <Spacer y={0.75} />
+              <Button
+                fullWidth
+                variant="secondary"
+                onClick={() => {
                   migrationModal.setOpen(false);
-
-                  // TODO:
-                  // remove old storage
-                  // await ExtensionStorage.remove(OLD_STORAGE_NAME);
-                } catch {}
-              }}
-            >
-              {browser.i18n.getMessage("migrate")}
-            </ButtonV2>
-            <Spacer y={0.75} />
-            <ButtonV2
-              fullWidth
-              secondary
-              onClick={() => {
-                migrationModal.setOpen(false);
-                setMigrationCancelled(true);
-              }}
-            >
-              {browser.i18n.getMessage("cancel")}
-            </ButtonV2>
-          </>
-        }
-      >
-        <ModalText heading>
-          {browser.i18n.getMessage("migration_available")}
-        </ModalText>
-        <ModalText>
-          {browser.i18n.getMessage("migration_available_paragraph")}
-        </ModalText>
-        <Spacer y={0.75} />
-      </ModalV2>
-      <WalletKeySizeErrorModal {...walletModal} back={() => navigate(`/`)} />
-    </>
-  );
+                  setMigrationCancelled(true);
+                }}
+              >
+                {browser.i18n.getMessage("cancel")}
+              </Button>
+            </>
+          }
+        >
+          <ModalText>
+            {browser.i18n.getMessage("migration_available")}
+          </ModalText>
+          <ModalText>
+            {browser.i18n.getMessage("migration_available_paragraph")}
+          </ModalText>
+          <Spacer y={0.75} />
+        </ModalV2>
+        <WalletKeySizeErrorModal {...walletModal} back={() => navigate(`/`)} />
+      </Container>
+    );
+  } else if (params.setupMode === "keyfileLoad") {
+    return (
+      <Container>
+        {!wallet?.address ? (
+          <Content>
+            <Paragraph>
+              {browser.i18n.getMessage("upload_key_file_description")}
+            </Paragraph>
+            <SeedInput
+              inputType="keyfile"
+              onChange={setLoadedWallet}
+              onReady={done}
+              loading={loading}
+            />
+          </Content>
+        ) : (
+          <Content
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center"
+            }}
+          >
+            <Text size="md" weight="medium" noMargin>
+              {browser.i18n.getMessage("found_account_with_phrase")}
+            </Text>
+            <AddressContainer>
+              <Text size="sm" weight="medium" noMargin>
+                {wallet.address}
+              </Text>
+            </AddressContainer>
+          </Content>
+        )}
+        {!wallet?.address ? (
+          <Actions>
+            <KeystoneButton onSuccess={keystoneDone} />
+            <Button fullWidth onClick={done} loading={loading}>
+              {browser.i18n.getMessage("continue")}
+            </Button>
+            {loading && showLongWaitMessage && (
+              <Text
+                variant="secondary"
+                size="sm"
+                noMargin
+                style={{ textAlign: "center" }}
+              >
+                {browser.i18n.getMessage("longer_than_usual")}
+              </Text>
+            )}
+          </Actions>
+        ) : (
+          <Actions>
+            <Button fullWidth onClick={handleYesImport}>
+              {browser.i18n.getMessage("yes_import")}
+            </Button>
+            <Button variant="secondary" fullWidth onClick={handleNoImport}>
+              {browser.i18n.getMessage("no_import")}
+            </Button>
+          </Actions>
+        )}
+        <WalletKeySizeErrorModal {...walletModal} back={() => navigate(`/`)} />
+      </Container>
+    );
+  } else
+    return (
+      <Container>
+        {!wallet?.address ? (
+          <Content>
+            <Paragraph>
+              {browser.i18n.getMessage("scan_qr_code_description")}
+            </Paragraph>
+            <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+              <Text size="sm" weight="medium" noMargin>
+                {browser.i18n.getMessage("scan_qr_code_instruction")}
+              </Text>
+              <div
+                style={{
+                  display: "flex",
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+              >
+                <Button fullWidth variant="secondary" style={{ gap: 8 }}>
+                  <Webcam01 height={24} width={24} />
+                  <Text weight="bold" noMargin>
+                    {browser.i18n.getMessage("open_webcam")}
+                  </Text>
+                </Button>
+              </div>
+            </div>
+          </Content>
+        ) : (
+          <Content
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center"
+            }}
+          >
+            <Text size="md" weight="medium" noMargin>
+              {browser.i18n.getMessage("found_account_with_phrase")}
+            </Text>
+            <AddressContainer>
+              <Text size="sm" weight="medium" noMargin>
+                {wallet.address}
+              </Text>
+            </AddressContainer>
+          </Content>
+        )}
+        {!wallet?.address ? (
+          <Actions>
+            <KeystoneButton onSuccess={keystoneDone} />
+            {/* <Button fullWidth onClick={done} loading={loading}>
+              {browser.i18n.getMessage("continue")}
+            </Button> */}
+            {loading && showLongWaitMessage && (
+              <Text
+                variant="secondary"
+                size="sm"
+                noMargin
+                style={{ textAlign: "center" }}
+              >
+                {browser.i18n.getMessage("longer_than_usual")}
+              </Text>
+            )}
+          </Actions>
+        ) : (
+          <Actions>
+            <Button fullWidth onClick={handleYesImport}>
+              {browser.i18n.getMessage("yes_import")}
+            </Button>
+            <Button variant="secondary" fullWidth onClick={handleNoImport}>
+              {browser.i18n.getMessage("no_import")}
+            </Button>
+          </Actions>
+        )}
+        <WalletKeySizeErrorModal {...walletModal} back={() => navigate(`/`)} />
+      </Container>
+    );
 }
 
 const ModalText = styled(Text)`
   text-align: center;
+`;
+
+const Container = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  overflow: scroll;
+  height: 100%;
+  gap: 24px;
+`;
+
+const Content = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 24px;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 1rem;
+`;
+
+const AddressContainer = styled.div`
+  display: flex;
+  padding: 12px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  align-self: stretch;
+  border-radius: 8px;
+  text-align: center;
+  background: ${(props) => props.theme.input.background.dropdown.default};
+  overflow: hidden;
+  word-wrap: break-word;
+  word-break: break-all;
+  max-width: 100%;
 `;
