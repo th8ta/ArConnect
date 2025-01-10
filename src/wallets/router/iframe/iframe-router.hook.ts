@@ -1,6 +1,6 @@
 import { useHashLocation } from "wouter/use-hash-location";
-import { useAuth } from "~utils/authentication/authentication.hooks";
-import type { AuthStatus } from "~utils/authentication/authentication.provider";
+import { useEmbedded } from "~utils/embedded/embedded.hooks";
+import type { AuthStatus } from "~utils/embedded/embedded.provider";
 import { NOOP } from "~utils/misc";
 import { useAuthRequestsLocation } from "~wallets/router/auth/auth-router.hook";
 import type { ExtensionRouteOverride } from "~wallets/router/extension/extension.routes";
@@ -43,7 +43,7 @@ const AUTH_STATUS_TO_OVERRIDE: Record<
 export function useAuthStatusOverride(
   location?: RoutePath
 ): null | ExtensionRouteOverride | RouteRedirect<ArConnectRoutePath> {
-  const { authStatus, lastWallet, wallets, promptToBackUp } = useAuth();
+  const { authStatus, lastWallet, wallets, promptToBackUp } = useEmbedded();
 
   // console.log("authStatus =", authStatus);
 

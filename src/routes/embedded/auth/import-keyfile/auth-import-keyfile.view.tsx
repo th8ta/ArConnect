@@ -1,4 +1,4 @@
-import { useAuth } from "~utils/authentication/authentication.hooks";
+import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
 import { DevButtons } from "~components/dev/buttons/buttons.component";
 import { useRef } from "react";
@@ -8,7 +8,7 @@ import screenSrc from "url:/assets-beta/figma-screens/import-keyfile.view.png";
 import confirmScreenSrc from "url:/assets-beta/figma-screens/import-keyfile-confirmation.view.png";
 
 export function AuthImportKeyfileEmbeddedView() {
-  const { importWallet, lastWallet, deleteLastWallet } = useAuth();
+  const { importWallet, lastWallet, deleteLastWallet } = useEmbedded();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 

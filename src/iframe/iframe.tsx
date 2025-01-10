@@ -10,7 +10,7 @@ import {
   useAuthStatusOverride,
   useEmbeddedLocation
 } from "~wallets/router/iframe/iframe-router.hook";
-import { AuthProvider } from "~utils/authentication/authentication.provider";
+import { EmbeddedProvider } from "~utils/embedded/embedded.provider";
 
 export function ArConnectEmbeddedApp() {
   useEffect(() => {
@@ -25,18 +25,16 @@ export function ArConnectEmbeddedApp() {
   );
 }
 
-// TODO: WalletsProvider is probably needed to as for the MVP the wallet is just going to be loaded into storage (and deleted every time?)
-
 export function ArConnectEmbeddedAppRoot() {
   return (
     <ArConnectThemeProvider>
-      <AuthProvider>
+      <EmbeddedProvider>
         <AuthRequestsProvider useStatusOverride={useAuthStatusOverride}>
           <Wouter hook={useEmbeddedLocation}>
             <ArConnectEmbeddedApp />
           </Wouter>
         </AuthRequestsProvider>
-      </AuthProvider>
+      </EmbeddedProvider>
     </ArConnectThemeProvider>
   );
 }

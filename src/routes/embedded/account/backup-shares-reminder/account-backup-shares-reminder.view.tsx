@@ -1,12 +1,12 @@
 import { useRef } from "react";
-import { useAuth } from "~utils/authentication/authentication.hooks";
+import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
 import { DevButtons } from "~components/dev/buttons/buttons.component";
 
 import screenSrc from "url:/assets-beta/figma-screens/backup-shares.view.png";
 
 export function AccountBackupSharesReminderEmbeddedView() {
-  const { promptToBackUp, skipBackUp } = useAuth();
+  const { promptToBackUp, skipBackUp } = useEmbedded();
 
   const checkboxRef = useRef<HTMLInputElement>();
 

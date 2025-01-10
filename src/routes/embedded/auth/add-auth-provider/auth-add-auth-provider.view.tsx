@@ -1,15 +1,15 @@
-import { useAuth } from "~utils/authentication/authentication.hooks";
+import { useAuth } from "~utils/embedded/embedded.hooks";
 import { Link } from "~wallets/router/components/link/Link";
 
 export function AuthAddAuthProviderEmbeddedView() {
   const { authMethod } = useAuth();
 
   return (
-    <div>
+    <di v>
       <h3>Add {authMethod}</h3>
       <p>...</p>
       <button disabled>Add {authMethod}</button>
       <Link to="/auth/add-wallet">Back</Link>
-    </div>
+    </di>
   );
 }

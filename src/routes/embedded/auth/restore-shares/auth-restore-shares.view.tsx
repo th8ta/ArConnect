@@ -1,4 +1,4 @@
-import { useAuth } from "~utils/authentication/authentication.hooks";
+import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import { WalletService } from "~utils/wallets/wallets.service";
 import { WalletUtils } from "~utils/wallets/wallets.utils";
 
@@ -8,7 +8,7 @@ const mockedRecoveryShareFileData = {
 } as const;
 
 export function AuthRestoreSharesEmbeddedView() {
-  const { activateWallet } = useAuth();
+  const { activateWallet } = useEmbedded();
 
   const handleRestore = async () => {
     // TODO: arAonnectRecoveryFile should be uploaded by the user and should probably contain recovery shares for all
