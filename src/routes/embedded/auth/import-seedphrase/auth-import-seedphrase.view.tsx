@@ -1,6 +1,5 @@
 import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
-import { DevButtons } from "~components/dev/buttons/buttons.component";
 import { useRef } from "react";
 
 import screenSrc from "url:/assets-beta/figma-screens/import-seedphrase.view.png";
@@ -11,55 +10,53 @@ export function AuthImportSeedphraseEmbeddedView() {
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleImportWallet = async () => {
+  const handleImportWallet = () => {
     const textareaElement = textareaRef.current;
 
+    // TODO: Return/throw error...
     if (!textareaElement) return;
 
-    // TODO: Handle errors and loading states.
-
-    // TODO: Show loader at the SDK level while this is "loading" or simply disable the buttons here?
-
-    // TODO: Make sure the confirmation screen is shown after this...
-
-    await importWallet(textareaRef.current.textContent);
+    return importWallet(textareaRef.current.textContent);
   };
 
-  return lastWallet ? (
-    <DevFigmaScreen title="Enter seedphrase" src={confirmScreenSrc}>
-      <DevButtons
-        config={[
-          {
-            label: lastWallet.address,
-            isDisabled: true
-          },
-          {
-            label: "No, try again",
-            onClick: () => deleteLastWallet()
-          },
-          {
-            label: "Yes, add",
-            to: "/auth/confirmation"
-          }
-        ]}
-      />
-    </DevFigmaScreen>
-  ) : (
-    <DevFigmaScreen title="Enter seedphrase" src={screenSrc}>
-      <textarea ref={textareaRef} placeholder="Enter seedphrase"></textarea>
+  // TODO: Redirect to confirmation manually once the tempWallet property is added.
 
-      <DevButtons
-        config={[
-          {
-            label: "Import",
-            onClick: handleImportWallet
-          },
-          {
-            label: "Back",
-            to: "/auth/add-wallet"
-          }
-        ]}
-      />
+  return lastWallet ? (
+    <DevFigmaScreen
+      title="Enter seedphrase"
+      src={confirmScreenSrc}
+      config={[
+        {
+          label: lastWallet.address,
+          isDisabled: true
+        },
+        {
+          label: "No, try again",
+          onClick: () => deleteLastWallet()
+        },
+        {
+          label: "Yes, add",
+          to: "/auth/confirmation"
+        }
+      ]}
+    />
+  ) : (
+    <DevFigmaScreen
+      title="Enter seedphrase"
+      src={screenSrc}
+      config={[
+        {
+          label: "Import",
+          onClick: handleImportWallet
+        },
+        {
+          label: "Back",
+          to: "/auth/add-wallet",
+          variant: "secondary"
+        }
+      ]}
+    >
+      <textarea ref={textareaRef} placeholder="Enter seedphrase"></textarea>
     </DevFigmaScreen>
   );
 }

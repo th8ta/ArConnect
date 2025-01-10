@@ -11,32 +11,32 @@ export function AccountBackupSharesReminderEmbeddedView() {
   const checkboxRef = useRef<HTMLInputElement>();
 
   const handleSkipClicked = () => {
-    skipBackUp(checkboxRef?.current.checked);
+    return skipBackUp(checkboxRef?.current.checked);
   };
 
   return (
-    <DevFigmaScreen title="Account backup" src={screenSrc}>
-      <DevButtons
-        config={[
-          {
-            label: "Back up now",
-            to: "/account/backup-shares"
-          },
-          promptToBackUp
-            ? {
-                label: "Back up later",
-                to: "/account",
-                onClick: () => handleSkipClicked(),
-                variant: "secondary"
-              }
-            : {
-                label: "Cancel",
-                to: "/account",
-                variant: "secondary"
-              }
-        ]}
-      />
-
+    <DevFigmaScreen
+      title="Account backup"
+      src={screenSrc}
+      config={[
+        {
+          label: "Back up now",
+          to: "/account/backup-shares"
+        },
+        promptToBackUp
+          ? {
+              label: "Back up later",
+              to: "/account",
+              onClick: () => handleSkipClicked(),
+              variant: "secondary"
+            }
+          : {
+              label: "Cancel",
+              to: "/account",
+              variant: "secondary"
+            }
+      ]}
+    >
       {promptToBackUp ? (
         <label>
           <input type="checkbox" ref={checkboxRef} />

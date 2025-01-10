@@ -23,6 +23,7 @@ import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import { downloadKeyfile as downloadKeyfileUtil } from "~utils/file";
+import { sleep } from "~utils/promises/sleep";
 
 export type AuthStatus =
   | "unknown"
@@ -58,7 +59,7 @@ interface EmbeddedContextData extends EmbeddedContextState {
   clearLastWallet: () => void;
   deleteLastWallet: () => void;
   activateWallet: (jwk: JWKInterface) => void;
-  skipBackUp: (doNotAskAgain: boolean) => void;
+  skipBackUp: (doNotAskAgain: boolean) => void | Promise<void>;
   registerBackUp: () => Promise<void>;
   downloadKeyfile: (walletAddress: string) => Promise<void>;
   copySeedphrase: (walletAddress: string) => Promise<void>;
@@ -135,8 +136,12 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
     );
   }, []);
 
-  const skipBackUp = useCallback((doNotAskAgain: boolean) => {
+  const skipBackUp = useCallback(async (doNotAskAgain: boolean) => {
     // TODO: Persist lastPromptData (local?) and doNotAskAgain (server?)...
+
+    if (doNotAskAgain) {
+      await sleep(5000);
+    }
 
     setEmbeddedContextState((prevAuthContextState) => ({
       ...prevAuthContextState,
@@ -146,6 +151,8 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
 
   const registerBackUp = useCallback(async () => {
     // TODO: Do we need to register this on the server? Here or on from the view itself?
+
+    await sleep(5000);
 
     setEmbeddedContextState((prevAuthContextState) => ({
       ...prevAuthContextState,

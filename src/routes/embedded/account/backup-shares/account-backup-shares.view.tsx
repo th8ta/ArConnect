@@ -1,6 +1,5 @@
 import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
-import { DevButtons } from "~components/dev/buttons/buttons.component";
 
 import screenSrc from "url:/assets-beta/figma-screens/backup-options.view.png";
 
@@ -15,38 +14,38 @@ export function AccountBackupSharesEmbeddedView() {
   // in case the button is clicked again.
 
   return (
-    <DevFigmaScreen title="Account backup" src={screenSrc}>
-      <DevButtons
-        config={[
-          {
-            label: "Google Drive",
-            onClick: () => alert("Not implemented.")
-          },
-          {
-            label: "iCloud",
-            onClick: () => alert("Not implemented.")
-          },
-          {
-            label: "Dropbox",
-            onClick: () => alert("Not implemented.")
-          },
-          {
-            label: "Download Account Recovery File",
-            onClick: () => alert("Not implemented.")
-          },
-          promptToBackUp
-            ? {
-                label: "Back",
-                to: "/account/backup-shares/reminder",
-                variant: "secondary"
-              }
-            : {
-                label: "Cancel",
-                to: "/account",
-                variant: "secondary"
-              }
-        ]}
-      />
-    </DevFigmaScreen>
+    <DevFigmaScreen
+      title="Account backup"
+      src={screenSrc}
+      config={[
+        {
+          label: "Google Drive",
+          onClick: () => alert("Not implemented.")
+        },
+        {
+          label: "iCloud",
+          onClick: () => alert("Not implemented.")
+        },
+        {
+          label: "Dropbox",
+          onClick: () => alert("Not implemented.")
+        },
+        {
+          label: "Download Account Recovery File",
+          onClick: () => alert("Not implemented.")
+        },
+        promptToBackUp
+          ? {
+              label: "Back",
+              to: "/account/backup-shares/reminder",
+              variant: "secondary"
+            }
+          : {
+              label: "Cancel",
+              to: "/account",
+              variant: "secondary"
+            }
+      ]}
+    />
   );
 }
