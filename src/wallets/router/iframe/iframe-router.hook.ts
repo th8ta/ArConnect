@@ -45,8 +45,6 @@ export function useAuthStatusOverride(
 ): null | ExtensionRouteOverride | RouteRedirect<ArConnectRoutePath> {
   const { authStatus, lastWallet, wallets, promptToBackUp } = useEmbedded();
 
-  // console.log("authStatus =", authStatus);
-
   // TODO: Memo this:
 
   if (location) {
@@ -134,8 +132,6 @@ export const useEmbeddedLocation: BaseLocationHook = withRouterRedirects(() => {
     useAuthRequestsLocation();
 
   if (override) {
-    // console.log("override =", override);
-
     return [override, isRouteRedirect(override) ? wavigate : NOOP];
   }
 

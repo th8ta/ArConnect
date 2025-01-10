@@ -11,9 +11,11 @@ interface FallbackViewProps {
 }
 
 function handleReload() {
-  if (process.env.PLASMO_PUBLIC_APP_TYPE === "extension") {
-    browser.runtime.reload();
-  }
+  if (import.meta.env?.VITE_IS_EMBEDDED_APP === "1") return;
+
+  // ONLY BROWSER EXTENSION BELOW THIS LINE:
+
+  browser.runtime.reload();
 }
 
 export const FallbackView: React.FC<FallbackViewProps> = ({

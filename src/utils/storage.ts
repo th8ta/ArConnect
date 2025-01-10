@@ -2,12 +2,7 @@ import type Transaction from "arweave/web/lib/transaction";
 import { type Gateway } from "~gateways/gateway";
 import { Storage } from "@plasmohq/storage";
 import { useStorage as usePlasmoStorage } from "@plasmohq/storage/hook";
-import { useMemo, useRef } from "react";
-
-console.log(
-  "import.meta.env.VITE_PUBLIC_APP_TYPE =",
-  import.meta.env.VITE_PUBLIC_APP_TYPE
-);
+import { useMemo } from "react";
 
 /**
  * Default extension storage:
@@ -16,7 +11,7 @@ console.log(
  *   despite using `area: "session"`.
  */
 export const ExtensionStorage =
-  import.meta.env.VITE_PUBLIC_APP_TYPE === "embedded"
+  import.meta.env?.VITE_IS_EMBEDDED_APP === "1"
     ? new Storage({
         area: "session",
         allCopied: true
@@ -57,9 +52,8 @@ export interface RawStoredTransfer {
 }
 
 export const useStorage: typeof usePlasmoStorage =
-  process.env.PLASMO_PUBLIC_APP_TYPE === "extension"
-    ? usePlasmoStorage
-    : (((rawKey, onInit) => {
+  import.meta.env?.VITE_IS_EMBEDDED_APP === "1"
+    ? (((rawKey, onInit) => {
         const [value, ...otherReturnValues] = usePlasmoStorage(rawKey, onInit);
 
         const returnValue = useMemo(() => {
@@ -69,4 +63,5 @@ export const useStorage: typeof usePlasmoStorage =
         if (returnValue === null) debugger;
 
         return [returnValue, ...otherReturnValues];
-      }) as any);
+      }) as any)
+    : usePlasmoStorage;

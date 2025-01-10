@@ -92,7 +92,7 @@ export function AuthRequestsProvider({
     // clear automatically.
 
     function closeOrClear() {
-      if (process.env.PLASMO_PUBLIC_APP_TYPE !== "extension") {
+      if (import.meta.env?.VITE_IS_EMBEDDED_APP === "1") {
         // TODO: This might cause an infinite loop in the embedded wallet:
         setAuthRequestContextState(AUTH_REQUESTS_CONTEXT_INITIAL_STATE);
       } else {

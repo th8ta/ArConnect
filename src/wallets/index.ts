@@ -101,11 +101,13 @@ export async function setActiveWallet(address?: string) {
 export type DecryptedWallet = StoredWallet<JWKInterface>;
 
 export async function openOrSelectWelcomePage(force = false) {
-  if (process.env.PLASMO_PUBLIC_APP_TYPE !== "extension") {
+  if (import.meta.env?.VITE_IS_EMBEDDED_APP === "1") {
     log(LOG_GROUP.AUTH, `PREVENTED openOrSelectWelcomePage(${force})`);
 
     return;
   }
+
+  // ONLY BROWSER EXTENSION BELOW THIS LINE:
 
   log(LOG_GROUP.AUTH, `openOrSelectWelcomePage(${force})`);
 
