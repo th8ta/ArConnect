@@ -1,4 +1,3 @@
-import { DevButtons } from "~components/dev/buttons/buttons.component";
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
 import { useEmbedded } from "~utils/embedded/embedded.hooks";
 
@@ -16,10 +15,22 @@ export function AuthRecoverAccountSeedphraseEmbeddedView() {
   // TODO: Confirm if wallet address is correct
 
   return (
-    <DevFigmaScreen title="Enter seedphrase" src={screenSrc}>
-      <div>
-        <textarea ref={textareaRef} placeholder="Enter seedphrase"></textarea>
-      </div>
+    <DevFigmaScreen
+      title="Enter seedphrase"
+      src={screenSrc}
+      config={[
+        {
+          label: "Recover",
+          onClick: () => alert("No implemented yet.")
+        },
+        {
+          label: "Back",
+          to: "/auth/recover-account",
+          variant: "secondary"
+        }
+      ]}
+    >
+      <textarea ref={textareaRef} placeholder="Enter seedphrase"></textarea>
 
       <div>
         <label>
@@ -28,20 +39,6 @@ export function AuthRecoverAccountSeedphraseEmbeddedView() {
           recovery files are invalided. You'll have to download a new one.
         </label>
       </div>
-
-      <DevButtons
-        config={[
-          {
-            label: "Recover",
-            onClick: () => alert("No implemented yet.")
-          },
-          {
-            label: "Back",
-            to: "/auth/recover-account",
-            variant: "secondary"
-          }
-        ]}
-      />
     </DevFigmaScreen>
   );
 }

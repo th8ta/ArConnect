@@ -37,7 +37,7 @@ export const tabs = {
         ? document.location.href
         : document.referrer;
 
-    return { url: parentURL }; // satisfies browser.Tabs.Tab
+    return [{ url: parentURL }]; // satisfies browser.Tabs.Tab
   },
 
   onConnect: {

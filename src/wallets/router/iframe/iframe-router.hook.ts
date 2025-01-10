@@ -30,8 +30,8 @@ const AUTH_STATUS_TO_OVERRIDE: Record<
 > = {
   // TODO: Redefine these override paths:
   unknown: "/__OVERRIDES/cover",
-  authLoading: "/__OVERRIDES/loading",
-  authError: "/__OVERRIDES/loading",
+  authLoading: null,
+  authError: null,
   noAuth: null,
   noWallets: null,
   noShares: null,
@@ -45,10 +45,16 @@ export function useAuthStatusOverride(
 ): null | ExtensionRouteOverride | RouteRedirect<ArConnectRoutePath> {
   const { authStatus, lastWallet, wallets, promptToBackUp } = useEmbedded();
 
-  // TODO: Memo this:
+  // TODO: Memo all  this:
+
+  if (authStatus === "unknown" && location !== "/__OVERRIDES/cover") {
+    console.log(location);
+
+    return "/__REDIRECT/";
+  }
 
   if (location) {
-    if (authStatus === "noAuth") {
+    if (authStatus === "noAuth" || authStatus === "authLoading") {
       return routeTrapMatches(
         location,
         [
@@ -61,6 +67,11 @@ export function useAuthStatusOverride(
         ],
         EmbeddedPaths.Auth
       );
+    }
+
+    if (authStatus === "authError") {
+      // TODO: Implement logic/screen for this:
+      throw new Error("Not implemented");
     }
 
     if (authStatus === "noWallets") {

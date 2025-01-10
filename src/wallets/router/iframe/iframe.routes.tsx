@@ -55,6 +55,7 @@ export type EmbeddedRoutePath =
   | "/account/import-keyfile"
   | "/account/add-wallet-confirmation"
   | "/account/backup-shares"
+  // | "/account/backup-shares/<backupProvider>"
   | "/account/backup-shares/reminder"
   | "/account/export-wallet";
 
@@ -192,6 +193,7 @@ const IFRAME_OWN_ROUTES = [
 ] as const satisfies RouteConfig<EmbeddedRoutePath>[];
 
 export const IFRAME_ROUTES = [
+  // TODO: Update with actual fallbacks, even thought these are not supposed to be used:
   ...getExtensionOverrides({
     unlockView: () => <p>Placeholder Unlock</p>,
     loadingView: () => <p>Placeholder Loading</p>
