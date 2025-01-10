@@ -18,9 +18,11 @@ import { wordlists, mnemonicToSeed } from "bip39-web-crypto";
  * @returns Wallet JWK
  */
 export async function jwkFromMnemonic(mnemonic: string) {
-  let seedBuffer = await mnemonicToSeed(mnemonic);
+  // TODO: We use `mnemonicToSeed` from `bip39-web-crypto` here instead of using `getKeyPairFromMnemonic`, which
+  // internally uses `bip39`. Instead, we should just be using `getKeyPairFromMnemonic` and lazy load this dependency:
 
-  // TODO: Why not getKeyPairFromMnemonic()?
+  const seedBuffer = await mnemonicToSeed(mnemonic);
+
   const { privateKey } = await getKeyPairFromSeed(
     //@ts-ignore
     seedBuffer,
