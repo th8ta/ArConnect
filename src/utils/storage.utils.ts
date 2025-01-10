@@ -17,7 +17,7 @@ export async function resetStorage() {
   try {
     // get all keys except gateways
     const allStoredKeys = Object.keys(
-      (await browser.storage.local.get(null)) || {}
+      (await ExtensionStorage.getAll()) || {}
     ).filter((key) => key !== "gateways");
 
     // remove all keys except gateways
