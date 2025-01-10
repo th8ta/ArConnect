@@ -1,10 +1,13 @@
 import type { StorageChange } from "~utils/runtime";
 
 export const storage = {
-  local: {
-    // TODO: Not needed once `browser.storage.local.get()` is replaced with
-    // `ExtensionStorage.getAll()`
+  // The `get` method is only polyfilled because before we were using `browser.storage.local.get(null)` in
+  // `storage.utils.ts` > `resetStorage()`. That has now been replaced with `ExtensionStorage.getAll()`, so the mocked
+  // function below is no longer needed. In any case, it's been left here (commented out) in case we run into any
+  // issues, as Plasmo's Storage API has some differences/limitations/issues compared to the native one:
 
+  /*
+  local: {
     get: (keys?: null | string | string[] | Record<string, any>) => {
       if (keys === undefined || keys === null) {
         return localStorage;
@@ -25,6 +28,7 @@ export const storage = {
       }
     }
   },
+  */
 
   onChanged: {
     addListener: (
