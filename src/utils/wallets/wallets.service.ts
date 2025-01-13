@@ -1,7 +1,12 @@
-import { FakeDB, type DbWallet } from "~utils/authentication/fakeDB";
-import type {
-  DeviceNonce,
-  DeviceShareInfo
+import {
+  FakeDB,
+  type DbWallet,
+  type GetShareForDeviceReturn
+} from "~utils/authentication/fakeDB";
+import {
+  WalletUtils,
+  type DeviceNonce,
+  type DeviceShareInfo
 } from "~utils/wallets/wallets.utils";
 
 async function fetchWallets(): Promise<DbWallet[]> {
@@ -19,6 +24,7 @@ export interface CreateWalletParams {
   authShare: string;
   deviceShareHash: string;
   canBeUsedToRecoverAccount: boolean;
+  deviceInfo: any; // TODO: Add type
 
   source: {
     type: "imported" | "generated";
@@ -45,21 +51,27 @@ export interface FetchFirstAvailableAuthShareReturn {
 async function fetchFirstAvailableAuthShare({
   deviceNonce,
   deviceSharesInfo
-}: FetchFirstAvailableAuthShareParams): Promise<FetchFirstAvailableAuthShareReturn> {
-  // TODO: Should we also send signatures for this?
-
+}: FetchFirstAvailableAuthShareParams): Promise<null | FetchFirstAvailableAuthShareReturn> {
   return new Promise(async (resolve, reject) => {
     for (const deviceSharesInfoItem of deviceSharesInfo) {
       const { walletAddress, deviceShare } = deviceSharesInfoItem;
+      const deviceShareHash = await WalletUtils.generateShareHash(deviceShare);
 
-      const { authShare, rotateChallenge } = await FakeDB.getKeyShareForDevice(
+      // TODO: Better with zk: instead of hashes:
+
+      const { authShare, rotateChallenge } = await FakeDB.getKeyShareForDevice({
         deviceNonce,
-        walletAddress
-      ).catch(() => null);
-
-      // TODO: Resolve challenge to get the authShare...
+        walletAddress,
+        deviceShareHash
+      }).catch(() => ({
+        authShare: null,
+        rotateChallenge: null
+      }));
 
       if (authShare) {
+        // TODO: We need to have some date associated to the Share to force rotation. If `rotateChallenge` is ignored too many times, the share entry will be
+        // removed and the user will be forced to use the recovery share or a keyfile/seedphrase.
+
         resolve({
           walletAddress,
           authShare,
@@ -67,17 +79,20 @@ async function fetchFirstAvailableAuthShare({
           rotateChallenge
         });
 
-        break;
+        return;
       }
     }
+
+    resolve(null);
   });
 }
 
 export interface RotateDeviceShardParams {
   walletAddress: string;
-  oldDeviceNonce?: string;
-  newDeviceNonce: string;
+  oldDeviceNonce?: DeviceNonce;
+  newDeviceNonce: DeviceNonce;
   authShare: string;
+  newDeviceShareHash: string;
   challengeSignature: string;
 }
 
@@ -91,7 +106,7 @@ export interface InitiateWalletRecoveryReturn {
   rotateChallenge: string;
 }
 
-async function initiateWalletRecovery(
+async function fetchWalletRecoveryChallenge(
   walletAddress: string,
   recoverySharePublicKey: string
 ): Promise<InitiateWalletRecoveryReturn> {
@@ -101,7 +116,8 @@ async function initiateWalletRecovery(
   });
 }
 
-async function resolveRecoveryChallenge(
+async function recoverWallet(
+  walletAddress: string,
   challengeSignature: string
 ): Promise<string> {
   return Promise.resolve("");
@@ -112,6 +128,6 @@ export const WalletService = {
   createWallet,
   fetchFirstAvailableAuthShare,
   rotateAuthShare,
-  initiateWalletRecovery,
-  resolveRecoveryChallenge
+  fetchWalletRecoveryChallenge,
+  recoverWallet
 };

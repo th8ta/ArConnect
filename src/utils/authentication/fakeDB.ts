@@ -107,6 +107,7 @@ async function addWallet(
     address: walletAddress,
     publicKey: addWalletParams.publicKey,
     walletType: "public",
+    canBeUsedToRecoverAccount: true,
 
     info: {
       identifierType: "alias",
@@ -115,7 +116,10 @@ async function addWallet(
       pns: null
     },
 
-    source: addWalletParams.source,
+    source: {
+      ...addWalletParams.source,
+      deviceAndLocationInfo: {} // TODO: Add IP, IP location, device info...
+    },
 
     lastUsed: Date.now(),
     status: "enabled"
@@ -126,6 +130,7 @@ async function addWallet(
   keyShares.push({
     // PK = userId + walletId + deviceNonce
     id: nanoid(),
+    status: "",
 
     // Common:
     userId: currentSession.userId,
@@ -153,28 +158,38 @@ async function addWallet(
   return wallet;
 }
 
-interface GetShareForDeviceReturn {
-  authShare: string;
-  rotateChallenge: boolean;
+export interface GetShareForDeviceParams {
+  deviceNonce: DeviceNonce;
+  walletAddress: string;
+  deviceShareHash: string;
 }
 
-async function getKeyShareForDevice(
-  deviceNonce: DeviceNonce,
-  walletAddress: string
-): Promise<GetShareForDeviceReturn> {
+export interface GetShareForDeviceReturn {
+  authShare: string | null;
+  rotateChallenge: boolean | null;
+}
+
+async function getKeyShareForDevice({
+  deviceNonce,
+  walletAddress,
+  deviceShareHash
+}: GetShareForDeviceParams): Promise<GetShareForDeviceReturn> {
   await sleep(2000);
 
   const keyShare: DbKeyShare = keyShares.find((keyShare) => {
     return (
       keyShare.userId === currentSession.userId &&
       keyShare.deviceNonce === deviceNonce &&
-      keyShare.walletAddress === walletAddress
+      keyShare.walletAddress === walletAddress &&
+      keyShare.deviceShareHash === deviceShareHash
     );
   });
 
-  // TODO: Update `keyShare` dates and add logic for rotation.
+  if (!keyShare) {
+    throw new Error("No match found");
+  }
 
-  // TODO: Persist these
+  // TODO: Update `keyShare` dates and add logic for rotation.
 
   return Promise.resolve({
     authShare: keyShare.authShare,

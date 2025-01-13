@@ -248,7 +248,10 @@ export interface DeviceShareInfo {
   createdAt: number;
 }
 
-function loadDeviceSharesInfo(): Record<string, DeviceShareInfo> {
+function loadDeviceSharesInfo(): Record<
+  string,
+  Record<string, DeviceShareInfo>
+> {
   try {
     let deviceSharesInfo = JSON.parse(
       localStorage.getItem(DEVICE_SHARES_INFO_KEY)
@@ -260,7 +263,7 @@ function loadDeviceSharesInfo(): Record<string, DeviceShareInfo> {
       deviceSharesInfo = {};
     }
 
-    return deviceSharesInfo as Record<string, DeviceShareInfo>;
+    return deviceSharesInfo as Record<string, Record<string, DeviceShareInfo>>;
   } catch (err) {
     if (process.env.NODE_ENV === "development") {
       throw new Error(`${INVALID_DEVICE_SHARES_INFO_ERR_MSG}: ${err?.message}`);
@@ -270,7 +273,10 @@ function loadDeviceSharesInfo(): Record<string, DeviceShareInfo> {
   }
 }
 
-let _deviceSharesInfo: Record<string, DeviceShareInfo> = loadDeviceSharesInfo();
+let _deviceSharesInfo: Record<
+  string,
+  Record<string, DeviceShareInfo>
+> = loadDeviceSharesInfo();
 
 // Getters:
 
@@ -280,10 +286,10 @@ function getDeviceNonce(): DeviceNonce {
   return _deviceNonce;
 }
 
-function getDeviceSharesInfo(): DeviceShareInfo[] {
+function getDeviceSharesInfo(userId: string): DeviceShareInfo[] {
   console.log("getDeviceSharesInfo()");
 
-  return Object.values(_deviceSharesInfo).sort(
+  return Object.values(_deviceSharesInfo[userId] || {}).sort(
     (a, b) => b.createdAt - a.createdAt
   );
 }
@@ -335,6 +341,7 @@ function storeDeviceNonce(deviceNonce: DeviceNonce) {
 
 function storeDeviceShare(
   deviceShare: string,
+  userId: string,
   // TODO: Do we want to use the walletAddress or maybe better a hash?
   walletAddress: string
 ) {
@@ -346,7 +353,9 @@ function storeDeviceShare(
     createdAt: Date.now()
   };
 
-  _deviceSharesInfo[walletAddress] = deviceShareInfo;
+  if (!_deviceSharesInfo[userId]) _deviceSharesInfo[userId] = {};
+
+  _deviceSharesInfo[userId][walletAddress] = deviceShareInfo;
 
   localStorage.setItem(
     DEVICE_SHARES_INFO_KEY,
