@@ -455,10 +455,6 @@
     "message": "Currency",
     "description": "Select currency"
   },
-  "setting_dre_node": {
-    "message": "Warp DRE node",
-    "description": "Warp DRE node setting title"
-  },
   "setting_arverify": {
     "message": "ArVerify treshold",
     "description": "ArVerify settings title"
@@ -1997,10 +1993,6 @@
         "example": "Address"
       }
     }
-  },
-  "setting_ao_support": {
-    "message": "ao support",
-    "description": "ao support settings title"
   },
   "setting_ao_support_description": {
     "message": "Show ao tokens in your wallet (beta)",

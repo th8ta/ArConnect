@@ -51,7 +51,6 @@
     "@arconnect/components": "^1.0.0",
     "@arconnect/components-rebrand": "git+https://github.com/arconnectio/components-rebrand.git#master",
     "@arconnect/keystone-sdk": "^0.0.5",
-    "@arconnect/warp-dre": "^0.0.1",
     "@arconnect/webext-bridge": "^5.0.6",
     "@iconicicons/react": "^1.5.0",
     "@keystonehq/arweave-keyring": "^0.1.1-alpha.0",
@@ -90,7 +89,6 @@
     "styled-components": "^5.3.6",
     "typed-assert": "^1.0.9",
     "uuid": "^9.0.0",
-    "warp-contracts": "^1.2.13",
     "webextension-polyfill": "^0.10.0",
     "wouter": "^3.3.5"
   },

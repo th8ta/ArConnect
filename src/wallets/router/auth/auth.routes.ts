@@ -8,7 +8,6 @@ import { SignatureAuthRequestView } from "~routes/auth/signature";
 import { SignDataItemAuthRequestView } from "~routes/auth/signDataItem";
 import { SignKeystoneAuthRequestView } from "~routes/auth/signKeystone";
 import { SubscriptionAuthRequestView } from "~routes/auth/subscription";
-import { TokenAuthRequestView } from "~routes/auth/token";
 import { UnlockAuthRequestView } from "~routes/auth/unlock";
 import { getExtensionOverrides } from "~wallets/router/extension/extension.routes";
 import type { RouteConfig } from "~wallets/router/router.types";
@@ -51,10 +50,6 @@ export const AUTH_ROUTES = [
   {
     path: AuthPaths.Allowance,
     component: AllowanceAuthRequestView
-  },
-  {
-    path: AuthPaths.Token,
-    component: TokenAuthRequestView
   },
   {
     path: AuthPaths.Decrypt,

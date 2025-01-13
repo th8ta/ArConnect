@@ -70,7 +70,7 @@ export const handleApiCallMessage: OnMessageCallback<
       });
 
       // update app value with the app belonging to the frame
-      if (frame.url) {
+      if (frame?.url) {
         app = new Application(getAppURL(frame.url));
       }
     }
