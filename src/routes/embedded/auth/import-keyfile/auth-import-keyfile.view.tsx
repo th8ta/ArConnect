@@ -47,7 +47,8 @@ export function AuthImportKeyfileEmbeddedView() {
         },
         {
           label: "No, upload again",
-          onClick: () => deleteImportedTempWallet()
+          onClick: () => deleteImportedTempWallet(),
+          variant: "secondary"
         },
         {
           label: "Yes, add",

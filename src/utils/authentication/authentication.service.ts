@@ -1,7 +1,8 @@
 import {
   FakeDB,
   type AuthMethod,
-  type DbAuthenticateData
+  type DbAuthenticateData,
+  type DbUser
 } from "~utils/authentication/fakeDB";
 
 async function refreshSession(): Promise<DbAuthenticateData | null> {
@@ -18,13 +19,46 @@ async function signOut(): Promise<void> {
   // TODO
 }
 
-async function recoverAccount(): Promise<void> {
-  // TODO
+async function fetchWalletRecoveryChallenge(
+  walletAddress: string
+): Promise<string> {
+  return FakeDB.fetchWalletRecoveryChallenge(walletAddress);
+}
+
+async function fetchRecoverableAccounts(
+  walletAddress: string,
+  challengeSignature: string
+): Promise<DbUser[]> {
+  return FakeDB.fetchRecoverableAccounts(walletAddress, challengeSignature);
+}
+
+async function fetchAccountRecoveryChallenge(
+  userId: string,
+  walletAddress: string
+): Promise<string> {
+  return FakeDB.fetchAccountRecoveryChallenge(userId, walletAddress);
+}
+
+async function recoverAccount(
+  authMethod: AuthMethod,
+  userId: string,
+  walletAddress: string,
+  challengeSignature: string
+): Promise<DbAuthenticateData> {
+  return FakeDB.recoverAccount(
+    authMethod,
+    userId,
+    walletAddress,
+    challengeSignature
+  );
 }
 
 export const AuthenticationService = {
   refreshSession,
   authenticate,
   signOut,
+  fetchWalletRecoveryChallenge,
+  fetchRecoverableAccounts,
+  fetchAccountRecoveryChallenge,
   recoverAccount
 } as const;

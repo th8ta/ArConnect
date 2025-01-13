@@ -34,6 +34,7 @@ const EMBEDDED_CONTEXT_INITIAL_STATE: EmbeddedContextState = {
   generatedTempWalletAddress: null,
   importedTempWalletAddress: null,
   lastRegisteredWallet: null,
+  recoverableAccounts: null,
   promptToBackUp: true,
   backedUp: false
 };
@@ -41,13 +42,22 @@ const EMBEDDED_CONTEXT_INITIAL_STATE: EmbeddedContextState = {
 export const EmbeddedContext = createContext<EmbeddedContextData>({
   ...EMBEDDED_CONTEXT_INITIAL_STATE,
   authenticate: async () => null,
+  fetchRecoverableAccounts: async () => null,
+  clearRecoverableAccounts: async () => null,
+  recoverAccount: async () => null,
+
   generateTempWallet: async () => null,
   deleteGeneratedTempWallet: async () => null,
+
   importTempWallet: async () => null,
   deleteImportedTempWallet: async () => null,
+
   registerWallet: async () => null,
   clearLastRegisteredWallet: () => null,
+
   activateWallet: () => null,
+
+  // TODO: These should work for multiple wallets:
   skipBackUp: () => null,
   registerBackUp: async () => null,
   downloadKeyfile: async () => null,
@@ -280,7 +290,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
     async (jwkOrSeedPhrase: JWKInterface | string) => {
       await deleteImportedTempWallet();
 
-      console.log("importTempWallet()", jwkOrSeedPhrase);
+      console.log("importTempWallet()");
 
       const controller = new AbortController();
       const { signal } = controller;
@@ -338,8 +348,6 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
 
       const { seedPhrase, jwk, walletAddress } = await promise;
 
-      console.log(`seedPhrase = ${seedPhrase}`);
-
       const { authShare, deviceShare } =
         await WalletUtils.generateWalletWorkShares(jwk);
 
@@ -389,15 +397,81 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
     }));
   }, []);
 
+  // ACCOUNT RECOVERY:
+
+  const fetchRecoverableAccounts = useCallback(async () => {
+    console.log("fetchRecoverableAccounts()");
+
+    setEmbeddedContextState((prevAuthContextState) => ({
+      ...prevAuthContextState,
+      recoverableAccounts: null
+    }));
+
+    const { jwk, walletAddress } = await importedTempWalletPromiseRef.current
+      ?.promise;
+
+    const challenge = await AuthenticationService.fetchWalletRecoveryChallenge(
+      walletAddress
+    );
+    const challengeSignature = await WalletUtils.generateChallengeSignature(
+      challenge,
+      jwk
+    );
+    const recoverableAccounts =
+      await AuthenticationService.fetchRecoverableAccounts(
+        walletAddress,
+        challengeSignature
+      );
+
+    setEmbeddedContextState((prevAuthContextState) => ({
+      ...prevAuthContextState,
+      recoverableAccounts
+    }));
+
+    return recoverableAccounts;
+  }, []);
+
+  const clearRecoverableAccounts = useCallback(() => {
+    setEmbeddedContextState((prevAuthContextState) => ({
+      ...prevAuthContextState,
+      recoverableAccounts: null
+    }));
+  }, []);
+
+  const recoverAccount = useCallback(
+    async (authMethod: AuthMethod, accountToRecoverId: string) => {
+      console.log(`recoverAccount(${authMethod}, ${accountToRecoverId})`);
+
+      const { jwk, walletAddress } = await importedTempWalletPromiseRef.current
+        ?.promise;
+
+      const challenge =
+        await AuthenticationService.fetchAccountRecoveryChallenge(
+          accountToRecoverId,
+          walletAddress
+        );
+      const challengeSignature = await WalletUtils.generateChallengeSignature(
+        challenge,
+        jwk
+      );
+
+      await AuthenticationService.recoverAccount(
+        authMethod,
+        accountToRecoverId,
+        walletAddress,
+        challengeSignature
+      );
+
+      // TODO: The imported wallet needs to be split and the authShare sent to the backend. Then, wallets need to be
+      // fetched...
+    },
+    []
+  );
+
+  // ACTIVATE:
+
   const activateWallet = useCallback(
     (jwk: JWKInterface) => {
-      // TODO: Add wallet to ExtensionStorage, but make sure to:
-      // - Remove/update alarm to NOT remove it.
-      // - Rotate it with newly generated passwords?
-      // - Storage in the embedded wallet must be temp (memory).
-      // - Router should force users out the auth screens
-      // - See if signing, etc. works.
-
       WalletUtils.storeEncryptedWalletJWK(jwk);
 
       if (!wallets.find((prevWallet) => prevWallet.publicKey === jwk.n)) {
@@ -408,6 +482,8 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
     },
     [wallets]
   );
+
+  // INITIALIZATION:
 
   const initEmbeddedWallet = useCallback(async (authMethod?: AuthMethod) => {
     setEmbeddedContextState({
@@ -546,25 +622,6 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
     isInitializedRef.current = true;
 
     async function init() {
-      /*
-      console.log("Initializing ArConnect Embedded...");
-
-      // TODO: Relocate this reset and handle storage better:
-
-      try {
-        // TODO: We want to use `ExtensionStorage` as in-memory/session storage, but even setting it as "session", it's
-        // not a properly implemented "any storage" abstraction, so we need to mock it for Embedded:
-        await ExtensionStorage.clear(true);
-      } catch (err) {
-        console.warn("Error clearing ExtensionStorage: ", err);
-
-        // The mocked `ExtensionStorage` for Embedded uses sessionStorage, so if something happened, we just clear it
-        // manually, as we don't want wallets to be there on page load, as they are re-created every time and encrypted
-        // with a new randomly generated password:
-        sessionStorage.clear();
-      }
-      */
-
       console.log("Initializing ArConnect Embedded background services...");
       setupBackgroundService();
 
@@ -589,14 +646,23 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
     <EmbeddedContext.Provider
       value={{
         ...embeddedContextState,
+
         authenticate,
+        fetchRecoverableAccounts,
+        clearRecoverableAccounts,
+        recoverAccount,
+
         generateTempWallet,
         deleteGeneratedTempWallet,
+
         importTempWallet,
         deleteImportedTempWallet,
+
         registerWallet,
         clearLastRegisteredWallet,
+
         activateWallet,
+
         skipBackUp,
         registerBackUp,
         downloadKeyfile,

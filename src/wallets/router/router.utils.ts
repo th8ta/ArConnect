@@ -95,6 +95,8 @@ export function BodyScroller() {
   return null;
 }
 
+// TODO: This doesn't work at all when using <Link /> as its updates won't be pushed to `customHistory`...
+
 // This is just a temporary fix until either:
 // - Wouter adds support for `history`.
 // - We replace Wouter with a more capable routing library.
@@ -169,6 +171,8 @@ export function useLocation() {
 
     // ...and read the last one where we want to navigate to:
     const lastRoute = customHistory[customHistory.length - 1];
+
+    console.log("lastRoute =", lastRoute);
 
     // Navigate to the previous route (if available):
     if (lastRoute) wavigate(lastRoute.to, lastRoute.options);

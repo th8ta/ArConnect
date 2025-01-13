@@ -43,7 +43,8 @@ export function AuthImportSeedphraseEmbeddedView() {
         },
         {
           label: "No, try again",
-          onClick: () => deleteImportedTempWallet()
+          onClick: () => deleteImportedTempWallet(),
+          variant: "secondary"
         },
         {
           label: "Yes, add",

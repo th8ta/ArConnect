@@ -43,7 +43,7 @@ const AUTH_STATUS_TO_OVERRIDE: Record<
 export function useAuthStatusOverride(
   location?: RoutePath
 ): null | ExtensionRouteOverride | RouteRedirect<ArConnectRoutePath> {
-  const { authStatus, lastWallet, wallets, promptToBackUp } = useEmbedded();
+  const { authStatus, lastRegisteredWallet, promptToBackUp } = useEmbedded();
 
   // TODO: Memo all  this:
 
@@ -63,7 +63,9 @@ export function useAuthStatusOverride(
           // TODO: These could be simply "anything under  AuthRecoverAccount"
           EmbeddedPaths.AuthRecoverAccount,
           EmbeddedPaths.AuthRecoverAccountSeedphrase,
-          EmbeddedPaths.AuthRecoverAccountKeyfile
+          EmbeddedPaths.AuthRecoverAccountKeyfile,
+          EmbeddedPaths.AuthRecoverAccountAuthentication,
+          EmbeddedPaths.AuthRecoverAccountMoreAuthentication
         ],
         EmbeddedPaths.Auth
       );
@@ -100,8 +102,8 @@ export function useAuthStatusOverride(
     }
 
     if (authStatus === "unlocked") {
-      if (lastWallet) {
-        // If an account has just been created, then show AuthAddWalletConfirmation:
+      if (lastRegisteredWallet) {
+        // If an account or wallet has just been created, then show AuthAddWalletConfirmation:
         // TODO: Create shortcut signature for this case:
         return routeTrapMatches(
           location,
