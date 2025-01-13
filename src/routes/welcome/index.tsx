@@ -13,8 +13,8 @@ import {
 import { PageType, trackPage } from "~utils/analytics";
 import { useLocation } from "~wallets/router/router.utils";
 import WanderIcon from "url:assets/icon.svg";
-import WanderTextIcon from "url:assets/icon-text.svg";
 import StarIcons from "~components/welcome/StarIcons";
+import IconText from "~components/welcome/IconText";
 
 export function HomeWelcomeView() {
   const { navigate } = useLocation();
@@ -70,12 +70,7 @@ export function HomeWelcomeView() {
               src={WanderIcon}
               alt="Wander Icon"
             />
-            <Image
-              width="280px"
-              height="52.866px"
-              src={WanderTextIcon}
-              alt="Wander Text Icon"
-            />
+            <IconText width={280} height={52.866} />
           </ImagesWrapper>
           <Spacer y={3.5} />
           <ButtonsWrapper>
@@ -115,7 +110,8 @@ const Wrapper = styled.div`
   align-items: stretch;
   width: 100vw;
   height: 100vh;
-  background-color: #1e1b4b;
+  background-color: ${(props) =>
+    props.theme.displayTheme === "dark" ? "#1e1b4b" : "#f0e8ff"};
 `;
 
 const Panel = styled.div`
@@ -190,19 +186,6 @@ const ImagesWrapper = styled.div`
   justify-content: center;
   align-items: center;
   gap: 31.447px;
-`;
-
-const StarImage = styled.img<{
-  left?: number;
-  top?: number;
-  right?: number;
-  bottom?: number;
-}>`
-  position: absolute;
-  ${({ left }) => left && `left: ${left}px;`}
-  ${({ top }) => top && `top: ${top}px;`}
-  ${({ right }) => right && `right: ${right}px;`}
-  ${({ bottom }) => bottom && `bottom: ${bottom}px;`}
 `;
 
 function getWindowDimensions() {

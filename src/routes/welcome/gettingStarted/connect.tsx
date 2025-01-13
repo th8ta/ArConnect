@@ -101,4 +101,8 @@ const Image = styled.img<{ width: string; height: string }>`
   padding: 0.625rem;
   width: ${(props) => props.width};
   height: ${(props) => props.height};
+  filter: brightness(0) saturate(100%)
+    ${({ theme }) => {
+      return `invert(${theme.displayTheme === "dark" ? "1" : "0"})`;
+    }};
 `;

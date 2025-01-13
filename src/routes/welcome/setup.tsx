@@ -14,7 +14,6 @@ import { getWalletKeyLength } from "~wallets";
 import { useLocation } from "~wallets/router/router.utils";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import WanderIcon from "url:assets/icon.svg";
-import WanderTextIcon from "url:assets/icon-text.svg";
 
 // Shared:
 import { PasswordWelcomeView } from "./load/password";
@@ -33,6 +32,7 @@ import StarIcons from "~components/welcome/StarIcons";
 import { ArrowNarrowLeft } from "@untitled-ui/icons-react";
 import { PermissionsWelcomeView } from "./generate/permissions";
 import { OptionsWelcomView } from "./load/options";
+import IconText from "~components/welcome/IconText";
 // Wallet generate pages:
 
 const LoadViews = [
@@ -244,12 +244,7 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
             src={WanderIcon}
             alt="Wander Icon"
           />
-          <Image
-            width="116.759px"
-            height="24.111px"
-            src={WanderTextIcon}
-            alt="Wander Text Icon"
-          />
+          <IconText width={116.759} height={24.111} />
         </HeaderIconWrapper>
         <Text variant="secondary" size="base" weight="medium">
           {browser.i18n.getMessage("need_help")}
@@ -398,13 +393,19 @@ export const Wrapper = styled.div<{ linearBackground?: boolean }>`
   min-height: 100vh;
   flex-direction: column;
   position: relative;
-  ${({ linearBackground }) =>
+  ${({ theme, linearBackground }) =>
     linearBackground
-      ? `background: linear-gradient(180deg, #26126F 0%, #111 23.74%)`
-      : "background: radial-gradient(50% 50% at 50% 50%, #26126f 0%, #1c1c1d 86.5%)"}
+      ? `background: linear-gradient(180deg, ${
+          theme.displayTheme === "dark" ? "#26126F" : "#F0E8FF"
+        } 0%, ${theme.displayTheme === "dark" ? "#111" : "#F8F9FC"} 23.74%)`
+      : `background: radial-gradient(50% 50% at 50% 50%, ${
+          theme.displayTheme === "dark" ? "#26126f" : "#F0E8FF"
+        } 0%, ${theme.displayTheme === "dark" ? "#1c1c1d" : "#F8F9FC"} 86.5%)`}
 `;
 
-const Image = styled.img``;
+const Image = styled.img`
+  color: ${(props) => props.theme.primaryText};
+`;
 
 export const SetupCard = styled(Card)<{ transparentBackground?: boolean }>`
   display: flex;

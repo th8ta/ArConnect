@@ -165,5 +165,6 @@ const WarningContainer = styled.div`
   gap: 12px;
   align-self: stretch;
   border-radius: 8px;
-  background: var(--states-pending-warning-surface, #363225);
+  background: ${(props) =>
+    props.theme.displayTheme === "dark" ? "#363225" : "#F5F5F5"};
 `;

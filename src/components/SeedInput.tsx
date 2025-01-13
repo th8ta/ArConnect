@@ -8,7 +8,7 @@ import {
 } from "react";
 import { CloseIcon, FolderIcon, WalletIcon } from "@iconicicons/react";
 import type { JWKInterface } from "arweave/web/lib/wallet";
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, useTheme } from "styled-components";
 import { Loading, Text } from "@arconnect/components-rebrand";
 import { formatAddress } from "~utils/format";
 import { readFileString } from "~utils/file";
@@ -26,6 +26,8 @@ export default function SeedInput({
   inputType = "seedphrase",
   loading = false
 }: Props) {
+  const theme = useTheme();
+
   // length of the seedphrase
   const [activeLength, setActiveLength] = useState<SeedLength>(defaultLength);
 
@@ -193,7 +195,7 @@ export default function SeedInput({
                   variants={scaleAppearAnimation}
                   key="walleticon"
                 >
-                  <WalletIcon />
+                  <WalletIcon color={theme.primaryText} />
                 </motion.div>
               )) || (
                 <motion.div
@@ -202,7 +204,7 @@ export default function SeedInput({
                   variants={scaleAppearAnimation}
                   key="fileicon"
                 >
-                  <FolderIcon />
+                  <FolderIcon color={theme.primaryText} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -247,7 +249,7 @@ export default function SeedInput({
             </>
           ) : (
             <>
-              <UploadCloud02 height={48} width={48} />
+              <UploadCloud02 height={48} width={48} color={theme.primaryText} />
               <div
                 style={{
                   textAlign: "center",
@@ -547,7 +549,7 @@ const DragText = styled.p`
   font-size: 1rem;
   font-weight: 500;
   text-align: center;
-  color: rgb(${(props) => props.theme.theme});
+  color: ${(props) => props.theme.theme};
   margin: 0;
 `;
 
