@@ -37,6 +37,7 @@ export interface DbWallet {
 
   source: {
     type: "imported" | "generated";
+    // TODO: Add a more detailed identifier about the actual code used and version?
     from: "seedPhrase" | "binary" | "keyFile" | "shareFile";
     deviceAndLocationInfo: any;
   };
@@ -62,12 +63,12 @@ interface DbKeyShare {
   // D + A SSS:
   deviceNonce: string;
   authShare: string;
-  deviceSharePublicKey: string;
+  deviceShareHash: string;
 
   // RB + RA + RD SSS:
   recoveryAuthShare: string;
-  recoveryBackupSharePublicKey: string;
-  recoveryDeviceSharePublicKey: string;
+  recoveryBackupShareHash: string;
+  recoveryDeviceShareHash: string;
 }
 
 // Wallet Management:

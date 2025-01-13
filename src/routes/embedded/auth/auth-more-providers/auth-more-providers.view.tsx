@@ -4,7 +4,7 @@ import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import screenSrc from "url:/assets-beta/figma-screens/auth.view.png";
 
 export function AuthMoreProvidersEmbeddedView() {
-  const { authenticate, authStatus } = useEmbedded();
+  const { authenticate } = useEmbedded();
 
   // TODO: Remember last selection and highlight that one / show it in the main screen (not in "More")
 

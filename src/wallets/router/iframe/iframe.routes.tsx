@@ -10,7 +10,6 @@ import { AuthMoreProvidersEmbeddedView } from "~routes/embedded/auth/auth-more-p
 import { AuthAddWalletEmbeddedView } from "~routes/embedded/auth/add-wallet/auth-add-wallet.view";
 import { AuthImportSeedphraseEmbeddedView } from "~routes/embedded/auth/import-seedphrase/auth-import-seedphrase.view";
 import { AuthImportKeyfileEmbeddedView } from "~routes/embedded/auth/import-keyfile/auth-import-keyfile.view";
-import { AuthConfirmationEmbeddedView } from "~routes/embedded/auth/confirmation/auth-confirmation.view";
 
 // Authentication Linking Views:
 import { AuthAddDeviceEmbeddedView } from "~routes/embedded/auth/add-device/auth-add-device.view";
@@ -24,10 +23,10 @@ import { AuthRecoverAccountKeyfileEmbeddedView } from "~routes/embedded/auth/rec
 
 // Account Management Views:
 import { AccountEmbeddedView } from "~routes/embedded/account/account/account.view";
+import { AccountConfirmationEmbeddedView } from "~routes/embedded/account/confirmation/account-confirmation.view";
 import { AccountAddWalletEmbeddedView } from "~routes/embedded/account/add-wallet/account-add-wallet.view";
 import { AccountImportSeedphraseEmbeddedView } from "~routes/embedded/account/import-seedphrase/account-import-seedphrase.view";
 import { AccountImportKeyfileEmbeddedView } from "~routes/embedded/account/import-keyfile/account-import-keyfile.view";
-import { AccountAddWalletConfirmationEmbeddedView } from "~routes/embedded/account/add-wallet-confirmation/account-add-wallet-confirmation.view";
 
 // Account Backup Views:
 import { AccountBackupSharesReminderEmbeddedView } from "~routes/embedded/account/backup-shares-reminder/account-backup-shares-reminder.view";
@@ -42,18 +41,17 @@ export type EmbeddedRoutePath =
   | "/auth/import-keyfile"
   | "/auth/add-device"
   | "/auth/add-auth-provider"
-  | "/auth/confirmation"
   | "/auth/restore-shards"
   | "/auth/recover-account"
   | "/auth/recover-account/seedphrase"
   | "/auth/recover-account/keyfile"
   | "/account"
+  | "/account/confirmation"
   // | "/account/add-provider"
   // | "/account/add-provider/more-providers"
   | "/account/add-wallet"
   | "/account/import-seedphrase"
   | "/account/import-keyfile"
-  | "/account/add-wallet-confirmation"
   | "/account/backup-shares"
   // | "/account/backup-shares/<backupProvider>"
   | "/account/backup-shares/reminder"
@@ -68,7 +66,6 @@ export const EmbeddedPaths = {
   AuthAddWallet: "/auth/add-wallet",
   AuthImportSeedPhrase: "/auth/import-seed-phrase",
   AuthImportKeyfile: "/auth/import-keyfile",
-  AuthConfirmationEmbeddedView: "/auth/confirmation",
 
   // Authentication Linking:
   AuthAddDevice: "/auth/add-device",
@@ -82,10 +79,10 @@ export const EmbeddedPaths = {
 
   // Account Management:
   Account: "/account",
+  AccountConfirmation: "/account/confirmation",
   AccountAddWallet: "/account/add-wallet",
   AccountImportSeedphrase: "/account/import-seedphrase",
   AccountImportKeyfile: "/account/import-keyfile",
-  AccountAddWalletConfirmation: "/account/add-wallet-confirmation",
 
   // Backup:
   AccountBackupShares: "/account/backup-shares",
@@ -117,10 +114,6 @@ const IFRAME_OWN_ROUTES = [
   {
     path: EmbeddedPaths.AuthImportKeyfile,
     component: AuthImportKeyfileEmbeddedView
-  },
-  {
-    path: EmbeddedPaths.AuthConfirmationEmbeddedView,
-    component: AuthConfirmationEmbeddedView
   },
 
   // Authentication Linking:
@@ -160,6 +153,10 @@ const IFRAME_OWN_ROUTES = [
     component: AccountEmbeddedView
   },
   {
+    path: EmbeddedPaths.AccountConfirmation,
+    component: AccountConfirmationEmbeddedView
+  },
+  {
     path: EmbeddedPaths.AccountAddWallet,
     component: AccountAddWalletEmbeddedView
   },
@@ -170,10 +167,6 @@ const IFRAME_OWN_ROUTES = [
   {
     path: EmbeddedPaths.AccountImportKeyfile,
     component: AccountImportKeyfileEmbeddedView
-  },
-  {
-    path: EmbeddedPaths.AccountAddWalletConfirmation,
-    component: AccountAddWalletConfirmationEmbeddedView
   },
 
   // Backup:

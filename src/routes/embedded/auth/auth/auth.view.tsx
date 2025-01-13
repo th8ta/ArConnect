@@ -4,7 +4,7 @@ import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import screenSrc from "url:/assets-beta/figma-screens/auth.view.png";
 
 export function AuthEmbeddedView() {
-  const { authenticate, authStatus } = useEmbedded();
+  const { authenticate } = useEmbedded();
 
   // TODO: Remember last selection and highlight that one / show it in the main screen (not in "More")
 
@@ -26,6 +26,9 @@ export function AuthEmbeddedView() {
         {
           label: "ArConnect",
           onClick: () => alert("Not implemented")
+          // TODO: When using Arweave Wallet Kit, it doesn't make sense to show "ArConnect" as an option here, but maybe
+          // we would need a "back" option instead to show the AWK selector again.
+
           // TODO: Send a message to the SDK to connect using the injected window.arweaveWallet instead
           // TODO: Add special screen when using ArConnect. For MVP, no interface, only proxy.
         },

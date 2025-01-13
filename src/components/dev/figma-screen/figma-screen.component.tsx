@@ -60,6 +60,8 @@ export function DevFigmaScreen({
                 return value;
               })
               .catch((asyncErr) => {
+                console.log(asyncErr);
+
                 setScreenState({
                   isLoading: false,
                   errorMessage: getFriendlyErrorMessage(asyncErr)
@@ -69,6 +71,8 @@ export function DevFigmaScreen({
 
           return onClickReturn;
         } catch (err) {
+          console.log(err);
+
           setScreenState({
             isLoading: false,
             errorMessage: getFriendlyErrorMessage(err)

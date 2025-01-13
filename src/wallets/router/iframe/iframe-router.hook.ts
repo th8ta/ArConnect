@@ -100,27 +100,23 @@ export function useAuthStatusOverride(
     }
 
     if (authStatus === "unlocked") {
-      if (lastWallet && wallets.length === 1) {
+      if (lastWallet) {
         // If an account has just been created, then show AuthAddWalletConfirmation:
         // TODO: Create shortcut signature for this case:
         return routeTrapMatches(
           location,
-          [
-            EmbeddedPaths.AuthImportSeedPhrase,
-            EmbeddedPaths.AuthImportKeyfile,
-            EmbeddedPaths.AuthConfirmationEmbeddedView
-          ],
-          EmbeddedPaths.AuthConfirmationEmbeddedView
+          [EmbeddedPaths.AccountConfirmation],
+          EmbeddedPaths.AccountConfirmation
         );
       }
 
       if (promptToBackUp) {
-        // TODO: Create shortcut signature for this case:
         return routeTrapMatches(
           location,
           [
             EmbeddedPaths.AccountBackupSharesReminder,
             EmbeddedPaths.AccountBackupShares
+            // TODO: Missing EmbeddedPaths.AccountBackupShares/<PROVIDER>
           ],
           EmbeddedPaths.AccountBackupSharesReminder
         );
