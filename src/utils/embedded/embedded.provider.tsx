@@ -1,5 +1,4 @@
 import type { JWKInterface } from "arweave/web/lib/wallet";
-import { nanoid } from "nanoid";
 import { createContext, useCallback, useEffect, useRef, useState } from "react";
 import { setupBackgroundService } from "~api/background/background-setup";
 import { AuthenticationService } from "~utils/authentication/authentication.service";
@@ -8,7 +7,6 @@ import {
   type AuthMethod,
   type DbWallet
 } from "~utils/authentication/fakeDB";
-import { ExtensionStorage } from "~utils/storage";
 import { WalletService } from "~utils/wallets/wallets.service";
 import { WalletUtils } from "~utils/wallets/wallets.utils";
 import { getKeyfile, getWallets, type LocalWallet } from "~wallets";
@@ -27,7 +25,6 @@ import type {
   TempWalletPromise
 } from "~utils/embedded/embedded.types";
 import { isTempWalletPromiseExpired } from "~utils/embedded/embedded.utils";
-import { resetStorage } from "~utils/storage.utils";
 
 const EMBEDDED_CONTEXT_INITIAL_STATE: EmbeddedContextState = {
   authStatus: "unknown",
@@ -549,30 +546,24 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
     isInitializedRef.current = true;
 
     async function init() {
+      /*
       console.log("Initializing ArConnect Embedded...");
 
       // TODO: Relocate this reset and handle storage better:
 
       try {
-        // We want to use `ExtensionStorage` as in-memory storage, but even setting it as "session", it's not a properly
-        // implemented "any storage" abstraction:
-        // await ExtensionStorage.clear(true);
-        await resetStorage();
-
-        console.log(localStorage.wallets);
-
-        // ExtensionStorage.clear() seems to be `undefined`, even though TS says it's should not...
-        localStorage.clear();
-
-        console.log(localStorage.wallets);
+        // TODO: We want to use `ExtensionStorage` as in-memory/session storage, but even setting it as "session", it's
+        // not a properly implemented "any storage" abstraction, so we need to mock it for Embedded:
+        await ExtensionStorage.clear(true);
       } catch (err) {
         console.warn("Error clearing ExtensionStorage: ", err);
 
-        // At this point, there might already be valid data in `localStorage` (e.g. gateways) so we cannot simply do
-        // `localStorage.clear()`, unfortunately. For that, this reset needs to be moved to the (background) setup script.
-        localStorage.removeItem("wallets");
-        localStorage.removeItem("active_address");
+        // The mocked `ExtensionStorage` for Embedded uses sessionStorage, so if something happened, we just clear it
+        // manually, as we don't want wallets to be there on page load, as they are re-created every time and encrypted
+        // with a new randomly generated password:
+        sessionStorage.clear();
       }
+      */
 
       console.log("Initializing ArConnect Embedded background services...");
       setupBackgroundService();
