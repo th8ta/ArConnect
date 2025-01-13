@@ -22,6 +22,8 @@ export interface DbUser {
   name: string;
 }
 
+// TODO: Add an entity to link DbWallet / DbKeyShare to sites where they've been activated.
+
 export interface DbWallet {
   // PK = userId + chain + address
   id: string;
@@ -55,6 +57,7 @@ export interface DbWallet {
 interface DbKeyShare {
   // PK = userId + walletId + deviceNonce
   id: string;
+  status: string;
 
   // Common:
   userId: string;
@@ -207,6 +210,14 @@ async function refreshSession(): Promise<DbAuthenticateData> {
   await sleep(2000);
 
   return currentSession;
+}
+
+interface Challenges {
+  id: string;
+  status: string;
+  key: string; // walletAddress OR walletAddress+userId
+  challenge: string;
+  createdAt: string;
 }
 
 async function fetchWalletRecoveryChallenge(
