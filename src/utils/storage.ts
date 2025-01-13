@@ -3,19 +3,17 @@ import { type Gateway } from "~gateways/gateway";
 import { Storage } from "@plasmohq/storage";
 import { useStorage as usePlasmoStorage } from "@plasmohq/storage/hook";
 import { useMemo } from "react";
+import { StorageMock } from "~iframe/plasmo-storage/plasmo-storage.mock";
 
 /**
  * Default extension storage:
  * - In the BE version, values are NOT copied to `localStorage`.
- * - In the Embedded version, values are copied to `localStorage` (NOT memory), and are not cleared automatically
- *   despite using `area: "session"`.
+ * - In the Embedded version, we use `StorageMock` to store values in `sessionStorage` instead. Values that the Embedded
+ *   version needs to persist are stored manually in `localStorage` (e.g. `deviceNonce`, shares...)
  */
 export const ExtensionStorage =
   import.meta.env?.VITE_IS_EMBEDDED_APP === "1"
-    ? new Storage({
-        area: "session",
-        allCopied: true
-      })
+    ? new StorageMock()
     : new Storage({
         area: "local"
       });

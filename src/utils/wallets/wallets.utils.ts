@@ -212,7 +212,7 @@ async function generateChallengeSignature(
 
 // Device Nonce:
 
-const DEVICE_NONCE_KEY = "DEVICE_NONCE_KEY";
+const DEVICE_NONCE_KEY = "DEVICE_NONCE";
 
 export type DeviceNonce =
   `${number}-${number}-${number}T${number}:${number}:${number}.${number}Z-${string}`;
