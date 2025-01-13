@@ -1737,7 +1737,7 @@
       "description": "Connect with us description"
   },
   "connect_paragraph_2": {
-      "message": "有问题吗？加入 Discord 服务器与开发人员聊天。",
+      "message": "加入我们的Discord服务器，与开发者交流或提交工单。",
       "description": "Connect with us description"
   },
   "buy_ar_button": {
@@ -2569,8 +2569,14 @@
         "description": "Congratulations title"
     },
     "congratulations_description": {
-        "message": "您现在已成功导入您的Wander账户",
-        "description": "Congratulations description"
+        "message": "您已完成$TYPE$您的Wander账户。",
+        "description": "Congratulations description",
+        "placeholders": {
+            "type": {
+                "content": "$1",
+                "example": "导入"
+            }
+        }
     },
     "copied": {
         "message": "已复制",
@@ -2673,5 +2679,41 @@
     "take_a_tour": {
         "message": "开始使用",
         "description": "Take a tour button text"
+    },
+    "getting_started": {
+        "message": "开始使用",
+        "description": "Getting started title"
+    },
+    "welcome_to_wander": {
+        "message": "欢迎使用Wander",
+        "description": "Welcome to Wander title"
+    },
+    "welcome_to_wander_description": {
+        "message": "通过Wander探索Arweave和AO的无限可能。",
+        "description": "Welcome to Wander description"
+    },
+    "getting_started_tokens_title": {
+        "message": "轻松发送和接收AR和AO资产。",
+        "description": "Getting started tokens title"
+    },
+    "getting_started_onramp_title": {
+        "message": "通过Transak的便捷法币-加密货币购买AR。",
+        "description": "Getting started onramp title"
+    },
+    "getting_started_explore_title": {
+        "message": "在Wander上直接探索和连接应用。",
+        "description": "Getting started explore title"
+    },
+    "finish": {
+        "message": "完成",
+        "description": "Finish button text"
+    },
+    "importing": {
+        "message": "导入",
+        "description": "Importing text"
+    },
+    "creating": {
+        "message": "创建",
+        "description": "Creating text"
     }
 }

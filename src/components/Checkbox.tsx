@@ -17,7 +17,7 @@ export const Checkbox = ({
 }: CheckboxProps & Omit<HTMLProps<HTMLDivElement>, "onChange">) => {
   const effectiveId = useMemo(() => id || generateUniqueId(), [id]);
 
-  const toggle = useCallback(async () => {
+  const toggle = useCallback(() => {
     if (onChange) {
       onChange(!checked);
     }
@@ -31,7 +31,6 @@ export const Checkbox = ({
           id={effectiveId}
           aria-checked={checked}
           role="checkbox"
-          onChange={toggle}
         />
         <Label htmlFor={effectiveId} size={size} />
       </CheckboxWrapper>

@@ -1,5 +1,5 @@
 import { Button, Text } from "@arconnect/components-rebrand";
-import { WalletContext } from "../setup";
+import { WalletContext, type SetupWelcomeViewParams } from "../setup";
 import browser from "webextension-polyfill";
 import { useContext, useEffect } from "react";
 import { PageType, trackPage } from "~utils/analytics";
@@ -9,10 +9,19 @@ import styled from "styled-components";
 import { CopyToClipboard } from "~components/CopyToClipboard";
 import { formatAddress } from "~utils/format";
 import Squircle from "~components/Squircle";
+import { useLocation } from "~wallets/router/router.utils";
+import type { CommonRouteProps } from "~wallets/router/router.types";
 
-export function GenerateDoneWelcomeView() {
+export type GenerateDoneWelcomeViewProps =
+  CommonRouteProps<SetupWelcomeViewParams>;
+
+export function GenerateDoneWelcomeView({
+  params
+}: GenerateDoneWelcomeViewProps) {
   // wallet context
   const { wallet } = useContext(WalletContext);
+  const { navigate } = useLocation();
+  const { setupMode } = params;
 
   // add generated wallet
   async function goToDashboard() {
@@ -21,8 +30,7 @@ export function GenerateDoneWelcomeView() {
   }
 
   async function takeTour() {
-    window.onbeforeunload = null;
-    window.top.close();
+    navigate("/getting-started/1");
   }
 
   useEffect(() => {
@@ -45,7 +53,11 @@ export function GenerateDoneWelcomeView() {
             {browser.i18n.getMessage("congratulations")}
           </Text>
           <Text variant="secondary" noMargin>
-            {browser.i18n.getMessage("congratulations_description")}
+            {browser.i18n.getMessage("congratulations_description", [
+              browser.i18n.getMessage(
+                setupMode === "generate" ? "creating" : "importing"
+              )
+            ])}
           </Text>
         </InnerContent>
         <InnerContent>

@@ -5,10 +5,10 @@ import { Container, Content } from "~components/welcome/Wrapper";
 import { Text } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 
-export function GettingStartedExploreView() {
+export function GettingStartedOnrampView() {
   // Segment
   useEffect(() => {
-    trackPage(PageType.GETTING_STARTED_EXPLORE);
+    trackPage(PageType.GETTING_STARTED_ONRAMP);
   }, []);
 
   return (
@@ -21,7 +21,7 @@ export function GettingStartedExploreView() {
           alt="Placeholder Image"
         />
         <Text size="lg" weight="medium" noMargin>
-          {browser.i18n.getMessage("getting_started_explore_title")}
+          {browser.i18n.getMessage("getting_started_onramp_title")}
         </Text>
       </Content>
     </Container>

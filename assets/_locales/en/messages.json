@@ -1748,7 +1748,7 @@
     "description": "Connect with us description"
   },
   "connect_paragraph_2": {
-    "message": "Questions? Join the Discord server to chat with the developers.",
+    "message": "Join our Discord server to chat with the developers or submit tickets.",
     "description": "Connect with us description"
   },
   "buy_ar_button": {
@@ -2583,8 +2583,14 @@
     "description": "Congratulations title"
   },
   "congratulations_description": {
-    "message": "You have now finished importing your Wander account",
-    "description": "Congratulations description"
+    "message": "You have now finished $TYPE$ your Wander account",
+    "description": "Congratulations description",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "importing"
+      }
+    }
   },
   "copied": {
     "message": "Copied",
@@ -2687,5 +2693,41 @@
   "take_a_tour": {
     "message": "Take a tour",
     "description": "Take a tour button text"
+  },
+  "getting_started": {
+    "message": "Getting started",
+    "description": "Getting started title"
+  },
+  "welcome_to_wander": {
+    "message": "Welcome to Wander",
+    "description": "Welcome to Wander title"
+  },
+  "welcome_to_wander_description": {
+    "message": "Explore the endless possibilities of Arweave and AO through Wander",
+    "description": "Welcome to Wander description"
+  },
+  "getting_started_tokens_title": {
+    "message": "Send and receive AR and AO assets with ease.",
+    "description": "Getting started tokens title"
+  },
+  "getting_started_onramp_title": {
+    "message": "Buy AR with our seamless fiat-to-crypto onramp, powered by Transak.",
+    "description": "Getting started onramp title"
+  },
+  "getting_started_explore_title": {
+    "message": "Explore and connect to apps directly on Wander.",
+    "description": "Getting started explore title"
+  },
+  "finish": {
+    "message": "Finish",
+    "description": "Finish button text"
+  },
+  "importing": {
+    "message": "Importing",
+    "description": "Importing text"
+  },
+  "creating": {
+    "message": "Creating",
+    "description": "Creating text"
   }
 }

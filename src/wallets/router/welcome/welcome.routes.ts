@@ -1,5 +1,5 @@
 import { HomeWelcomeView } from "~routes/welcome";
-import { GettingStartedWelcomeView } from "~routes/welcome/gettingStarted";
+import { GettingStartedSetupWelcomeView } from "~routes/welcome/gettingStarted";
 import { SetupWelcomeView, type WelcomeSetupMode } from "~routes/welcome/setup";
 import type { RouteConfig } from "~wallets/router/router.types";
 
@@ -22,7 +22,7 @@ export const WELCOME_ROUTES = [
   },
   {
     path: WelcomePaths.GettingStarted,
-    component: GettingStartedWelcomeView
+    component: GettingStartedSetupWelcomeView
   },
   {
     path: WelcomePaths.Setup,

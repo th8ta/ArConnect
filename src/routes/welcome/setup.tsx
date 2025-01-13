@@ -28,13 +28,21 @@ import { GenerateDoneWelcomeView } from "./generate/done";
 
 // Load:
 import { WalletsWelcomeView } from "./load/wallets";
-import { LoadDoneWelcomeView } from "./load/done";
 import { Redirect } from "~wallets/router/components/redirect/Redirect";
 import StarIcons from "~components/welcome/StarIcons";
 import { ArrowNarrowLeft } from "@untitled-ui/icons-react";
 import { PermissionsWelcomeView } from "./generate/permissions";
 import { OptionsWelcomView } from "./load/options";
 // Wallet generate pages:
+
+const LoadViews = [
+  WalletsWelcomeView,
+  AccountWelcomeView,
+  PasswordWelcomeView,
+  ThemeWelcomeView,
+  PermissionsWelcomeView,
+  GenerateDoneWelcomeView
+];
 
 // TODO: Use a nested router instead:
 const ViewsBySetupMode = {
@@ -48,30 +56,9 @@ const ViewsBySetupMode = {
     GenerateDoneWelcomeView
   ],
   load: [OptionsWelcomView],
-  recoveryPhraseLoad: [
-    WalletsWelcomeView,
-    AccountWelcomeView,
-    PasswordWelcomeView,
-    ThemeWelcomeView,
-    PermissionsWelcomeView,
-    GenerateDoneWelcomeView
-  ],
-  keyfileLoad: [
-    WalletsWelcomeView,
-    AccountWelcomeView,
-    PasswordWelcomeView,
-    ThemeWelcomeView,
-    PermissionsWelcomeView,
-    GenerateDoneWelcomeView
-  ],
-  qrLoad: [
-    WalletsWelcomeView,
-    AccountWelcomeView,
-    PasswordWelcomeView,
-    ThemeWelcomeView,
-    PermissionsWelcomeView,
-    GenerateDoneWelcomeView
-  ]
+  recoveryPhraseLoad: LoadViews,
+  keyfileLoad: LoadViews,
+  qrLoad: LoadViews
 } as const;
 
 const VIEW_TITLES_BY_SETUP_MODE = {
@@ -81,6 +68,14 @@ const VIEW_TITLES_BY_SETUP_MODE = {
   keyfileLoad: "import_an_account",
   qrLoad: "import_an_account"
 } as const;
+
+const remainingLoadSubtitles = [
+  "name_your_account",
+  "create_a_password",
+  "choose_ui_theme",
+  "enable_permissions",
+  "congratulations"
+];
 
 const VIEW_SUBTITLES_BY_SETUP_MODE = {
   generate: [
@@ -93,31 +88,11 @@ const VIEW_SUBTITLES_BY_SETUP_MODE = {
     "congratulations"
   ],
   load: [""],
-  recoveryPhraseLoad: [
-    "enter_recovery_phrase",
-    "name_your_account",
-    "create_a_password",
-    "choose_ui_theme",
-    "enable_permissions",
-    "congratulations"
-  ],
-  keyfileLoad: [
-    "upload_key_file",
-    "name_your_account",
-    "create_a_password",
-    "choose_ui_theme",
-    "enable_permissions",
-    "congratulations"
-  ],
-  qrLoad: [
-    "scan_qr_code",
-    "name_your_account",
-    "create_a_password",
-    "choose_ui_theme",
-    "enable_permissions",
-    "congratulations"
-  ]
+  recoveryPhraseLoad: ["enter_recovery_phrase", ...remainingLoadSubtitles],
+  keyfileLoad: ["upload_key_file", ...remainingLoadSubtitles],
+  qrLoad: ["scan_qr_code", ...remainingLoadSubtitles]
 };
+
 export type WelcomeSetupMode =
   | "generate"
   | "load"
@@ -140,7 +115,7 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
   const pageTitle = VIEW_TITLES_BY_SETUP_MODE[setupMode];
   const pageSubtitle = VIEW_SUBTITLES_BY_SETUP_MODE[setupMode][page - 1];
   const pageCount = ViewsBySetupMode[setupMode].length;
-  const isCongratulationsPage = setupMode !== "load" && pageCount === page;
+  const transparentBackground = setupMode !== "load" && pageCount === page;
   const hidePagination = setupMode === "load" && page === 1;
 
   // temporarily stored password
@@ -260,7 +235,7 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
   const CurrentView = ViewsBySetupMode[setupMode][page - 1];
 
   return (
-    <Wrapper isCongratulationsPage={isCongratulationsPage}>
+    <Wrapper linearBackground={transparentBackground}>
       <Header>
         <HeaderIconWrapper>
           <Image
@@ -282,8 +257,8 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
       </Header>
       <StarIcons screen="setup" />
       <Spacer y={2} />
-      <SetupCard isCongratulationsPage={isCongratulationsPage}>
-        {!isCongratulationsPage && (
+      <SetupCard transparentBackground={transparentBackground}>
+        {!transparentBackground && (
           <HeaderContainer>
             <CardHeader>
               <BackButton onClick={navigateToPreviousPage} />
@@ -353,7 +328,7 @@ const HeaderIconWrapper = styled.div`
   gap: 9.65px;
 `;
 
-const Content = styled.div`
+export const Content = styled.div`
   overflow: hidden;
   height: 100%;
   flex: 1;
@@ -392,13 +367,13 @@ const Page = styled(motion.div).attrs({
   flex-direction: column;
 `;
 
-const HeaderContainer = styled.div`
+export const HeaderContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5em;
 `;
 
-const BackButton = styled(ArrowNarrowLeft)<{ hidden?: boolean }>`
+export const BackButton = styled(ArrowNarrowLeft)<{ hidden?: boolean }>`
   font-size: 1.6rem;
   display: ${(props) => props.hidden && "none"}
   width: 1.5em;
@@ -415,7 +390,7 @@ const BackButton = styled(ArrowNarrowLeft)<{ hidden?: boolean }>`
   }
 `;
 
-const Wrapper = styled.div<{ isCongratulationsPage?: boolean }>`
+export const Wrapper = styled.div<{ linearBackground?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -423,26 +398,26 @@ const Wrapper = styled.div<{ isCongratulationsPage?: boolean }>`
   min-height: 100vh;
   flex-direction: column;
   position: relative;
-  ${({ isCongratulationsPage }) =>
-    isCongratulationsPage
+  ${({ linearBackground }) =>
+    linearBackground
       ? `background: linear-gradient(180deg, #26126F 0%, #111 23.74%)`
       : "background: radial-gradient(50% 50% at 50% 50%, #26126f 0%, #1c1c1d 86.5%)"}
 `;
 
 const Image = styled.img``;
 
-const SetupCard = styled(Card)<{ isCongratulationsPage?: boolean }>`
+export const SetupCard = styled(Card)<{ transparentBackground?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 24px;
   padding: 24px;
   width: 377.5px;
   height: 600px;
-  ${({ isCongratulationsPage }) =>
-    isCongratulationsPage && `background: transparent; border: none;`}
+  ${({ transparentBackground }) =>
+    transparentBackground && `background: transparent; border: none;`}
 `;
 
-const CardHeader = styled.div`
+export const CardHeader = styled.div`
   display: flex;
   align-items: center;
 `;
