@@ -169,7 +169,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
         };
       });
     },
-    [userId]
+    []
   );
 
   // GENERATE WALLET:
@@ -364,6 +364,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
         authShare,
         deviceShareHash,
         canBeUsedToRecoverAccount: true, // TODO: What should be the default here?
+        deviceInfo: {},
 
         source: {
           type: sourceType,
@@ -372,7 +373,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
       });
 
       WalletUtils.storeDeviceNonce(deviceNonce);
-      WalletUtils.storeDeviceShare(deviceShare, walletAddress);
+      WalletUtils.storeDeviceShare(deviceShare, userId, walletAddress);
 
       // TODO: This flag must be checked on launch and the stored seedphrase should be removed if the flag becomes false.
       if (seedPhrase && MockedFeatureFlags.maintainSeedPhrase) {
@@ -387,7 +388,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
 
       return dbWallet;
     },
-    []
+    [userId]
   );
 
   const clearLastRegisteredWallet = useCallback(() => {
@@ -527,17 +528,16 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
     let authStatus = "noAuth" as AuthStatus;
 
     if (dbWallets.length > 0) {
+      // TODO: The wallet activation can be deferred until the wallet is going to be used:
+
+      const { userId } = authentication;
+
       // TODO: TODO: We need to keep track of the last used one, not the last created one:
-      const deviceSharesInfo = WalletUtils.getDeviceSharesInfo();
+      const deviceSharesInfo = WalletUtils.getDeviceSharesInfo(userId);
 
       let deviceNonce = WalletUtils.getDeviceNonce();
 
       if (deviceNonce && deviceSharesInfo.length > 0) {
-        // TODO: The need to rotate might come in `wallets`, so this call below could already rotate the deviceNonce,
-        // send the old value and also rotate the wallet if needed...
-
-        // TODO: This step can be deferred until the wallet is going to be used...:
-        // TODO: Do this sequentially for each available deviceShare until one works:
         const authShareResponse =
           await WalletService.fetchFirstAvailableAuthShare({
             deviceNonce,
@@ -562,19 +562,22 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
             const { authShare: newAuthShare, deviceShare: newDeviceShare } =
               await WalletUtils.generateWalletWorkShares(jwk);
 
+            const newDeviceShareHash = await WalletUtils.generateShareHash(
+              newDeviceShare
+            );
+
             const challengeSignature =
               await WalletUtils.generateChallengeSignature(
                 rotateChallenge,
                 jwk
               );
 
-            // TODO: This wallet needs to be regenerated as well and the authShare updated. If this is not done after X
-            // "warnings", the Shards entry will be removed anyway.
             await WalletService.rotateAuthShare({
               walletAddress,
               oldDeviceNonce,
               newDeviceNonce,
               authShare: newAuthShare,
+              newDeviceShareHash,
               challengeSignature
             });
 
@@ -583,7 +586,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
           }
 
           WalletUtils.storeDeviceNonce(deviceNonce);
-          WalletUtils.storeDeviceShare(deviceShare, walletAddress);
+          WalletUtils.storeDeviceShare(deviceShare, userId, walletAddress);
 
           const dbWallet = dbWallets.find((dbWallet) => {
             return dbWallet.address === walletAddress;
@@ -594,8 +597,6 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
           } finally {
             freeDecryptedWallet(jwk);
           }
-
-          // TODO: Rebuild pk, generate random password, store encrypted in storage.
 
           authStatus = "unlocked";
         } else {
