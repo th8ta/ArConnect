@@ -2711,5 +2711,9 @@
     "creating": {
         "message": "创建",
         "description": "Creating text"
+    },
+    "sign_into_wander": {
+        "message": "登录Wander",
+        "description": "Sign into Wander text"
     }
 }

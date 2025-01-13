@@ -32,7 +32,7 @@ import StarIcons from "~components/welcome/StarIcons";
 import { ArrowNarrowLeft } from "@untitled-ui/icons-react";
 import { PermissionsWelcomeView } from "./generate/permissions";
 import { OptionsWelcomView } from "./load/options";
-import IconText from "~components/welcome/IconText";
+import IconText from "~components/IconText";
 // Wallet generate pages:
 
 const LoadViews = [

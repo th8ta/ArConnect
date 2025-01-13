@@ -21,13 +21,26 @@ const stars: readonly StarProps[] = [
   { right: 132, bottom: 101, opacity: 0.4, size: 60 }
 ] as const;
 
+const unlockStars = [
+  { right: 50, top: 50, opacity: 0.4, size: 15 },
+  { left: 50, top: 100, opacity: 0.4, size: 22 },
+  { right: 80, top: 220, opacity: 0.4, size: 15 },
+  { left: 60, top: 230, opacity: 0.4, size: 35 }
+] as const;
+
+const starsByScreen = {
+  welcome: stars,
+  setup: stars.slice(2, 8),
+  unlock: unlockStars
+};
+
 interface StarIconsProps {
-  screen?: "welcome" | "setup";
+  screen?: "welcome" | "setup" | "unlock";
 }
 
 export default function StarIcons({ screen = "welcome" }: StarIconsProps) {
   const isWelcomeScreen = screen === "welcome";
-  const displayStars = isWelcomeScreen ? stars : stars.slice(2, 8);
+  const displayStars = starsByScreen[screen];
 
   return displayStars.map((star, index) => (
     <StarIcon

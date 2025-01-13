@@ -974,7 +974,7 @@
     "description": "Explainer about the seedphrase loading"
   },
   "sign_in": {
-    "message": "Sign In",
+    "message": "Sign in",
     "description": "Sign in title"
   },
   "app_wants_to_connect": {
@@ -2725,5 +2725,9 @@
   "creating": {
     "message": "Creating",
     "description": "Creating text"
+  },
+  "sign_into_wander": {
+    "message": "Sign into Wander",
+    "description": "Sign into Wander text"
   }
 }

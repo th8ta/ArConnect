@@ -14,7 +14,7 @@ import { PageType, trackPage } from "~utils/analytics";
 import { useLocation } from "~wallets/router/router.utils";
 import WanderIcon from "url:assets/icon.svg";
 import StarIcons from "~components/welcome/StarIcons";
-import IconText from "~components/welcome/IconText";
+import IconText from "~components/IconText";
 
 export function HomeWelcomeView() {
   const { navigate } = useLocation();
