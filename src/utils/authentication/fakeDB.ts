@@ -256,7 +256,7 @@ async function recoverAccount(
   await sleep(2000);
 
   // TODO: Find the previous userId-walletAddress-challenge tuple, the walletAddress' public key and verify if the
-  // signature is correct. If so, authenticate the user and link the wallet.
+  // signature is correct. If so, authenticate the user and link the wallet to their account.
 
   currentSession = {
     userId,
