@@ -9,37 +9,63 @@ import { isomorphicOnMessage } from "~utils/messaging/messaging.utils";
 
 let isWalletInitialized = false;
 
-export type ArConnectEmbeddedVariant = "hidden" | "logo" | "summary";
+// Theming:
 
-export type ArConnectEmbeddedVariantPosition = "" | "";
+export type ArConnectEmbeddedTheme = "light" | "dark" | "system";
 
-export interface ArConnectEmbeddedHiddenVariantOptions {
+// TODO: What happens with these if theme is "system"?
+export interface ArConnectEmbeddedCssVars {
+  primary: string;
+  // etc.
+}
+
+// Button:
+
+export type ArConnectEmbeddedButtonVariant = "hidden" | "logo" | "summary";
+
+export type ArConnectEmbeddedPosition = "" | "";
+
+export interface ArConnectEmbeddedHiddenOptions {
   type: "hidden";
 }
 
-export interface ArConnectEmbeddedLogoVariantOptions {
+export interface ArConnectEmbeddedLogoOptions {
   type: "logo";
-  position: ArConnectEmbeddedVariantPosition;
+  position: ArConnectEmbeddedPosition;
   margin: string;
   // TODO: Missing theming options (colors, font...)
 }
 
-export interface ArConnectEmbeddedSummaryVariantOptions {
+export interface ArConnectEmbeddedSummaryOptions {
   type: "summary";
-  position: ArConnectEmbeddedVariantPosition;
+  position: ArConnectEmbeddedPosition;
   margin: string;
   // TODO: Missing theming options (colors, font...)
 }
 
-export type ArConnectEmbeddedVariantOptions =
-  | ArConnectEmbeddedHiddenVariantOptions
-  | ArConnectEmbeddedLogoVariantOptions
-  | ArConnectEmbeddedSummaryVariantOptions;
+export type ArConnectEmbeddedButtonOptions =
+  | ArConnectEmbeddedHiddenOptions
+  | ArConnectEmbeddedLogoOptions
+  | ArConnectEmbeddedSummaryOptions;
+
+// Screen layout:
+
+export type ArConnectEmbeddedAuthLayout =
+  | "none"
+  | "popup"
+  | "modal"
+  | "2-columns";
+export type ArConnectEmbeddedAppLayout = "none" | "popup";
 
 export interface CommonArConnectEmbeddedOptions {
-  // UI:
-  variant: ArConnectEmbeddedVariant | ArConnectEmbeddedVariantOptions;
   iframe?: HTMLIFrameElement | IframeHTMLAttributes<HTMLIFrameElement>;
+
+  // UI:
+  theme?: ArConnectEmbeddedCssVars;
+  cssVars?: ArConnectEmbeddedCssVars;
+  button?: ArConnectEmbeddedButtonVariant | ArConnectEmbeddedButtonOptions;
+  authLayout?: ArConnectEmbeddedAuthLayout | ArConnectEmbeddedAuthLayoutOptions; // Popup/modal size, etc.
+  appLayout?: ArConnectEmbeddedAppLayout; // Popup size, etc.
 
   // Events:
   onOpen?: () => boolean;
