@@ -9,11 +9,37 @@ export default function PasswordStrength({ password }: Props) {
   // get strength
   const strength = useMemo(() => passwordStrength(password || ""), [password]);
 
-  // strength index
-  const strengthIndex = useMemo(
-    () => (strength.id === 0 ? 1 : strength.id + 2),
-    [strength]
-  );
+  const getStrengthInfo = () => {
+    const strengthIndex = strength.id + 1;
+    switch (strength.value) {
+      case "Too weak":
+        return {
+          bars: 1,
+          color: "#F1655B",
+          text: `password_strength_${strengthIndex}`
+        };
+      case "Weak":
+        return {
+          bars: 2,
+          color: "#F1A15B",
+          text: `password_strength_${strengthIndex}`
+        };
+      case "Medium":
+        return {
+          bars: 3,
+          color: "#E8D85B",
+          text: `password_strength_${strengthIndex}`
+        };
+      case "Strong":
+        return {
+          bars: 4,
+          color: "#5BF16E",
+          text: `password_strength_${strengthIndex}`
+        };
+      default:
+        return { bars: 0, color: "#544A81", text: "" };
+    }
+  };
 
   // checklist elements
   const checklist: ChecklistElement[] = [
@@ -31,16 +57,18 @@ export default function PasswordStrength({ password }: Props) {
     }
   ];
 
+  const { bars, color, text } = getStrengthInfo();
+
   return (
     <>
       <ProgressBar>
-        {new Array(5).fill("").map((_, i) => (
-          <Bar active={strengthIndex >= i + 1} key={i} />
+        {new Array(4).fill("").map((_, i) => (
+          <Bar active={bars >= i + 1} key={i} />
         ))}
       </ProgressBar>
       <Spacer y={0.35} />
-      <Text noMargin>
-        {browser.i18n.getMessage(`password_strength_${strengthIndex}`)}
+      <Text noMargin style={{ color }}>
+        {browser.i18n.getMessage(text)}
       </Text>
       <Spacer y={1.5} />
       <StrengthChecklist>
@@ -85,7 +113,7 @@ const ProgressBar = styled.div`
 `;
 
 const Bar = styled.div<{ active: boolean }>`
-  width: 18%;
+  width: 22%;
   height: 4px;
   background-color: ${(props) =>
     props.active ? props.theme.theme : "rgba(107, 87, 249, 0.50)"};

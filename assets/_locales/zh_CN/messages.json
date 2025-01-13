@@ -880,20 +880,16 @@
       "description": "Level 1 strength password text"
   },
   "password_strength_2": {
-      "message": "弱密码",
+      "message": "中等密码",
       "description": "Level 2 strength password text"
   },
   "password_strength_3": {
-      "message": "还行的密码",
+      "message": "强密码",
       "description": "Level 3 strength password text"
   },
   "password_strength_4": {
-      "message": "强密码",
+      "message": "非常强密码",
       "description": "Level 4 strength password text"
-  },
-  "password_strength_5": {
-      "message": "非常强的密码",
-      "description": "Level 5 strength password text"
   },
   "password_strength_checklist_case": {
       "message": "使用小写和大写字母",

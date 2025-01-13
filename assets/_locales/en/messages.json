@@ -884,20 +884,16 @@
     "description": "Level 1 strength password text"
   },
   "password_strength_2": {
-    "message": "Weak password",
+    "message": "Medium password",
     "description": "Level 2 strength password text"
   },
   "password_strength_3": {
-    "message": "Okay password",
+    "message": "Strong password",
     "description": "Level 3 strength password text"
   },
   "password_strength_4": {
-    "message": "Strong password",
-    "description": "Level 4 strength password text"
-  },
-  "password_strength_5": {
     "message": "Very strong password",
-    "description": "Level 5 strength password text"
+    "description": "Level 4 strength password text"
   },
   "password_strength_checklist_case": {
     "message": "Uses lowercase and uppercase letters",
