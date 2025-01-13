@@ -27,6 +27,7 @@ import type {
   TempWalletPromise
 } from "~utils/embedded/embedded.types";
 import { isTempWalletPromiseExpired } from "~utils/embedded/embedded.utils";
+import { resetStorage } from "~utils/storage.utils";
 
 const EMBEDDED_CONTEXT_INITIAL_STATE: EmbeddedContextState = {
   authStatus: "unknown",
@@ -69,39 +70,6 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
       coverElement.setAttribute("aria-hidden", "true");
     }
   }, [authStatus]);
-
-  /*
-  const clearLastWallet = useCallback(() => {
-    setEmbeddedContextState((prevAuthContextState) => ({
-      ...prevAuthContextState,
-      lastWallet: null
-    }));
-  }, []);
-
-  const deleteLastWallet = useCallback(() => {
-    // TODO: It also needs to be deleted from the backend.
-
-    setEmbeddedContextState(
-      ({
-        authStatus,
-        wallets: prevWallets,
-        lastWallet,
-        ...prevAuthContextState
-      }) => {
-        const wallets = prevWallets.filter(
-          (wallet) => wallet.address !== lastWallet.address
-        );
-
-        return {
-          ...prevAuthContextState,
-          authStatus: wallets.length === 0 ? "noWallets" : authStatus,
-          wallets,
-          lastWallet: null
-        };
-      }
-    );
-  }, []);
-  */
 
   const skipBackUp = useCallback(async (doNotAskAgain: boolean) => {
     // TODO: Persist lastPromptData (local?) and doNotAskAgain (server?)...
@@ -581,17 +549,24 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
     isInitializedRef.current = true;
 
     async function init() {
+      console.log("Initializing ArConnect Embedded...");
+
       // TODO: Relocate this reset and handle storage better:
 
       try {
         // We want to use `ExtensionStorage` as in-memory storage, but even setting it as "session", it's not a properly
         // implemented "any storage" abstraction:
-        await ExtensionStorage.clear(true);
+        // await ExtensionStorage.clear(true);
+        await resetStorage();
 
-        // ExtensionStorage.clear() seems to leave behind ao_tokens, gateways, setting_currency, setting_display_theme and wallets...
+        console.log(localStorage.wallets);
+
+        // ExtensionStorage.clear() seems to be `undefined`, even though TS says it's should not...
         localStorage.clear();
+
+        console.log(localStorage.wallets);
       } catch (err) {
-        console.warn("Error clearing ExtensionStorage");
+        console.warn("Error clearing ExtensionStorage: ", err);
 
         // At this point, there might already be valid data in `localStorage` (e.g. gateways) so we cannot simply do
         // `localStorage.clear()`, unfortunately. For that, this reset needs to be moved to the (background) setup script.

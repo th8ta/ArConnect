@@ -1,4 +1,3 @@
-import browser from "webextension-polyfill";
 import { ExtensionStorage } from "~utils/storage";
 
 export const ARCONNECT_THEME_BACKGROUND_COLOR =
