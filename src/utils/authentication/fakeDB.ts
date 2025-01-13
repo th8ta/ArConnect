@@ -17,6 +17,11 @@ interface DbAuthMethod {
   type: AuthMethod;
 }
 
+export interface DbUser {
+  id: string;
+  name: string;
+}
+
 export interface DbWallet {
   // PK = userId + chain + address
   id: string;
@@ -25,6 +30,7 @@ export interface DbWallet {
   address: string; // TODO: Depending on privacy setting?
   publicKey: string; // TODO: Depending on privacy setting (wallet cannot be recovered is this is not stored).
   walletType: "secret" | "private" | "public";
+  canBeUsedToRecoverAccount: boolean;
 
   info: {
     identifierType: "alias" | "ans" | "pns";
@@ -131,12 +137,12 @@ async function addWallet(
     // D + A SSS:
     deviceNonce: addWalletParams.deviceNonce,
     authShare: addWalletParams.authShare,
-    deviceSharePublicKey: addWalletParams.deviceSharePublicKey,
+    deviceShareHash: addWalletParams.deviceShareHash,
 
     // RB + RA + RD SSS:
     recoveryAuthShare: "",
-    recoveryBackupSharePublicKey: "",
-    recoveryDeviceSharePublicKey: ""
+    recoveryBackupShareHash: "",
+    recoveryDeviceShareHash: ""
   });
 
   // TODO: Persist these
@@ -203,6 +209,63 @@ async function refreshSession(): Promise<DbAuthenticateData> {
   return currentSession;
 }
 
+async function fetchWalletRecoveryChallenge(
+  walletAddress: string
+): Promise<string> {
+  await sleep(2000);
+
+  // TODO: Generate and store a walletAddress-challenge pair.
+
+  return nanoid();
+}
+
+async function fetchRecoverableAccounts(
+  walletAddress: string,
+  challengeSignature: string
+): Promise<DbUser[]> {
+  await sleep(2000);
+
+  // TODO: Find the previous walletAddress-challenge pair, the walletAddress' public key and verify if the signature is
+  // correct. If so, return all users that have this wallet added as a recovery wallet.
+
+  return [
+    {
+      id: "0",
+      name: "Recoverable user"
+    }
+  ];
+}
+
+async function fetchAccountRecoveryChallenge(
+  userId: string,
+  walletAddress: string
+): Promise<string> {
+  await sleep(2000);
+
+  // TODO: Generate and store a userId-walletAddress-challenge tuple.
+
+  return nanoid();
+}
+
+async function recoverAccount(
+  authMethod: AuthMethod,
+  userId: string,
+  walletAddress: string,
+  challengeSignature: string
+) {
+  await sleep(2000);
+
+  // TODO: Find the previous userId-walletAddress-challenge tuple, the walletAddress' public key and verify if the
+  // signature is correct. If so, authenticate the user and link the wallet.
+
+  currentSession = {
+    userId,
+    authMethod
+  };
+
+  return currentSession;
+}
+
 export const FakeDB = {
   // Wallet Management:
   addWallet,
@@ -210,7 +273,11 @@ export const FakeDB = {
 
   // Authentication:
   authenticate,
-  refreshSession
+  refreshSession,
+  fetchWalletRecoveryChallenge,
+  fetchRecoverableAccounts,
+  fetchAccountRecoveryChallenge,
+  recoverAccount
 };
 
 export const MockedFeatureFlags = {

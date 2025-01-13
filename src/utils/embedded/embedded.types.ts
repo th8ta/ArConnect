@@ -1,5 +1,9 @@
 import type { PropsWithChildren } from "react";
-import type { DbWallet, AuthMethod } from "~utils/authentication/fakeDB";
+import type {
+  DbWallet,
+  AuthMethod,
+  DbUser
+} from "~utils/authentication/fakeDB";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 
 export type AuthStatus =
@@ -41,6 +45,7 @@ export interface EmbeddedContextState {
   generatedTempWalletAddress: null | string;
   importedTempWalletAddress: null | string;
   lastRegisteredWallet: null | DbWallet;
+  recoverableAccounts: null | DbUser[];
   // TODO: This needs to reference which wallet needs to be backed up (assuming each one is backed up individually)
   promptToBackUp: boolean;
   backedUp: boolean;
@@ -48,15 +53,26 @@ export interface EmbeddedContextState {
 
 export interface EmbeddedContextData extends EmbeddedContextState {
   authenticate: (authMethod: AuthMethod) => Promise<void>;
+  fetchRecoverableAccounts: () => Promise<DbUser[]>;
+  clearRecoverableAccounts: () => void;
+  recoverAccount: (
+    authMethod: AuthMethod,
+    accountToRecoverId: string
+  ) => Promise<void>;
+
   generateTempWallet: () => Promise<TempWallet>;
   deleteGeneratedTempWallet: () => Promise<void>;
+
   importTempWallet: (
     jwkOrSeedPhrase: JWKInterface | string
   ) => Promise<TempWallet>;
   deleteImportedTempWallet: () => Promise<void>;
+
   registerWallet: (source: "generated" | "imported") => Promise<DbWallet>;
   clearLastRegisteredWallet: () => void;
+
   activateWallet: (jwk: JWKInterface) => void;
+
   skipBackUp: (doNotAskAgain: boolean) => void | Promise<void>;
   registerBackUp: () => Promise<void>;
   downloadKeyfile: (walletAddress: string) => Promise<void>;

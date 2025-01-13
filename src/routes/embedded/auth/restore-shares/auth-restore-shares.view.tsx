@@ -18,8 +18,9 @@ export function AuthRestoreSharesEmbeddedView() {
 
     const { walletAddress, recoveryShare } = mockedRecoveryShareFileData;
 
-    const recoveryShareJWT = await WalletUtils.generateShareJWK(recoveryShare);
-    const recoverySharePublicKey = recoveryShareJWT.n;
+    const recoveryShareHash = await WalletUtils.generateShareHash(
+      recoveryShare
+    );
 
     const { recoveryChallenge, rotateChallenge } =
       await WalletService.initiateWalletRecovery(

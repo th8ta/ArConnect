@@ -18,6 +18,7 @@ export interface DevFigmaScreenProps extends PropsWithChildren {
   src: string;
   config?: DevButtonProps[];
   width?: number;
+  isLoading?: boolean;
 }
 
 export function DevFigmaScreen({
@@ -26,13 +27,16 @@ export function DevFigmaScreen({
   src,
   config: configProp,
   width = 420,
+  isLoading: isLoadingProp,
   children
 }: DevFigmaScreenProps) {
-  const [{ isLoading, errorMessage }, setScreenState] =
-    useState<DevFigmaScreenState>({
-      isLoading: false,
-      errorMessage: false
-    });
+  const [screenState, setScreenState] = useState<DevFigmaScreenState>({
+    isLoading: false,
+    errorMessage: false
+  });
+
+  const isLoading = isLoadingProp || screenState.isLoading;
+  const { errorMessage } = screenState;
 
   const config = useMemo(() => {
     if (!configProp) return undefined;
