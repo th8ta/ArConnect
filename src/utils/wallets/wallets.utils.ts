@@ -29,6 +29,8 @@ async function generateSeedPhrase() {
 }
 
 async function generateWalletJWK(seedPhrase: string): Promise<JWKInterface> {
+  if (!seedPhrase) throw new Error("Missing `seedPhrase`");
+
   console.log("generateWalletJWK()");
 
   let generatedKeyfile: JWKInterface | null = null;
@@ -176,55 +178,23 @@ async function generateWalletJWKFromShares(
   return privateKeyJWK;
 }
 
-async function generateShareJWK(share: string): Promise<JWKInterface> {
-  console.log("generateShareJWK()");
+async function generateShareHash(share: string): Promise<string> {
+  console.log("generateShareHash()");
 
   /*
 
-    TODO: Instead of using a share as a private key to sign, we can simply send a hash of it, the challange and some
-    additional data that the server already has. The server should also verify the IP / IP location.
+  TODO: Instead of using a share as a private key to sign, we can simply send a hash of it, the challange and some
+  additional data that the server already has. The server should also verify the IP / IP location.
 
-    hash(share + challenge + userAgent)
+  hash(share + challenge + userAgent)
+
+  In any case, using signatures or zk would still be superior.
+
   */
 
-  return Promise.resolve({
-    n: ""
-  } as any);
+  const hashBuffer = await crypto.subtle.digest("SHA-512", Buffer.from(share));
 
-  /*
-  const shareBuffer = new Uint8Array(Buffer.from(share, "base64"));
-
-  console.log(1);
-
-  const shareKeyPKCS8 = await window.crypto.subtle.importKey(
-    "raw",
-    shareBuffer,
-    { name: "RSA-PSS", hash: "SHA-256" },
-    true,
-    ["sign"]
-  );
-
-  console.log(2);
-
-  const shareKeyJWK = await window.crypto.subtle.exportKey(
-    "jwk",
-    shareKeyPKCS8
-  );
-
-  console.log(
-    "shareKeyJWK =", shareKeyJWK,
-  );
-
-  return pkcs8ToJwk(shareBuffer);
-  */
-}
-
-async function generateSharePublicKey(share: string): Promise<string> {
-  console.log("generateSharePublicKey()");
-
-  const shareJWK = await generateShareJWK(share);
-
-  return shareJWK?.n || null;
+  return Buffer.from(new Uint8Array(hashBuffer)).toString("base64");
 }
 
 async function generateChallengeSignature(
@@ -413,8 +383,7 @@ export const WalletUtils = {
   generateWalletRecoveryShares,
   generateDeviceNonce,
   generateWalletJWKFromShares,
-  generateShareJWK,
-  generateSharePublicKey,
+  generateShareHash,
   generateChallengeSignature,
 
   // Getters:

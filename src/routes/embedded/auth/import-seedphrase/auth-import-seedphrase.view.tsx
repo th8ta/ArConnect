@@ -1,42 +1,53 @@
 import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import screenSrc from "url:/assets-beta/figma-screens/import-seedphrase.view.png";
 import confirmScreenSrc from "url:/assets-beta/figma-screens/import-seedphrase-confirmation.view.png";
 
 export function AuthImportSeedphraseEmbeddedView() {
-  const { importWallet, lastWallet, deleteLastWallet } = useEmbedded();
+  const {
+    importTempWallet,
+    importedTempWalletAddress,
+    deleteImportedTempWallet,
+    registerWallet
+  } = useEmbedded();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleImportWallet = () => {
     const textareaElement = textareaRef.current;
 
-    // TODO: Return/throw error...
+    // TODO: Throw error with error message for `DevFigmaScreen` to display it:
     if (!textareaElement) return;
 
-    return importWallet(textareaRef.current.textContent);
+    return importTempWallet(textareaRef.current.value);
   };
 
-  // TODO: Redirect to confirmation manually once the tempWallet property is added.
+  useEffect(() => {
+    return () => {
+      // Remove the imported keyfile from memory as soon as we leave this view. Note at this point it will already have
+      // been passed to `importTempWallet()`, if the user confirmed:
+      deleteImportedTempWallet();
+    };
+  }, []);
 
-  return lastWallet ? (
+  return importedTempWalletAddress ? (
     <DevFigmaScreen
       title="Enter seedphrase"
       src={confirmScreenSrc}
       config={[
         {
-          label: lastWallet.address,
+          label: importedTempWalletAddress,
           isDisabled: true
         },
         {
           label: "No, try again",
-          onClick: () => deleteLastWallet()
+          onClick: () => deleteImportedTempWallet()
         },
         {
           label: "Yes, add",
-          to: "/auth/confirmation"
+          onClick: () => registerWallet("imported")
         }
       ]}
     />

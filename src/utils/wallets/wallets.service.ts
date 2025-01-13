@@ -12,11 +12,12 @@ export interface CreateWalletParams {
   // TODO: Bring in the B64 utils and types from Othent
 
   // TODO: Local wallets for those that do not want anything to do with our server/db:
+  address: string;
   publicKey: string;
   walletType: "secret" | "private" | "public"; // TODO: Add "local"?
   deviceNonce: string;
   authShare: string;
-  deviceSharePublicKey: string;
+  deviceShareHash: string;
   canBeUsedToRecoverAccount: boolean;
 
   source: {
@@ -55,6 +56,8 @@ async function fetchFirstAvailableAuthShare({
         deviceNonce,
         walletAddress
       ).catch(() => null);
+
+      // TODO: Resolve challenge to get the authShare...
 
       if (authShare) {
         resolve({
