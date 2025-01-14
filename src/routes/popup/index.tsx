@@ -119,7 +119,7 @@ export function HomeView() {
 
   return (
     <HomeWrapper>
-      <AoBanner activeAddress={activeAddress} />
+      {/* <AoBanner activeAddress={activeAddress} /> */}
       {loggedIn && <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />}
       <WalletHeader />
       <Balance />
@@ -137,5 +137,5 @@ export function HomeView() {
 }
 
 const HomeWrapper = styled.div`
-  padding-bottom: 62px;
+  padding-bottom: 68px;
 `;

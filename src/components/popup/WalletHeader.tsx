@@ -12,17 +12,15 @@ import { removeApp } from "~applications";
 import { useAnsProfile } from "~lib/ans";
 import { useTheme } from "~utils/theme";
 import {
-  ButtonV2,
+  Button,
   Card,
   type DisplayTheme,
-  Section,
   Text,
   useToasts,
   TooltipV2
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import {
   CheckIcon,
-  ChevronDownIcon,
   CopyIcon,
   GlobeIcon,
   LogOutIcon,
@@ -39,18 +37,8 @@ import browser from "webextension-polyfill";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { type Gateway } from "~gateways/gateway";
-
-import {
-  Bell03,
-  CreditCard01,
-  Container,
-  DotsVertical,
-  Expand01,
-  Settings01,
-  Users01
-} from "@untitled-ui/icons-react";
+import { Bell03 } from "@untitled-ui/icons-react";
 import { svgie } from "~utils/svgies";
-import WalletMenu from "./WalletMenu";
 import { useLocation } from "~wallets/router/router.utils";
 
 export default function WalletHeader() {
@@ -74,9 +62,6 @@ export default function WalletHeader() {
 
   // is the wallet selector open
   const [isOpen, setOpen] = useState(false);
-
-  // is the wallet menu open
-  const [menuOpen, setMenuOpen] = useState(false);
 
   // toasts
   const { setToast } = useToasts();
@@ -120,9 +105,6 @@ export default function WalletHeader() {
 
       const address = wallet?.address && formatAddress(wallet?.address, 4);
       setAddress(address);
-      if (/^Account \d+$/.test(name)) {
-        name = address;
-      }
       setDisplayName(name);
 
       return wallet?.nickname || "Wallet";
@@ -198,58 +180,25 @@ export default function WalletHeader() {
   // copied address
   const [copied, setCopied] = useState(false);
 
-  const menuItems = useMemo(() => {
-    const items = [
-      {
-        icon: <Users01 style={{ width: "18px", height: "18px" }} />,
-        title: "setting_contacts",
-        route: () => {
-          navigate("/quick-settings/contacts");
-        }
-      },
-      {
-        icon: <Container style={{ width: "18px", height: "17px" }} />,
-        title: "Viewblock",
-        route: () =>
-          browser.tabs.create({
-            url: `https://viewblock.io/arweave/address/${activeAddress}`
-          })
-      },
-      {
-        icon: <CreditCard01 style={{ width: "18px", height: "17px" }} />,
-        title: "subscriptions",
-        route: () => {
-          navigate("/subscriptions");
-        }
-      },
-      {
-        icon: <Settings01 style={{ width: "18px", height: "18px" }} />,
-        title: "Settings",
-        route: () => {
-          navigate("/quick-settings");
-        }
-      }
-    ];
-
-    if (location.pathname === "/popup.html") {
-      // This option won't be shown in the fullscreen mode (fullscreen.html) or the embedded wallet:
-
-      items.push({
-        icon: <Expand01 style={{ width: "18px", height: "17px" }} />,
-        title: "expand_view",
-        route: async () => {
-          await browser.tabs.create({
-            url: browser.runtime.getURL("tabs/fullscreen.html")
-          });
-        }
-      });
-    }
-
-    return items;
-  }, [activeAddress]);
-
   return (
     <Wrapper displayTheme={theme} scrolled={scrollY > 14}>
+      <AppAction
+        onClick={(e) => {
+          e.stopPropagation();
+          setAppDataOpen(true);
+        }}
+      >
+        <TooltipV2
+          content={browser.i18n.getMessage(
+            !activeAppData ? "disconnected" : "account_connected"
+          )}
+          position="bottomStart"
+        >
+          <Action as={GlobeIcon} style={{ width: "24px", height: "24px" }} />
+        </TooltipV2>
+        <AppOnline online={!!activeAppData} />
+      </AppAction>
+
       <AddressContainer>
         <Wallet
           onClick={() => {
@@ -268,15 +217,13 @@ export default function WalletHeader() {
               )}
             </AnimatePresence>
           </Avatar>
-          <WithArrow>
-            <WalletName>
-              <Text noMargin style={{ fontSize: "14px" }}>
-                {displayName}
-              </Text>
-              <Address>{address}</Address>
-            </WalletName>
-            <ExpandArrow open={isOpen} />
-          </WithArrow>
+
+          <WalletName>
+            <Text weight="medium" noMargin>
+              {displayName}
+            </Text>
+            <Address>{address}</Address>
+          </WalletName>
         </Wallet>
         <TooltipV2
           content={browser.i18n.getMessage("copy_address")}
@@ -285,66 +232,27 @@ export default function WalletHeader() {
           <Action
             as={copied ? CheckIcon : CopyIcon}
             onClick={copyAddress}
-            style={{ width: "23.5px", height: "23.5px" }}
+            style={{ width: "24px", height: "24px" }}
           />
         </TooltipV2>
       </AddressContainer>
 
-      <WalletActions>
-        <TooltipV2
-          content={browser.i18n.getMessage("setting_notifications")}
-          position="bottom"
-        >
-          <Action
-            as={Bell03}
-            onClick={() => {
-              setNewNotifications(false);
-              navigate("/notifications");
-            }}
-            style={{
-              width: "20px",
-              height: "20px",
-              paddingLeft: "4px",
-              marginRight: "2px"
-            }}
-          />
-          {newNotifications && <Notifier />}
-        </TooltipV2>
-        <AppAction
-          onClick={(e) => {
-            e.stopPropagation();
-            setAppDataOpen(true);
+      <TooltipV2
+        content={browser.i18n.getMessage("setting_notifications")}
+        position="bottomEnd"
+      >
+        <Action
+          as={Bell03}
+          onClick={() => {
+            setNewNotifications(false);
+            navigate("/notifications");
           }}
-        >
-          <TooltipV2
-            content={browser.i18n.getMessage(
-              !activeAppData ? "disconnected" : "account_connected"
-            )}
-            position="bottomEnd"
-          >
-            <Action
-              as={GlobeIcon}
-              style={{ width: "24px", height: "24px", paddingRight: "1px" }}
-            />
-          </TooltipV2>
-          <AppOnline online={!!activeAppData} />
-        </AppAction>
-        <AppAction
-          onClick={(e) => {
-            e.stopPropagation();
-            setMenuOpen(!menuOpen);
-          }}
-        >
-          <MenuDots>
-            <Action
-              as={DotsVertical}
-              style={{ width: "20px", height: "20px" }}
-            />
-          </MenuDots>
-        </AppAction>
-      </WalletActions>
+          style={{ width: "24px", height: "24px" }}
+        />
+        {newNotifications && <Notifier />}
+      </TooltipV2>
 
-      {(isOpen || appDataOpen || menuOpen) && (
+      {(isOpen || appDataOpen) && (
         <CloseLayer
           key="WalletHeaderCloseLayer"
           exit={{ opacity: 0 }}
@@ -355,7 +263,6 @@ export default function WalletHeader() {
             e.stopPropagation();
             setOpen(false);
             setAppDataOpen(false);
-            setMenuOpen(false);
           }}
         />
       )}
@@ -364,12 +271,6 @@ export default function WalletHeader() {
         open={isOpen}
         close={() => setOpen(false)}
         exactTop={true}
-      />
-
-      <WalletMenu
-        open={menuOpen}
-        close={() => setMenuOpen(false)}
-        menuItems={menuItems}
       />
 
       <AnimatePresence>
@@ -423,9 +324,9 @@ export default function WalletHeader() {
                 )) || (
                   <>
                     <AppActionButtons>
-                      <ButtonV2
+                      <Button
                         fullWidth
-                        secondary
+                        variant="secondary"
                         onClick={() =>
                           browser.tabs.create({
                             url: browser.runtime.getURL(
@@ -436,8 +337,8 @@ export default function WalletHeader() {
                       >
                         <SettingsIcon style={{ marginRight: "5px" }} />
                         {browser.i18n.getMessage("settings")}
-                      </ButtonV2>
-                      <ButtonV2
+                      </Button>
+                      <Button
                         fullWidth
                         onClick={async () => {
                           await removeApp(getAppURL(activeTab.url));
@@ -457,7 +358,7 @@ export default function WalletHeader() {
                         <div style={{ marginLeft: "24px" }}>
                           {browser.i18n.getMessage("disconnect")}
                         </div>
-                      </ButtonV2>
+                      </Button>
                     </AppActionButtons>
                   </>
                 )}
@@ -478,61 +379,41 @@ const Wrapper = styled.nav<{
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px;
+  padding: 24px;
   z-index: 100;
   top: 0;
   left: 0;
   right: 0;
   background-color: rgba(${(props) => props.theme.background}, 0.75);
   backdrop-filter: blur(15px);
-  border-bottom: 1px solid;
-  border-bottom-color: ${(props) =>
-    props.scrolled
-      ? "rgba(" +
-        (props.displayTheme === "light" ? "235, 235, 241" : "31, 30, 47") +
-        ")"
-      : "transparent"};
   transition: border 0.23s ease-in-out;
   user-select: none;
 `;
 
 const WalletName = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 4px;
+  border-radius: 0.5rem;
+  background: ${(props) => props.theme.surfaceSecondary};
 `;
 
 const AddressContainer = styled.div`
   display: flex;
   align-items: center;
-`;
-
-const MenuDots = styled.div`
-  display: flex;
   justify-content: center;
-  align-items: center;
-  width: 24px;
-  height: 24px;
-  margin-left: 0px;
-  border-radius: 0.55rem;
-  transition: transform 0.06s ease-in-out, background-color 0.17s ease-in-out;
-
-  &:hover {
-    background-color: rgba(${(props) => props.theme.theme}, 0.1);
-  }
-
-  &:active {
-    background-color: rgba(${(props) => props.theme.theme}, 0.15);
-    transform: scale(0.96);
-  }
+  gap: 0.5rem;
 `;
 
 const Wallet = styled.div`
   cursor: pointer;
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 0.64rem;
-  padding: 3px 5px;
-  border-radius: 0.55rem;
+  gap: 0.5rem;
   transition: transform 0.06s ease-in-out, background-color 0.17s ease-in-out;
 
   p {
@@ -554,13 +435,13 @@ const Wallet = styled.div`
   }
 `;
 
-const Address = styled.div`
-  color: ${(props) => props.theme.secondaryTextv2};
-  font-size: 10px;
-  line-height: 10px;
-`;
+const Address = styled(Text).attrs({
+  variant: "secondary",
+  weight: "medium",
+  noMargin: true
+})``;
 
-const avatarSize = "1.425rem";
+const avatarSize = "1.5rem";
 
 export const Avatar = styled(Squircle)`
   position: relative;
@@ -583,22 +464,6 @@ export const NoAvatarIcon = styled(UserIcon)`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-`;
-
-const WithArrow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.1rem;
-`;
-
-const ExpandArrow = styled(ChevronDownIcon)<{ open: boolean }>`
-  color: rgb(${(props) => props.theme.primaryText});
-  font-size: 1.2rem;
-  width: 1em;
-  height: 1em;
-  transition: all 0.23s ease-in-out;
-
-  transform: ${(props) => (props.open ? "rotate(180deg)" : "rotate(0)")};
 `;
 
 const Notifier = styled.div`
@@ -632,8 +497,8 @@ const AppAction = styled.div`
 export const Action = styled(CopyIcon)`
   cursor: pointer;
   font-size: 1.25rem;
-  width: 1em;
-  height: 1em;
+  width: 1.5em;
+  height: 1.5em;
   color: rgb(${(props) => props.theme.primaryText});
   transition: all 0.23s ease-in-out;
 
@@ -644,12 +509,6 @@ export const Action = styled(CopyIcon)`
   &:active {
     transform: scale(0.92);
   }
-`;
-
-const WalletActions = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
 `;
 
 const AppInfoWrapper = styled(motion.div).attrs({
