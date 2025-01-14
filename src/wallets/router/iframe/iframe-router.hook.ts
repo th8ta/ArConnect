@@ -95,9 +95,12 @@ export function useAuthStatusOverride(
     if (authStatus === "noShares") {
       return routeTrapMatches(
         location,
-        // TODO: Do we allow simply generating a new wallet?
-        [EmbeddedPaths.AuthRestoreShards, EmbeddedPaths.AuthAddWallet],
-        EmbeddedPaths.AuthRestoreShards
+        // TODO: Do we allow simply generating a new wallet? EmbeddedPaths.AuthAddWallet
+        [
+          EmbeddedPaths.AuthRestoreShares,
+          EmbeddedPaths.AuthRestoreSharesRecoveryFile
+        ],
+        EmbeddedPaths.AuthRestoreShares
       );
     }
 

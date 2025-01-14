@@ -9,6 +9,10 @@ export function AccountExportWalletEmbeddedView() {
   const { wallets, downloadKeyfile, copySeedphrase } = useEmbedded();
   const walletAddress = wallets[0].address;
 
+  // TODO: Register the "export" event on the server.
+
+  // TODO: Add an option to encrypt with a password
+
   return (
     <DevFigmaScreen
       title="Export your private key"

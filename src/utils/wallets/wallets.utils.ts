@@ -81,17 +81,6 @@ async function generateWalletWorkShares(
     privateKeyJWK
   );
 
-  console.log(
-    "privateKeyPKCS8 =",
-    privateKeyPKCS8.byteLength,
-    "Uint8Array(privateKeyPKCS8).length =",
-    new Uint8Array(privateKeyPKCS8).length,
-    "Uint8Array(privateKeyPKCS8).byteLength =",
-    new Uint8Array(privateKeyPKCS8).byteLength,
-    "getWalletKeyLength",
-    await getWalletKeyLength(jwk)
-  );
-
   // Wanna know why these are called "shares" and not shards?
   // See https://discuss.hashicorp.com/t/is-it-shards-or-shares-in-shamir-secret-sharing/38978/3
 
@@ -101,25 +90,6 @@ async function generateWalletWorkShares(
     2
   );
 
-  /*
-  const justTest = await window.crypto.subtle.importKey(
-    "raw",
-    new Uint8Array(authShareBuffer),
-    { name: "RSA-PSS", hash: "SHA-256" },
-    true,
-    ["sign"]
-  );
-
-  console.log("justTest =", justTest)
-  */
-
-  console.log(
-    "deviceShareBuffer.length =",
-    deviceShareBuffer.length,
-    "deviceShareBuffer.byteLength =",
-    deviceShareBuffer.byteLength
-  );
-
   // TODO: Need to add Buffer polyfill
   return {
     authShare: Buffer.from(authShareBuffer).toString("base64"),
@@ -127,10 +97,49 @@ async function generateWalletWorkShares(
   };
 }
 
-async function generateWalletRecoveryShares(jwk: JWKInterface) {
+export interface RecoverShares {
+  recoveryAuthShare: string;
+  recoveryDeviceShare: string;
+  recoveryBackupShare: string;
+}
+
+async function generateWalletRecoveryShares(
+  jwk: JWKInterface
+): Promise<RecoverShares> {
   console.log("generateWalletRecoveryShares()");
 
-  // TODO: Add implementation once the backup shares view is added.
+  const privateKeyJWK = await window.crypto.subtle.importKey(
+    "jwk",
+    jwk,
+    { name: "RSA-PSS", hash: "SHA-256" },
+    true,
+    ["sign"]
+  );
+
+  const privateKeyPKCS8 = await window.crypto.subtle.exportKey(
+    "pkcs8",
+    privateKeyJWK
+  );
+
+  // Wanna know why these are called "shares" and not shards?
+  // See https://discuss.hashicorp.com/t/is-it-shards-or-shares-in-shamir-secret-sharing/38978/3
+
+  const [
+    recoveryAuthShareBuffer,
+    recoveryDeviceShareBuffer,
+    recoveryBackupShareBuffer
+  ] = await SSS.split(new Uint8Array(privateKeyPKCS8), 3, 2);
+
+  // TODO: Need to add Buffer polyfill
+  return {
+    recoveryAuthShare: Buffer.from(recoveryAuthShareBuffer).toString("base64"),
+    recoveryDeviceShare: Buffer.from(recoveryDeviceShareBuffer).toString(
+      "base64"
+    ),
+    recoveryBackupShare: Buffer.from(recoveryBackupShareBuffer).toString(
+      "base64"
+    )
+  };
 }
 
 function generateDeviceNonce(): DeviceNonce {
@@ -248,6 +257,13 @@ export interface DeviceShareInfo {
   createdAt: number;
 }
 
+export interface RecoveryDeviceShareInfo {
+  recoveryDeviceShare: string;
+  // TODO: Do we want to use the walletAddress or maybe better a hash?
+  walletAddress: string;
+  createdAt: number;
+}
+
 function loadDeviceSharesInfo(): Record<
   string,
   Record<string, DeviceShareInfo>
@@ -273,10 +289,46 @@ function loadDeviceSharesInfo(): Record<
   }
 }
 
+function loadRecoveryDeviceSharesInfo(): Record<
+  string,
+  Record<string, RecoveryDeviceShareInfo>
+> {
+  try {
+    let recoveryDeviceSharesInfo = JSON.parse(
+      localStorage.getItem(DEVICE_SHARES_INFO_KEY)
+    );
+
+    // TODO: Add additional validation...
+
+    if (
+      typeof recoveryDeviceSharesInfo !== "object" ||
+      !recoveryDeviceSharesInfo
+    ) {
+      recoveryDeviceSharesInfo = {};
+    }
+
+    return recoveryDeviceSharesInfo as Record<
+      string,
+      Record<string, RecoveryDeviceShareInfo>
+    >;
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      throw new Error(`${INVALID_DEVICE_SHARES_INFO_ERR_MSG}: ${err?.message}`);
+    } else {
+      console.warn(`${INVALID_DEVICE_SHARES_INFO_ERR_MSG}: ${err?.message}`);
+    }
+  }
+}
+
 let _deviceSharesInfo: Record<
   string,
   Record<string, DeviceShareInfo>
 > = loadDeviceSharesInfo();
+
+let _recoveryDeviceSharesInfo: Record<
+  string,
+  Record<string, RecoveryDeviceShareInfo>
+> = loadRecoveryDeviceSharesInfo();
 
 // Getters:
 
@@ -290,6 +342,16 @@ function getDeviceSharesInfo(userId: string): DeviceShareInfo[] {
   console.log("getDeviceSharesInfo()");
 
   return Object.values(_deviceSharesInfo[userId] || {}).sort(
+    (a, b) => b.createdAt - a.createdAt
+  );
+}
+
+function getRecoveryDeviceSharesInfo(
+  userId: string
+): RecoveryDeviceShareInfo[] {
+  console.log("getRecoveryDeviceSharesInfo()");
+
+  return Object.values(_recoveryDeviceSharesInfo[userId] || {}).sort(
     (a, b) => b.createdAt - a.createdAt
   );
 }
@@ -363,6 +425,31 @@ function storeDeviceShare(
   );
 }
 
+function storeRecoveryDeviceShare(
+  recoveryDeviceShare: string,
+  userId: string,
+  // TODO: Do we want to use the walletAddress or maybe better a hash?
+  walletAddress: string
+) {
+  console.log("storeRecoveryDeviceShare()");
+
+  const recoveryDeviceShareInfo: RecoveryDeviceShareInfo = {
+    recoveryDeviceShare,
+    walletAddress,
+    createdAt: Date.now()
+  };
+
+  if (!_recoveryDeviceSharesInfo[userId])
+    _recoveryDeviceSharesInfo[userId] = {};
+
+  _recoveryDeviceSharesInfo[userId][walletAddress] = recoveryDeviceShareInfo;
+
+  localStorage.setItem(
+    DEVICE_SHARES_INFO_KEY,
+    JSON.stringify(_recoveryDeviceSharesInfo)
+  );
+}
+
 async function storeEncryptedWalletJWK(jwk: JWKInterface): Promise<void> {
   // This password is only used for the current session. As soon as the page is reloaded, the wallet(s)' private key
   // must be reconstructed using the authShare and the deviceShare and added to the ExtensionStorage object again,
@@ -405,5 +492,6 @@ export const WalletUtils = {
   storeEncryptedSeedPhrase,
   hasEncryptedSeedPhrase,
   getDecryptedSeedPhrase,
+  storeRecoveryDeviceShare,
   storeEncryptedWalletJWK
 };

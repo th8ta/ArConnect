@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
-import { DevButtons } from "~components/dev/buttons/buttons.component";
 
 import screenSrc from "url:/assets-beta/figma-screens/backup-shares.view.png";
 

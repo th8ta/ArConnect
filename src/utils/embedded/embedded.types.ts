@@ -77,4 +77,5 @@ export interface EmbeddedContextData extends EmbeddedContextState {
   registerBackUp: () => Promise<void>;
   downloadKeyfile: (walletAddress: string) => Promise<void>;
   copySeedphrase: (walletAddress: string) => Promise<void>;
+  generateRecoveryAndDownload: (walletAddress: string) => Promise<void>;
 }

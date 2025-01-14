@@ -13,7 +13,10 @@ import { getKeyfile, getWallets, type LocalWallet } from "~wallets";
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
 import { freeDecryptedWallet } from "~wallets/encryption";
-import { downloadKeyfile as downloadKeyfileUtil } from "~utils/file";
+import {
+  downloadKeyfile as downloadKeyfileUtil,
+  downloadRecoveryFile
+} from "~utils/file";
 import { sleep } from "~utils/promises/sleep";
 import type {
   EmbeddedContextState,
@@ -61,7 +64,8 @@ export const EmbeddedContext = createContext<EmbeddedContextData>({
   skipBackUp: () => null,
   registerBackUp: async () => null,
   downloadKeyfile: async () => null,
-  copySeedphrase: async () => null
+  copySeedphrase: async () => null,
+  generateRecoveryAndDownload: async () => null
 });
 
 export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
@@ -123,6 +127,69 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
 
     await navigator.clipboard.writeText(seedPhrase);
   }, []);
+
+  const generateRecoveryAndDownload = useCallback(
+    async (walletAddress: string) => {
+      console.log(`generateRecoveryAndDownload(${walletAddress})`);
+
+      const decryptedWallet = (await getKeyfile(
+        walletAddress
+      )) as LocalWallet<JWKInterface>;
+
+      console.log("HERE 0");
+
+      const jwk = decryptedWallet.keyfile;
+
+      console.log("HERE 1");
+
+      const { recoveryAuthShare, recoveryDeviceShare, recoveryBackupShare } =
+        await WalletUtils.generateWalletRecoveryShares(jwk);
+
+      console.log("HERE 2");
+
+      const recoveryDeviceShareHash = await WalletUtils.generateShareHash(
+        recoveryDeviceShare
+      );
+      const recoveryBackupShareHash = await WalletUtils.generateShareHash(
+        recoveryBackupShare
+      );
+
+      // TODO: Should we just show an error and make sure the device nonce is generated in a single place on app load?
+      const deviceNonce =
+        WalletUtils.getDeviceNonce() || WalletUtils.generateDeviceNonce();
+
+      const walletId = wallets.find(
+        (wallet) => wallet.address === walletAddress
+      )?.id;
+
+      if (!walletId) throw new Error("Can't find walletId");
+
+      await WalletService.createRecoveryShare({
+        walletId,
+        walletAddress,
+        deviceNonce,
+        recoveryAuthShare,
+        recoveryDeviceShareHash,
+        recoveryBackupShareHash,
+        deviceInfo: {}
+      });
+
+      // TODO: Should we just show an error and make sure the device nonce is generated in a single place on app load?
+      WalletUtils.storeDeviceNonce(deviceNonce);
+
+      WalletUtils.storeRecoveryDeviceShare(
+        recoveryDeviceShare,
+        userId,
+        walletAddress
+      );
+
+      downloadRecoveryFile(walletAddress, recoveryBackupShare);
+
+      // TODO: Make sure we use `freeDecryptedWallet` all over the place in the new code for Embedded:
+      freeDecryptedWallet(jwk);
+    },
+    [wallets]
+  );
 
   // TODO: Need to observe storage to keep track of new wallets, removed wallets or active wallet changes... Or just
   // migrate wallet management to Mobx altogether for both extensions...
@@ -509,7 +576,9 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
       return;
     }
 
-    const dbWallets = await WalletService.fetchWallets();
+    const { userId } = authentication;
+
+    const dbWallets = await WalletService.fetchWallets(userId);
 
     const wallets = dbWallets.map(
       (dbWallet) =>
@@ -530,10 +599,33 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
     if (dbWallets.length > 0) {
       // TODO: The wallet activation can be deferred until the wallet is going to be used:
 
-      const { userId } = authentication;
-
       // TODO: TODO: We need to keep track of the last used one, not the last created one:
       const deviceSharesInfo = WalletUtils.getDeviceSharesInfo(userId);
+
+      // TODO: Automatically check if a recoveryDeviceShare is available and use it if possible?
+
+      // TODO: Verify if wallets match between dbWallets and deviceSharesInfo before
+      // calling fetchFirstAvailableAuthShare().
+
+      // TODO: If we think the wallets are lost, we just show a different screen like the "add wallet"
+      // one but with a different message.
+
+      // TODO: Create an issue for the new storage needs (e.g. expiration). Note that for wallets
+      // that haven't been backup up, we must never delete a share without notifying the user.
+
+      // TODO: Scenarios to check with design:
+      //
+      // - Cannot get access to unpartitioned storage so they'll have to recover/import the wallet every site on that device.
+      // - Some users might prefer to provide a keyfile or seedphrase instead of a share file if the device share is lost.
+      // - No device share and wallets cannot be recovered (never exported).
+      // - No device share and some wallets can be recovered (needs selector).
+      // - No device share and wallets can or cannot be recovered but user wants to create/import a new wallet anyway.
+      // - Run out of localStorage, we cannot delete anything automatically because we might make them lose a wallet.
+      // - Too many backup shares created.
+      // - Too many device shares created (e.g. users that regularly clean up browser data).
+      // - Export shares view is actually not an "account backup" but a "wallet recovery" (single wallet). Making it include all can be a hassle.
+      // - Option to encrypt keyfile/recovery file with password?
+      // - Option to lock pks with password?
 
       let deviceNonce = WalletUtils.getDeviceNonce();
 
@@ -667,7 +759,8 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
         skipBackUp,
         registerBackUp,
         downloadKeyfile,
-        copySeedphrase
+        copySeedphrase,
+        generateRecoveryAndDownload
       }}
     >
       {children}

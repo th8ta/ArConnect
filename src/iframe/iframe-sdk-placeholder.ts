@@ -66,6 +66,7 @@ export interface CommonArConnectEmbeddedOptions {
   button?: ArConnectEmbeddedButtonVariant | ArConnectEmbeddedButtonOptions;
   authLayout?: ArConnectEmbeddedAuthLayout | ArConnectEmbeddedAuthLayoutOptions; // Popup/modal size, etc.
   appLayout?: ArConnectEmbeddedAppLayout; // Popup size, etc.
+  pictureInPictureEnabled?: boolean;
 
   // Events:
   onOpen?: () => boolean;
@@ -79,6 +80,10 @@ export interface CommonArConnectEmbeddedOptions {
   // Other:
   replaceArProtocolLinks?: boolean;
 }
+
+// const sdk = initArConnectEmbedded()
+// sdk.open()
+// sdk.close()
 
 export interface ArConnectEmbeddedOptionsWithURL
   extends CommonArConnectEmbeddedOptions {
@@ -158,7 +163,7 @@ export function initArConnectEmbedded(options: ArConnectEmbeddedOptions) {
 
   // Because in ArConnect Embedded the injected code is not sandboxed, we can simply call `injectWalletSDK()` instead of
   // having to inject `injected.ts` with a `<script>` tag to call it outside the sandbox:
-  setupWalletSDK(iframeWindow);
+  setupWalletSDK();
 
   // events.ts:
 
@@ -185,11 +190,15 @@ export function initArConnectEmbedded(options: ArConnectEmbeddedOptions) {
   isomorphicOnMessage("embedded_open", (openMessage) => {
     if (options.onOpen && options.onOpen(openMessage.data) === false) return;
 
+    // TODO: Show modal/popoup
+
     open(openMessage.data);
   });
 
   isomorphicOnMessage("embedded_close", (closeMessage) => {
     if (options.onClose && options.onClose(closeMessage.data) === false) return;
+
+    // TODO: Close modal/popoup
 
     close(closeMessage.data);
   });
@@ -197,6 +206,8 @@ export function initArConnectEmbedded(options: ArConnectEmbeddedOptions) {
   isomorphicOnMessage("embedded_resize", (resizeMessage) => {
     if (options.onResize && options.onResize(resizeMessage.data) === false)
       return;
+
+    // TODO: Resize modal/popup
 
     resize(resizeMessage.data);
   });

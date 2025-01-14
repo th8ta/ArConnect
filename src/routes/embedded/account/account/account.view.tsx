@@ -4,10 +4,6 @@ import { Link } from "~wallets/router/components/link/Link";
 export function AccountEmbeddedView() {
   const { wallets } = useEmbedded();
 
-  // TODO: Add special screen when using ArConnect. For MVP, no interface, only proxy.
-
-  // TODO: Backup should go directly to /account/backup-shares-options
-
   return (
     <div>
       <h3>Account</h3>
