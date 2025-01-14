@@ -15,8 +15,11 @@ import { AuthImportKeyfileEmbeddedView } from "~routes/embedded/auth/import-keyf
 import { AuthAddDeviceEmbeddedView } from "~routes/embedded/auth/add-device/auth-add-device.view";
 import { AuthAddAuthProviderEmbeddedView } from "~routes/embedded/auth/add-auth-provider/auth-add-auth-provider.view";
 
-// Account Recovery Views:
+// Shares Views:
 import { AuthRestoreSharesEmbeddedView } from "~routes/embedded/auth/restore-shares/auth-restore-shares.view";
+import { AuthRestoreSharesRecoveryFileEmbeddedView } from "~routes/embedded/auth/restore-shares/recovery-file/auth-restore-shares-recovery-file.view";
+
+// Account Recovery Views:
 import { AuthRecoverAccountEmbeddedView } from "~routes/embedded/auth/recover-account/auth-recover-account.view";
 import { AuthRecoverAccountSeedphraseEmbeddedView } from "~routes/embedded/auth/recover-account/seedphrase/auth-recover-account-seedphrase.view";
 import { AuthRecoverAccountKeyfileEmbeddedView } from "~routes/embedded/auth/recover-account/keyfile/auth-recover-account-keyfile.view";
@@ -43,7 +46,9 @@ export type EmbeddedRoutePath =
   | "/auth/import-keyfile"
   | "/auth/add-device"
   | "/auth/add-auth-provider"
-  | "/auth/restore-shards"
+  | "/auth/restore-shares"
+  | "/auth/restore-shares/recovery-file"
+  // | "/auth/restore-shares/<backupProvider>"
   | "/auth/recover-account"
   | "/auth/recover-account/seedphrase"
   | "/auth/recover-account/keyfile"
@@ -75,8 +80,11 @@ export const EmbeddedPaths = {
   AuthAddDevice: "/auth/add-device",
   AuthAddAuthProvider: "/auth/add-auth-provider",
 
+  // Shares Recovery:
+  AuthRestoreShares: "/auth/restore-shares",
+  AuthRestoreSharesRecoveryFile: "/auth/restore-shares/recovery-file",
+
   // Account Recovery:
-  AuthRestoreShards: "/auth/restore-shards",
   AuthRecoverAccount: "/auth/recover-account",
   AuthRecoverAccountSeedphrase: "/auth/recover-account/seedphrase",
   AuthRecoverAccountKeyfile: "/auth/recover-account/keyfile",
@@ -134,12 +142,19 @@ const IFRAME_OWN_ROUTES = [
     component: AuthAddAuthProviderEmbeddedView
   },
 
-  // Account Recovery:
+  // Shares Recovery:
 
   {
-    path: EmbeddedPaths.AuthRestoreShards,
+    path: EmbeddedPaths.AuthRestoreShares,
     component: AuthRestoreSharesEmbeddedView
   },
+  {
+    path: EmbeddedPaths.AuthRestoreSharesRecoveryFile,
+    component: AuthRestoreSharesRecoveryFileEmbeddedView
+  },
+
+  // Account Recovery:
+
   {
     path: EmbeddedPaths.AuthRecoverAccount,
     component: AuthRecoverAccountEmbeddedView

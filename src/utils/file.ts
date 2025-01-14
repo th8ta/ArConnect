@@ -97,3 +97,21 @@ export function downloadKeyfile(address: string, jwk: JWKInterface) {
     `arweave-keyfile-${address}.json`
   );
 }
+
+export function downloadRecoveryFile(
+  address: string,
+  recoveryBackupShare: string
+) {
+  downloadFile(
+    JSON.stringify(
+      {
+        version: 1,
+        recoveryBackupShare
+      },
+      null,
+      2
+    ),
+    "application/json",
+    `arconnect-recovery-file-${address}.json`
+  );
+}

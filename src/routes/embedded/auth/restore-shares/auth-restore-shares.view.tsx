@@ -1,75 +1,55 @@
+import { DevFigmaScreen } from "~components/dev/figma-screen/figma-screen.component";
 import { useEmbedded } from "~utils/embedded/embedded.hooks";
-import { WalletService } from "~utils/wallets/wallets.service";
-import { WalletUtils } from "~utils/wallets/wallets.utils";
 
-const mockedRecoveryShareFileData = {
-  walletAddress: "",
-  recoveryShare: ""
-} as const;
+import screenSrc from "url:/assets-beta/figma-screens/restore-shares.view.png";
 
 export function AuthRestoreSharesEmbeddedView() {
-  const { activateWallet } = useEmbedded();
+  const { authMethod, activateWallet } = useEmbedded();
 
-  const handleRestore = async () => {
-    // TODO: arAonnectRecoveryFile should be uploaded by the user and should probably contain recovery shares for all
-    // wallets. In this case, how do we pick which one to use?
-
-    // TODO: This changes a bit if we use a 2/3 SSS with a recoveryDeviceShare:
-
-    const { walletAddress, recoveryShare } = mockedRecoveryShareFileData;
-
-    const { recoveryChallenge, rotateChallenge } =
-      await WalletService.initiateWalletRecovery(walletAddress);
-
-    const recoveryShareHash = await WalletUtils.generateShareHash(
-      recoveryShare
-    );
-
-    const recoveryChallengeSignature =
-      await WalletUtils.generateChallengeSignature(
-        recoveryChallenge,
-        recoveryShareJWT
-      );
-
-    const authRecoveryShare = await WalletService.resolveRecoveryChallenge(
-      recoveryChallengeSignature
-    );
-
-    const oldDeviceNonce = WalletUtils.getDeviceNonce();
-    const newDeviceNonce = WalletUtils.generateDeviceNonce();
-
-    const jwk = await WalletUtils.generateWalletJWKFromShares(walletAddress, [
-      authRecoveryShare,
-      recoveryShare
-    ]);
-
-    const { authShare, deviceShare } =
-      await WalletUtils.generateWalletWorkShares(jwk);
-
-    const rotateChallengeSignature =
-      await WalletUtils.generateChallengeSignature(rotateChallenge, jwk);
-
-    // TODO: This wallet needs to be regenerated as well and the authShare updated. If this is not done after X
-    // "warnings", the Shards entry will be removed anyway.
-    await WalletService.rotateAuthShare({
-      walletAddress,
-      oldDeviceNonce,
-      newDeviceNonce,
-      authShare,
-      challengeSignature: rotateChallengeSignature
-    });
-
-    WalletUtils.storeDeviceNonce(newDeviceNonce);
-    WalletUtils.storeDeviceShare(deviceShare, walletAddress);
-
-    activateWallet(jwk);
-  };
+  // TODO: Do we need to show a selector with the recoverable wallets or list all of them but tell the user
+  // which ones can/can't be recovered (or none)? Can I get a new wallet instead?
 
   return (
-    <div>
-      <h3>Restore Shards</h3>
-      <p>...</p>
-      <button onClick={handleRestore}>Restore</button>
-    </div>
+    <DevFigmaScreen
+      title="Restore shares / wallet"
+      src={screenSrc}
+      config={[
+        {
+          label: "Google Drive",
+          onClick: () => alert("Not implemented.")
+        },
+        {
+          label: "iCloud",
+          onClick: () => alert("Not implemented.")
+        },
+        {
+          label: "Dropbox",
+          onClick: () => alert("Not implemented.")
+        },
+        {
+          label: "Upload Account Recovery File",
+          to: "/auth/restore-shares/recovery-file"
+        },
+
+        // TODO: Actually, users might want to do some of these actions instead, as the device share might be lost or
+        // they might just be signing in on a new device:
+
+        {
+          label: "Create New Wallet",
+          // onClick: () => registerWallet("generated")
+          isDisabled: true
+        },
+        {
+          label: "Enter Seed Phrase",
+          to: "/auth/import-seed-phrase",
+          isDisabled: true
+        },
+        {
+          label: "Import Private Key",
+          to: "/auth/import-keyfile",
+          isDisabled: true
+        }
+      ]}
+    />
   );
 }

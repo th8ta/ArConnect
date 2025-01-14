@@ -1,16 +1,12 @@
-import {
-  FakeDB,
-  type DbWallet,
-  type GetShareForDeviceReturn
-} from "~utils/authentication/fakeDB";
+import { FakeDB, type DbWallet } from "~utils/authentication/fakeDB";
 import {
   WalletUtils,
   type DeviceNonce,
   type DeviceShareInfo
 } from "~utils/wallets/wallets.utils";
 
-async function fetchWallets(): Promise<DbWallet[]> {
-  return Promise.resolve([]);
+async function fetchWallets(userId: string): Promise<DbWallet[]> {
+  return FakeDB.fetchWallets(userId);
 }
 
 export interface CreateWalletParams {
@@ -36,6 +32,22 @@ async function createWallet(wallet: CreateWalletParams): Promise<DbWallet> {
   return FakeDB.addWallet(wallet);
 }
 
+export interface CreateRecoverySharePrams {
+  walletId: string;
+  walletAddress: string;
+  deviceNonce: string;
+  recoveryAuthShare: string;
+  recoveryDeviceShareHash: string;
+  recoveryBackupShareHash: string;
+  deviceInfo: any;
+}
+
+async function createRecoveryShare(
+  recoveryData: CreateRecoverySharePrams
+): Promise<void> {
+  return FakeDB.addRecoveryShare(recoveryData);
+}
+
 export interface FetchFirstAvailableAuthShareParams {
   deviceNonce: DeviceNonce;
   deviceSharesInfo: DeviceShareInfo[];
@@ -57,7 +69,7 @@ async function fetchFirstAvailableAuthShare({
       const { walletAddress, deviceShare } = deviceSharesInfoItem;
       const deviceShareHash = await WalletUtils.generateShareHash(deviceShare);
 
-      // TODO: Better with zk: instead of hashes:
+      // TODO: Better with zk: instead of hashes or use a challenge here?
 
       const { authShare, rotateChallenge } = await FakeDB.getKeyShareForDevice({
         deviceNonce,
@@ -126,6 +138,7 @@ async function recoverWallet(
 export const WalletService = {
   fetchWallets,
   createWallet,
+  createRecoveryShare,
   fetchFirstAvailableAuthShare,
   rotateAuthShare,
   fetchWalletRecoveryChallenge,
