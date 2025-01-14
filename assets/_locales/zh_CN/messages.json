@@ -2707,5 +2707,9 @@
     "sign_into_wander": {
         "message": "登录Wander",
         "description": "Sign into Wander text"
+    },
+    "copy": {
+        "message": "复制",
+        "description": "Copy text"
     }
 }

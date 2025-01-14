@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Text, useToasts } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import copy from "copy-to-clipboard";
-import { Check, Copy01 } from "@untitled-ui/icons-react";
+import { Check, Copy02 } from "@untitled-ui/icons-react";
 
 interface CopyToClipboardProps {
   text: string;
@@ -12,6 +12,8 @@ interface CopyToClipboardProps {
   label?: string;
   labelStyle?: React.CSSProperties;
   labelAs?: React.ElementType;
+  showToast?: boolean;
+  onCopy?: (isCopied: boolean) => void;
 }
 
 const CopyButton = styled.button`
@@ -37,7 +39,9 @@ export function CopyToClipboard({
   iconSize = 16,
   label,
   labelStyle,
-  labelAs: LabelComponent = Label
+  showToast = true,
+  onCopy,
+  labelAs = Label
 }: CopyToClipboardProps) {
   const toast = useToasts();
   const [isCopied, setIsCopied] = useState(false);
@@ -46,18 +50,23 @@ export function CopyToClipboard({
     setIsCopied(false);
     try {
       copy(text || "");
-      toast.setToast({
-        type: "success",
-        content: copySuccess || browser.i18n.getMessage("copied"),
-        duration: 2400
-      });
+      if (showToast) {
+        toast.setToast({
+          type: "success",
+          content: copySuccess || browser.i18n.getMessage("copied"),
+          duration: 2400
+        });
+      }
       setIsCopied(true);
+      if (onCopy) onCopy(true);
     } catch (err) {
-      toast.setToast({
-        type: "error",
-        content: browser.i18n.getMessage("copy_failed"),
-        duration: 2400
-      });
+      if (showToast) {
+        toast.setToast({
+          type: "error",
+          content: browser.i18n.getMessage("copy_failed"),
+          duration: 2400
+        });
+      }
     }
   };
 
@@ -66,6 +75,7 @@ export function CopyToClipboard({
 
     const timeout = setTimeout(() => {
       setIsCopied(false);
+      if (onCopy) onCopy(false);
     }, 3000);
 
     return () => clearTimeout(timeout);
@@ -73,9 +83,13 @@ export function CopyToClipboard({
 
   return (
     <CopyButton onClick={copyToClipboard}>
-      {label && <LabelComponent style={labelStyle}>{label}</LabelComponent>}
+      {label && (
+        <Label as={labelAs} style={labelStyle}>
+          {label}
+        </Label>
+      )}
       <Icon
-        as={isCopied ? Check : Copy01}
+        as={isCopied ? Check : Copy02}
         height={iconSize}
         width={iconSize}
         color={isCopied ? "#56C980" : ""}

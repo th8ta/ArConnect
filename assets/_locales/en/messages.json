@@ -2721,5 +2721,9 @@
   "sign_into_wander": {
     "message": "Sign into Wander",
     "description": "Sign into Wander text"
+  },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy text"
   }
 }
