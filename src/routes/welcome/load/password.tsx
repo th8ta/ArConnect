@@ -1,6 +1,5 @@
 import PasswordStrength from "../../../components/welcome/PasswordStrength";
 import PasswordMatch from "~components/welcome/PasswordMatch";
-import { checkPasswordValid } from "~wallets/generator";
 import Paragraph from "~components/Paragraph";
 import { useContext, useMemo, useEffect, useState } from "react";
 import browser from "webextension-polyfill";
@@ -11,7 +10,7 @@ import { useLocation } from "~wallets/router/router.utils";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import styled from "styled-components";
 import { Button, Input, Spacer } from "@arconnect/components-rebrand";
-import { Eye } from "@untitled-ui/icons-react";
+import { Eye, EyeOff } from "@untitled-ui/icons-react";
 
 export type PasswordWelcomeViewProps = CommonRouteProps<SetupWelcomeViewParams>;
 
@@ -93,7 +92,13 @@ export function PasswordWelcomeView({ params }: PasswordWelcomeViewProps) {
             type={passwordType}
             {...passwordInput.bindings}
             placeholder={browser.i18n.getMessage("enter_your_password")}
-            iconRight={<Eye onClick={handlePasswordTypeChange} />}
+            iconRight={
+              passwordType === "password" ? (
+                <Eye onClick={handlePasswordTypeChange} />
+              ) : (
+                <EyeOff onClick={handlePasswordTypeChange} />
+              )
+            }
             fullWidth
             onKeyDown={(e) => {
               if (e.key !== "Enter") return;

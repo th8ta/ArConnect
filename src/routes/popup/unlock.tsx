@@ -12,7 +12,7 @@ import styled from "styled-components";
 import WanderIcon from "url:assets/icon.svg";
 import IconText from "~components/IconText";
 import { useState } from "react";
-import { Eye } from "@untitled-ui/icons-react";
+import { Eye, EyeOff } from "@untitled-ui/icons-react";
 import StarIcons from "~components/welcome/StarIcons";
 
 export function UnlockView() {
@@ -66,7 +66,13 @@ export function UnlockView() {
             type={passwordType}
             {...passwordInput.bindings}
             placeholder={browser.i18n.getMessage("enter_password")}
-            iconRight={<Eye onClick={handlePasswordTypeChange} />}
+            iconRight={
+              passwordType === "password" ? (
+                <Eye onClick={handlePasswordTypeChange} />
+              ) : (
+                <EyeOff onClick={handlePasswordTypeChange} />
+              )
+            }
             fullWidth
             onKeyDown={(e) => {
               if (e.key !== "Enter") return;
