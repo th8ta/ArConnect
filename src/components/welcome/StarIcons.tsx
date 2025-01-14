@@ -39,14 +39,14 @@ interface StarIconsProps {
 }
 
 export default function StarIcons({ screen = "welcome" }: StarIconsProps) {
-  const isWelcomeScreen = screen === "welcome";
+  const isLessOpacity = screen === "setup";
   const displayStars = starsByScreen[screen];
 
   return displayStars.map((star, index) => (
     <StarIcon
       key={`star-${index}`}
       {...star}
-      opacity={isWelcomeScreen ? star.opacity : 0.1}
+      opacity={isLessOpacity ? 0.1 : star.opacity}
     />
   ));
 }
