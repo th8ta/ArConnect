@@ -2725,5 +2725,9 @@
   "copy": {
     "message": "Copy",
     "description": "Copy text"
+  },
+  "menu": {
+    "message": "Menu",
+    "description": "Menu text"
   }
 }

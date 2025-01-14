@@ -2711,5 +2711,9 @@
     "copy": {
         "message": "复制",
         "description": "Copy text"
+    },
+    "menu": {
+        "message": "菜单",
+        "description": "Menu text"
     }
 }
