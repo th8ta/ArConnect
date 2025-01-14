@@ -41,24 +41,22 @@ export default function Tabs() {
   const ActiveComponent = tabs[activeTab].component;
 
   return (
-    <>
-      <Section>
-        <TabsWrapper>
-          {tabs.map((tab) => (
-            <Tab
-              key={tab.id}
-              tab={tab}
-              active={tab.id === activeTab}
-              setActiveTab={setActiveTab}
-            />
-          ))}
-        </TabsWrapper>
-        <Underline />
-        <ContentWrapper>
-          <ActiveComponent />
-        </ContentWrapper>
-      </Section>
-    </>
+    <Section style={{ padding: 0 }}>
+      <TabsWrapper>
+        {tabs.map((tab) => (
+          <Tab
+            key={tab.id}
+            tab={tab}
+            active={tab.id === activeTab}
+            setActiveTab={setActiveTab}
+          />
+        ))}
+      </TabsWrapper>
+      <Underline />
+      <ContentWrapper>
+        <ActiveComponent />
+      </ContentWrapper>
+    </Section>
   );
 }
 

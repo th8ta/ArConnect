@@ -2729,5 +2729,13 @@
   "menu": {
     "message": "Menu",
     "description": "Menu text"
+  },
+  "accounts": {
+    "message": "Accounts",
+    "description": "Accounts text"
+  },
+  "buy": {
+    "message": "Buy",
+    "description": "Buy text"
   }
 }

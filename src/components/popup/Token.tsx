@@ -479,7 +479,7 @@ export function ArToken({ onClick }: ArTokenProps) {
   const [totalBalance, setTotalBalance] = useState("");
   const [showTooltip, setShowTooltip] = useState(false);
 
-  const balance = useBalance();
+  const { balance } = useBalance();
 
   useEffect(() => {
     (async () => {

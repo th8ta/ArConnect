@@ -114,6 +114,7 @@ export function useBalance() {
 
   // balance in AR
   const [balance, setBalance] = useState(BigNumber("0"));
+  const [loaded, setLoaded] = useState(false);
 
   const fetchBalance = useCallback(async () => {
     if (!activeAddress) {
@@ -136,12 +137,14 @@ export function useBalance() {
   useEffect(() => {
     if (!activeAddress) return;
 
-    retryWithDelayAndTimeout(fetchBalance).catch((error) => {
-      console.log(`Error fetching balance: ${error}`);
-    });
+    retryWithDelayAndTimeout(fetchBalance)
+      .catch((error) => {
+        console.log(`Error fetching balance: ${error}`);
+      })
+      .finally(() => setLoaded(true));
   }, [activeAddress, fetchBalance]);
 
-  return balance;
+  return { balance, loaded };
 }
 
 export function useDebounce<T>(value: T, delay: number): T {

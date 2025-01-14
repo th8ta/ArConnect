@@ -63,8 +63,8 @@ const buttons = [
     route: "/send/transfer"
   },
   {
-    title: "Receive",
-    dictionaryKey: "receive",
+    title: "Accounts",
+    dictionaryKey: "accounts",
     icon: <Users01 />,
     iconActive: <Users01 color="#6B57F9" fill="#6B57F9" />,
     size: "24px",

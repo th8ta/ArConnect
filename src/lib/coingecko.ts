@@ -98,6 +98,28 @@ export async function getMarketChart(currency: string, days = "max") {
   return data;
 }
 
+/**
+ * Get 24-hour price change for the AR token using the CoinGecko API
+ *
+ * @param currency Currency to get the price change in
+ * @returns 24-hour price change percentage of AR
+ */
+export async function getAr24hChange(currency: string): Promise<number> {
+  try {
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=${currency.toLowerCase()}&include_24hr_change=true`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    const changeKey = `${currency.toLowerCase()}_24h_change`;
+
+    return data.arweave[changeKey];
+  } catch (error) {
+    throw new Error("Failed to fetch AR price change");
+  }
+}
+
 interface CoinGeckoMarketChartResult {
   /** Prices: arrany of date in milliseconds and price */
   prices: [number, number][];
