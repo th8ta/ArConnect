@@ -21,9 +21,10 @@ import {
   INVALID_DEVICE_SHARES_INFO_ERR_MSG
 } from "~utils/wallets/wallets.constants";
 import { ExtensionStorage } from "~utils/storage";
+import { log, LOG_GROUP } from "~utils/log/log.utils";
 
 async function generateSeedPhrase() {
-  console.log("generateSeedPhrase()");
+  log(LOG_GROUP.WALLET_GENERATION, "generateSeedPhrase()");
 
   return bip39.generateMnemonic();
 }
@@ -31,7 +32,7 @@ async function generateSeedPhrase() {
 async function generateWalletJWK(seedPhrase: string): Promise<JWKInterface> {
   if (!seedPhrase) throw new Error("Missing `seedPhrase`");
 
-  console.log("generateWalletJWK()");
+  log(LOG_GROUP.WALLET_GENERATION, "generateWalletJWK()");
 
   let generatedKeyfile: JWKInterface | null = null;
   let walletKeyLength: WalletKeyLengths | null = null;
@@ -66,7 +67,7 @@ export interface WorkShares {
 async function generateWalletWorkShares(
   jwk: JWKInterface
 ): Promise<WorkShares> {
-  console.log("generateWalletWorkShares()");
+  log(LOG_GROUP.WALLET_GENERATION, "generateWalletWorkShares()");
 
   const privateKeyJWK = await window.crypto.subtle.importKey(
     "jwk",
@@ -105,7 +106,7 @@ export interface RecoverShares {
 async function generateWalletRecoveryShares(
   jwk: JWKInterface
 ): Promise<RecoverShares> {
-  console.log("generateWalletRecoveryShares()");
+  log(LOG_GROUP.WALLET_GENERATION, "generateWalletRecoveryShares()");
 
   const privateKeyJWK = await window.crypto.subtle.importKey(
     "jwk",
@@ -139,13 +140,13 @@ async function generateWalletRecoveryShares(
 }
 
 function generateDeviceNonce(): DeviceNonce {
-  console.log("generateDeviceNonce()");
+  log(LOG_GROUP.WALLET_GENERATION, "generateDeviceNonce()");
 
   return `${new Date().toISOString()}-${nanoid()}` as DeviceNonce;
 }
 
 function generateRandomPassword(): string {
-  console.log("generateRandomPassword()");
+  log(LOG_GROUP.WALLET_GENERATION, "generateRandomPassword()");
 
   return Buffer.from(crypto.getRandomValues(new Uint8Array(512))).toString(
     "base64"
@@ -157,7 +158,7 @@ async function generateWalletJWKFromShares(
   walletAddress: string,
   shares: string[]
 ): Promise<JWKInterface> {
-  console.log("generateWalletJWKFromShares()");
+  log(LOG_GROUP.WALLET_GENERATION, "generateWalletJWKFromShares()");
 
   const privateKeyPKCS8 = await SSS.combine(
     shares.map((share) => new Uint8Array(Buffer.from(share, "base64")))
@@ -184,7 +185,7 @@ async function generateWalletJWKFromShares(
 }
 
 async function generateShareHash(share: string): Promise<string> {
-  console.log("generateShareHash()");
+  log(LOG_GROUP.WALLET_GENERATION, "generateShareHash()");
 
   /*
 
@@ -206,7 +207,7 @@ async function generateChallengeSignature(
   challenge: string,
   jwk: JWKInterface
 ): Promise<string> {
-  console.log("generateChallengeSignature()");
+  log(LOG_GROUP.WALLET_GENERATION, "generateChallengeSignature()");
 
   // TODO
 
@@ -286,14 +287,10 @@ let _deviceSharesInfo: Record<
 // Getters:
 
 function getDeviceNonce(): DeviceNonce {
-  console.log("getDeviceNonce()");
-
   return _deviceNonce;
 }
 
 function getDeviceSharesInfo(userId: string): DeviceShareInfo[] {
-  console.log("getDeviceSharesInfo()");
-
   return Object.values(_deviceSharesInfo[userId] || {}).sort(
     (a, b) => b.createdAt - a.createdAt
   );
@@ -308,16 +305,15 @@ function storeEncryptedSeedPhrase(
   seedPhrase: string,
   jwk: JWKInterface
 ) {
-  console.log("storeEncryptedSeedPhrase()");
+  log(LOG_GROUP.WALLET_GENERATION, "storeEncryptedSeedPhrase()");
 
+  // TODO: Encrypt it...
   const encryptedSeedPhrase = seedPhrase;
 
   localStorage.setItem(
     `${ENCRYPTED_SEED_PHRASE_KEY}-${walletAddress}`,
     encryptedSeedPhrase
   );
-
-  // TODO
 }
 
 function hasEncryptedSeedPhrase(walletAddress: string) {
@@ -332,12 +328,11 @@ function getDecryptedSeedPhrase(walletAddress: string, jwk: JWKInterface) {
   );
 
   // TODO: Decrypt it...
-
   return encryptedSeedPhrase;
 }
 
 function storeDeviceNonce(deviceNonce: DeviceNonce) {
-  console.log("storeDeviceNonce()");
+  log(LOG_GROUP.WALLET_GENERATION, "storeDeviceNonce()");
 
   _deviceNonce = deviceNonce;
 
@@ -350,7 +345,7 @@ function storeDeviceShare(
   // TODO: Do we want to use the walletAddress or maybe better a hash?
   walletAddress: string
 ) {
-  console.log("storeDeviceShare()");
+  log(LOG_GROUP.WALLET_GENERATION, "storeDeviceShare()");
 
   const deviceShareInfo: DeviceShareInfo = {
     deviceShare,
@@ -369,6 +364,8 @@ function storeDeviceShare(
 }
 
 async function storeEncryptedWalletJWK(jwk: JWKInterface): Promise<void> {
+  log(LOG_GROUP.WALLET_GENERATION, "storeEncryptedWalletJWK()");
+
   // This password is only used for the current session. As soon as the page is reloaded, the wallet(s)' private key
   // must be reconstructed using the authShare and the deviceShare and added to the ExtensionStorage object again,
   // using a different random password:
@@ -380,8 +377,6 @@ async function storeEncryptedWalletJWK(jwk: JWKInterface): Promise<void> {
   } while (!checkPasswordValid(randomPassword));
 
   await setDecryptionKey(randomPassword);
-
-  console.log("decryptionKey =", await ExtensionStorage.get("decryption_key"));
 
   // TODO: Consider calling this periodically to rotate the random passwords. We might need to use a Mutex for this...
   // updatePassword(randomPassword);
