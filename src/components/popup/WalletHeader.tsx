@@ -7,7 +7,7 @@ import HardwareWalletIcon, {
 } from "~components/hardware/HardwareWalletIcon";
 import { useHardwareApi } from "~wallets/hooks";
 import type { StoredWallet } from "~wallets";
-import { formatAddress, getAppURL } from "~utils/format";
+import { formatAddress, getAppURL, truncateMiddle } from "~utils/format";
 import { removeApp } from "~applications";
 import { useAnsProfile } from "~lib/ans";
 import { useTheme } from "~utils/theme";
@@ -220,7 +220,7 @@ export default function WalletHeader() {
 
           <WalletName>
             <Text weight="medium" noMargin>
-              {displayName}
+              {truncateMiddle(displayName, 10)}
             </Text>
             <Address>{address}</Address>
           </WalletName>

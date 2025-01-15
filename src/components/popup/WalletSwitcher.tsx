@@ -13,7 +13,7 @@ import type { HardwareApi } from "~wallets/hardware";
 import { useStorage } from "@plasmohq/storage/hook";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
-import { formatAddress } from "~utils/format";
+import { formatAddress, truncateMiddle } from "~utils/format";
 import type { StoredWallet } from "~wallets";
 import { useEffect, useMemo, useState } from "react";
 import HardwareWalletIcon from "~components/hardware/HardwareWalletIcon";
@@ -156,8 +156,26 @@ export default function WalletSwitcher({ open, close }: Props) {
             )}
           </Avatar>
           <Spacer y={0.75} />
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <Text size="md" weight="semibold" noMargin>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              justifyContent: "center",
+              maxWidth: "100%"
+            }}
+          >
+            <Text
+              size="md"
+              weight="semibold"
+              style={{
+                flex: 1,
+                textAlign: "center",
+                flexWrap: "wrap",
+                wordBreak: "break-word"
+              }}
+              noMargin
+            >
               {activeWallet?.name}
             </Text>
             {activeWallet?.address === activeAddress && <ActiveIndicator />}
@@ -242,13 +260,12 @@ export default function WalletSwitcher({ open, close }: Props) {
                   </Avatar>
 
                   <WalletTitle>
-                    <WalletName>{wallet.name}</WalletName>
+                    <WalletName>{truncateMiddle(wallet.name, 20)}</WalletName>
                     <div
                       style={{
                         display: "flex",
                         gap: 8,
-                        alignItems: "center",
-                        justifyContent: "center"
+                        alignItems: "center"
                       }}
                     >
                       <CopyToClipboard
