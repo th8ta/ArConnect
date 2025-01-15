@@ -40,6 +40,9 @@ export interface DbWallet {
   canBeUsedToRecoverAccount: boolean;
   canRecover: boolean; // TODO: True if recovery share where downloaded or the wallet was exported.
 
+  // TODO: lastBackedUp: any; // Derived? Includes date and device/location info.
+  // TODO: lastExported: any; // Derived? Includes date and device/location info.
+
   info: {
     identifierType: "alias" | "ans" | "pns";
     alias: string;
@@ -371,6 +374,7 @@ export const FakeDB = {
   addRecoveryShare,
   getKeyShareForDevice,
   recoverWallet,
+  // TODO: Add a method to register "do not ask again" for a specific wallet.
 
   // Authentication:
   authenticate,

@@ -29,6 +29,7 @@ import type {
   RecoveryJSON
 } from "~utils/embedded/embedded.types";
 import { isTempWalletPromiseExpired } from "~utils/embedded/embedded.utils";
+import { log, LOG_GROUP } from "~utils/log/log.utils";
 
 const EMBEDDED_CONTEXT_INITIAL_STATE: EmbeddedContextState = {
   authStatus: "unknown",
@@ -83,7 +84,9 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
   }, [authStatus]);
 
   const skipBackUp = useCallback(async (doNotAskAgain: boolean) => {
-    // TODO: Persist lastPromptData (local?) and doNotAskAgain (server?)...
+    log(LOG_GROUP.EMBEDDED_FLOWS, `skipBackUp(${doNotAskAgain})`);
+
+    // TODO: Persist lastPromptData (local?) and doNotAskAgain (server?) (for the current wallet only?)
 
     if (doNotAskAgain) {
       await sleep(5000);
@@ -96,7 +99,9 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
   }, []);
 
   const registerBackUp = useCallback(async () => {
-    // TODO: Do we need to register this on the server? Here or on from the view itself?
+    log(LOG_GROUP.EMBEDDED_FLOWS, `registerBackUp()`);
+
+    // TODO: Call this function when downloadKeyfile or copySeedphrase are used.
 
     await sleep(5000);
 
@@ -107,6 +112,8 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
   }, []);
 
   const downloadKeyfile = useCallback(async (walletAddress: string) => {
+    log(LOG_GROUP.EMBEDDED_FLOWS, `downloadKeyfile(${walletAddress})`);
+
     // TODO: Add an option to encrypt with a password
 
     const decryptedWallet = (await getKeyfile(
@@ -120,6 +127,8 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
   }, []);
 
   const copySeedphrase = useCallback(async (walletAddress: string) => {
+    log(LOG_GROUP.EMBEDDED_FLOWS, `copySeedphrase(${walletAddress})`);
+
     const seedPhrase = WalletUtils.getDecryptedSeedPhrase(
       walletAddress,
       {} as any
@@ -130,7 +139,10 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
 
   const generateRecoveryAndDownload = useCallback(
     async (walletAddress: string) => {
-      console.log(`generateRecoveryAndDownload(${walletAddress})`);
+      log(
+        LOG_GROUP.EMBEDDED_FLOWS,
+        `generateRecoveryAndDownload(${walletAddress})`
+      );
 
       const decryptedWallet = (await getKeyfile(
         walletAddress
@@ -191,7 +203,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
 
       freeDecryptedWallet(jwk);
 
-      console.log("WALLET ADDED =", await getWallets());
+      log(LOG_GROUP.WALLET_GENERATION, `getWallets() =`, await getWallets());
 
       // Optimistically add wallet.
       // TODO: We could consider calling `initEmbeddedWallet` again instead, which will make sure the wallet has been
@@ -244,7 +256,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
       ]);
 
       if (tempWallet) {
-        console.log("Cleaned up...");
+        log(LOG_GROUP.WALLET_GENERATION, `deleteGeneratedTempWallet()`);
 
         freeDecryptedWallet(tempWallet.jwk);
       }
@@ -265,7 +277,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
 
     deleteGeneratedTempWallet();
 
-    console.log("generateTempWallet()");
+    log(LOG_GROUP.WALLET_GENERATION, `generateTempWallet()`);
 
     const controller = new AbortController();
     const { signal } = controller;
@@ -310,8 +322,6 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
   // This function is called in the import views when users don't confirm the import or when they leave the screen:
 
   const deleteImportedTempWallet = useCallback(async () => {
-    console.log("deleteImportedTempWallet");
-
     setEmbeddedContextState((prevAuthContextState) => ({
       ...prevAuthContextState,
       importedTempWalletAddress: null
@@ -328,7 +338,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
       ]);
 
       if (tempWallet) {
-        console.log("Cleaned up...");
+        log(LOG_GROUP.WALLET_GENERATION, `deleteImportedTempWallet()`);
 
         freeDecryptedWallet(tempWallet.jwk);
       }
@@ -341,7 +351,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
     async (jwkOrSeedPhrase: JWKInterface | string) => {
       await deleteImportedTempWallet();
 
-      console.log("importTempWallet()");
+      log(LOG_GROUP.WALLET_GENERATION, `importTempWallet()`);
 
       const controller = new AbortController();
       const { signal } = controller;
@@ -390,7 +400,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
 
   const registerWallet = useCallback(
     async (sourceType: "generated" | "imported") => {
-      console.log(`registerWallet(${sourceType})`);
+      log(LOG_GROUP.WALLET_GENERATION, `registerWallet(${sourceType})`);
 
       const promise =
         sourceType === "generated"
@@ -452,7 +462,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
   // ACCOUNT RECOVERY:
 
   const fetchRecoverableAccounts = useCallback(async () => {
-    console.log("fetchRecoverableAccounts()");
+    log(LOG_GROUP.WALLET_GENERATION, `fetchRecoverableAccounts()`);
 
     setEmbeddedContextState((prevAuthContextState) => ({
       ...prevAuthContextState,
@@ -492,7 +502,10 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
 
   const recoverAccount = useCallback(
     async (authMethod: AuthMethod, accountToRecoverId: string) => {
-      console.log(`recoverAccount(${authMethod}, ${accountToRecoverId})`);
+      log(
+        LOG_GROUP.WALLET_GENERATION,
+        `recoverAccount(${authMethod}, ${accountToRecoverId})`
+      );
 
       const { jwk, walletAddress } = await importedTempWalletPromiseRef.current
         ?.promise;
@@ -754,10 +767,13 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
     isInitializedRef.current = true;
 
     async function init() {
-      console.log("Initializing ArConnect Embedded background services...");
+      log(
+        LOG_GROUP.SETUP,
+        `Initializing ArConnect Embedded background services...`
+      );
       setupBackgroundService();
 
-      console.log("Initializing ArConnect Embedded wallets...");
+      log(LOG_GROUP.SETUP, `Initializing ArConnect Embedded wallets...`);
       initEmbeddedWallet();
     }
 
