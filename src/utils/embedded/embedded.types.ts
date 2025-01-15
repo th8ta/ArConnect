@@ -80,8 +80,6 @@ export interface EmbeddedContextData extends EmbeddedContextState {
   registerWallet: (source: "generated" | "imported") => Promise<DbWallet>;
   clearLastRegisteredWallet: () => void;
 
-  activateWallet: (jwk: JWKInterface) => void;
-
   skipBackUp: (doNotAskAgain: boolean) => void | Promise<void>;
   registerBackUp: () => Promise<void>;
   downloadKeyfile: (walletAddress: string) => Promise<void>;

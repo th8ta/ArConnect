@@ -4,7 +4,7 @@ import { useEmbedded } from "~utils/embedded/embedded.hooks";
 import screenSrc from "url:/assets-beta/figma-screens/auth.view.png";
 
 export function AuthEmbeddedView() {
-  const { authenticate } = useEmbedded();
+  const { authenticate, authStatus } = useEmbedded();
 
   // TODO: Remember last selection and highlight that one / show it in the main screen (not in "More")
 
@@ -12,6 +12,11 @@ export function AuthEmbeddedView() {
     <DevFigmaScreen
       title="Sign Up or Sign In"
       src={screenSrc}
+      isLoading={
+        authStatus === "unknown" ||
+        authStatus === "loading" ||
+        authStatus === "authLoading"
+      }
       config={[
         {
           label: "Passkey",

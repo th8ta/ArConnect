@@ -16,7 +16,7 @@ export function AuthRestoreSharesRecoveryFileEmbeddedView() {
     // TODO: Throw error with error message for `DevFigmaScreen` to display it:
     if (!textareaElement) return;
 
-    return restoreWallet(walletAddress, textareaRef.current.value);
+    return restoreWallet(walletAddress, JSON.parse(textareaRef.current.value));
   };
 
   // TODO: The recovery file should probably include the wallet address or a hash so that we can

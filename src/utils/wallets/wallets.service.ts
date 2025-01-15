@@ -131,7 +131,7 @@ async function recoverWallet(
   walletAddress: string,
   challengeSignature: string
 ): Promise<string> {
-  return Promise.resolve("");
+  return FakeDB.recoverWallet(walletAddress, challengeSignature);
 }
 
 export const WalletService = {
