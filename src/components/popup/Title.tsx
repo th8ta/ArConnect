@@ -32,7 +32,7 @@ export const ViewAll = styled(Title).attrs({
 export const TokenCount = styled.span`
   font-size: 1rem;
   font-weight: 500;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
   border-radius: 5px;
 `;
 

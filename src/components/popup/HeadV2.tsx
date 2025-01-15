@@ -245,7 +245,7 @@ const BackButtonIcon = styled(ArrowNarrowLeft)`
   font-size: 1rem;
   width: 1.5em;
   height: 1.5em;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
   z-index: 2;
 
   path {

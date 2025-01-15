@@ -409,7 +409,7 @@ export const TokenName = styled(Text).attrs({
   gap: 0.34rem;
   width: min-content;
   font-size: 1rem;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
 `;
 
 const NativeBalance = styled(Text).attrs({

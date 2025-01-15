@@ -169,5 +169,5 @@ const BasePropertyText = styled(Text).attrs({
 const PropertyName = styled(BasePropertyText)``;
 
 const PropertyValue = styled(BasePropertyText)`
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
 `;

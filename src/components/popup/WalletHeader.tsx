@@ -413,7 +413,7 @@ const Wallet = styled.div`
   transition: transform 0.06s ease-in-out, background-color 0.17s ease-in-out;
 
   p {
-    color: rgb(${(props) => props.theme.primaryText});
+    color: ${(props) => props.theme.primaryText};
   }
 
   ${HardwareWalletIcon} {
@@ -495,7 +495,7 @@ export const Action = styled(CopyIcon)`
   font-size: 1.25rem;
   width: 1.5em;
   height: 1.5em;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
   transition: all 0.23s ease-in-out;
 
   &:hover {
@@ -580,7 +580,7 @@ const ActiveAppIcon = styled(AppIcon)<{ connected: boolean }>`
 const AppName = styled(Text).attrs({
   noMargin: true
 })`
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
   line-height: 1.1em;
 `;
 

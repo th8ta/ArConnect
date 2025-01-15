@@ -753,7 +753,7 @@ export const FiatAmount = styled(Text).attrs({
 const AddContact = styled.div`
   font-size: 10px;
   font-weight: 600;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
   margin: 0;
 
   span {
@@ -766,7 +766,7 @@ const AddContact = styled.div`
 export const AmountTitle = styled.h1`
   font-size: 2.5rem;
   font-weight: 600;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
   text-align: center;
   margin: 0;
   line-height: 1.1em;
@@ -820,7 +820,7 @@ export const PropertyName = styled(BasePropertyText)`
   font-size: 14px;
   font-weight: 500;
 
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
 `;
 
 export const PropertyValue = styled(BasePropertyText)`

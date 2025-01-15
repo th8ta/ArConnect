@@ -2735,5 +2735,9 @@
     "your_other_accounts": {
         "message": "您的其他账户",
         "description": "Your other accounts text"
+    },
+    "activity": {
+        "message": "活动",
+        "description": "Activity text"
     }
 }

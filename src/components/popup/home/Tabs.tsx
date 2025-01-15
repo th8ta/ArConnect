@@ -35,7 +35,7 @@ export default function Tabs() {
   const tabs = [
     { id: 0, name: "assets", component: Tokens },
     { id: 1, name: "collectibles", component: Collectibles },
-    { id: 2, name: "transactions", component: Transactions }
+    { id: 2, name: "activity", component: Transactions }
   ];
 
   const ActiveComponent = tabs[activeTab].component;

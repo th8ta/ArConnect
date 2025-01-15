@@ -52,12 +52,12 @@ const SeedShownIcon = styled(EyeIcon)`
   font-size: 1.1rem;
   width: 1em;
   height: 1em;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
 `;
 
 const Seed = styled.p<{ shown: boolean }>`
   margin: 0;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
   font-weight: 500;
   font-size: 0.92rem;
   line-height: 1.5em;

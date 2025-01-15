@@ -406,7 +406,7 @@ const WalletTitle = styled.div`
 `;
 
 const WalletName = styled(Text).attrs({ noMargin: true })`
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
 `;
 
 const ActiveIndicator = styled.span`
