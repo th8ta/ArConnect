@@ -601,5 +601,6 @@ export const CloseLayer = styled(motion.div)`
   width: 100vw;
   height: 100vh;
   cursor: default;
-  background-color: rgba(${(props) => props.theme.background}, 0.85);
+  background-color: ${({ theme }) =>
+    `rgba(0, 0, 0, ${theme.displayTheme === "light" ? 0.3 : 0.7})`};
 `;

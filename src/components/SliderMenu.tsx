@@ -77,10 +77,6 @@ const Wrapper = styled(motion.div)<{
   left: 0;
   height: auto;
   max-height: calc(100% - 66px);
-  border-top: ${(props) =>
-    props.displayTheme === "light"
-      ? `1px solid ${props.theme.primary}`
-      : "none"};
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -141,5 +137,6 @@ export const CloseLayer = styled(motion.div)`
   width: 100vw;
   height: 100vh;
   cursor: default;
-  background-color: rgba(${(props) => props.theme.background}, 0.85);
+  background-color: ${({ theme }) =>
+    `rgba(0, 0, 0, ${theme.displayTheme === "light" ? 0.3 : 0.7})`};
 `;

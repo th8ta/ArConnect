@@ -341,10 +341,6 @@ export function ConnectAuthRequestView() {
             <WalletSwitcher
               open={switcherOpen}
               close={() => setSwitcherOpen(false)}
-              showOptions={false}
-              exactTop={true}
-              noPadding={true}
-              maxHeight={180}
             />
             {switcherOpen && (
               <CloseLayer onClick={() => setSwitcherOpen(false)} />

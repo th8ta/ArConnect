@@ -162,12 +162,7 @@ export default function HeadV2({
             </ButtonAvatar>
           </AvatarButton>
 
-          <WalletSwitcher
-            open={isOpen}
-            close={() => setOpen(false)}
-            exactTop={true}
-            showOptions={false}
-          />
+          <WalletSwitcher open={isOpen} close={() => setOpen(false)} />
 
           {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
         </>

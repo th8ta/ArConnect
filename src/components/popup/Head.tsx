@@ -133,12 +133,7 @@ export default function Head({
         </ClickableAvatar>
       </PageInfo>
       {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
-      <WalletSwitcher
-        open={isOpen}
-        close={() => setOpen(false)}
-        showOptions={showOptions}
-        exactTop={true}
-      />
+      <WalletSwitcher open={isOpen} close={() => setOpen(false)} />
     </HeadWrapper>
   );
 }
