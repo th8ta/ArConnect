@@ -23,10 +23,7 @@ export function AuthRestoreSharesRecoveryFileEmbeddedView() {
   // request the recovery of the right one from the backend without asking the user to manually select
   // the address of the wallet they want to recover.
 
-  // TODO: Do we need to show a selector with the recoverable wallets or list all of them but tell the user
-  // which ones can/can't be recovered (or none)? Can I get a new wallet instead?
-
-  // This view should probably work if the user uploads a keyfile too
+  // TODO: This view should probably work if the user uploads a keyfile too as many might be confused about the two.
 
   return (
     <DevFigmaScreen
@@ -34,7 +31,8 @@ export function AuthRestoreSharesRecoveryFileEmbeddedView() {
       src={screenSrc}
       config={[
         {
-          // TODO: This should be a selector / dropdown and we might want to include a bulk / download all option
+          // TODO: Does the recovery file leak the wallet address? If so, this needs to be populated once the recovery
+          // file is provided; otherwise, it should be removed it.
           label: walletAddress,
           isDisabled: true
         },

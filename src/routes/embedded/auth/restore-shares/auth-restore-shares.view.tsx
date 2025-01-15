@@ -6,9 +6,6 @@ import screenSrc from "url:/assets-beta/figma-screens/restore-shares.view.png";
 export function AuthRestoreSharesEmbeddedView() {
   const { authMethod, activateWallet } = useEmbedded();
 
-  // TODO: Do we need to show a selector with the recoverable wallets or list all of them but tell the user
-  // which ones can/can't be recovered (or none)? Can I get a new wallet instead?
-
   return (
     <DevFigmaScreen
       title="Restore shares / wallet"
