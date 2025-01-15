@@ -44,15 +44,18 @@ export default function Tabs() {
     <Section style={{ padding: 0 }}>
       <TabsWrapper>
         {tabs.map((tab) => (
-          <Tab
-            key={tab.id}
-            tab={tab}
-            active={tab.id === activeTab}
-            setActiveTab={setActiveTab}
-          />
+          <TabWrapper>
+            <Tab
+              key={tab.id}
+              tab={tab}
+              active={tab.id === activeTab}
+              setActiveTab={setActiveTab}
+            />
+            {activeTab === 0 && tab.id == 1 && <Seperator />}
+            {activeTab === 2 && tab.id == 0 && <Seperator />}
+          </TabWrapper>
         ))}
       </TabsWrapper>
-      <Underline />
       <ContentWrapper>
         <ActiveComponent />
       </ContentWrapper>
@@ -60,46 +63,51 @@ export default function Tabs() {
   );
 }
 
+const TabWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const Seperator = styled.div`
+  width: 1px;
+  height: 23px;
+  border-radius: 0.5px;
+  background: rgba(142, 142, 147, 0.2);
+`;
+
 const TabsWrapper = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   width: 100%;
-  height: 25px;
-  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+  border-radius: 10px;
+  padding: 2px;
+  box-sizing: border-box;
+  background: ${(props) => props.theme.surfaceSecondary};
+  box-shadow: 0px 2px 3.3px 0px rgba(0, 0, 0, 0.07) inset;
 `;
 
 const StyledTab = styled.button<{ active?: boolean; tabId: number }>`
-  position: relative;
-  height: 25px;
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 25px;
-  color: ${(props) =>
-    props.active ? props.theme.primaryTextv2 : props.theme.secondaryTextv2};
+  display: flex;
+  width: 108px;
+  height: 32px;
+  padding: 3px 10px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: ${(props) => props.theme.secondaryText};
+  box-sizing: border-box;
   cursor: pointer;
-  background: transparent;
-  border: 0;
-  padding: 0;
 
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: -2px;
-    height: 2px;
-    background: ${(props) =>
-      props.active ? "#8e7bea" : props.theme.secondaryTextv2};
-    transition: transform 0.3s ease-in-out;
-    transform: scaleX(${(props) => (props.active ? 1 : 0)});
-    ${(props) => props.tabId === 0 && "left: 0; right: -12px;"}
-    ${(props) => props.tabId === 1 && "left: -12px; right: -12px;"}
-    ${(props) => props.tabId === 2 && "left: -12px; right: 0;"}
-  }
-`;
-
-const Underline = styled.div<{ active?: boolean }>`
-  border: 1px solid ${(props) => props.theme.secondaryTextv2};
-  transition: border-color 0.3s ease-in-out;
+  ${(props) =>
+    props.active &&
+    `
+      color: ${props.theme.primaryText};
+      border: 0.5px solid rgba(0, 0, 0, 0.12);
+      background: ${props.theme.displayTheme === "dark" ? "#403785" : "#FFF"};
+      box-shadow: 0px 3px 1px 0px rgba(0, 0, 0, 0.04), 0px 3px 8px 0px rgba(0, 0, 0, 0.16);
+  `}
 `;
 
 const ContentWrapper = styled.div`
