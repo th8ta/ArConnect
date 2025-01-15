@@ -4,7 +4,7 @@ import type {
   CreateRecoverySharePrams,
   CreateWalletParams
 } from "~utils/wallets/wallets.service";
-import type { DeviceNonce } from "~utils/wallets/wallets.utils";
+import { WalletUtils, type DeviceNonce } from "~utils/wallets/wallets.utils";
 import Arweave from "arweave";
 import { defaultGateway } from "~gateways/gateway";
 
@@ -175,6 +175,8 @@ async function addWallet(
 
   // TODO: Persist mocked state
 
+  console.log("addWallet() =", wallet, keyShares[keyShares.length - 1]);
+
   return wallet;
 }
 
@@ -209,7 +211,7 @@ async function addRecoveryShare(
     recoveryBackupShareHash: addRecoveryShareParams.recoveryBackupShareHash
   });
 
-  console.log("BACKUP =", keyShares[keyShares.length - 1]);
+  console.log("addRecoveryShare() =", keyShares[keyShares.length - 1]);
 }
 
 export interface GetShareForDeviceParams {
@@ -249,6 +251,19 @@ async function getKeyShareForDevice({
     authShare: keyShare.authShare,
     rotateChallenge: false
   });
+}
+
+async function recoverWallet(
+  walletAddress: string,
+  challengeSignature: string
+) {
+  const matchKeyShare = keyShares.find((keyShare) => {
+    return (
+      keyShare.walletAddress === walletAddress && !!keyShare.recoveryAuthShare
+    );
+  });
+
+  return matchKeyShare?.recoveryAuthShare || null;
 }
 
 // Authentication:
@@ -355,6 +370,7 @@ export const FakeDB = {
   addWallet,
   addRecoveryShare,
   getKeyShareForDevice,
+  recoverWallet,
 
   // Authentication:
   authenticate,
@@ -370,88 +386,116 @@ export const MockedFeatureFlags = {
 } as const;
 
 // Test scenarios (?test = )
-// -                 = Fresh account
-// - no-wallets      = Existing account, no wallets
-// - wallets         = Existing account, has wallets and device share
-// - device-recovery = Existing account, has wallets, no device share, has device recovery share
-// - backup-recovery = Existing account, has wallets, no device share, has backup recovery share
-// - lost            = Existing accounts, has wallets, no device share, no backups
+//
+// -                 = No wallets
+// - ok              = Has wallets, device share and nonce. Has recovery share.
+// - nonce-gone      = Has wallets and device share, nonce gone. Has recovery share.
+// - share-gone      = Has wallets and nonce, device share gone. Has recovery share.
+// - lost            = Has wallets, no device info, no backups.
+//
+// Also available ?auth=1 to be authenticated straight away.
+//
+// The wallet seedphrase is:
+// code napkin summer else endorse road rookie consider merit act sister health
+//
+// The wallet recovery file is:
+// { "version": "1", "recoveryBackupShare": "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" }
 
-// Also available ?auth=1 and ?noFrame=1
-// Uncomment to have a wallet straight away, as if this was a user signing in on a new device or on a device that has
-// lost the device share:
+const walletId = "ZX6KzIvpA6dqv4NtQbL-b";
+const walletAddress = "hnJTIN3zJ-6rH1M3ydMl_yNLAwvgBshdZF5ZxMNRWEA";
+const deviceNonce = "2025-01-13T14:01:39.623Z-Gb4slIxRhdp1ZrXkjGyRe";
+const deviceShare =
+  "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";
 
-// The wallet seedphrase is: code napkin summer else endorse road rookie consider merit act sister health
+const { searchParams } = new URL(location.href);
 
-/*
+if (searchParams.get("auth") === "1") {
+  currentSession = {
+    userId: mockedUserId,
+    authMethod: "passkey"
+  };
+}
 
-wallets.push({
-  "id": "Ec4IfiNsNVAv0CjSARWf4",
-  "userId": mockedUserId,
-  "chain": "arweave",
-  "address": "hnJTIN3zJ-6rH1M3ydMl_yNLAwvgBshdZF5ZxMNRWEA",
-  "publicKey": "nPw3bI6yHZOIRLOQ74N3Yet6eMitn48bgJfU9XTTgCMBG6jkj_mhTQh0faheQSSPlljRjjl6MQvll31R8p_SoJ5eZ9JE9H3VIyL2pSlrHA2rAjvRky090qK-5QRDZI-Jsb4IsE8ul8atlT2iqwUk2WBUhCKP-ch1JIq0SQYiPtsP7otEOnjYg1OuUiqqdSdTCigoe6HJyheZ7piQcd51N7nIlRU68odqG9hcOiCfoE61eoDxx_Cw0SVO55uTD3SDv1KS8nCzsWmQtl4Sk8_ltf_FNhLifFh-aCMdwjvByFWFFXQ0wabjI6W3XIh9eA-Eii8wXT7kYmnOZ2Je07bdxqAcazTLh7ik1kyg_vh6cqlCvcP2DFzFXH4cTxgSDwF_Dk8w3lPjIJUbau7I1u9lJ9O70kwajvktbjm-if-iA8e5y_JsltPnWNlVGt98qwhspB6OD_0bXU1_pWmbtKdyx3-sCZ96RRmCHaztz28ms6f8HchAVI6co8uUIMvq5gU_oi4v6WKmXFqSiF3z_3IanCCGZ127dggd0fnwWc8xQDqPeo3pib5ttrU787C_0VWM_cZkeZk0Qre_bgR2v40MllooAM5UAM1hBhNnPQo3S1YUgA11d6BlI-W2EKFpUvDoNs3UbXqSffUl-GHNraCGyV6qUfJKyJ_wp_JJS-NqgSE",
-  "walletType": "public",
-  "canBeUsedToRecoverAccount": true,
-  "canRecover": false,
-  "info": {
-      "identifierType": "alias",
-      "alias": "",
-      "ans": null,
-      "pns": null
-  },
-  "source": {
-      "type": "generated",
-      "from": "seedPhrase",
-      "deviceAndLocationInfo": {}
-  },
-  "lastUsed": 1736865352915,
-  "status": "enabled"
-});
+const testKey = searchParams.get("test");
 
-// Work share:
+if (testKey) {
+  localStorage.clear();
+  sessionStorage.clear();
 
-// Uncomment to add the right deviceShare in localStorage:
-// TODO: Add code
+  // Wallet and work share:
 
-keyShares.push({
-  "id": "s0iP2kksix64hX0XF7Jal",
-  "status": "",
-  "userId": mockedUserId,
-  "walletId": "Ec4IfiNsNVAv0CjSARWf4",
-  "walletAddress": "hnJTIN3zJ-6rH1M3ydMl_yNLAwvgBshdZF5ZxMNRWEA",
-  "createdAt": 1736865352915,
-  "deviceNonceRotatedAt": 1736865352915,
-  "sharesRotatedAt": 1736865352915,
-  "lastRequestedAt": 1736865352915,
-  "usagesAfterExpiration": 0,
-  "deviceNonce": "2025-01-13T14:01:39.623Z-Gb4slIxRhdp1ZrXkjGyRe",
-  "authShare": "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",
-  "deviceShareHash": "rl6Wj9Ay38hrkGecvJ0bI0V0iGwQl7fNF7xlD6w5mLNSLjxUtbHEINBnsiIJgWahjJSAWnkCiNXIFKwcZjrNqg==",
-  "recoveryAuthShare": "",
-  "recoveryBackupShareHash": "",
-});
+  wallets.push({
+    id: walletId,
+    userId: mockedUserId,
+    chain: "arweave",
+    address: walletAddress,
+    publicKey:
+      "nPw3bI6yHZOIRLOQ74N3Yet6eMitn48bgJfU9XTTgCMBG6jkj_mhTQh0faheQSSPlljRjjl6MQvll31R8p_SoJ5eZ9JE9H3VIyL2pSlrHA2rAjvRky090qK-5QRDZI-Jsb4IsE8ul8atlT2iqwUk2WBUhCKP-ch1JIq0SQYiPtsP7otEOnjYg1OuUiqqdSdTCigoe6HJyheZ7piQcd51N7nIlRU68odqG9hcOiCfoE61eoDxx_Cw0SVO55uTD3SDv1KS8nCzsWmQtl4Sk8_ltf_FNhLifFh-aCMdwjvByFWFFXQ0wabjI6W3XIh9eA-Eii8wXT7kYmnOZ2Je07bdxqAcazTLh7ik1kyg_vh6cqlCvcP2DFzFXH4cTxgSDwF_Dk8w3lPjIJUbau7I1u9lJ9O70kwajvktbjm-if-iA8e5y_JsltPnWNlVGt98qwhspB6OD_0bXU1_pWmbtKdyx3-sCZ96RRmCHaztz28ms6f8HchAVI6co8uUIMvq5gU_oi4v6WKmXFqSiF3z_3IanCCGZ127dggd0fnwWc8xQDqPeo3pib5ttrU787C_0VWM_cZkeZk0Qre_bgR2v40MllooAM5UAM1hBhNnPQo3S1YUgA11d6BlI-W2EKFpUvDoNs3UbXqSffUl-GHNraCGyV6qUfJKyJ_wp_JJS-NqgSE",
+    walletType: "public",
+    canBeUsedToRecoverAccount: true,
+    canRecover: false,
+    info: {
+      identifierType: "alias",
+      alias: "",
+      ans: null,
+      pns: null
+    },
+    source: {
+      type: "imported",
+      from: "seedPhrase",
+      deviceAndLocationInfo: {}
+    },
+    lastUsed: 1736953788658,
+    status: "enabled"
+  });
 
-// Recovery share:
+  keyShares.push({
+    id: "2xFrAEXZU3iS_JQv5Mc5G",
+    status: "",
+    userId: mockedUserId,
+    walletId: walletId,
+    walletAddress: walletAddress,
+    createdAt: 1736953788658,
+    deviceNonceRotatedAt: 1736953788658,
+    sharesRotatedAt: 1736953788658,
+    lastRequestedAt: 1736953788658,
+    usagesAfterExpiration: 0,
+    deviceNonce: deviceNonce,
+    authShare:
+      "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",
+    deviceShareHash:
+      "OpCZkKlyyqnDwpC9fjFs48Uk/NaCIoet4niR5e+A8wtx8L7/hTi5vj6rLFcJOwFDCCepnlw1QkkLEO82dwEx1g==",
+    recoveryAuthShare: "",
+    recoveryBackupShareHash: ""
+  });
+}
 
-keyShares.push({
-  "id": "Uq33DfVMRMO1Pm2MjRIi8",
-  "status": "",
-  "userId": mockedUserId,
-  "walletId": "Ec4IfiNsNVAv0CjSARWf4",
-  "walletAddress": "hnJTIN3zJ-6rH1M3ydMl_yNLAwvgBshdZF5ZxMNRWEA",
-  "createdAt": 1736869901675,
-  "deviceNonceRotatedAt": 1736869901675,
-  "sharesRotatedAt": 1736869901675,
-  "lastRequestedAt": 1736869901675,
-  "usagesAfterExpiration": 0,
-  "deviceNonce": "2025-01-13T14:01:39.623Z-Gb4slIxRhdp1ZrXkjGyRe",
-  "authShare": "",
-  "deviceShareHash": "",
-  "recoveryAuthShare": "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",
-  "recoveryBackupShareHash": "bkRz/e1XmGKM1bsX+bhkS3WaF12BJwgFgR6v5dwh7UjCdi1q41kc4Gbe/QYsTa5eumf4oNhCAMzdeSaJl8jfkQ=="
-});
+if (testKey !== "lost") {
+  keyShares.push({
+    id: "r4b0b3RZXhJ7ZLU7Z9fw0",
+    status: "",
+    userId: mockedUserId,
+    walletId: walletId,
+    walletAddress: walletAddress,
+    createdAt: 1736953955219,
+    deviceNonceRotatedAt: 1736953955219,
+    sharesRotatedAt: 1736953955219,
+    lastRequestedAt: 1736953955219,
+    usagesAfterExpiration: 0,
+    deviceNonce: deviceNonce,
+    authShare: "",
+    deviceShareHash: "",
+    recoveryAuthShare:
+      "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",
+    recoveryBackupShareHash:
+      "BpQfrkaCQJo1wy/zBCtvNJhSAU/cpCYEtR36xRd5zun78/vzdwKgc60DuaaI8X/gSgyMdJ5Zro8OJFl8tSbkAw=="
+  });
+}
 
-// Backup file:
-// {"version": 1,"recoveryBackupShare": "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"}
-*/
+if (testKey === "ok" || testKey === "nonce-gone") {
+  WalletUtils.storeDeviceShare(deviceShare, mockedUserId, walletAddress);
+}
+
+if (testKey === "ok" || testKey === "share-gone") {
+  WalletUtils.storeDeviceNonce(deviceNonce);
+}

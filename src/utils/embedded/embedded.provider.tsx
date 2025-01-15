@@ -60,8 +60,6 @@ export const EmbeddedContext = createContext<EmbeddedContextData>({
   registerWallet: async () => null,
   clearLastRegisteredWallet: () => null,
 
-  activateWallet: () => null,
-
   // TODO: These should work for multiple wallets:
   skipBackUp: () => null,
   registerBackUp: async () => null,
@@ -592,24 +590,17 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
       WalletUtils.storeDeviceNonce(newDeviceNonce);
       WalletUtils.storeDeviceShare(deviceShare, userId, walletAddress);
 
-      activateWallet(jwk);
-    },
-    [userId]
-  );
+      const dbWallet = wallets.find((dbWallet) => {
+        return dbWallet.address === walletAddress;
+      });
 
-  // ACTIVATE:
-
-  const activateWallet = useCallback(
-    (jwk: JWKInterface) => {
-      WalletUtils.storeEncryptedWalletJWK(jwk);
-
-      if (!wallets.find((prevWallet) => prevWallet.publicKey === jwk.n)) {
-        throw new Error(
-          "The wallet you are trying to active could not be found"
-        );
+      try {
+        await addWallet(jwk, dbWallet);
+      } finally {
+        freeDecryptedWallet(jwk);
       }
     },
-    [wallets]
+    [userId, wallets]
   );
 
   // INITIALIZATION:
@@ -789,6 +780,7 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
         fetchRecoverableAccounts,
         clearRecoverableAccounts,
         recoverAccount,
+        restoreWallet,
 
         generateTempWallet,
         deleteGeneratedTempWallet,
@@ -798,8 +790,6 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
 
         registerWallet,
         clearLastRegisteredWallet,
-
-        activateWallet,
 
         skipBackUp,
         registerBackUp,
