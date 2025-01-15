@@ -35,7 +35,6 @@ export function AuthRecoverAccountSeedphraseEmbeddedView() {
   };
 
   useEffect(() => {
-    // TODO: Make sure the imported wallet does stay in memory:
     deleteImportedTempWallet();
     clearRecoverableAccounts();
   }, []);
