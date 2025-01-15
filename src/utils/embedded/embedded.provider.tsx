@@ -25,7 +25,8 @@ import type {
   WalletInfo,
   TempWallet,
   AuthStatus,
-  TempWalletPromise
+  TempWalletPromise,
+  RecoveryJSON
 } from "~utils/embedded/embedded.types";
 import { isTempWalletPromiseExpired } from "~utils/embedded/embedded.utils";
 
@@ -48,6 +49,7 @@ export const EmbeddedContext = createContext<EmbeddedContextData>({
   fetchRecoverableAccounts: async () => null,
   clearRecoverableAccounts: async () => null,
   recoverAccount: async () => null,
+  restoreWallet: async () => null,
 
   generateTempWallet: async () => null,
   deleteGeneratedTempWallet: async () => null,
@@ -136,20 +138,11 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
         walletAddress
       )) as LocalWallet<JWKInterface>;
 
-      console.log("HERE 0");
-
       const jwk = decryptedWallet.keyfile;
 
-      console.log("HERE 1");
-
-      const { recoveryAuthShare, recoveryDeviceShare, recoveryBackupShare } =
+      const { recoveryAuthShare, recoveryBackupShare } =
         await WalletUtils.generateWalletRecoveryShares(jwk);
 
-      console.log("HERE 2");
-
-      const recoveryDeviceShareHash = await WalletUtils.generateShareHash(
-        recoveryDeviceShare
-      );
       const recoveryBackupShareHash = await WalletUtils.generateShareHash(
         recoveryBackupShare
       );
@@ -169,19 +162,12 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
         walletAddress,
         deviceNonce,
         recoveryAuthShare,
-        recoveryDeviceShareHash,
         recoveryBackupShareHash,
         deviceInfo: {}
       });
 
       // TODO: Should we just show an error and make sure the device nonce is generated in a single place on app load?
       WalletUtils.storeDeviceNonce(deviceNonce);
-
-      WalletUtils.storeRecoveryDeviceShare(
-        recoveryDeviceShare,
-        userId,
-        walletAddress
-      );
 
       downloadRecoveryFile(walletAddress, recoveryBackupShare);
 
@@ -536,6 +522,81 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
     []
   );
 
+  const restoreWallet = useCallback(
+    async (
+      walletAddress: string,
+      recoveryData: RecoveryJSON | JWKInterface | string
+    ) => {
+      if (
+        typeof recoveryData === "string" ||
+        recoveryData.hasOwnProperty("kty")
+      ) {
+        throw new Error("Keyfile sand seedphrases not supported yet.");
+      }
+
+      const { version, recoveryBackupShare } = recoveryData as RecoveryJSON;
+
+      // TODO: Do this with signatures if possible, otherwise do it with hashes:
+      const recoveryShareJWT: JWKInterface = {} as any;
+      const recoverySharePublicKey = "";
+
+      const { recoveryChallenge, rotateChallenge } =
+        await WalletService.fetchWalletRecoveryChallenge(
+          walletAddress,
+          recoverySharePublicKey
+        );
+
+      const recoveryShareHash = await WalletUtils.generateShareHash(
+        recoveryBackupShare
+      );
+
+      const recoveryChallengeSignature =
+        await WalletUtils.generateChallengeSignature(
+          recoveryChallenge,
+          recoveryShareJWT
+        );
+
+      const authRecoveryShare = await WalletService.recoverWallet(
+        walletAddress,
+        recoveryChallengeSignature
+      );
+
+      const jwk = await WalletUtils.generateWalletJWKFromShares(walletAddress, [
+        authRecoveryShare,
+        recoveryBackupShare
+      ]);
+
+      const { authShare, deviceShare } =
+        await WalletUtils.generateWalletWorkShares(jwk);
+
+      const oldDeviceNonce = WalletUtils.getDeviceNonce();
+      const newDeviceNonce = WalletUtils.generateDeviceNonce();
+
+      // TODO: The rotate challenge is only needed if there's a deviceNonce-walletAddress-userId match
+      // on the backend. Otherwise, we are just adding the wallet on a new device so we just need to store
+      // the new work shares in the DB.
+      const rotateChallengeSignature =
+        await WalletUtils.generateChallengeSignature(rotateChallenge, jwk);
+
+      // TODO: This wallet needs to be regenerated as well and the authShare updated. If this is not done after X
+      // "warnings", the Shards entry will be removed anyway.
+      await WalletService.rotateAuthShare({
+        walletAddress,
+        oldDeviceNonce,
+        newDeviceNonce,
+        authShare,
+        newDeviceShareHash: "", // TODO: Better to use public keys.
+        challengeSignature: rotateChallengeSignature
+      });
+
+      WalletUtils.storeDeviceNonce(newDeviceNonce);
+      WalletUtils.storeDeviceShare(deviceShare, userId, walletAddress);
+
+      activateWallet(jwk);
+    },
+    [userId]
+  );
+
   // ACTIVATE:
 
   const activateWallet = useCallback(
@@ -601,8 +662,6 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
 
       // TODO: TODO: We need to keep track of the last used one, not the last created one:
       const deviceSharesInfo = WalletUtils.getDeviceSharesInfo(userId);
-
-      // TODO: Automatically check if a recoveryDeviceShare is available and use it if possible?
 
       // TODO: Verify if wallets match between dbWallets and deviceSharesInfo before
       // calling fetchFirstAvailableAuthShare().

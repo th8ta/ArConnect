@@ -37,7 +37,6 @@ export interface CreateRecoverySharePrams {
   walletAddress: string;
   deviceNonce: string;
   recoveryAuthShare: string;
-  recoveryDeviceShareHash: string;
   recoveryBackupShareHash: string;
   deviceInfo: any;
 }
@@ -99,7 +98,7 @@ async function fetchFirstAvailableAuthShare({
   });
 }
 
-export interface RotateDeviceShardParams {
+export interface RotateDeviceShareParams {
   walletAddress: string;
   oldDeviceNonce?: DeviceNonce;
   newDeviceNonce: DeviceNonce;
@@ -108,7 +107,7 @@ export interface RotateDeviceShardParams {
   challengeSignature: string;
 }
 
-async function rotateAuthShare({}: RotateDeviceShardParams) {
+async function rotateAuthShare({}: RotateDeviceShareParams) {
   // TODO: Take into account challengeSignature needs to be used as key too. Also, `oldDeviceNonce` might be `undefined`
   // but only when `initiateWalletRecovery` has been called before...
 }

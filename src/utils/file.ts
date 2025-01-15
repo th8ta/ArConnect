@@ -1,4 +1,5 @@
 import type { JWKInterface } from "arweave/web/lib/wallet";
+import type { RecoveryJSON } from "~utils/embedded/embedded.types";
 
 /**
  * Read file content as binary
@@ -105,9 +106,9 @@ export function downloadRecoveryFile(
   downloadFile(
     JSON.stringify(
       {
-        version: 1,
+        version: "1",
         recoveryBackupShare
-      },
+      } satisfies RecoveryJSON,
       null,
       2
     ),

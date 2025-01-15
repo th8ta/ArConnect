@@ -51,6 +51,11 @@ export interface EmbeddedContextState {
   backedUp: boolean;
 }
 
+export interface RecoveryJSON {
+  version: string;
+  recoveryBackupShare: string;
+}
+
 export interface EmbeddedContextData extends EmbeddedContextState {
   authenticate: (authMethod: AuthMethod) => Promise<void>;
   fetchRecoverableAccounts: () => Promise<DbUser[]>;
@@ -58,6 +63,10 @@ export interface EmbeddedContextData extends EmbeddedContextState {
   recoverAccount: (
     authMethod: AuthMethod,
     accountToRecoverId: string
+  ) => Promise<void>;
+  restoreWallet: (
+    walletAddress: string,
+    recoveryData: RecoveryJSON | JWKInterface | string
   ) => Promise<void>;
 
   generateTempWallet: () => Promise<TempWallet>;
