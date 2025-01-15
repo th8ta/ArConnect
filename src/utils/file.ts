@@ -85,10 +85,6 @@ function downloadFile(content: string, contentType: string, fileName: string) {
   document.body.appendChild(el);
   el.click();
   document.body.removeChild(el);
-
-  setTimeout(() => {
-    window.URL.revokeObjectURL(url);
-  }, 1000);
 }
 
 export function downloadKeyfile(address: string, jwk: JWKInterface) {
