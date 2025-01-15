@@ -559,6 +559,8 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
         recoveryChallengeSignature
       );
 
+      if (!authRecoveryShare) throw Error("Missing server recovery data.");
+
       const jwk = await WalletUtils.generateWalletJWKFromShares(walletAddress, [
         authRecoveryShare,
         recoveryBackupShare
