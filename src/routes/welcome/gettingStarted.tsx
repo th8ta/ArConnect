@@ -61,15 +61,19 @@ export function GettingStartedSetupWelcomeView({
     return <Redirect to="/getting-started/1" />;
   }
 
+  const handleClose = () => {
+    // reset before unload
+    window.onbeforeunload = null;
+    window.top.close();
+  };
+
   const navigateToPage = (pageNum: number) => {
     if (pageNum < 1) {
       navigate("/getting-started/1");
     } else if (pageNum < 6) {
       navigate(`/getting-started/${pageNum}`);
     } else {
-      // reset before unload
-      window.onbeforeunload = null;
-      window.top.close();
+      handleClose();
     }
   };
 
@@ -100,11 +104,7 @@ export function GettingStartedSetupWelcomeView({
             {browser.i18n.getMessage(page < 5 ? "next" : "finish")}
           </Button>
           {page < 5 && (
-            <Button
-              variant="secondary"
-              fullWidth
-              onClick={() => navigateToPage(page + 1)}
-            >
+            <Button variant="secondary" fullWidth onClick={handleClose}>
               {browser.i18n.getMessage("close")}
             </Button>
           )}
