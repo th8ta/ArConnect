@@ -613,20 +613,6 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
       // TODO: Create an issue for the new storage needs (e.g. expiration). Note that for wallets
       // that haven't been backup up, we must never delete a share without notifying the user.
 
-      // TODO: Scenarios to check with design:
-      //
-      // - Cannot get access to unpartitioned storage so they'll have to recover/import the wallet every site on that device.
-      // - Some users might prefer to provide a keyfile or seedphrase instead of a share file if the device share is lost.
-      // - No device share and wallets cannot be recovered (never exported).
-      // - No device share and some wallets can be recovered (needs selector).
-      // - No device share and wallets can or cannot be recovered but user wants to create/import a new wallet anyway.
-      // - Run out of localStorage, we cannot delete anything automatically because we might make them lose a wallet.
-      // - Too many backup shares created.
-      // - Too many device shares created (e.g. users that regularly clean up browser data).
-      // - Export shares view is actually not an "account backup" but a "wallet recovery" (single wallet). Making it include all can be a hassle.
-      // - Option to encrypt keyfile/recovery file with password?
-      // - Option to lock pks with password?
-
       let deviceNonce = WalletUtils.getDeviceNonce();
 
       if (deviceNonce && deviceSharesInfo.length > 0) {

@@ -107,7 +107,6 @@ export function useAuthStatusOverride(
     if (authStatus === "unlocked") {
       if (lastRegisteredWallet) {
         // If an account or wallet has just been created, then show AuthAddWalletConfirmation:
-        // TODO: Create shortcut signature for this case:
         return routeTrapMatches(
           location,
           [EmbeddedPaths.AccountConfirmation],
