@@ -7,7 +7,7 @@ import { StorageMock } from "~iframe/plasmo-storage/plasmo-storage.mock";
 
 /**
  * Default extension storage:
- * - In the BE version, values are NOT copied to `localStorage`.
+ * - In the BE version, values are NOT copied to `window.localStorage`.
  * - In the Embedded version, we use `StorageMock` to store values in `sessionStorage` instead. Values that the Embedded
  *   version needs to persist are stored manually in `localStorage` (e.g. `deviceNonce`, shares...)
  */
@@ -49,6 +49,8 @@ export interface RawStoredTransfer {
   transaction: ReturnType<Transaction["toJSON"]>;
 }
 
+// In Embedded, the value coming from the `onInit` param doesn't seem to work well, causing some views like
+// /send/transfer to break on load, when the "init" value should have been used:
 export const useStorage: typeof usePlasmoStorage =
   import.meta.env?.VITE_IS_EMBEDDED_APP === "1"
     ? (((rawKey, onInit) => {
