@@ -4,9 +4,6 @@ export const runtime = {
   // This should address lines like this:
   // browser.tabs.create({ url: browser.runtime.getURL("tabs/welcome.html") });
   getURL: (path: string) => {
-    if (process.env.NODE_ENV === "development")
-      console.trace(`getURL(${path})`);
-
     return new URL(path, document.location.origin).toString();
   },
 
