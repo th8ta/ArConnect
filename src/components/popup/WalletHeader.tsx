@@ -194,7 +194,7 @@ export default function WalletHeader() {
           )}
           position="bottomStart"
         >
-          <Action as={GlobeIcon} style={{ width: "24px", height: "24px" }} />
+          <Action as={GlobeIcon} style={{ width: "30px", height: "30px" }} />
         </TooltipV2>
         <AppOnline online={!!activeAppData} />
       </AppAction>
@@ -387,6 +387,7 @@ const Wrapper = styled.nav<{
   backdrop-filter: blur(15px);
   transition: border 0.23s ease-in-out;
   user-select: none;
+  padding: 24px;
 `;
 
 const WalletName = styled.div`

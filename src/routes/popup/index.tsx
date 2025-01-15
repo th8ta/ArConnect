@@ -74,9 +74,11 @@ export function HomeView() {
       {/* <AoBanner activeAddress={activeAddress} /> */}
       {loggedIn && <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />}
       <WalletHeader />
-      <Balance />
-      <WalletActions />
-      <Tabs />
+      <HomeContent>
+        <Balance />
+        <WalletActions />
+        <Tabs />
+      </HomeContent>
     </HomeWrapper>
   );
 }
@@ -84,7 +86,13 @@ export function HomeView() {
 const HomeWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 24px;
   padding-bottom: 68px;
-  padding: 24px;
+`;
+
+const HomeContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding-left: 24px;
+  padding-right: 24px;
+  gap: 24px;
 `;
