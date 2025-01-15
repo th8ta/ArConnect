@@ -619,7 +619,9 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
       ? await AuthenticationService.authenticate(authMethod)
       : await AuthenticationService.refreshSession();
 
-    if (!authentication?.userId) {
+    const userId = authentication?.userId || null;
+
+    if (!userId) {
       generateTempWallet();
 
       setEmbeddedContextState((prevAuthContextState) => ({
@@ -629,8 +631,6 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
 
       return;
     }
-
-    const { userId } = authentication;
 
     const dbWallets = await WalletService.fetchWallets(userId);
 
@@ -741,7 +741,8 @@ export function EmbeddedProvider({ children }: EmbeddedProviderProps) {
 
     setEmbeddedContextState((prevAuthContextState) => ({
       ...prevAuthContextState,
-      authStatus
+      authStatus,
+      userId
     }));
   }, []);
 
