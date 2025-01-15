@@ -80,10 +80,9 @@ interface DbKeyShare {
   authShare: string;
   deviceShareHash: string;
 
-  // RB + RA + RD SSS:
+  // RB + RA SSS:
   recoveryAuthShare: string;
   recoveryBackupShareHash: string;
-  recoveryDeviceShareHash: string;
 }
 
 interface DbWalletExports {
@@ -169,10 +168,9 @@ async function addWallet(
     authShare: addWalletParams.authShare,
     deviceShareHash: addWalletParams.deviceShareHash,
 
-    // RB + RA + RD SSS:
+    // RB + RA SSS:
     recoveryAuthShare: "",
-    recoveryBackupShareHash: "",
-    recoveryDeviceShareHash: ""
+    recoveryBackupShareHash: ""
   });
 
   // TODO: Persist mocked state
@@ -202,16 +200,12 @@ async function addRecoveryShare(
     // TODO: Add addRecoveryShareParams.deviceInfo
 
     // D + A SSS:
-    // TODO: We might want to store the device info/nonce on a separate table as we'll also rotate this.
-    // this means that if there are recovery shares linked to a specific device, when its nonce is rotated, we can
-    // still verify, when an user tries to use the recoveryDeviceShare, that they also have the nonce.
     deviceNonce: addRecoveryShareParams.deviceNonce,
     authShare: "",
     deviceShareHash: "",
 
-    // RB + RA + RD SSS:
+    // RB + RA SSS:
     recoveryAuthShare: addRecoveryShareParams.recoveryAuthShare,
-    recoveryDeviceShareHash: addRecoveryShareParams.recoveryDeviceShareHash,
     recoveryBackupShareHash: addRecoveryShareParams.recoveryBackupShareHash
   });
 
@@ -436,13 +430,9 @@ keyShares.push({
   "deviceShareHash": "rl6Wj9Ay38hrkGecvJ0bI0V0iGwQl7fNF7xlD6w5mLNSLjxUtbHEINBnsiIJgWahjJSAWnkCiNXIFKwcZjrNqg==",
   "recoveryAuthShare": "",
   "recoveryBackupShareHash": "",
-  "recoveryDeviceShareHash": ""
 });
 
 // Recovery share:
-
-// Uncomment to add the right recoveryDeviceShare in localStorage:
-// TODO: Add code
 
 keyShares.push({
   "id": "Uq33DfVMRMO1Pm2MjRIi8",
@@ -459,7 +449,6 @@ keyShares.push({
   "authShare": "",
   "deviceShareHash": "",
   "recoveryAuthShare": "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",
-  "recoveryDeviceShareHash": "hz3vgUyERE9zzxrxdpS8cBKL6WbT87OpdgKQaSfhJpwtwU81CNh81Crtilgttir5VyHQ6f15rELCqwfRkRrrLg==",
   "recoveryBackupShareHash": "bkRz/e1XmGKM1bsX+bhkS3WaF12BJwgFgR6v5dwh7UjCdi1q41kc4Gbe/QYsTa5eumf4oNhCAMzdeSaJl8jfkQ=="
 });
 

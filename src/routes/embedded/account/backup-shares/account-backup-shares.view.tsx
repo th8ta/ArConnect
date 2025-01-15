@@ -17,8 +17,6 @@ export function AccountBackupSharesEmbeddedView() {
 
   // TODO: Add an option to encrypt with a password
 
-  // TODO: Give the user the option to use 2/3 or 2/2 SSS (with non-technical language)?
-
   // TODO: Redirect user to backup confirmation next or show some kind of confirmation or just redirect home?
 
   return (
