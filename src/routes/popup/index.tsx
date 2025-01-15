@@ -77,6 +77,7 @@ export function HomeView() {
       <HomeContent>
         <Balance />
         <WalletActions />
+        <HorizontalLine />
         <Tabs />
       </HomeContent>
     </HomeWrapper>
@@ -86,7 +87,7 @@ export function HomeView() {
 const HomeWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  padding-bottom: 68px;
+  padding-bottom: 72px;
 `;
 
 const HomeContent = styled.div`
@@ -95,4 +96,10 @@ const HomeContent = styled.div`
   padding-left: 24px;
   padding-right: 24px;
   gap: 24px;
+`;
+
+const HorizontalLine = styled.div`
+  width: 100%;
+  height: 1px;
+  background: ${({ theme }) => theme.borderSecondary};
 `;

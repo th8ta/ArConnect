@@ -2739,5 +2739,13 @@
     "activity": {
         "message": "活动",
         "description": "Activity text"
+    },
+    "manage_asset_list": {
+        "message": "管理资产列表",
+        "description": "Manage asset list text"
+    },
+    "import_assets": {
+        "message": "导入资产",
+        "description": "Import assets text"
     }
 }

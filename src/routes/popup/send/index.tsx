@@ -819,7 +819,7 @@ const TokenSelectorRightSide = styled.div`
 const TokensList = styled.ul`
   display: flex;
   flex-direction: column;
-  gap: 0.82rem;
+  gap: 1rem;
   padding: 0;
   margin: 0;
 `;

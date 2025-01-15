@@ -145,11 +145,8 @@ export default function Token({ onClick, ...props }: Props) {
         +props.balance > 0 && <Canvas ref={ref} />}
       <InnerWrapper width={hasActionButton ? "86%" : "100%"} onClick={onClick}>
         <LogoAndDetails>
-          <LogoWrapper>
-            <Logo src={logo || ""} alt="" key={props.id} />
-          </LogoWrapper>
+          <Logo src={logo || ""} alt="" key={props.id} />
           <TokenName>{props.name || props.ticker || "???"}</TokenName>
-          <Image src={aoLogo} alt="ao logo" />
         </LogoAndDetails>
 
         <BalanceSection>
@@ -348,6 +345,7 @@ const Wrapper = styled.div`
 
   &:active {
     transform: scale(0.98);
+    opacity: 0.8;
   }
 `;
 
@@ -391,14 +389,19 @@ export const LogoWrapper = styled(Squircle)<{ small?: boolean }>`
 export const Logo = styled.img.attrs({
   draggable: false
 })`
-  position: absolute;
-  user-select: none;
-  width: 55%;
-  height: 55%;
-  top: 50%;
-  left: 50%;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 29px;
   object-fit: contain;
-  transform: translate(-50%, -50%);
+  background: #fffefc;
+
+  ${(props) =>
+    props.theme.displayTheme === "light" &&
+    `
+      border: 1px solid #E4E4EB;
+      box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.10), 0px 1px 2px 0px rgba(0, 0, 0, 0.06);
+    `}
 `;
 
 export const TokenName = styled(Text).attrs({
@@ -417,7 +420,7 @@ const NativeBalance = styled(Text).attrs({
 })`
   font-size: 0.9rem;
   font-weight: 400;
-  color: rgba(${(props) => props.theme.primaryText}, 0.83);
+  color: ${(props) => props.theme.primaryText};
 `;
 
 const FiatBalance = styled.span<{ ao?: boolean }>`

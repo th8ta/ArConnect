@@ -1,10 +1,9 @@
-import { type DisplayTheme } from "@arconnect/components";
 import { CloseIcon } from "@iconicicons/react";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import type React from "react";
 import { useRef } from "react";
 import { createPortal } from "react-dom";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 
 interface SliderMenuProps {
   title: string;
@@ -22,7 +21,6 @@ export default function SliderMenu({
   children
 }: SliderMenuProps) {
   const wrapperElementRef = useRef<HTMLDivElement | null>(null);
-  const theme = useTheme();
 
   const contentElement = isOpen ? (
     <>
@@ -39,7 +37,7 @@ export default function SliderMenu({
       />
 
       <Wrapper
-        displayTheme={theme.displayTheme}
+        hasHeader={hasHeader}
         ref={wrapperElementRef}
         variants={animationSlideFromBottom}
         initial="hidden"
@@ -70,7 +68,7 @@ const ExitButton = styled(CloseIcon)`
 `;
 
 const Wrapper = styled(motion.div)<{
-  displayTheme: DisplayTheme;
+  hasHeader: boolean;
 }>`
   position: fixed;
   bottom: 0;
@@ -82,10 +80,10 @@ const Wrapper = styled(motion.div)<{
   width: 100%;
   z-index: 1000;
   overflow: scroll;
-  background-color: ${(props) =>
-    props.displayTheme === "light" ? "#ffffff" : "#1B1B1B"};
+  background-color: ${({ theme }) =>
+    theme.displayTheme === "light" ? "#ffffff" : "#1B1B1B"};
   border-radius: 24px 24px 0px 0px;
-  padding: 32px 24px;
+  padding: ${({ hasHeader }) => (hasHeader ? "0px" : "32px")} 24px 32px;
   box-sizing: border-box;
 `;
 
@@ -110,12 +108,31 @@ const Body = styled.div`
   display: flex;
   gap: 15px;
   flex-direction: column;
+  position: relative;
 `;
 
 const Header = styled.div`
+  position: sticky;
+  top: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background-color: ${({ theme }) =>
+    theme.displayTheme === "light" ? "#ffffff" : "#1B1B1B"};
+  z-index: 2;
+  padding-bottom: 24px;
+  padding-top: 32px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: inherit;
+    z-index: -1;
+  }
 `;
 
 const Title = styled.h2`

@@ -2753,5 +2753,13 @@
   "activity": {
     "message": "Activity",
     "description": "Activity text"
+  },
+  "manage_asset_list": {
+    "message": "Manage asset list",
+    "description": "Manage asset list text"
+  },
+  "import_assets": {
+    "message": "Import assets",
+    "description": "Import assets text"
   }
 }

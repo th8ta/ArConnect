@@ -1,14 +1,16 @@
-import { Heading, TokenCount, ViewAll } from "../Title";
-import { Spacer, Text } from "@arconnect/components";
+import { Text } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import Token from "../Token";
 import { useAoTokens } from "~tokens/aoTokens/ao";
 import { useLocation } from "~wallets/router/router.utils";
+import { Settings04 } from "@untitled-ui/icons-react";
+import { ManageAssets } from "./ManageAssets";
+import { useState } from "react";
 
 export default function Tokens() {
   const { navigate } = useLocation();
-
+  const [open, setOpen] = useState(false);
   // all tokens
   const [aoTokens, loading] = useAoTokens({ type: "asset" });
 
@@ -18,14 +20,7 @@ export default function Tokens() {
   }
 
   return (
-    <>
-      <Heading>
-        <ViewAll onClick={() => navigate("/tokens")}>
-          {browser.i18n.getMessage("view_all")}
-          <TokenCount>({aoTokens.length})</TokenCount>
-        </ViewAll>
-      </Heading>
-      <Spacer y={1} />
+    <Cointainer>
       {aoTokens.length === 0 && (
         <NoTokens>{browser.i18n.getMessage("no_assets")}</NoTokens>
       )}
@@ -47,14 +42,36 @@ export default function Tokens() {
           />
         ))}
       </TokensList>
-    </>
+      <ManageAssetList onClick={() => setOpen(true)}>
+        <Settings04 height={20} width={20} />
+        <Text variant="secondary" weight="semibold" size="sm" noMargin>
+          {browser.i18n.getMessage("manage_asset_list")}
+        </Text>
+      </ManageAssetList>
+      <ManageAssets open={open} close={() => setOpen(false)} />
+    </Cointainer>
   );
 }
+
+const Cointainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
 
 const TokensList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.82rem;
+  gap: 1rem;
+`;
+
+const ManageAssetList = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0px;
+  gap: 0.5rem;
+  cursor: pointer;
 `;
 
 const NoTokens = styled(Text).attrs({

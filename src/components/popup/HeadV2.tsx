@@ -3,7 +3,7 @@ import {
   Section,
   Text,
   TooltipV2
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
 import { AnimatePresence } from "framer-motion";
 import { useTheme } from "~utils/theme";
@@ -244,15 +244,14 @@ const BackButtonIcon = styled(ArrowNarrowLeft)`
   z-index: 2;
 
   path {
-    stroke-width: 1.75 !important;
+    stroke-width: 2 !important;
   }
 `;
 
 const PageTitle = styled(Text).attrs({
-  subtitle: true,
   noMargin: true
 })<{ showLeftMargin: boolean }>`
-  font-size: 1.3rem;
+  font-size: 1.375rem;
   font-weight: 500;
   ${(props) => props.showLeftMargin && `margin-left: 28px;`}
 `;

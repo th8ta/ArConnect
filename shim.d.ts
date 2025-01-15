@@ -143,6 +143,7 @@ declare module "styled-components" {
     surfaceSecondary: string;
     surfaceTertiary: string;
     borderDefault: string;
+    borderSecondary: string;
     input: {
       background: {
         search: { default: string; disabled: string; special: string };

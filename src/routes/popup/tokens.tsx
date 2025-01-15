@@ -194,7 +194,7 @@ export function TokensView() {
 const TokensList = styled(Section)`
   display: flex;
   flex-direction: column;
-  gap: 0.82rem;
+  gap: 1rem;
 `;
 
 const ManageButton = styled.a.attrs({
