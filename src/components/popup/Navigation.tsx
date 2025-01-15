@@ -115,7 +115,7 @@ const NavigationBarWrapper = styled.nav`
   bottom: 0;
   height: 68px;
   background-color: ${(props) => props.theme.backgroundv2};
-  width: 100%;
+  width: 377px;
   display: flex;
 `;
 

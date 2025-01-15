@@ -21,10 +21,9 @@ const CopyButton = styled.button`
   flex-direction: row;
   align-items: center;
   cursor: pointer;
-  padding: 4px;
   border: none;
   background: none;
-  gap: 4px;
+  gap: 8px;
 `;
 
 const Label = styled(Text).attrs({
@@ -46,7 +45,8 @@ export function CopyToClipboard({
   const toast = useToasts();
   const [isCopied, setIsCopied] = useState(false);
 
-  const copyToClipboard = async () => {
+  const copyToClipboard = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
     setIsCopied(false);
     try {
       copy(text || "");
@@ -92,14 +92,15 @@ export function CopyToClipboard({
         as={isCopied ? Check : Copy02}
         height={iconSize}
         width={iconSize}
-        color={isCopied ? "#56C980" : ""}
+        success={isCopied}
       />
     </CopyButton>
   );
 }
 
-const Icon = styled.div<{ height: number; width: number; color: string }>`
+const Icon = styled.div<{ height: number; width: number; success: boolean }>`
   height: ${(props) => props.height}px;
   width: ${(props) => props.width}px;
-  ${(props) => `color: ${props.color || props.theme.primaryText};`}
+  color: ${(props) =>
+    props.success ? props.theme.success : props.theme.tertiaryText};
 `;

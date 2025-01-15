@@ -63,7 +63,7 @@ export function useWalletsDetails(wallets: JWKInterface[]) {
  */
 export function useActiveWallet() {
   // current address
-  const [activeAddress] = useStorage<string>({
+  const [activeAddress, setActiveAddress] = useStorage<string>({
     key: "active_address",
     instance: ExtensionStorage
   });
@@ -83,7 +83,7 @@ export function useActiveWallet() {
     [activeAddress, wallets]
   );
 
-  return wallet;
+  return { ...wallet, setActiveAddress };
 }
 
 /**

@@ -2723,5 +2723,17 @@
     "buy": {
         "message": "购买",
         "description": "Buy text"
+    },
+    "add_account": {
+        "message": "添加账户",
+        "description": "Add account text"
+    },
+    "edit_account": {
+        "message": "编辑账户",
+        "description": "Edit account text"
+    },
+    "your_other_accounts": {
+        "message": "您的其他账户",
+        "description": "Your other accounts text"
     }
 }

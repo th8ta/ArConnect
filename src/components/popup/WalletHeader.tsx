@@ -252,7 +252,7 @@ export default function WalletHeader() {
         {newNotifications && <Notifier />}
       </TooltipV2>
 
-      {(isOpen || appDataOpen) && (
+      {appDataOpen && (
         <CloseLayer
           key="WalletHeaderCloseLayer"
           exit={{ opacity: 0 }}
@@ -267,11 +267,7 @@ export default function WalletHeader() {
         />
       )}
 
-      <WalletSwitcher
-        open={isOpen}
-        close={() => setOpen(false)}
-        exactTop={true}
-      />
+      <WalletSwitcher open={isOpen} close={() => setOpen(false)} />
 
       <AnimatePresence>
         {appDataOpen && (

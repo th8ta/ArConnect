@@ -2737,5 +2737,17 @@
   "buy": {
     "message": "Buy",
     "description": "Buy text"
+  },
+  "add_account": {
+    "message": "Add account",
+    "description": "Add account text"
+  },
+  "edit_account": {
+    "message": "Edit account",
+    "description": "Edit account text"
+  },
+  "your_other_accounts": {
+    "message": "Your other accounts",
+    "description": "Your other accounts text"
   }
 }

@@ -3,11 +3,12 @@ import { CloseIcon } from "@iconicicons/react";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import type React from "react";
 import { useRef } from "react";
+import { createPortal } from "react-dom";
 import styled, { useTheme } from "styled-components";
 
 interface SliderMenuProps {
   title: string;
-  hasNav?: boolean;
+  hasHeader?: boolean;
   isOpen: boolean;
   onClose?: () => void;
   children?: React.ReactNode;
@@ -15,7 +16,7 @@ interface SliderMenuProps {
 
 export default function SliderMenu({
   title,
-  hasNav,
+  hasHeader = true,
   isOpen,
   onClose,
   children
@@ -39,7 +40,6 @@ export default function SliderMenu({
 
       <Wrapper
         displayTheme={theme.displayTheme}
-        hasNav={hasNav}
         ref={wrapperElementRef}
         variants={animationSlideFromBottom}
         initial="hidden"
@@ -47,17 +47,22 @@ export default function SliderMenu({
         exit="hidden"
       >
         <Body>
-          <Header>
-            <Title>{title}</Title>
-            <ExitButton onClick={onClose} />
-          </Header>
+          {hasHeader && (
+            <Header>
+              <Title>{title}</Title>
+              <ExitButton onClick={onClose} />
+            </Header>
+          )}
           {children}
         </Body>
       </Wrapper>
     </>
   ) : null;
 
-  return <AnimatePresence>{contentElement}</AnimatePresence>;
+  return createPortal(
+    <AnimatePresence>{contentElement}</AnimatePresence>,
+    document.body
+  );
 }
 
 const ExitButton = styled(CloseIcon)`
@@ -66,7 +71,6 @@ const ExitButton = styled(CloseIcon)`
 
 const Wrapper = styled(motion.div)<{
   displayTheme: DisplayTheme;
-  hasNav: boolean;
 }>`
   position: fixed;
   bottom: 0;
@@ -83,9 +87,9 @@ const Wrapper = styled(motion.div)<{
   z-index: 1000;
   overflow: scroll;
   background-color: ${(props) =>
-    props.displayTheme === "light" ? "#ffffff" : "#191919"};
-  border-radius: 10px 10px 0 0;
-  padding-bottom: ${(props) => (props.hasNav ? "66px" : "0")};
+    props.displayTheme === "light" ? "#ffffff" : "#1B1B1B"};
+  border-radius: 24px 24px 0px 0px;
+  padding: 32px 24px;
   box-sizing: border-box;
 `;
 
@@ -107,7 +111,6 @@ export const animationSlideFromBottom: Variants = {
 };
 
 const Body = styled.div`
-  padding: 1.0925rem;
   display: flex;
   gap: 15px;
   flex-direction: column;

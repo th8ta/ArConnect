@@ -543,7 +543,6 @@ export function SendView({ params: { id } }: SendViewProps) {
 
         <SliderMenu
           title={browser.i18n.getMessage("currency")}
-          hasNav
           isOpen={showTokenSelector}
           onClose={() => {
             setShownTokenSelector(false);
@@ -587,7 +586,6 @@ export function SendView({ params: { id } }: SendViewProps) {
 
         <SliderMenu
           title={browser.i18n.getMessage("send_to")}
-          hasNav
           isOpen={showSlider}
           onClose={() => {
             setShowSlider(false);
