@@ -8,8 +8,6 @@ export function AuthEmbeddedView() {
 
   // TODO: Remember last selection and highlight that one / show it in the main screen (not in "More")
 
-  // TODO: Maybe also keep the last few characters of the address (there needs to be an option to disable this)
-
   return (
     <DevFigmaScreen
       title="Sign Up or Sign In"
