@@ -211,7 +211,7 @@ export function SendView({ params: { id } }: SendViewProps) {
 
   // balance
   const [balance, setBalance] = useState("0");
-  const { data: arBalance } = useBalance();
+  const { data: arBalance = "0" } = useBalance();
 
   // Handle Recipient Input and Slider
   const [showSlider, setShowSlider] = useState<boolean>(false);

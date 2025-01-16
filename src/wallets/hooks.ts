@@ -138,7 +138,6 @@ export function useBalance() {
     gcTime: 300_000,
     retry: 3,
     select: (data) => data || "0",
-    placeholderData: "0",
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     refetchOnWindowFocus: true,
     enabled: !!activeAddress

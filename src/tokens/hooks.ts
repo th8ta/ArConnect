@@ -36,7 +36,6 @@ export function useTokenBalance(
     },
     ...defaultOptions,
     select: (data) => data || "0",
-    placeholderData: "0",
     enabled: !!address
   });
 }

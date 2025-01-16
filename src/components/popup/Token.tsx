@@ -61,7 +61,7 @@ export default function Token({
   }, [props]);
 
   const {
-    data: fractBalance,
+    data: fractBalance = "0",
     isError,
     error,
     isLoading
@@ -485,8 +485,8 @@ export function ArToken({ onClick }: ArTokenProps) {
   const [currency] = useSetting<string>("currency");
 
   // load arweave price
-  const { data: price } = useArPrice(currency);
-  const { data: balance } = useBalance();
+  const { data: price = "0" } = useArPrice(currency);
+  const { data: balance = "0" } = useBalance();
 
   // theme
   const theme = useTheme();

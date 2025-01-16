@@ -12,12 +12,12 @@ import BigNumber from "bignumber.js";
 
 export default function Balance() {
   // balance in AR
-  const { data: balance, isLoading } = useBalance();
+  const { data: balance = "0", isLoading } = useBalance();
   const [percentage, setPercentage] = useState(BigNumber("0"));
 
   // balance in local currency
   const [currency] = useSetting<string>("currency");
-  const { data: price } = useArPrice(currency);
+  const { data: price = "0" } = useArPrice(currency);
   const fiat = useMemo(
     () => BigNumber(price).multipliedBy(balance || BigNumber("0")),
     [price, balance]
