@@ -61,7 +61,7 @@ export function UnlockView() {
           <Text size="lg" weight="medium" noMargin>
             {browser.i18n.getMessage("sign_into_wander")}
           </Text>
-          <Input
+          <PasswordInput
             variant="dropdown"
             type={passwordType}
             {...passwordInput.bindings}
@@ -133,4 +133,18 @@ const InputContainer = styled.div`
   align-items: center;
   gap: 24px;
   flex: 1;
+`;
+
+const PasswordInput = styled(Input)`
+  ::-webkit-input-placeholder {
+    color: ${({ theme }) => theme.secondaryText};
+  }
+
+  :-ms-input-placeholder {
+    color: ${({ theme }) => theme.secondaryText};
+  }
+
+  ::placeholder {
+    color: ${({ theme }) => theme.secondaryText};
+  }
 `;
