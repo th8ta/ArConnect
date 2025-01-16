@@ -1,13 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueries } from "@tanstack/react-query";
 import {
   fetchTokenBalance,
   getBotegaPrice,
   getBotegaPrices,
+  useAoTokens,
   type TokenInfo
 } from "./aoTokens/ao";
 import { useMemo } from "react";
 import useSetting from "~settings/hook";
 import { getConversionRate } from "~utils/currency";
+import BigNumber from "bignumber.js";
+import { ExtensionStorage } from "~utils/storage";
+import { useStorage } from "@plasmohq/storage/hook";
 
 const defaultOptions = {
   refetchInterval: 300_000,
@@ -100,4 +104,80 @@ export function useBotegaPrices(ids?: string[], refresh?: boolean) {
     prices: convertedPrices,
     loading: pricesQuery.isLoading || conversionRateQuery.isLoading
   };
+}
+
+export function useTotalFiatBalance() {
+  const { tokens } = useAoTokens({ type: "asset", hidden: false });
+  const [address] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
+  const [currency] = useSetting("currency");
+
+  const arBalanceQuery = useQuery({
+    queryKey: ["arBalance", address],
+    queryFn: () => null,
+    enabled: false
+  });
+
+  const arPriceQuery = useQuery({
+    queryKey: ["arPrice", currency],
+    queryFn: () => null,
+    enabled: false
+  });
+
+  const conversionRateQuery = useQuery({
+    queryKey: ["conversionRate", currency],
+    queryFn: () => null,
+    enabled: false
+  });
+
+  const tokenIds = tokens.map((token) => token.id);
+  const pricesQuery = useQuery({
+    queryKey: ["botegaPrices", tokenIds?.slice().sort().join(",")],
+    queryFn: () => null,
+    enabled: false
+  });
+
+  const tokenBalanceQueries = useQueries({
+    queries: tokens.map((token) => ({
+      queryKey: ["tokenBalance", token.id, address],
+      queryFn: () => null,
+      enabled: false
+    }))
+  });
+
+  return useMemo(() => {
+    if (!address) return BigNumber(0);
+    let total = BigNumber(0);
+
+    const conversionRate = conversionRateQuery.data || 1;
+
+    if (arBalanceQuery.data && arPriceQuery.data) {
+      total = total.plus(
+        BigNumber(arBalanceQuery.data).times(arPriceQuery.data)
+      );
+    }
+
+    tokens.forEach((token, index) => {
+      const balance = tokenBalanceQueries[index].data;
+      const price = pricesQuery.data?.[token.id] || 0;
+
+      if (balance && price) {
+        total = total.plus(
+          BigNumber(balance).times(price).times(conversionRate)
+        );
+      }
+    });
+
+    return total;
+  }, [
+    tokens,
+    address,
+    arBalanceQuery.data,
+    arPriceQuery.data,
+    conversionRateQuery.data,
+    pricesQuery.data,
+    tokenBalanceQueries
+  ]);
 }

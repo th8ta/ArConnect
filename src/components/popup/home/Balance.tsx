@@ -9,6 +9,7 @@ import useSetting from "~settings/hook";
 import styled, { useTheme } from "styled-components";
 import { Text } from "@arconnect/components-rebrand";
 import BigNumber from "bignumber.js";
+import { useTotalFiatBalance } from "~tokens/hooks";
 
 export default function Balance() {
   // balance in AR
@@ -22,6 +23,7 @@ export default function Balance() {
     () => BigNumber(price).multipliedBy(balance || BigNumber("0")),
     [price, balance]
   );
+  const totalFiatBalance = useTotalFiatBalance();
 
   // balance display
   const [hideBalance, setHideBalance] = useStorage<boolean>(
@@ -78,8 +80,8 @@ export default function Balance() {
         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
           <BalanceText onClick={() => setHideBalance((val) => !val)} noMargin>
             {(!hideBalance &&
-              formatFiatBalance(fiat, currency.toLowerCase())) ||
-              "*".repeat(fiat.toFixed(2).length)}
+              formatFiatBalance(totalFiatBalance, currency.toLowerCase())) ||
+              "*".repeat(totalFiatBalance.toFixed(2).length)}
           </BalanceText>
 
           <PriceChangeIndicator
