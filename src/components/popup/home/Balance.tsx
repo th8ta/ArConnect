@@ -75,7 +75,7 @@ export default function Balance() {
     <BalanceHead>
       {isLoading && <Loading style={{ width: "20px", height: "20px" }} />}
       {!isLoading && (
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
           <BalanceText onClick={() => setHideBalance((val) => !val)} noMargin>
             {(!hideBalance &&
               formatFiatBalance(fiat, currency.toLowerCase())) ||
