@@ -24,3 +24,22 @@ export enum ErrorTypes {
   TokenNotFound = "Token not found",
   MissingTxId = "Transaction ID not found"
 }
+
+export class NetworkError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NetworkError";
+  }
+}
+
+export class BalanceFetchError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "BalanceFetchError";
+  }
+}
+
+export const isNetworkError = (error: any) =>
+  error?.message === "Failed to fetch" ||
+  error?.message?.includes("ERR_SSL_PROTOCOL_ERROR") ||
+  error?.message?.includes("ERR_CONNECTION_CLOSED");

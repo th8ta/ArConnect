@@ -1,18 +1,20 @@
 import { Text } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import Token from "../Token";
+import Token, { ArToken } from "../Token";
 import { useAoTokens } from "~tokens/aoTokens/ao";
 import { useLocation } from "~wallets/router/router.utils";
 import { Settings04 } from "@untitled-ui/icons-react";
 import { ManageAssets } from "./ManageAssets";
 import { useState } from "react";
+import { useBotegaPrices } from "~tokens/hooks";
 
 export default function Tokens() {
   const { navigate } = useLocation();
   const [open, setOpen] = useState(false);
   // all tokens
-  const [aoTokens, loading] = useAoTokens({ type: "asset" });
+  const { tokens: aoTokens } = useAoTokens({ type: "asset", hidden: false });
+  const { prices } = useBotegaPrices(aoTokens.map((t) => t.id));
 
   // handle aoClick
   function handleTokenClick(tokenId: string) {
@@ -25,19 +27,17 @@ export default function Tokens() {
         <NoTokens>{browser.i18n.getMessage("no_assets")}</NoTokens>
       )}
       <TokensList>
+        <ArToken onClick={() => handleTokenClick("AR")} />
         {aoTokens.map((token) => (
           <Token
-            loading={loading}
             key={token.id}
-            error={token.balance === null}
-            networkError={token.balance === ""}
             divisibility={token.Denomination}
             ao={true}
             type={"asset"}
             defaultLogo={token?.Logo}
             id={token.id}
             ticker={token.Ticker}
-            balance={token.balance || "0"}
+            fiatPrice={prices[token.id]}
             onClick={() => handleTokenClick(token.id)}
           />
         ))}

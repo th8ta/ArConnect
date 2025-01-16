@@ -9,6 +9,18 @@ import { useEffect } from "react";
 import { handleSyncLabelsAlarm } from "~api/background/handlers/alarms/sync-labels/sync-labels-alarm.handler";
 import { ErrorBoundary } from "~utils/error/ErrorBoundary/errorBoundary";
 import { FallbackView } from "~components/page/common/Fallback/fallback.view";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 300_000,
+      refetchInterval: 300_000,
+      retry: 2,
+      refetchOnWindowFocus: true
+    }
+  }
+});
 
 export function ArConnectBrowserExtensionApp() {
   useEffect(() => {
@@ -28,9 +40,11 @@ export function ArConnectBrowserExtensionAppRoot() {
     <ArConnectThemeProvider>
       <ErrorBoundary fallback={FallbackView}>
         <WalletsProvider redirectToWelcome>
-          <Wouter hook={useExtensionLocation}>
-            <ArConnectBrowserExtensionApp />
-          </Wouter>
+          <QueryClientProvider client={queryClient}>
+            <Wouter hook={useExtensionLocation}>
+              <ArConnectBrowserExtensionApp />
+            </Wouter>
+          </QueryClientProvider>
         </WalletsProvider>
       </ErrorBoundary>
     </ArConnectThemeProvider>

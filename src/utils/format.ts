@@ -98,9 +98,13 @@ export const formatSettingName = (name: string) => {
  * @param balance The bignumber balance value to format.
  * @returns An object containing displayBalance, tooltipBalance and showTooltip
  */
-export function formatBalance(balance: BigNumber) {
+export function formatBalance(balance: BigNumber | string) {
   let displayBalance: string;
   let showTooltip = false;
+
+  if (typeof balance === "string") {
+    balance = BigNumber(balance || "0");
+  }
 
   const tooltipBalance = balance
     .toFormat(20, BigNumber.ROUND_FLOOR)

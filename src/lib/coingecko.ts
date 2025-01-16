@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import { useState, useCallback, useEffect } from "react";
 import redstone from "redstone-api";
@@ -47,36 +48,22 @@ export async function getArPrice(currency: string) {
  * @returns Object containing price as BigNumber, loading state, and reload function
  */
 export function useArPrice(currency: string) {
-  const [price, setPrice] = useState<BigNumber>(new BigNumber(0));
-  const [loading, setLoading] = useState(true);
-
-  const fetchPrice = useCallback(async () => {
-    if (!currency) {
-      setPrice(new BigNumber(0));
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const result = await retryWithDelay(() => getArPrice(currency));
-      setPrice(new BigNumber(result || 0));
-    } catch {
-      setPrice(new BigNumber(0));
-    } finally {
-      setLoading(false);
-    }
-  }, [currency]);
-
-  useEffect(() => {
-    fetchPrice();
-  }, [fetchPrice]);
-
-  const reload = () => {
-    fetchPrice();
-  };
-
-  return { price, loading, reload };
+  return useQuery({
+    queryKey: ["arPrice", currency],
+    queryFn: async () => {
+      if (!currency) return "0";
+      const result = await getArPrice(currency);
+      return String(result || "0");
+    },
+    select: (data) => data || "0",
+    retry: 3,
+    placeholderData: "0",
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchInterval: 30_000,
+    staleTime: 30_000,
+    gcTime: 30_000,
+    enabled: !!currency
+  });
 }
 
 interface CoinGeckoPriceResult {

@@ -12,13 +12,16 @@ import BigNumber from "bignumber.js";
 
 export default function Balance() {
   // balance in AR
-  const { balance, loaded } = useBalance();
+  const { data: balance, isLoading } = useBalance();
   const [percentage, setPercentage] = useState(BigNumber("0"));
 
   // balance in local currency
   const [currency] = useSetting<string>("currency");
-  const { price } = useArPrice(currency);
-  const fiat = useMemo(() => price.multipliedBy(balance), [price, balance]);
+  const { data: price } = useArPrice(currency);
+  const fiat = useMemo(
+    () => BigNumber(price).multipliedBy(balance || BigNumber("0")),
+    [price, balance]
+  );
 
   // balance display
   const [hideBalance, setHideBalance] = useStorage<boolean>(
@@ -42,7 +45,7 @@ export default function Balance() {
 
     (async () => {
       try {
-        if (balance.isEqualTo("0")) {
+        if (balance === "0") {
           setPercentage(BigNumber(0));
           return;
         }
@@ -70,8 +73,8 @@ export default function Balance() {
 
   return (
     <BalanceHead>
-      {!loaded && <Loading style={{ width: "20px", height: "20px" }} />}
-      {loaded && (
+      {isLoading && <Loading style={{ width: "20px", height: "20px" }} />}
+      {!isLoading && (
         <div>
           <BalanceText onClick={() => setHideBalance((val) => !val)} noMargin>
             {(!hideBalance &&

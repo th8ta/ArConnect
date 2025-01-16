@@ -10,7 +10,7 @@ export default function Collectibles() {
   const { navigate } = useLocation();
 
   // all tokens
-  const [collectibles] = useAoTokens({ type: "collectible" });
+  const { tokens: collectibles } = useAoTokens({ type: "collectible" });
 
   return (
     <>

@@ -87,7 +87,7 @@ export function HomeView() {
 const HomeWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  padding-bottom: 72px;
+  padding-bottom: 100px;
 `;
 
 const HomeContent = styled.div`

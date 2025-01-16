@@ -4218,6 +4218,18 @@
   dependencies:
     defer-to-connect "^2.0.1"
 
+"@tanstack/query-core@5.64.1":
+  version "5.64.1"
+  resolved "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.64.1.tgz#d56e26b3e29fc68a89d140f1fd92900bc8f3fc86"
+  integrity sha512-978Wx4Wl4UJZbmvU/rkaM9cQtXXrbhK0lsz/UZhYIbyKYA8E4LdomTwyh2GHZ4oU0BKKoDH4YlKk2VscCUgNmg==
+
+"@tanstack/react-query@^5.64.1":
+  version "5.64.1"
+  resolved "https://registry.npmjs.org/@tanstack/react-query/-/react-query-5.64.1.tgz#46b4182f5b045299e4be8d0a91c549ac5dc0a20c"
+  integrity sha512-vW5ggHpIO2Yjj44b4sB+Fd3cdnlMJppXRBJkEHvld6FXh3j5dwWJoQo7mGtKI2RbSFyiyu/PhGAy0+Vv5ev9Eg==
+  dependencies:
+    "@tanstack/query-core" "5.64.1"
+
 "@trysound/sax@0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@trysound/sax/-/sax-0.2.0.tgz#cccaab758af56761eb7bf37af6f03f326dd798ad"

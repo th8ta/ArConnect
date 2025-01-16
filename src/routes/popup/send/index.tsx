@@ -123,7 +123,7 @@ export function SendView({ params: { id } }: SendViewProps) {
   const [currency] = useSetting<string>("currency");
 
   // aoTokens
-  const [aoTokens, loading] = useAoTokens({ refresh: true });
+  const { tokens: aoTokens, loading } = useAoTokens({ refresh: true });
 
   // set ao for following page
   const [isAo, setIsAo] = useState<boolean>(false);
@@ -211,7 +211,7 @@ export function SendView({ params: { id } }: SendViewProps) {
 
   // balance
   const [balance, setBalance] = useState("0");
-  const { balance: arBalance } = useBalance();
+  const { data: arBalance } = useBalance();
 
   // Handle Recipient Input and Slider
   const [showSlider, setShowSlider] = useState<boolean>(false);
@@ -221,13 +221,13 @@ export function SendView({ params: { id } }: SendViewProps) {
   useEffect(() => {
     (async () => {
       if (token.id === "AR") {
-        return setBalance(arBalance.toString());
+        return setBalance(arBalance);
       }
 
       // placeholder balance
       setBalance(token.balance);
     })();
-  }, [token, activeAddress, arBalance.toString(), id]);
+  }, [token, activeAddress, arBalance, id]);
 
   // token price
   const [price, setPrice] = useState("0");
@@ -330,16 +330,6 @@ export function SendView({ params: { id } }: SendViewProps) {
   }
 
   // qty text size
-  const qtySize = useMemo(() => {
-    const maxLengthDef = 7;
-    const symbol =
-      qtyMode === "token" ? token.ticker : getCurrencySymbol(currency);
-    const qtyLength = qty === "" ? 4 : qty.length;
-    const qtyLengthWithSymbol = qtyLength + symbol.length;
-
-    if (qtyLengthWithSymbol <= maxLengthDef) return defaulQtytSize;
-    return defaulQtytSize / (qtyLengthWithSymbol / maxLengthDef);
-  }, [qty, qtyMode, currency, token]);
 
   // prepare tx to send
   async function send() {
@@ -553,7 +543,7 @@ export function SendView({ params: { id } }: SendViewProps) {
 
             {aoTokens
               .filter((token) => token.type !== "collectible")
-              .map((token, i) => (
+              .map((token) => (
                 <Token
                   key={token.id}
                   ao={true}

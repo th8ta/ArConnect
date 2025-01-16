@@ -11,6 +11,7 @@ export interface Token {
   name?: string;
   ticker: string;
   type: TokenType;
+  hidden?: boolean;
   balance: string | null;
   divisibility?: number;
   decimals?: number;

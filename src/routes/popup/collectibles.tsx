@@ -11,7 +11,7 @@ export function CollectiblesView() {
   const { navigate } = useLocation();
 
   // all tokens
-  const [aoTokens] = useAoTokens({ type: "collectible" });
+  const { tokens: aoTokens } = useAoTokens({ type: "collectible" });
 
   // collectibles
   const collectibles = useMemo(

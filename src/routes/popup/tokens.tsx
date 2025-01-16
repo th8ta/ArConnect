@@ -7,11 +7,7 @@ import browser from "webextension-polyfill";
 import Token from "~components/popup/Token";
 import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
-import {
-  useAoTokens,
-  useAoTokensCache,
-  type TokenInfoWithBalance
-} from "~tokens/aoTokens/ao";
+import { useAoTokens, type TokenInfoWithBalance } from "~tokens/aoTokens/ao";
 import { ExtensionStorage } from "~utils/storage";
 import { syncAoTokens } from "~tokens/aoTokens/sync";
 
@@ -24,10 +20,7 @@ export function TokensView() {
   );
 
   // ao Tokens
-  const [aoTokens] = useAoTokens();
-
-  // ao Tokens Cache
-  const [aoTokensCache] = useAoTokensCache();
+  const { tokens: aoTokens } = useAoTokens({ type: "asset" });
 
   const { setToast } = useToasts();
 
@@ -128,7 +121,6 @@ export function TokensView() {
             defaultLogo={token?.Logo}
             id={token.id}
             ticker={token.type === "collectible" ? token.Name : token.Ticker}
-            balance={token.balance || "0"}
             onClick={(e) => {
               e.preventDefault();
               handleTokenClick(token.id);
@@ -136,25 +128,6 @@ export function TokensView() {
             onRemoveClick={(e) => {
               e.preventDefault();
               removeAoToken(token);
-            }}
-          />
-        ))}
-        {aoTokensCache.map((token) => (
-          <Token
-            key={token.id}
-            ao={true}
-            type={"asset"}
-            defaultLogo={token?.Logo}
-            id={token.id}
-            ticker={token.Ticker}
-            balance={token.balance || "0"}
-            onClick={(e) => {
-              e.preventDefault();
-              handleTokenClick(token.id);
-            }}
-            onAddClick={(e) => {
-              e.preventDefault();
-              addAoToken(token);
             }}
           />
         ))}
