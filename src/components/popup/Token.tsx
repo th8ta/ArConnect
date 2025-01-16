@@ -529,7 +529,7 @@ export function ArToken({ onClick }: ArTokenProps) {
   return (
     <Wrapper onClick={onClick}>
       <LogoAndDetails>
-        <Logo src={theme === "light" ? arLogoDark : arLogoLight} />
+        <Logo src={arLogoLight} />
         <div>
           <TokenName>AR</TokenName>
           <FiatBalance>{formattedFiatPrice}</FiatBalance>
