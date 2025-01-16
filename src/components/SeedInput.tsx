@@ -549,7 +549,7 @@ const DragText = styled.p`
   font-size: 1rem;
   font-weight: 500;
   text-align: center;
-  color: ${(props) => props.theme.theme};
+  color: ${(props) => props.theme.primaryText};
   margin: 0;
 `;
 

@@ -7,6 +7,7 @@ import type { CommonRouteProps } from "~wallets/router/router.types";
 import styled from "styled-components";
 import { Button, ListItem, ListItemIcon } from "@arconnect/components-rebrand";
 import { FolderShield, Key01, QrCode02 } from "@untitled-ui/icons-react";
+import KeystoneIcon from "url:assets/setup/keystone.svg";
 
 export type OptionsWelcomViewProps = CommonRouteProps<SetupWelcomeViewParams>;
 
@@ -57,6 +58,15 @@ export function OptionsWelcomView({ params }: OptionsWelcomViewProps) {
           >
             <Icon as={QrCode02} />
           </ListItem>
+          <ListItem
+            title={"Keystone Wallet"}
+            description=""
+            onClick={() => setSelected("keystoneLoad")}
+            active={selected === "keystoneLoad"}
+            hideSquircle
+          >
+            <Image src={KeystoneIcon} alt="Keystone Wallet" />
+          </ListItem>
         </ListContainer>
       </Content>
       <Button fullWidth onClick={done} disabled={!selected}>
@@ -91,4 +101,10 @@ const ListContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+`;
+
+const Image = styled.img`
+  height: 48px;
+  width: 48px;
+  object-fit: contain;
 `;

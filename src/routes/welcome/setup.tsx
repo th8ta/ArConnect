@@ -58,7 +58,8 @@ const ViewsBySetupMode = {
   load: [OptionsWelcomView],
   recoveryPhraseLoad: LoadViews,
   keyfileLoad: LoadViews,
-  qrLoad: LoadViews
+  qrLoad: LoadViews,
+  keystoneLoad: LoadViews
 } as const;
 
 const VIEW_TITLES_BY_SETUP_MODE = {
@@ -66,7 +67,8 @@ const VIEW_TITLES_BY_SETUP_MODE = {
   load: "import_an_account",
   recoveryPhraseLoad: "import_an_account",
   keyfileLoad: "import_an_account",
-  qrLoad: "import_an_account"
+  qrLoad: "import_an_account",
+  keystoneLoad: "import_an_account"
 } as const;
 
 const remainingLoadSubtitles = [
@@ -90,7 +92,8 @@ const VIEW_SUBTITLES_BY_SETUP_MODE = {
   load: [""],
   recoveryPhraseLoad: ["enter_recovery_phrase", ...remainingLoadSubtitles],
   keyfileLoad: ["upload_key_file", ...remainingLoadSubtitles],
-  qrLoad: ["scan_qr_code", ...remainingLoadSubtitles]
+  qrLoad: ["scan_qr_code", ...remainingLoadSubtitles],
+  keystoneLoad: ["scan_qr_code", ...remainingLoadSubtitles]
 };
 
 export type WelcomeSetupMode =
@@ -98,7 +101,8 @@ export type WelcomeSetupMode =
   | "load"
   | "recoveryPhraseLoad"
   | "keyfileLoad"
-  | "qrLoad";
+  | "qrLoad"
+  | "keystoneLoad";
 
 export interface SetupWelcomeViewParams {
   setupMode: WelcomeSetupMode;
@@ -227,7 +231,8 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
     setupMode !== "load" &&
     setupMode !== "recoveryPhraseLoad" &&
     setupMode !== "keyfileLoad" &&
-    setupMode !== "qrLoad"
+    setupMode !== "qrLoad" &&
+    setupMode !== "keystoneLoad"
   ) {
     return <Redirect to="/" />;
   }

@@ -147,7 +147,7 @@ export default function QRLoopScanner({
   );
 }
 
-const ScannerContainer = styled.div`
+export const ScannerContainer = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -157,7 +157,7 @@ const ScannerContainer = styled.div`
   height: 100%;
 `;
 
-const VideoContainer = styled.div`
+export const VideoContainer = styled.div`
   width: 100%;
   height: 350px;
   aspect-ratio: 1;

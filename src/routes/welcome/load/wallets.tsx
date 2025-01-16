@@ -6,7 +6,10 @@ import {
   getWallets,
   setActiveWallet
 } from "~wallets";
-import type { KeystoneAccount } from "~wallets/hardware/keystone";
+import {
+  decodeAccount,
+  type KeystoneAccount
+} from "~wallets/hardware/keystone";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -23,7 +26,6 @@ import {
   useModal,
   useToasts
 } from "@arconnect/components-rebrand";
-// import KeystoneButton from "~components/hardware/KeystoneButton";
 import Migrate from "~components/welcome/load/Migrate";
 import SeedInput from "~components/SeedInput";
 import Paragraph from "~components/Paragraph";
@@ -36,7 +38,12 @@ import { loadTokens } from "~tokens/token";
 import { defaultGateway } from "~gateways/gateway";
 import Arweave from "arweave";
 import { Webcam01 } from "@untitled-ui/icons-react";
-import QRLoopScanner from "~components/welcome/load/QRLoopScanner";
+import QRLoopScanner, {
+  ScannerContainer,
+  VideoContainer
+} from "~components/welcome/load/QRLoopScanner";
+import { useScanner, AnimatedQRScanner } from "@arconnect/keystone-sdk";
+import { addHardwareWallet } from "~wallets/hardware";
 
 export type WalletsWelcomeViewProps = CommonRouteProps<SetupWelcomeViewParams>;
 
@@ -293,7 +300,6 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
         )}
         {!wallet?.address ? (
           <Actions>
-            {/* <KeystoneButton onSuccess={keystoneDone} /> */}
             <Button fullWidth onClick={() => done()} loading={loading}>
               {browser.i18n.getMessage(
                 isValidRecoveryPhrase ? "continue" : "complete_recover_phrase"
@@ -413,7 +419,6 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
         )}
         {!wallet?.address ? (
           <Actions>
-            {/* <KeystoneButton onSuccess={keystoneDone} /> */}
             <Button fullWidth onClick={() => done()} loading={loading}>
               {browser.i18n.getMessage("continue")}
             </Button>
@@ -461,13 +466,17 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
                 {browser.i18n.getMessage("scan_qr_code_instruction")}
               </Text>
               {scanMode ? (
-                <QRLoopScanner
-                  onResult={(result) => {
-                    setLoadedWallet(result);
-                    setScanMode(false);
-                    done(result);
-                  }}
-                />
+                params.setupMode === "qrLoad" ? (
+                  <QRLoopScanner
+                    onResult={(result) => {
+                      setLoadedWallet(result);
+                      setScanMode(false);
+                      done(result);
+                    }}
+                  />
+                ) : (
+                  <KeystoneScanner onSuccess={keystoneDone} />
+                )
               ) : (
                 <div
                   style={{
@@ -512,10 +521,6 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
         )}
         {!wallet?.address ? (
           <Actions>
-            {/* <KeystoneButton onSuccess={keystoneDone} /> */}
-            {/* <Button fullWidth onClick={done} loading={loading}>
-              {browser.i18n.getMessage("continue")}
-            </Button> */}
             {loading && showLongWaitMessage && (
               <Text
                 variant="secondary"
@@ -541,6 +546,92 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
       </Container>
     );
 }
+
+const KeystoneScanner = ({
+  onSuccess
+}: {
+  onSuccess: (account: KeystoneAccount) => Promise<void>;
+}) => {
+  // toasts
+  const { setToast } = useToasts();
+
+  // connect modal
+  const connectModal = useModal();
+
+  // got scan result
+  const [gotResult, setGotResult] = useState(false);
+
+  // cancel scanning
+  function cancel() {
+    scanner.retry();
+    connectModal.setOpen(false);
+    setGotResult(false);
+  }
+
+  // qr-wallet scanner
+  const scanner = useScanner(async (res) => {
+    // if we already have a result
+    // return
+    if (gotResult) return;
+
+    setGotResult(true);
+
+    try {
+      // load account data
+      const account = await decodeAccount(res);
+
+      // add wallet
+      await addHardwareWallet(
+        {
+          address: account.address,
+          publicKey: account.owner,
+          xfp: account.xfp
+        },
+        "keystone"
+      );
+
+      setToast({
+        type: "success",
+        content: browser.i18n.getMessage("wallet_hardware_added", "Keystone"),
+        duration: 2300
+      });
+
+      if (onSuccess) await onSuccess(account);
+    } catch {
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage(
+          "wallet_hardware_not_added",
+          "Keystone"
+        ),
+        duration: 2300
+      });
+    }
+
+    cancel();
+  });
+
+  return (
+    <ScannerContainer>
+      <VideoContainer>
+        <AnimatedQRScanner
+          {...scanner.bindings}
+          onError={(error) =>
+            setToast({
+              type: "error",
+              duration: 2300,
+              content: browser.i18n.getMessage(`keystone_${error}`)
+            })
+          }
+        />
+      </VideoContainer>
+      <Text size="sm" variant="secondary" style={{ textAlign: "center" }}>
+        {browser.i18n.getMessage("progress")}:{" "}
+        {Math.round(scanner.progress * 100)}%
+      </Text>
+    </ScannerContainer>
+  );
+};
 
 const ModalText = styled(Text)`
   text-align: center;
