@@ -2034,13 +2034,23 @@
     "message": "Congrats on earning AO Tokens for hodling AR! 🥳",
     "description": "ao token announcement title text"
   },
-  "ao_token_send_popup": {
+  "AO_token_send_popup": {
     "message": "The AO token is non transferable until February 8th, 2025 when 15% of AO has been minted.",
     "description": "Popup description about ao token transfer"
   },
-  "ao_token_send_popup_title": {
-    "message": "AO Token Transfer Notice",
+  "EXP_token_send_popup": {
+    "message": "The EXP Token is non transferable",
     "description": "Popup description about ao token transfer"
+  },
+  "token_send_popup_title": {
+    "message": "$TOKEN$ Token Transfer Notice",
+    "description": "Popup description about token transfer",
+    "placeholders": {
+      "token": {
+        "content": "$1",
+        "example": "AO"
+      }
+    }
   },
   "ao_token_send_popup_learn_more": {
     "message": "Learn More",
