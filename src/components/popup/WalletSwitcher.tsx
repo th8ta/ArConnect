@@ -351,8 +351,8 @@ export const popoverAnimation: Variants = {
 const CloseIcon = styled(XClose)`
   cursor: pointer;
   position: absolute;
-  top: 32px;
-  right: 24px;
+  top: 0px;
+  right: 0px;
   color: ${(props) => props.theme.tertiaryText};
 `;
 
