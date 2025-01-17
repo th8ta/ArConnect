@@ -34,12 +34,18 @@ export type ExtendedTransaction = RawTransaction & {
     tickerName: string;
     denomination?: number;
     quantity: string;
+    logo?: string;
   };
 };
 
 export type GroupedTransactions = {
   [key: string]: ExtendedTransaction[];
 };
+
+export interface GroupedTransactionsByMonth {
+  title: string;
+  data: ExtendedTransaction[];
+}
 
 export function sortFn(a: ExtendedTransaction, b: ExtendedTransaction) {
   const timestampA = a.node?.block?.timestamp || Number.MAX_SAFE_INTEGER;
@@ -151,7 +157,8 @@ const processAoTransaction = async (
           ? tokenData?.Name! || tokenData?.Ticker!
           : tokenData?.Ticker! || tokenData?.Name!) ||
         formatAddress(transaction.node.recipient, 4),
-      denomination: tokenData?.Denomination || 0
+      denomination: tokenData?.Denomination || 0,
+      logo: tokenData?.Logo
     }
   };
 };
@@ -243,8 +250,49 @@ export const getTransactionDescription = (transaction: ExtendedTransaction) => {
   }
 };
 
-export const getFullMonthName = (monthYear: string) => {
+type DateFormatOptions = { month: "long"; year?: "numeric" };
+
+const formatMonthYear = (
+  monthYear: string,
+  options: DateFormatOptions
+): string => {
   const [month, year] = monthYear.split("-").map(Number);
   const date = new Date(year, month - 1);
-  return date.toLocaleString("default", { month: "long" });
+  return date.toLocaleString("default", options);
+};
+
+export const getFullMonthName = (monthYear: string) => {
+  return formatMonthYear(monthYear, { month: "long" });
+};
+
+export const getFullMonthNameWithYear = (monthYear: string) => {
+  return formatMonthYear(monthYear, { month: "long", year: "numeric" });
+};
+
+export const groupTransactionsByMonth = (
+  transactions: ExtendedTransaction[]
+): GroupedTransactionsByMonth[] => {
+  const groups = transactions.reduce((acc, transaction) => {
+    const monthYear = `${transaction.month}-${transaction.year}`;
+    if (!acc[monthYear]) {
+      acc[monthYear] = [];
+    }
+    acc[monthYear].push(transaction);
+    return acc;
+  }, {} as Record<string, ExtendedTransaction[]>);
+
+  return Object.entries(groups)
+    .map(([monthYear, transactions]) => ({
+      title: getFullMonthNameWithYear(monthYear),
+      data: transactions
+    }))
+    .sort((a, b) => {
+      const [monthA, yearA] = a.title.split(" ");
+      const [monthB, yearB] = b.title.split(" ");
+      if (yearA !== yearB) return Number(yearB) - Number(yearA);
+      return (
+        new Date(Date.parse(`${monthA} 1, 2000`)).getMonth() -
+        new Date(Date.parse(`${monthB} 1, 2000`)).getMonth()
+      );
+    });
 };

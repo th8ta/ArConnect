@@ -1,9 +1,8 @@
 import browser from "webextension-polyfill";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
 import { Loading, Text } from "@arconnect/components";
-
 import { gql } from "~gateways/api";
 import styled from "styled-components";
 import {
@@ -13,16 +12,13 @@ import {
   AR_SENT_QUERY,
   PRINT_ARWEAVE_QUERY
 } from "~notifications/utils";
-import { getArPrice } from "~lib/coingecko";
-import useSetting from "~settings/hook";
 import { printTxWorkingGateways, txHistoryGateways } from "~gateways/gateway";
-import { Spacer } from "@arconnect/components";
-import { Heading, ViewAll, TokenCount } from "../Title";
+import { ViewAll } from "../Title";
 import {
   getFormattedAmount,
-  getFormattedFiatAmount,
   getFullMonthName,
   getTransactionDescription,
+  groupTransactionsByMonth,
   processTransactions,
   sortFn,
   type ExtendedTransaction
@@ -30,24 +26,22 @@ import {
 import BigNumber from "bignumber.js";
 import { retryWithDelay } from "~utils/promises/retry";
 import { useLocation } from "~wallets/router/router.utils";
+import arLogoLight from "url:/assets/ar/logo_light.png";
+import { Logo } from "../Token";
+import { getUserAvatar } from "~lib/avatar";
 
 export default function Transactions() {
   const { navigate } = useLocation();
-  const [transactions, fetchTransactions] = useState<ExtendedTransaction[]>([]);
-  const [arPrice, setArPrice] = useState(0);
+  const [transactions, setTransactions] = useState<ExtendedTransaction[]>([]);
+
   const [loading, setLoading] = useState(false);
-  const [currency] = useSetting<string>("currency");
   const [activeAddress] = useStorage<string>({
     key: "active_address",
     instance: ExtensionStorage
   });
 
   useEffect(() => {
-    getArPrice(currency).then(setArPrice).catch();
-  }, [currency]);
-
-  useEffect(() => {
-    const getNotifications = async () => {
+    const fetchTransactions = async () => {
       setLoading(true);
       try {
         if (activeAddress) {
@@ -112,6 +106,16 @@ export default function Transactions() {
             ...printArchive
           ];
 
+          const seenIds = new Set<string>();
+          combinedTransactions = combinedTransactions.filter((transaction) => {
+            const id = transaction.node.id;
+            if (seenIds.has(id)) {
+              return false;
+            }
+            seenIds.add(id);
+            return true;
+          });
+
           combinedTransactions.sort(sortFn);
 
           combinedTransactions = combinedTransactions.map((transaction) => {
@@ -139,17 +143,7 @@ export default function Transactions() {
             }
           });
 
-          combinedTransactions = combinedTransactions.reduce(
-            (acc, transaction) => {
-              if (!acc.some((t) => t.node.id === transaction.node.id)) {
-                acc.push(transaction);
-              }
-              return acc;
-            },
-            [] as ExtendedTransaction[]
-          );
-
-          fetchTransactions(combinedTransactions);
+          setTransactions(combinedTransactions);
         }
       } catch (error) {
         console.error("Error fetching transactions", error);
@@ -158,92 +152,174 @@ export default function Transactions() {
       }
     };
 
-    getNotifications();
+    fetchTransactions();
   }, [activeAddress]);
 
-  const handleClick = (id: string) => {
-    navigate(`/transaction/${id}?back=${encodeURIComponent("/transactions")}`);
+  const groupedTransactions = useMemo(() => {
+    return groupTransactionsByMonth(transactions);
+  }, [transactions]);
+
+  const renderTransaction = (transaction: ExtendedTransaction) => {
+    return (
+      <TransactionItemComponent
+        key={transaction.node.id}
+        transaction={transaction}
+      />
+    );
   };
 
   return (
     <>
-      <Heading>
-        <ViewAll onClick={() => navigate("/transactions")}>
-          {browser.i18n.getMessage("view_all")}
-          <TokenCount>({transactions.length})</TokenCount>
-        </ViewAll>
-      </Heading>
-      <Spacer y={1} />
-      <TransactionsWrapper showBorder={transactions.length > 0 && !loading}>
-        {!loading &&
-          (transactions.length > 0 ? (
-            transactions.map((transaction, index) => (
-              <TransactionItem key={transaction.node.id}>
-                <Transaction
-                  key={transaction.node.id}
-                  onClick={() => handleClick(transaction.node.id)}
-                >
-                  <Section>
-                    <Main>{getTransactionDescription(transaction)}</Main>
-                    <Secondary>
-                      {transaction.date
-                        ? `${getFullMonthName(
-                            `${transaction.month}-${transaction.year}`
-                          )} ${transaction.day}`
-                        : "Pending"}
-                    </Secondary>
-                  </Section>
-
-                  <Section alignRight>
-                    <Main>{getFormattedAmount(transaction)}</Main>
-                    <Secondary>
-                      {getFormattedFiatAmount(transaction, arPrice, currency)}
-                    </Secondary>
-                  </Section>
-                </Transaction>
-              </TransactionItem>
-            ))
+      <TransactionsWrapper>
+        {!loading ? (
+          transactions.length > 0 ? (
+            <GroupedTransactions>
+              {groupedTransactions.map((section) => (
+                <SectionList key={section.title}>
+                  <SectionTitle>{section.title.split(" ")[0]}</SectionTitle>
+                  {section.data.map(renderTransaction)}
+                </SectionList>
+              ))}
+            </GroupedTransactions>
           ) : (
-            <NoTransactions>
-              {browser.i18n.getMessage("no_transactions")}
-            </NoTransactions>
-          ))}
-        {loading && (
-          <LoadingWrapper>
+            <NoTransactionsContainer>
+              <NoTransactions>
+                {browser.i18n.getMessage("no_transactions")}
+              </NoTransactions>
+            </NoTransactionsContainer>
+          )
+        ) : (
+          <NoTransactionsContainer>
             <Loading style={{ width: "20px", height: "20px" }} />
-          </LoadingWrapper>
+          </NoTransactionsContainer>
         )}
       </TransactionsWrapper>
+      {transactions.length > 0 && (
+        <ViewAll onClick={() => navigate("/transactions")}>
+          {browser.i18n.getMessage("view_all")} ({transactions.length})
+        </ViewAll>
+      )}
     </>
   );
 }
 
-const TransactionsWrapper = styled.div<{ showBorder: boolean }>`
+const TransactionItemComponent = ({
+  transaction
+}: {
+  transaction: ExtendedTransaction;
+}) => {
+  const [logoSource, setLogoSource] = useState<string>();
+  const { navigate } = useLocation();
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      if (transaction.aoInfo?.logo) {
+        const logo = await getUserAvatar(transaction.aoInfo.logo);
+        setLogoSource(logo!);
+      } else {
+        setLogoSource(arLogoLight);
+      }
+    };
+
+    fetchLogo();
+  }, [transaction.aoInfo?.logo]);
+
+  return (
+    <TransactionItem>
+      <Transaction
+        onClick={() => navigate(`/transaction/${transaction.node.id}`)}
+      >
+        <FlexContainer>
+          <Logo src={logoSource} alt="Token logo" />
+          <Section>
+            <Main>{getTransactionDescription(transaction)}</Main>
+            <Secondary>
+              {transaction.date
+                ? `${getFullMonthName(
+                    `${transaction.month}-${transaction.year}`
+                  )} ${transaction.day}`
+                : browser.i18n.getMessage("pending")}
+            </Secondary>
+          </Section>
+        </FlexContainer>
+        <Section alignRight>
+          <Main
+            success={
+              transaction.transactionType === "received" ||
+              transaction.transactionType === "aoReceived"
+            }
+          >
+            {transaction.transactionType === "sent" ||
+            transaction.transactionType === "aoSent" ||
+            transaction.transactionType === "printArchive"
+              ? "-"
+              : "+"}
+            {getFormattedAmount(transaction)}
+          </Main>
+        </Section>
+      </Transaction>
+    </TransactionItem>
+  );
+};
+
+const GroupedTransactions = styled.div`
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
-${(props) =>
-  props.showBorder && `border: 1px solid ${props.theme.backgroundSecondary}`}};
+  gap: 1rem;
 `;
 
-const Main = styled.h4`
-  font-weight: 500;
-  font-size: 14px;
-  margin: 0;
+const SectionList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 `;
 
-const Secondary = styled.h6`
-  margin: 0;
-  font-weight: 500;
-  color: ${(props) => props.theme.secondaryTextv2};
-  font-size: 10px;
+const SectionTitle = styled(Text).attrs({
+  weight: "medium",
+  noMargin: true
+})``;
+
+const FlexContainer = styled.div`
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+`;
+
+const NoTransactionsContainer = styled.div`
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+`;
+
+const TransactionsWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0px;
+`;
+
+const Main = styled(Text).attrs({
+  noMargin: true,
+  weight: "medium",
+  size: "sm"
+})<{ success?: boolean }>`
+  color: ${(props) => (props.success ? props.theme.success : "inherit")};
+`;
+
+const Secondary = styled(Text).attrs({
+  noMargin: true,
+  weight: "medium",
+  size: "sm"
+})`
+  color: ${(props) => props.theme.secondaryText};
 `;
 
 const Transaction = styled.div`
   display: flex;
   cursor: pointer;
   justify-content: space-between;
-  // border-bottom: 1px solid ${(props) => props.theme.backgroundSecondary};
+  align-items: center;
   padding: 8px 0;
 `;
 
@@ -252,31 +328,11 @@ const Section = styled.div<{ alignRight?: boolean }>`
 `;
 
 const TransactionItem = styled.div`
-  padding: 0 10px;
   position: relative;
 
-  &:hover {
-    background: ${(props) => props.theme.secondaryBtnHover};
-  }
-
-  &:not(:last-child)::before {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 10px;
-    right: 10px;
-    height: 1px;
-    background-color: ${(props) => props.theme.backgroundSecondary};
-  }
-
-  &:first-child {
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-  }
-
-  &:last-child {
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.8;
   }
 `;
 
@@ -284,11 +340,4 @@ const NoTransactions = styled(Text).attrs({
   noMargin: true
 })`
   text-align: center;
-`;
-
-const LoadingWrapper = styled.div`
-  margin: auto;
-  display: flex;
-  justify-content: center;
-  align-items: top;
 `;

@@ -1,4 +1,4 @@
-import { Heading, TokenCount, ViewAll } from "../Title";
+import { ViewAll } from "../Title";
 import { Spacer, Text } from "@arconnect/components";
 import browser from "webextension-polyfill";
 import Collectible from "../Collectible";
@@ -9,25 +9,14 @@ import { useAoTokens } from "~tokens/aoTokens/ao";
 export default function Collectibles() {
   const { navigate } = useLocation();
 
-  // all tokens
   const { tokens: collectibles } = useAoTokens({ type: "collectible" });
 
   return (
     <>
-      <Heading>
-        <ViewAll
-          onClick={() => {
-            if (collectibles.length === 0) return;
-            navigate("/collectibles");
-          }}
-        >
-          {browser.i18n.getMessage("view_all")}
-          <TokenCount>({collectibles.length})</TokenCount>
-        </ViewAll>
-      </Heading>
-      <Spacer y={1} />
-      {collectibles.length === 0 && (
-        <NoAssets>{browser.i18n.getMessage("no_collectibles")}</NoAssets>
+      {collectibles.length == 0 && (
+        <NoAssetsContainer>
+          <NoAssets>{browser.i18n.getMessage("no_collectibles")}</NoAssets>
+        </NoAssetsContainer>
       )}
       <CollectiblesList>
         {collectibles.slice(0, 6).map((collectible, i) => (
@@ -41,6 +30,17 @@ export default function Collectibles() {
           />
         ))}
       </CollectiblesList>
+      <Spacer y={1} />
+      {collectibles.length > 0 && (
+        <ViewAll
+          onClick={() => {
+            if (collectibles.length === 0) return;
+            navigate("/collectibles");
+          }}
+        >
+          {browser.i18n.getMessage("view_all")} ({collectibles.length})
+        </ViewAll>
+      )}
     </>
   );
 }
@@ -55,4 +55,12 @@ const NoAssets = styled(Text).attrs({
   noMargin: true
 })`
   text-align: center;
+`;
+
+const NoAssetsContainer = styled.div`
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 `;

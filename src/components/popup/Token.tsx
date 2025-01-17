@@ -419,7 +419,7 @@ export const Logo = styled.img.attrs({
   height: 40px;
   flex-shrink: 0;
   border-radius: 29px;
-  object-fit: contain;
+  object-fit: cover;
   background: #fffefc;
 
   ${(props) =>
