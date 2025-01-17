@@ -55,7 +55,7 @@ import { useContact } from "~contacts/hooks";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { useAoTokens } from "~tokens/aoTokens/ao";
 import BigNumber from "bignumber.js";
-import { AO_NATIVE_TOKEN } from "~utils/ao_import";
+import { AO_NATIVE_TOKEN, EXP_TOKEN } from "~utils/ao_import";
 import { AnnouncementPopup } from "./announcement";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 
@@ -382,8 +382,12 @@ export function SendView({ params: { id } }: SendViewProps) {
         }}
         title={browser.i18n.getMessage("send")}
       />
-      {AO_NATIVE_TOKEN === tokenID && (
-        <AnnouncementPopup isOpen={isOpen} setOpen={setOpen} />
+      {(AO_NATIVE_TOKEN === tokenID || EXP_TOKEN === tokenID) && (
+        <AnnouncementPopup
+          isOpen={isOpen}
+          setOpen={setOpen}
+          ticker={token.ticker}
+        />
       )}
       <Wrapper showOverlay={showSlider || degraded}>
         <SendForm>
