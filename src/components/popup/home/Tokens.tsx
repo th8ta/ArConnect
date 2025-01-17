@@ -1,38 +1,36 @@
 import { Text } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import Token, { ArToken } from "../Token";
-import { useAoTokens } from "~tokens/aoTokens/ao";
+import Token from "../Token";
+import { useBalanceSortedTokens } from "~tokens/aoTokens/ao";
 import { useLocation } from "~wallets/router/router.utils";
 import { Settings04 } from "@untitled-ui/icons-react";
 import { ManageAssets } from "./ManageAssets";
 import { useState } from "react";
-import { useBotegaPrices } from "~tokens/hooks";
 
 export default function Tokens() {
   const { navigate } = useLocation();
   const [open, setOpen] = useState(false);
-  // all tokens
-  const { tokens: aoTokens } = useAoTokens({ type: "asset", hidden: false });
-  const { prices } = useBotegaPrices(aoTokens.map((t) => t.id));
 
-  // handle aoClick
+  const { tokens, prices } = useBalanceSortedTokens({
+    type: "asset",
+    hidden: false
+  });
+
   function handleTokenClick(tokenId: string) {
     navigate(`/send/transfer/${tokenId}`);
   }
 
   return (
     <Cointainer>
-      {aoTokens.length === 0 && (
+      {tokens.length === 0 && (
         <NoTokens>{browser.i18n.getMessage("no_assets")}</NoTokens>
       )}
       <TokensList>
-        <ArToken onClick={() => handleTokenClick("AR")} />
-        {aoTokens.map((token) => (
+        {tokens.map((token) => (
           <Token
             key={token.id}
             divisibility={token.Denomination}
-            ao={true}
             type={"asset"}
             defaultLogo={token?.Logo}
             id={token.id}

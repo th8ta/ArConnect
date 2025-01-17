@@ -12,6 +12,8 @@ import { getConversionRate } from "~utils/currency";
 import BigNumber from "bignumber.js";
 import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
+import { EXP_TOKEN } from "~utils/ao_import";
+import { useArPrice } from "~lib/coingecko";
 
 const defaultOptions = {
   refetchInterval: 300_000,
@@ -22,6 +24,16 @@ const defaultOptions = {
     Math.min(1000 * 2 ** attemptIndex, 30000),
   refetchOnWindowFocus: true
 };
+
+export const defaultQueryCache = {
+  queryFn: () => null,
+  enabled: false,
+  staleTime: Infinity
+};
+
+export function useQueryCache<T = unknown>(queryKey: unknown[]) {
+  return useQuery({ ...defaultQueryCache, queryKey });
+}
 
 export function useTokenBalance(
   token: TokenInfo,
@@ -87,18 +99,22 @@ export function useBotegaPrices(ids?: string[], refresh?: boolean) {
     ...defaultOptions
   });
 
-  const convertedPrices = useMemo(() => {
-    if (!pricesQuery.data) return {};
+  const { data: arPrice = "0" } = useArPrice(currency);
 
-    return Object.fromEntries(
-      (ids || []).map((id) => [
-        id,
-        pricesQuery.data[id] !== null
-          ? pricesQuery.data[id] * (conversionRateQuery.data || 1)
-          : null
-      ])
-    );
-  }, [ids, pricesQuery.data, conversionRateQuery.data]);
+  const convertedPrices = useMemo(() => {
+    if (!pricesQuery.data) return { AR: +arPrice };
+
+    const pricesEntries = (ids || []).map((id) => [
+      id,
+      pricesQuery.data[id] !== null
+        ? pricesQuery.data[id] * (conversionRateQuery.data || 1)
+        : null
+    ]);
+
+    pricesEntries.push(["AR", +arPrice]);
+
+    return Object.fromEntries(pricesEntries) as Record<string, number>;
+  }, [ids, pricesQuery.data, conversionRateQuery.data, arPrice]);
 
   return {
     prices: convertedPrices,
@@ -114,36 +130,26 @@ export function useTotalFiatBalance() {
   });
   const [currency] = useSetting("currency");
 
-  const arBalanceQuery = useQuery({
-    queryKey: ["arBalance", address],
-    queryFn: () => null,
-    enabled: false
-  });
+  const { data: arPrice = "0" } = useArPrice(currency);
 
-  const arPriceQuery = useQuery({
-    queryKey: ["arPrice", currency],
-    queryFn: () => null,
-    enabled: false
-  });
+  const conversionRateQuery = useQueryCache<number>([
+    "conversionRate",
+    currency
+  ]);
 
-  const conversionRateQuery = useQuery({
-    queryKey: ["conversionRate", currency],
-    queryFn: () => null,
-    enabled: false
-  });
+  const tokenIds = tokens
+    .map((token) => token.id)
+    .filter((id) => id !== EXP_TOKEN && id !== "AR");
 
-  const tokenIds = tokens.map((token) => token.id);
-  const pricesQuery = useQuery({
-    queryKey: ["botegaPrices", tokenIds?.slice().sort().join(",")],
-    queryFn: () => null,
-    enabled: false
-  });
+  const pricesQuery = useQueryCache<Record<string, number>>([
+    "botegaPrices",
+    tokenIds?.slice().sort().join(",")
+  ]);
 
   const tokenBalanceQueries = useQueries({
     queries: tokens.map((token) => ({
       queryKey: ["tokenBalance", token.id, address],
-      queryFn: () => null,
-      enabled: false
+      ...defaultQueryCache
     }))
   });
 
@@ -153,15 +159,10 @@ export function useTotalFiatBalance() {
 
     const conversionRate = conversionRateQuery.data || 1;
 
-    if (arBalanceQuery.data && arPriceQuery.data) {
-      total = total.plus(
-        BigNumber(arBalanceQuery.data).times(arPriceQuery.data)
-      );
-    }
-
     tokens.forEach((token, index) => {
       const balance = tokenBalanceQueries[index].data;
-      const price = pricesQuery.data?.[token.id] || 0;
+      const price =
+        token.id === "AR" ? +arPrice : pricesQuery.data?.[token.id] || 0;
 
       if (balance && price) {
         total = total.plus(
@@ -174,8 +175,6 @@ export function useTotalFiatBalance() {
   }, [
     tokens,
     address,
-    arBalanceQuery.data,
-    arPriceQuery.data,
     conversionRateQuery.data,
     pricesQuery.data,
     tokenBalanceQueries

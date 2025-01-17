@@ -480,16 +480,17 @@ interface Props extends Omit<Token, "balance"> {
   disableClickEffect?: boolean;
 }
 
-export function ArToken({ onClick }: ArTokenProps) {
+export function ArToken({
+  onClick,
+  disableClickEffect,
+  ...props
+}: ArTokenProps) {
   // currency setting
   const [currency] = useSetting<string>("currency");
 
   // load arweave price
   const { data: price = "0" } = useArPrice(currency);
-  const { data: balance = "0" } = useBalance();
-
-  // theme
-  const theme = useTheme();
+  const { data: balance = "0", isLoading, error } = useBalance();
 
   // active address
   const [activeAddress] = useStorage<string>({
@@ -501,6 +502,12 @@ export function ArToken({ onClick }: ArTokenProps) {
   const [displayBalance, setDisplayBalance] = useState("0");
   const [totalBalance, setTotalBalance] = useState("");
   const [showTooltip, setShowTooltip] = useState(false);
+
+  const hasActionButton =
+    props?.onAddClick ||
+    props?.onRemoveClick ||
+    props?.onSettingsClick ||
+    props?.onHideClick;
 
   useEffect(() => {
     (async () => {
@@ -527,31 +534,89 @@ export function ArToken({ onClick }: ArTokenProps) {
   }, [balance, price, currency]);
 
   return (
-    <Wrapper onClick={onClick}>
-      <LogoAndDetails>
-        <Logo src={arLogoLight} />
-        <div>
-          <TokenName>AR</TokenName>
-          <FiatBalance>{formattedFiatPrice}</FiatBalance>
+    <Wrapper onClick={onClick} disableClickEffect={disableClickEffect}>
+      <InnerWrapper width={hasActionButton ? "86%" : "100%"} onClick={onClick}>
+        <LogoAndDetails>
+          <Logo src={arLogoLight} />
+          <div>
+            <TokenName>AR</TokenName>
+            {hasActionButton ? (
+              <FiatBalance>{balance}</FiatBalance>
+            ) : (
+              formattedFiatPrice && (
+                <FiatBalance>{formattedFiatPrice}</FiatBalance>
+              )
+            )}
+          </div>
+        </LogoAndDetails>
+        {!hasActionButton && (
+          <BalanceSection>
+            {isLoading ? (
+              <Skeleton width="80px" height="20px" />
+            ) : error instanceof BalanceFetchError ? (
+              <MessageTooltip content={DegradedMessage} position="left">
+                <WarningIcon />
+              </MessageTooltip>
+            ) : error instanceof NetworkError ? (
+              <MessageTooltip content={NetworkErrorMessage} position="left">
+                <NetworkErrorIcon />
+              </MessageTooltip>
+            ) : (
+              <>
+                {showTooltip ? (
+                  <BalanceTooltip content={totalBalance} position="topEnd">
+                    <NativeBalance>{displayBalance}</NativeBalance>
+                  </BalanceTooltip>
+                ) : (
+                  <NativeBalance>{displayBalance}</NativeBalance>
+                )}
+              </>
+            )}
+
+            <FiatBalance>{fiatBalance}</FiatBalance>
+          </BalanceSection>
+        )}
+      </InnerWrapper>
+      {hasActionButton && (
+        <div style={{ zIndex: 1 }}>
+          {props?.onAddClick ? (
+            <Button
+              fullWidth
+              onClick={props.onAddClick}
+              style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
+            >
+              <PlusIcon />
+            </Button>
+          ) : props?.onSettingsClick ? (
+            <Button
+              fullWidth
+              onClick={props.onSettingsClick}
+              style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
+            >
+              <SettingsIcon />
+            </Button>
+          ) : props?.onHideClick ? (
+            <ToggleSwitch
+              width={51}
+              height={31}
+              checked={!props.hidden}
+              setChecked={(checked) => props.onHideClick(!checked)}
+            />
+          ) : (
+            props?.onRemoveClick && (
+              <Button
+                fullWidth
+                onClick={props.onRemoveClick}
+                style={{ padding: 0, minWidth: 40, maxWidth: 40 }}
+              >
+                <TrashIcon />
+              </Button>
+            )
+          )}
         </div>
-      </LogoAndDetails>
-      {showTooltip ? (
-        <BalanceSection>
-          <BalanceTooltip content={totalBalance} position="topEnd">
-            <NativeBalance>{displayBalance}</NativeBalance>
-          </BalanceTooltip>
-          <FiatBalance>{fiatBalance}</FiatBalance>
-        </BalanceSection>
-      ) : (
-        <BalanceSection>
-          <NativeBalance>{displayBalance}</NativeBalance>
-          <FiatBalance>{fiatBalance}</FiatBalance>
-        </BalanceSection>
       )}
     </Wrapper>
   );
 }
 
-interface ArTokenProps {
-  onClick?: MouseEventHandler<HTMLDivElement>;
-}
+interface ArTokenProps extends Props {}

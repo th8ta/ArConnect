@@ -4,7 +4,7 @@ import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import { findGateway } from "~gateways/wayfinder";
 import { ExtensionStorage } from "~utils/storage";
-import { defaultAoTokens, type TokenInfo } from "./aoTokens/ao";
+import { defaultTokens, type TokenInfo } from "./aoTokens/ao";
 
 export interface Token {
   id: string;
@@ -66,6 +66,12 @@ export async function loadTokens() {
 
   // TODO: should this only be if it's undefined?
   if (!aoTokens || aoTokens.length === 0) {
-    await ExtensionStorage.set("ao_tokens", defaultAoTokens);
+    await ExtensionStorage.set("ao_tokens", defaultTokens);
+  } else {
+    const arToken = defaultTokens[0];
+    if (!aoTokens.some((t) => t.processId === arToken.processId)) {
+      aoTokens.push(arToken);
+      await ExtensionStorage.set("ao_tokens", aoTokens);
+    }
   }
 }

@@ -9,33 +9,40 @@ import {
 } from "@arconnect/components-rebrand";
 import Token from "~components/popup/Token";
 import styled from "styled-components";
-import { useAoTokens } from "~tokens/aoTokens/ao";
-import { useMemo } from "react";
+import { useAoTokens, type TokenInfo } from "~tokens/aoTokens/ao";
+import { useCallback, useMemo } from "react";
 
 interface Props {
   open: boolean;
-  close: () => any;
+  close: () => void;
 }
 
 export function ManageAssets({ open, close }: Props) {
   const { navigate } = useLocation();
   const searchInput = useInput();
 
+  const sortFn = useCallback((a: TokenInfo, b: TokenInfo) => {
+    if (!a.hidden && b.hidden) return -1;
+    if (a.hidden && !b.hidden) return 1;
+    return 0;
+  }, []);
+
   // ao Tokens
-  const { tokens: aoTokens, changeTokenVisibility } = useAoTokens({
-    type: "asset"
+  const { tokens, changeTokenVisibility } = useAoTokens({
+    type: "asset",
+    sortFn
   });
 
   const filteredTokens = useMemo(() => {
-    if (!aoTokens) return [];
-    if (!searchInput.state) return aoTokens;
+    if (!tokens) return [];
+    if (!searchInput.state) return tokens;
     const searchValue = searchInput.state.toLowerCase();
-    return aoTokens.filter((token) => {
+    return tokens.filter((token) => {
       const ticker = token?.Ticker?.toLowerCase();
       const name = token?.Name?.toLowerCase();
       return ticker?.includes(searchValue) || name?.includes(searchValue);
     });
-  }, [aoTokens, searchInput.state]);
+  }, [tokens, searchInput.state]);
 
   return (
     <SliderMenu
@@ -66,6 +73,7 @@ export function ManageAssets({ open, close }: Props) {
               }}
               hidden={token.hidden}
               onHideClick={(hidden) => {
+                console.log(token, hidden);
                 changeTokenVisibility(token.id, hidden);
               }}
               disableClickEffect

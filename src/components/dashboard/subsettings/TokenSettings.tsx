@@ -21,7 +21,7 @@ import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
 import { formatAddress } from "~utils/format";
 import { ResetButton } from "../Reset";
 import { RefreshCcw01 } from "@untitled-ui/icons-react";
-import { defaultAoTokens, type TokenInfo } from "~tokens/aoTokens/ao";
+import { defaultTokens, type TokenInfo } from "~tokens/aoTokens/ao";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 
 export interface TokenSettingsDashboardViewParams {
@@ -72,7 +72,7 @@ export function TokenSettingsDashboardView({
 
   const refreshToken = async () => {
     setLoading(true);
-    const defaultToken = defaultAoTokens.find((t) => t.processId === token.id);
+    const defaultToken = defaultTokens.find((t) => t.processId === token.id);
     if (!defaultToken) {
       try {
         const tokenInfo = (await aoToken(token.id)).info;
