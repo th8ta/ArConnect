@@ -2,7 +2,7 @@ import browser from "webextension-polyfill";
 import { useEffect, useMemo, useState } from "react";
 import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
-import { Loading, Text } from "@arconnect/components";
+import { Loading, Text } from "@arconnect/components-rebrand";
 import { gql } from "~gateways/api";
 import styled from "styled-components";
 import {
@@ -203,7 +203,7 @@ export default function Transactions() {
   );
 }
 
-const TransactionItemComponent = ({
+export const TransactionItemComponent = ({
   transaction
 }: {
   transaction: ExtendedTransaction;
@@ -243,7 +243,7 @@ const TransactionItemComponent = ({
           </Section>
         </FlexContainer>
         <Section alignRight>
-          <Main
+          <Amount
             success={
               transaction.transactionType === "received" ||
               transaction.transactionType === "aoReceived"
@@ -255,7 +255,7 @@ const TransactionItemComponent = ({
               ? "-"
               : "+"}
             {getFormattedAmount(transaction)}
-          </Main>
+          </Amount>
         </Section>
       </Transaction>
     </TransactionItem>
@@ -268,13 +268,13 @@ const GroupedTransactions = styled.div`
   gap: 1rem;
 `;
 
-const SectionList = styled.div`
+export const SectionList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 `;
 
-const SectionTitle = styled(Text).attrs({
+export const SectionTitle = styled(Text).attrs({
   weight: "medium",
   noMargin: true
 })``;
@@ -296,23 +296,27 @@ const NoTransactionsContainer = styled.div`
 const TransactionsWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 1rem 0px;
+  padding-bottom: 24px;
 `;
 
 const Main = styled(Text).attrs({
   noMargin: true,
-  weight: "medium",
-  size: "sm"
-})<{ success?: boolean }>`
-  color: ${(props) => (props.success ? props.theme.success : "inherit")};
-`;
+  weight: "semibold"
+})``;
 
 const Secondary = styled(Text).attrs({
   noMargin: true,
   weight: "medium",
-  size: "sm"
-})`
-  color: ${(props) => props.theme.secondaryText};
+  size: "sm",
+  variant: "secondary"
+})``;
+
+const Amount = styled(Text).attrs({
+  noMargin: true,
+  weight: "medium",
+  size: "md"
+})<{ success?: boolean }>`
+  color: ${(props) => (props.success ? props.theme.success : "inherit")};
 `;
 
 const Transaction = styled.div`
@@ -321,6 +325,7 @@ const Transaction = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 8px 0;
+  gap: 1rem;
 `;
 
 const Section = styled.div<{ alignRight?: boolean }>`

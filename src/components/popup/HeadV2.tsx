@@ -188,7 +188,7 @@ const HeadWrapper = styled(Section)<{
   flex-direction: row;
   width: full;
   transition: padding 0.07s ease-in-out, border-color 0.23s ease-in-out;
-  padding: ${(props) => (props.padding ? props.padding : "15px")};
+  padding: ${(props) => (props.padding ? props.padding : "24px")};
   justify-content: ${(props) => (props.center ? "center" : "space-between")};
   align-items: center;
   background-color: rgba(${(props) => props.theme.background}, 0.75);
@@ -208,7 +208,7 @@ const BackButton = styled.button`
   width: 24px;
   height: 24px;
   top: 50%;
-  left: 12px;
+  left: 24px;
   transform: translate(0, -50%);
   display: flex;
   align-items: center;
