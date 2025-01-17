@@ -38,7 +38,7 @@ export const defaultTokens: TokenInfo[] = [
     Name: "AR",
     Ticker: "AR",
     Denomination: 12,
-    Logo: "pksIv8fq1Txg77xQnXjR54wRWs5vKR4sofyZ2QwMEfQ",
+    Logo: "jZ2XPRj37W-QNb3BwWWIyEelv-7nQjBHg0g6WLX91IM",
     processId: "AR"
   },
   {

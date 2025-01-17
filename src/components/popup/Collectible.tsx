@@ -61,19 +61,22 @@ const Image = styled.div<{ src: string; fallback: string }>`
 const NameAndQty = styled.div`
   position: absolute;
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 0.25rem;
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 0.1rem 0.35rem;
-  justify-content: space-between;
+  padding: 0.5rem 0.25rem;
+  justify-content: center;
   background-color: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(5px);
-  overflow: hidden;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  flex-wrap: wrap;
   width: 100%;
   box-sizing: border-box;
-  min-width: 0;
+  max-width: 100%;
 `;
 
 const Name = styled.span`
@@ -88,7 +91,7 @@ const Name = styled.span`
 `;
 
 const Qty = styled(Name)`
-  flex: 1 0 auto;
+  flex: 0 0 auto;
   color: #a0a0a0;
 `;
 
