@@ -2771,5 +2771,9 @@
   "import_assets": {
     "message": "Import assets",
     "description": "Import assets text"
+  },
+  "transaction_details": {
+    "message": "Transaction details",
+    "description": "Transaction details text"
   }
 }

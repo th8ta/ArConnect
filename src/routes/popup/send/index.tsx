@@ -543,8 +543,6 @@ export function SendView({ params: { id } }: SendViewProps) {
           }}
         >
           <TokensList>
-            <ArToken onClick={() => updateSelectedToken("AR")} />
-
             {aoTokens
               .filter((token) => token.type !== "collectible")
               .map((token) => (

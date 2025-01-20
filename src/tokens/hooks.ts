@@ -56,7 +56,9 @@ export function useTokenBalance(
   });
 }
 
-export function useBotegaPrice(id?: string, currency = "USD") {
+export function useTokenPrice(id?: string, currency = "USD") {
+  const isArToken = id === "AR";
+
   const conversionRateQuery = useQuery({
     queryKey: ["conversionRate", currency],
     queryFn: () => getConversionRate(currency),
@@ -64,25 +66,32 @@ export function useBotegaPrice(id?: string, currency = "USD") {
   });
 
   const priceQuery = useQuery({
-    queryKey: ["botegaPrice", id],
+    queryKey: ["tokenPrice", id],
     queryFn: () => getBotegaPrice(id!),
-    enabled: !!id && id !== "AR",
+    enabled: !!id && !isArToken,
     ...defaultOptions
   });
 
+  const { data: arPrice = "0", isLoading } = useArPrice(currency);
+
   const convertedPrice = useMemo(() => {
+    if (isArToken) return +arPrice;
     if (!priceQuery.data || !conversionRateQuery.data) return null;
     return priceQuery.data * (conversionRateQuery.data || 1);
-  }, [priceQuery.data, conversionRateQuery.data]);
+  }, [priceQuery.data, conversionRateQuery.data, arPrice]);
 
   return {
-    hasPrice: priceQuery.data !== null,
-    loading: priceQuery.isLoading || conversionRateQuery.isLoading,
+    hasPrice: isArToken
+      ? !!arPrice && arPrice !== "0"
+      : priceQuery.data !== null,
+    loading: isArToken
+      ? isLoading
+      : priceQuery.isLoading || conversionRateQuery.isLoading,
     price: convertedPrice
   };
 }
 
-export function useBotegaPrices(ids?: string[], refresh?: boolean) {
+export function useTokenPrices(ids?: string[]) {
   const [currency = "USD"] = useSetting("currency");
 
   const conversionRateQuery = useQuery({
@@ -93,7 +102,7 @@ export function useBotegaPrices(ids?: string[], refresh?: boolean) {
   });
 
   const pricesQuery = useQuery({
-    queryKey: ["botegaPrices", ids?.slice().sort().join(",")],
+    queryKey: ["tokenPrices", ids?.slice().sort().join(",")],
     queryFn: () => getBotegaPrices(ids!),
     enabled: !!ids?.length,
     ...defaultOptions

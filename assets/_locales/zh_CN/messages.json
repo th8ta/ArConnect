@@ -2761,5 +2761,9 @@
     "import_assets": {
         "message": "导入资产",
         "description": "Import assets text"
+    },
+    "transaction_details": {
+        "message": "交易详情",
+        "description": "Transaction details text"
     }
 }

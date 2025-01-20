@@ -26,10 +26,11 @@ import {
 import { getTokenInfo } from "./router";
 import activeAddress from "~api/modules/active_address";
 import { findGateway } from "~gateways/wayfinder";
-import { defaultQueryCache, useBotegaPrices } from "~tokens/hooks";
+import { defaultQueryCache, useTokenPrices } from "~tokens/hooks";
 import { useQueries } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import type { Token } from "~tokens/token";
+import { getArPrice } from "~lib/coingecko";
 
 export type AoInstance = ReturnType<typeof connect>;
 
@@ -218,7 +219,7 @@ export function useBalanceSortedTokens({
     [aoTokens, type, hidden]
   );
 
-  const { prices } = useBotegaPrices(
+  const { prices } = useTokenPrices(
     tokensByHidden
       .map((t) => t.processId)
       .filter((id) => id !== "AR" && id !== EXP_TOKEN)
