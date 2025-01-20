@@ -6,7 +6,15 @@ import {
   WalletIcon,
   BellIcon
 } from "@iconicicons/react";
-import { Coins04, Settings01, Users01 } from "@untitled-ui/icons-react";
+import {
+  Coins04,
+  CreditCard01,
+  Grid01,
+  InfoCircle,
+  Settings01,
+  Users01,
+  UserSquare
+} from "@untitled-ui/icons-react";
 import settings, { getSetting } from "~settings";
 import type Setting from "~settings/setting";
 
@@ -112,12 +120,43 @@ export const allSettings: (DashboardRouteConfig | Setting)[] = [
 ];
 
 // Menu items are: wallets, apps, tokens, contact, notifications and "All Settings":
-export const quickSettingsMenuItems: DashboardRouteConfig[] = [
-  ...(basicSettings.slice(0, 5) as DashboardRouteConfig[]),
+export const quickSettingsMenuItems: Omit<
+  DashboardRouteConfig,
+  "description"
+>[] = [
+  {
+    name: "apps",
+    displayName: "connected_apps",
+    icon: Grid01,
+    component: ApplicationsDashboardView
+  },
+  {
+    name: "tokens",
+    displayName: "setting_tokens",
+    icon: Coins04,
+    component: TokensDashboardView
+  },
+  {
+    name: "contacts",
+    displayName: "setting_contacts",
+    icon: UserSquare,
+    component: ContactsDashboardView
+  },
+  {
+    name: "subscriptions",
+    displayName: "subscriptions",
+    icon: CreditCard01,
+    component: NotificationSettingsDashboardView
+  },
+  {
+    name: "about",
+    displayName: "setting_about",
+    icon: InfoCircle,
+    component: AboutDashboardView
+  },
   {
     name: "All Settings",
     displayName: "setting_all_settings",
-    description: "setting_all_settings_description",
     icon: Settings01,
     externalLink: "tabs/dashboard.html"
   }

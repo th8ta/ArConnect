@@ -2775,5 +2775,21 @@
   "transaction_details": {
     "message": "Transaction details",
     "description": "Transaction details text"
+  },
+  "connected_apps": {
+    "message": "Connected apps",
+    "description": "Connected apps text"
+  },
+  "manage_accounts": {
+    "message": "Manage accounts",
+    "description": "Manage accounts text"
+  },
+  "sign_out": {
+    "message": "Sign out",
+    "description": "Sign out text"
+  },
+  "sign_out_description": {
+    "message": "Are you sure you want to sign out of Wander?",
+    "description": "Sign out description"
   }
 }

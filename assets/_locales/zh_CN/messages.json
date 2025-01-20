@@ -2765,5 +2765,21 @@
     "transaction_details": {
         "message": "交易详情",
         "description": "Transaction details text"
+    },
+    "connected_apps": {
+        "message": "已连接的应用",
+        "description": "Connected apps text"
+    },
+    "manage_accounts": {
+        "message": "管理账户",
+        "description": "Manage accounts text"
+    },
+    "sign_out": {
+        "message": "登出",
+        "description": "Sign out text"
+    },
+    "sign_out_description": {
+        "message": "确定要登出Wander吗？",
+        "description": "Sign out description"
     }
 }

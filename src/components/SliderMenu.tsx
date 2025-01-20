@@ -6,10 +6,12 @@ import { createPortal } from "react-dom";
 import styled from "styled-components";
 
 interface SliderMenuProps {
-  title: string;
+  title?: string;
   hasHeader?: boolean;
   isOpen: boolean;
   onClose?: () => void;
+  paddingHorizontal?: number;
+  paddingVertical?: number;
   children?: React.ReactNode;
 }
 
@@ -18,6 +20,8 @@ export default function SliderMenu({
   hasHeader = true,
   isOpen,
   onClose,
+  paddingHorizontal,
+  paddingVertical,
   children
 }: SliderMenuProps) {
   const wrapperElementRef = useRef<HTMLDivElement | null>(null);
@@ -37,7 +41,8 @@ export default function SliderMenu({
       />
 
       <Wrapper
-        hasHeader={hasHeader}
+        paddingHorizontal={paddingHorizontal}
+        paddingVertical={paddingVertical}
         ref={wrapperElementRef}
         variants={animationSlideFromBottom}
         initial="hidden"
@@ -45,7 +50,7 @@ export default function SliderMenu({
         exit="hidden"
       >
         <Body>
-          {hasHeader && (
+          {hasHeader && title && (
             <Header>
               <Title>{title}</Title>
               <ExitButton onClick={onClose} />
@@ -68,7 +73,8 @@ const ExitButton = styled(CloseIcon)`
 `;
 
 const Wrapper = styled(motion.div)<{
-  hasHeader: boolean;
+  paddingHorizontal?: number;
+  paddingVertical?: number;
 }>`
   position: fixed;
   bottom: 0;
@@ -83,7 +89,8 @@ const Wrapper = styled(motion.div)<{
   background-color: ${({ theme }) =>
     theme.displayTheme === "light" ? "#ffffff" : "#1B1B1B"};
   border-radius: 24px 24px 0px 0px;
-  padding: ${({ hasHeader }) => (hasHeader ? "0px" : "32px")} 24px 32px;
+  padding: ${({ paddingVertical = 24, paddingHorizontal = 24 }) =>
+    `${paddingVertical}px ${paddingHorizontal}px ${paddingVertical}px`};
   box-sizing: border-box;
 `;
 

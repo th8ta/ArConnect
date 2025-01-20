@@ -262,7 +262,7 @@ const AvatarButton = styled.button`
   bottom: 0;
   right: 0;
   cursor: pointer;
-  padding: 0 15px;
+  padding: 0 24px;
   height: 100%;
   background: transparent;
   border: 0;
@@ -315,6 +315,6 @@ const ButtonSquircle = styled.button`
 `;
 
 const SquircleImg = styled(Squircle)`
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
 `;

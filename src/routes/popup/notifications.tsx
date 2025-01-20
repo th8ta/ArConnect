@@ -24,6 +24,7 @@ import {
 import { checkTransactionError } from "~lib/transactions";
 import type { Transaction } from "~api/background/handlers/alarms/notifications/notifications-alarm.utils";
 import { MessageDotsCircle, Wallet02 } from "@untitled-ui/icons-react";
+import { HorizontalLine } from "~components/HorizontalLine";
 
 export function NotificationsView() {
   const { navigate } = useLocation();
@@ -311,7 +312,9 @@ export function NotificationsView() {
                 </Description>
                 <TitleMessage>{formattedTxMsgs[index]}</TitleMessage>
               </NotificationItem>
-              {index !== notifications.length - 1 && <Divider />}
+              {index !== notifications.length - 1 && (
+                <HorizontalLine marginVertical={16} />
+              )}
             </NotificationWrapper>
           ))}
       </Wrapper>
@@ -390,10 +393,4 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-`;
-
-const Divider = styled.div`
-  height: 1px;
-  background-color: ${(props) => props.theme.borderDefault};
-  margin: 16px 0px;
 `;

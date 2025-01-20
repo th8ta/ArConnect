@@ -310,7 +310,6 @@ export default function WalletSwitcher({ open, close }: Props) {
             }
             title={browser.i18n.getMessage("add_account")}
             titleStyle={{ fontSize: 18, fontWeight: 500 }}
-            description={""}
             hideSquircle
             small
           >

@@ -20,7 +20,7 @@ import { ContactsView } from "~routes/popup/settings/contacts";
 import { ContactSettingsView } from "~routes/popup/settings/contacts/[address]";
 import { NewContactView } from "~routes/popup/settings/contacts/new";
 import { NotificationSettingsView } from "~routes/popup/settings/notifications";
-import { QuickSettingsView } from "~routes/popup/settings/quickSettings";
+import { MenuView } from "~routes/popup/settings";
 import { TokensSettingsView } from "~routes/popup/settings/tokens";
 import { TokenSettingsView } from "~routes/popup/settings/tokens/[id]";
 import { NewTokenSettingsView } from "~routes/popup/settings/tokens/new";
@@ -214,7 +214,7 @@ export const POPUP_ROUTES = [
   },
   {
     path: PopupPaths.QuickSettings,
-    component: QuickSettingsView
+    component: MenuView
   },
   {
     path: PopupPaths.Wallets,

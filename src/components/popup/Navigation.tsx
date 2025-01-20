@@ -60,7 +60,7 @@ const buttons = [
     icon: <Grid01 />,
     iconActive: <Grid01 color="#6B57F9" fill="#6B57F9" />,
     size: "24px",
-    route: "/send/transfer"
+    route: "/quick-settings"
   },
   {
     title: "Accounts",

@@ -17,6 +17,7 @@ import { useActiveWallet } from "~wallets/hooks";
 import Tabs from "~components/popup/home/Tabs";
 import { scheduleImportAoTokens } from "~tokens/aoTokens/sync";
 import WalletActions from "~components/popup/home/WalletActions";
+import { HorizontalLine } from "~components/HorizontalLine";
 
 export function HomeView() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -96,10 +97,4 @@ const HomeContent = styled.div`
   padding-left: 24px;
   padding-right: 24px;
   gap: 24px;
-`;
-
-const HorizontalLine = styled.div`
-  width: 100%;
-  height: 1px;
-  background: ${({ theme }) => theme.borderSecondary};
 `;
