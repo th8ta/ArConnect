@@ -22,6 +22,7 @@ import SliderMenu from "~components/SliderMenu";
 import { useState } from "react";
 import WanderIcon from "url:assets/icon.svg";
 import { removeDecryptionKey } from "~wallets/auth";
+import Online from "~components/Online";
 
 export interface QuickSettingsViewParams {
   setting?: string;
@@ -42,7 +43,12 @@ export function MenuView({ params }: QuickSettingsViewProps) {
     <Section style={{ paddingBottom: 100 }}>
       <ListItem
         height={56}
-        title={nickname}
+        title={
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {nickname}
+            <Online />
+          </div>
+        }
         subtitle={formatAddress(address, 4)}
         squircleSize={40}
         showArrow
