@@ -575,10 +575,6 @@
     "message": "输入密码导出钱包密钥文件",
     "description": "Export keyfile description"
   },
-  "edit_wallet": {
-    "message": "编辑钱包",
-    "description": "Edit wallet button"
-  },
   "remove_wallet": {
       "message": "移除钱包",
       "description": "Remove wallet button"
@@ -2781,5 +2777,21 @@
     "sign_out_description": {
         "message": "确定要登出Wander吗？",
         "description": "Sign out description"
+    },
+    "add_an_account": {
+        "message": "添加一个账户",
+        "description": "Add an account text"
+    },
+    "remove_account": {
+        "message": "移除账户",
+        "description": "Remove account text"
+    },
+    "remove_account_description": {
+        "message": "确定要继续吗？这无法撤销。",
+        "description": "Remove account description"
+    },
+    "wallet_actions": {
+        "message": "钱包操作",
+        "description": "Wallet actions text"
     }
 }

@@ -76,11 +76,7 @@ export const NavigationBar = () => {
   const { location, navigate } = useLocation();
 
   const shouldShowNavigationBar = buttons.some((button) => {
-    if (button.title === "Menu") {
-      return location.startsWith(button.route);
-    } else {
-      return location === button.route;
-    }
+    return location === button.route;
   });
 
   if (!shouldShowNavigationBar) {

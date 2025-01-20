@@ -579,10 +579,6 @@
     "message": "Enter your password to export wallet keyfile",
     "description": "Export keyfile description"
   },
-  "edit_wallet": {
-    "message": "Edit Wallet",
-    "description": "Edit wallet button"
-  },
   "remove_wallet": {
     "message": "Remove wallet",
     "description": "Remove wallet button"
@@ -2791,5 +2787,21 @@
   "sign_out_description": {
     "message": "Are you sure you want to sign out of Wander?",
     "description": "Sign out description"
+  },
+  "add_an_account": {
+    "message": "Add an account",
+    "description": "Add an account text"
+  },
+  "remove_account": {
+    "message": "Remove account",
+    "description": "Remove account text"
+  },
+  "remove_account_description": {
+    "message": "Are you sure you want to continue? This cannot be reversed.",
+    "description": "Remove account description"
+  },
+  "wallet_actions": {
+    "message": "Wallet actions",
+    "description": "Wallet actions text"
   }
 }
