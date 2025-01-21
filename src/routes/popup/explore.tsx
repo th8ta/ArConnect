@@ -1,26 +1,23 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import browser from "webextension-polyfill";
 import { PageType, trackPage } from "~utils/analytics";
 import styled from "styled-components";
 import { Input, Section, useInput, Text } from "@arconnect/components-rebrand";
-import AppIcon from "~components/popup/home/AppIcon";
 import { apps, categories, type App } from "~utils/apps";
-import { useTheme } from "~utils/theme";
 import {
   ArrowLeft,
   ArrowRight,
   LinkExternal01
 } from "@untitled-ui/icons-react";
-import { getAppURL } from "~utils/format";
+import { getAppURL, truncateMiddle } from "~utils/format";
 import WanderIcon from "url:assets/icon.svg";
 
 export function ExploreView() {
   const [filteredApps, setFilteredApps] = useState(apps);
   const searchInput = useInput();
-  const theme = useTheme();
   const categoriesRef = useRef<HTMLDivElement>(null);
 
-  const scroll = (direction: "left" | "right") => {
+  const scroll = useCallback((direction: "left" | "right") => {
     if (categoriesRef.current) {
       const scrollAmount = 100;
       categoriesRef.current.scrollBy({
@@ -28,15 +25,11 @@ export function ExploreView() {
         behavior: "smooth"
       });
     }
-  };
+  }, []);
 
-  const handleCategoryClick = (category: string) => {
-    if (category === "All") {
-      setFilteredApps(apps);
-    } else {
-      setFilteredApps(filterApps(apps, category));
-    }
-  };
+  const handleCategoryClick = useCallback((category: string) => {
+    setFilteredApps(category === "All" ? apps : filterApps(apps, "", category));
+  }, []);
 
   useEffect(() => {
     trackPage(PageType.EXPLORE);
@@ -80,30 +73,35 @@ export function ExploreView() {
           <AppWrapper
             key={index}
             onClick={() => {
-              browser.tabs.create({ url: app.links.website });
+              browser.tabs.create({ url: app.url });
             }}
           >
             <LogoDescriptionWrapper>
-              <LogoWrapper>
-                <AppShortcut
-                  bgColor={
-                    theme === "light"
-                      ? app.assets?.lightBackground
-                      : app.assets?.darkBackground
-                  }
-                >
-                  <Logo src={app.assets.logo} />
-                </AppShortcut>
-              </LogoWrapper>
+              {app.useAppIconWrapper ? (
+                <AppLinearGradientIconWrapper
+                  source={app.icon}
+                  alt={app.name}
+                  objectFit={app.objectFit}
+                />
+              ) : (
+                <AppIconWrapper
+                  source={app.icon}
+                  alt={app.name}
+                  backgroundColor={app.backgroundColor}
+                  objectFit={app.objectFit}
+                />
+              )}
               <Description>
                 <Title>
                   <AppTitle>{app.name}</AppTitle>
                   <Pill>{app.category}</Pill>
                 </Title>
-                <AppDescription>{getAppURL(app.links.website)}</AppDescription>
+                <AppDescription>
+                  {truncateMiddle(getAppURL(app.url), 30)}
+                </AppDescription>
               </Description>
             </LogoDescriptionWrapper>
-            <IconWrapper />
+            <LinkExternalIcon />
           </AppWrapper>
         ))}
       </AppList>
@@ -111,16 +109,90 @@ export function ExploreView() {
   );
 }
 
-const filterApps = (apps: App[], searchTerm: string = ""): App[] => {
-  return apps.filter(
-    (app: App) =>
-      app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filterApps = (
+  apps: App[],
+  searchTerm: string = "",
+  category?: string
+): App[] => {
+  const lowercaseSearch = searchTerm.toLowerCase();
+  return apps.filter((app: App) => {
+    if (category && category !== app.category) return false;
+
+    return (
+      !searchTerm ||
+      app.name.toLowerCase().includes(lowercaseSearch) ||
+      app.category.toLowerCase().includes(lowercaseSearch) ||
+      app.url.toLowerCase().includes(lowercaseSearch)
+    );
+  });
 };
 
-const IconWrapper = styled(LinkExternal01)`
+const IconWrapper = styled.div<{ backgroundColor?: string }>`
+  background-color: ${(props) => props.backgroundColor || "white"};
+  border-radius: 12px;
+  overflow: hidden;
+  height: 40px;
+  width: 40px;
+`;
+
+const IconImage = styled.img<{ objectFit?: "contain" | "cover" }>`
+  width: 100%;
+  height: 100%;
+  object-fit: ${(props) => props.objectFit || "contain"};
+`;
+
+const GradientWrapper = styled.div<{ colors?: string[] }>`
+  border-radius: 12px;
+  overflow: hidden;
+  height: 40px;
+  width: 40px;
+  background: ${(props) =>
+    props.colors
+      ? `linear-gradient(135deg, ${props.colors[0]} 0%, ${props.colors[1]} 100%)`
+      : "linear-gradient(135deg, #8B57FE 0%, #886DFB 100%)"};
+`;
+
+interface AppIconProps {
+  source: string;
+  alt?: string;
+  backgroundColor?: string;
+  objectFit?: "contain" | "cover";
+}
+
+function AppIconWrapper({
+  source,
+  alt,
+  backgroundColor,
+  objectFit
+}: AppIconProps) {
+  return (
+    <IconWrapper backgroundColor={backgroundColor}>
+      <IconImage src={source} alt={alt || ""} objectFit={objectFit} />
+    </IconWrapper>
+  );
+}
+
+interface AppGradientIconProps {
+  source: string;
+  alt?: string;
+  colors?: string[];
+  objectFit?: "contain" | "cover";
+}
+
+function AppLinearGradientIconWrapper({
+  source,
+  alt,
+  colors,
+  objectFit
+}: AppGradientIconProps) {
+  return (
+    <GradientWrapper colors={colors}>
+      <IconImage objectFit={objectFit} src={source} alt={alt || ""} />
+    </GradientWrapper>
+  );
+}
+
+const LinkExternalIcon = styled(LinkExternal01)`
   height: 24px;
   width: 24px;
   cursor: pointer;
@@ -181,17 +253,9 @@ const AppDescription = styled.p`
   font-size: 14px;
   font-weight: 500;
   color: ${(props) => props.theme.secondaryText};
-`;
-
-const LogoWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  height: 100%;
-`;
-
-const Logo = styled.img`
-  height: 40px;
-  width: 40px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const AppWrapper = styled.button`
@@ -206,27 +270,21 @@ const AppWrapper = styled.button`
   cursor: pointer;
   width: 100%;
   text-align: left;
+
+  transition: all 0.125s ease-in-out;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 `;
 
 const LogoDescriptionWrapper = styled.div`
   gap: 12px;
   display: flex;
-`;
-
-const AppShortcut = styled(AppIcon)<{ bgColor?: string }>`
-  transition: all 0.125s ease-in-out;
-  color: ${(props) => (props.bgColor ? props.bgColor : props.theme.background)};
-
-  width: 40px;
-  height: 40px;
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  &:active {
-    transform: scale(0.92);
-  }
 `;
 
 const Category = styled.div`
@@ -296,6 +354,12 @@ const Categories = styled.div`
   width: 100%;
   flex: 1;
   min-width: 0;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 `;
 
 const AppList = styled.div`
