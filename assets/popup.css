@@ -126,12 +126,3 @@ button {
   background: transparent;
   pointer-events: none;
 }
-
-button {
-  border: 2px solid white;
-  padding: 8px;
-}
-
-button:disabled {
-  opacity: 0.5;
-}
