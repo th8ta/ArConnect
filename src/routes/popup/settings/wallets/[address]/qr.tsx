@@ -157,7 +157,7 @@ export function GenerateQRView({ params: { address } }: GenerateQRViewProps) {
                 {browser.i18n.getMessage("generate_qr_code_title")}
               </Text>
               <Input
-                size="small"
+                sizeVariant="small"
                 type="password"
                 placeholder={browser.i18n.getMessage("password")}
                 {...passwordInput.bindings}

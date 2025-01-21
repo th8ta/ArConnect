@@ -17,6 +17,20 @@ import arswapLogo from "url:/assets/ecosystem/arswap.png";
 import liquidopsLogo from "url:/assets/ecosystem/liquidops.svg";
 import quantumLogo from "url:/assets/ecosystem/quantum-logo.svg";
 import betterideaLogo from "url:/assets/ecosystem/betteridea.png";
+import {
+  BankNote01,
+  BarChartSquare01,
+  CodeBrowser,
+  GamingPad01,
+  Globe02,
+  Grid01,
+  Image03,
+  ImageUser,
+  MessageSmileCircle,
+  Scales02,
+  Server04,
+  Users03
+} from "@untitled-ui/icons-react";
 
 export interface App {
   name: string;
@@ -39,7 +53,7 @@ export interface App {
 export const apps: App[] = [
   {
     name: "Botega",
-    category: "Exchange",
+    category: "DeFi",
     description: "Botega is the AO Computer's first decentralized exchange.",
     assets: {
       logo: botegaLogo,
@@ -71,7 +85,7 @@ export const apps: App[] = [
   },
   {
     name: "Astro",
-    category: "Defi",
+    category: "DeFi",
     description:
       "Astro introduces USDA as the first overcollateralized stablecoin on AO.",
     assets: {
@@ -88,7 +102,7 @@ export const apps: App[] = [
   },
   {
     name: "LiquidOps",
-    category: "Defi",
+    category: "DeFi",
     description:
       "A simple, secure lending & borrowing platform for AR & AO assets.",
     assets: {
@@ -104,7 +118,7 @@ export const apps: App[] = [
   },
   {
     name: "Quantum",
-    category: "Defi",
+    category: "DeFi",
     description: "Bridge. Earn and Explore the AO ecosystem with Quantum.",
     assets: {
       logo: quantumLogo,
@@ -119,7 +133,7 @@ export const apps: App[] = [
   },
   {
     name: "Bazar",
-    category: "Exchange",
+    category: "NFTs",
     description:
       "The first fully decentralized atomic asset exchange built on the permaweb. Through the power of the Universal Content Marketplace (UCM) protocol and the Universal Data License (UDL) content creators can trade digital assets with real world rights.",
     assets: {
@@ -150,7 +164,7 @@ export const apps: App[] = [
   },
   {
     name: "Dexi",
-    category: "Defi",
+    category: "DeFi",
     description:
       "Dexi autonomously identifies, collects, and aggregates financial data from events within the AO network, including asset prices, token swaps, liquidity fluctuations, and token asset characteristics.",
     assets: {
@@ -180,7 +194,7 @@ export const apps: App[] = [
   },
   {
     name: "ao Link",
-    category: "Developer Tooling",
+    category: "Dev Tools",
     description:
       "ao.link serves as a message explorer for the ao Network, offering functionalities similar to block explorers in conventional blockchain systems.",
     assets: {
@@ -211,7 +225,7 @@ export const apps: App[] = [
   },
   {
     name: "ArSwap",
-    category: "Exchange",
+    category: "DeFi",
     description:
       "Unlocking DeFi on AO. Swap tokens, provide liquidity, and earn fees.",
     assets: {
@@ -244,7 +258,7 @@ export const apps: App[] = [
   },
   {
     name: "Permapages",
-    category: "Publishing",
+    category: "Social",
     description:
       "Create and manage your own permanent web3 profile and permaweb pages built on Arweave.",
     assets: {
@@ -278,7 +292,7 @@ export const apps: App[] = [
   },
   {
     name: "BetterIDEa",
-    category: "Developer Tooling",
+    category: "Dev Tools",
     description: "Feature rich web IDE for building on AO",
     assets: {
       logo: betterideaLogo,
@@ -326,7 +340,7 @@ export const apps: App[] = [
   },
   {
     name: "Permaswap",
-    category: "Exchange",
+    category: "DeFi",
     description:
       "Permaswap is an engineering innovation to refactor AMM. Inspired by Arweave's SmartWeave, we've proposed the SCP theory. By exploring SCP, we're certain that the approach to building decentralized applications is not limited to the on-chain VM model and that the future of Dapp development will be diverse. The Permaswap Network will prove with a new architecture that decentralization should break the impossible triangle and provide users with a perfect experience.",
     assets: {
@@ -342,4 +356,19 @@ export const apps: App[] = [
       github: "https://github.com/permaswap"
     }
   }
+];
+
+export const categories = [
+  { title: "All", icon: Grid01 },
+  { title: "DeFi", icon: BankNote01 },
+  { title: "Bridge", icon: Scales02 },
+  { title: "Games", icon: GamingPad01 },
+  { title: "Decentralized AI", icon: MessageSmileCircle },
+  { title: "NFTs", icon: Image03 },
+  { title: "Social", icon: ImageUser },
+  { title: "Storage", icon: Server04 },
+  { title: "Explorers", icon: Globe02 },
+  { title: "Dev Tools", icon: CodeBrowser },
+  { title: "Community", icon: Users03 },
+  { title: "Analytics", icon: BarChartSquare01 }
 ];

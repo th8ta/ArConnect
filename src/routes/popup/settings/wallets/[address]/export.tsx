@@ -109,7 +109,7 @@ export function ExportWalletView({
               {browser.i18n.getMessage("export_keyfile_description")}
             </Text>
             <Input
-              size="small"
+              sizeVariant="small"
               type="password"
               placeholder={browser.i18n.getMessage("password")}
               {...passwordInput.bindings}

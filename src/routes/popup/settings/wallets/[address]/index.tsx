@@ -190,7 +190,7 @@ export function WalletView({ params: { address } }: WalletViewProps) {
           ) : (
             <div style={{ display: "flex", gap: "0.8rem" }}>
               <Input
-                size="small"
+                sizeVariant="small"
                 {...walletNameInput.bindings}
                 type="text"
                 placeholder={browser.i18n.getMessage("edit_wallet_name")}
