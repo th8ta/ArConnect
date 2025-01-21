@@ -1,34 +1,22 @@
 import {
   useToasts,
   Section,
-  TooltipV2,
   useInput,
   Button,
   Input,
-  Spacer,
   Text
 } from "@arconnect/components-rebrand";
-import { CheckIcon, CopyIcon } from "@iconicicons/react";
-import copy from "copy-to-clipboard";
 import { QRCodeSVG } from "qrcode.react";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type Key,
-  type MouseEventHandler
-} from "react";
+import { useEffect, useRef, useState, type Key } from "react";
 import HeadV2 from "~components/popup/HeadV2";
 import { WarningIcon } from "~components/popup/Token";
 import browser from "webextension-polyfill";
 import { Degraded, WarningWrapper } from "~routes/popup/send";
-import { formatAddress } from "~utils/format";
 import { getKeyfile, type DecryptedWallet } from "~wallets";
 import { freeDecryptedWallet } from "~wallets/encryption";
 import {
   AddressField,
   ContentWrapper,
-  CopyAction,
   QRCodeWrapper,
   Wrapper
 } from "~routes/popup/receive";
@@ -54,20 +42,6 @@ export function GenerateQRView({ params: { address } }: GenerateQRViewProps) {
   const passwordInput = useInput();
 
   const isHardware = wallet?.type === "hardware";
-
-  const copyAddress: MouseEventHandler = (e) => {
-    e.stopPropagation();
-    copy(address);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1000);
-    setToast({
-      type: "success",
-      duration: 2000,
-      content: `${formatAddress(address, 3)} ${browser.i18n.getMessage(
-        "copied_address_2"
-      )}`
-    });
-  };
 
   async function generateQr() {
     try {
@@ -116,6 +90,7 @@ export function GenerateQRView({ params: { address } }: GenerateQRViewProps) {
             navigate("/");
           }
         }}
+        showOptions={false}
       />
       <Wrapper style={{ height: "calc(100vh - 100px)" }}>
         {wallet ? (
