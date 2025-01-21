@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
 import { quickSettingsMenuItems } from "~routes/dashboard/dashboard.constants";
@@ -35,6 +35,7 @@ export function MenuView({ params }: QuickSettingsViewProps) {
   const { navigate } = useLocation();
   const activeSetting = params.setting;
 
+  const theme = useTheme();
   const { address, nickname } = useActiveWallet();
   const { wallets } = useWallets();
   const [open, setOpen] = useState(false);
@@ -62,7 +63,7 @@ export function MenuView({ params }: QuickSettingsViewProps) {
             size="lg"
             weight="medium"
             noMargin
-            style={{ textAlign: "center" }}
+            style={{ textAlign: "center", color: "white" }}
           >
             {nickname?.charAt(0)?.toUpperCase() || "A"}
           </Text>
@@ -80,7 +81,7 @@ export function MenuView({ params }: QuickSettingsViewProps) {
           navigate("/quick-settings/wallets" as PopupRoutePath);
         }}
       >
-        <Users01 height={24} width={24} />
+        <Users01 height={24} width={24} color={theme.primaryText} />
       </ListItem>
       <HorizontalLine marginVertical={12} />
       <SettingsList>

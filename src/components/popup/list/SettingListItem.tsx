@@ -35,6 +35,7 @@ export function SettingListItem({
 const ListItemIcon = styled.div`
   height: 24px;
   width: 24px;
+  color: ${(props) => props.theme.primaryText};
 `;
 
 const ExternalLinkIcon = styled(LinkExternal02)`

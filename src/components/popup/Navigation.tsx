@@ -68,7 +68,7 @@ const buttons = [
     icon: <Users01 />,
     iconActive: <Users01 color="#6B57F9" fill="#6B57F9" />,
     size: "24px",
-    route: "/receive"
+    route: "/quick-settings/wallets"
   }
 ] as const;
 
@@ -76,6 +76,7 @@ export const NavigationBar = () => {
   const { location, navigate } = useLocation();
 
   const shouldShowNavigationBar = buttons.some((button) => {
+    if (button.route === "/quick-settings/wallets") return false;
     return location === button.route;
   });
 
