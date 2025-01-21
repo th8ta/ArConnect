@@ -1,4 +1,4 @@
-import { Spacer, Text, useInput } from "@arconnect/components";
+import { Spacer, Text, useInput } from "@arconnect/components-rebrand";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";

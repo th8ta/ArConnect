@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { InputV2, Text } from "@arconnect/components";
+import { Input, Text } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
@@ -63,7 +63,7 @@ export const SignSettingsDashboardView = () => {
         />
       </ToggleSwitchWrapper>
       {signatureAllowanceEnabled && (
-        <InputV2
+        <Input
           label={browser.i18n.getMessage("password_allowance")}
           type="number"
           value={editingValue}

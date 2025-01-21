@@ -95,6 +95,9 @@ export function MenuView({ params }: QuickSettingsViewProps) {
                   url: browser.runtime.getURL(setting.externalLink)
                 });
               } else {
+                if (setting.name === "subscriptions") {
+                  return navigate(`/${setting.name}`);
+                }
                 navigate(`/quick-settings/${setting.name}` as PopupRoutePath);
               }
             }}

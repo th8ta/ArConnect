@@ -1,7 +1,8 @@
-import { ListItem, ListItemIcon } from "@arconnect/components";
+import { ListItem } from "@arconnect/components-rebrand";
 import type { Icon } from "~settings/setting";
 import browser from "webextension-polyfill";
 import type { HTMLProps } from "react";
+import styled from "styled-components";
 
 export interface SettingItemProps {
   icon: Icon;
@@ -19,12 +20,18 @@ export default function SettingListItem({
 }: SettingItemProps & HTMLProps<HTMLDivElement>) {
   return (
     <ListItem
+      titleStyle={{ fontWeight: 500 }}
       title={browser.i18n.getMessage(displayName)}
-      description={browser.i18n.getMessage(description)}
       active={active}
+      hideSquircle
+      icon={<ListItemIcon style={{ height: 24, width: 24 }} as={icon} />}
       {...props}
-    >
-      <ListItemIcon as={icon} />
-    </ListItem>
+    />
   );
 }
+
+const ListItemIcon = styled.div`
+  height: 24px;
+  width: 24px;
+  color: ${({ theme }) => theme.secondaryText};
+`;

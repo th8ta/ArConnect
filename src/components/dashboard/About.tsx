@@ -1,4 +1,4 @@
-import { Spacer, Text } from "@arconnect/components";
+import { Spacer, Text } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import logo from "url:/assets/icon512.png";
 import styled from "styled-components";

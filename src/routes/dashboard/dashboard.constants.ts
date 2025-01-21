@@ -1,16 +1,12 @@
 import { type SettingItemProps } from "~components/dashboard/list/SettingListItem";
 import {
-  GridIcon,
-  InformationIcon,
-  TrashIcon,
-  WalletIcon,
-  BellIcon
-} from "@iconicicons/react";
-import {
+  AlertOctagon,
+  Bell03,
   Coins04,
   CreditCard01,
   Grid01,
   InfoCircle,
+  Pencil02,
   Settings01,
   Users01,
   UserSquare
@@ -48,14 +44,14 @@ export const basicSettings: (DashboardRouteConfig | Setting)[] = [
     name: "wallets",
     displayName: "setting_wallets",
     description: "setting_wallets_description",
-    icon: WalletIcon,
+    icon: Users01,
     component: WalletsDashboardView
   },
   {
     name: "apps",
     displayName: "setting_apps",
     description: "setting_apps_description",
-    icon: GridIcon,
+    icon: Grid01,
     component: ApplicationsDashboardView
   },
   {
@@ -69,14 +65,14 @@ export const basicSettings: (DashboardRouteConfig | Setting)[] = [
     name: "contacts",
     displayName: "setting_contacts",
     description: "setting_contacts_description",
-    icon: Users01,
+    icon: UserSquare,
     component: ContactsDashboardView
   },
   {
     name: "notifications",
     displayName: "setting_notifications",
     description: "setting_notifications_description",
-    icon: BellIcon,
+    icon: Bell03,
     component: NotificationSettingsDashboardView
   },
   getSetting("display_theme"),
@@ -84,7 +80,7 @@ export const basicSettings: (DashboardRouteConfig | Setting)[] = [
     name: "about",
     displayName: "setting_about",
     description: "setting_about_description",
-    icon: InformationIcon,
+    icon: InfoCircle,
     component: AboutDashboardView
   }
 ];
@@ -94,7 +90,7 @@ export const advancedSettings: (DashboardRouteConfig | Setting)[] = [
     name: "transfer_settings",
     displayName: "setting_transfer_settings",
     description: "setting_transfer_settings_description",
-    icon: BellIcon,
+    icon: Pencil02,
     component: SignSettingsDashboardView
   },
   ...settings.filter((setting) => setting.name !== "display_theme"),
@@ -109,7 +105,7 @@ export const advancedSettings: (DashboardRouteConfig | Setting)[] = [
     name: "reset",
     displayName: "setting_reset",
     description: "setting_reset_description",
-    icon: TrashIcon,
+    icon: AlertOctagon,
     component: ResetDashboardView
   }
 ];
@@ -152,7 +148,8 @@ export const quickSettingsMenuItems: Omit<
     name: "about",
     displayName: "setting_about",
     icon: InfoCircle,
-    component: AboutDashboardView
+    component: AboutDashboardView,
+    externalLink: "tabs/dashboard.html#/about"
   },
   {
     name: "All Settings",

@@ -1,6 +1,11 @@
-import { InputV2, Spacer, Text, useInput } from "@arconnect/components";
+import {
+  Checkbox,
+  Input,
+  Spacer,
+  Text,
+  useInput
+} from "@arconnect/components-rebrand";
 import { setting_element_padding } from "./list/BaseElement";
-import PermissionCheckbox from "~components/auth/PermissionCheckbox";
 import type SettingType from "~settings/setting";
 import browser from "webextension-polyfill";
 import Squircle from "~components/Squircle";
@@ -11,6 +16,7 @@ import { createCoinWithAnimation } from "~api/modules/sign/animation";
 import { arconfettiIcon } from "~api/modules/sign/utils";
 import { EventType, trackEvent } from "~utils/analytics";
 import { ErrorTypes } from "~utils/error/error.utils";
+import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 
 export interface SettingDashboardViewProps {
   setting: SettingType;
@@ -65,25 +71,32 @@ export function SettingDashboardView({ setting }: SettingDashboardViewProps) {
   switch (setting.type) {
     case "boolean":
       return (
-        <PermissionCheckbox
-          checked={!!settingState}
-          onChange={() => {
-            updateSetting((val) => !val);
-            if (setting.name === "wayfinder") {
-              trackWayfinder({ tracking: !settingState });
-            }
-          }}
-        >
-          {browser.i18n.getMessage(!!settingState ? "enabled" : "disabled")}
-          <br />
-          <Text noMargin>{browser.i18n.getMessage(setting.description)}</Text>
-        </PermissionCheckbox>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <Text variant="secondary" weight="medium" noMargin>
+            {browser.i18n.getMessage(setting.description)}
+          </Text>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Text size="md" weight="medium" noMargin>
+              {browser.i18n.getMessage(!!settingState ? "enabled" : "disabled")}
+            </Text>
+
+            <ToggleSwitch
+              checked={!!settingState}
+              setChecked={() => {
+                updateSetting((val) => !val);
+                if (setting.name === "wayfinder") {
+                  trackWayfinder({ tracking: !settingState });
+                }
+              }}
+            />
+          </div>
+        </div>
       );
 
     case "number":
     case "string":
       return (
-        <InputV2
+        <Input
           label={browser.i18n.getMessage(setting.displayName)}
           type={setting.type === "string" ? "text" : "number"}
           value={settingState}
@@ -119,18 +132,17 @@ export function SettingDashboardView({ setting }: SettingDashboardViewProps) {
           <RadioWrapper>
             {setting?.options &&
               setting.options.filter(filterSearchResults).map((option, i) => (
-                <RadioItem
-                  onClick={() => {
+                <Checkbox
+                  label={fixupBooleanDisplay(option.toString())}
+                  checked={settingState === option}
+                  onChange={() => {
                     updateSetting(option);
                     if (setting.name === "arconfetti") {
                       confetti();
                     }
                   }}
                   key={i}
-                >
-                  <Radio>{settingState === option && <RadioInner />}</Radio>
-                  <Text noMargin>{fixupBooleanDisplay(option.toString())}</Text>
-                </RadioItem>
+                />
               ))}
           </RadioWrapper>
         </>
@@ -148,7 +160,7 @@ export function SettingDashboardView({ setting }: SettingDashboardViewProps) {
 export const RadioWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.05rem;
+  gap: 1.5rem;
 `;
 
 export const Radio = styled(Squircle).attrs((props) => ({

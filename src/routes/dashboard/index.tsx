@@ -1,4 +1,4 @@
-import { Card, Spacer, Text, useInput } from "@arconnect/components";
+import { Card, Spacer, Text, useInput } from "@arconnect/components-rebrand";
 import SettingListItem from "~components/dashboard/list/SettingListItem";
 import { SettingsList } from "~components/dashboard/list/BaseElement";
 import { useEffect, useMemo, useState } from "react";
@@ -271,14 +271,15 @@ const Panel = styled(Card)<{
 `;
 
 const SettingsTitle = styled(Text).attrs({
-  title: true,
+  size: "xl",
+  weight: "bold",
   noMargin: true
 })``;
 
 const MidSettingsTitle = styled(Text).attrs({
-  title: true,
-  noMargin: true
+  noMargin: true,
+  size: "3xl",
+  weight: "bold"
 })`
-  font-weight: 600;
   text-transform: capitalize;
 `;
