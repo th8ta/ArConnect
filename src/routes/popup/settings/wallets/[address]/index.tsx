@@ -240,34 +240,46 @@ export function WalletView({ params: { address } }: WalletViewProps) {
               <ListItem
                 title={"Viewblock"}
                 titleStyle={{ fontSize: 18, fontWeight: 500 }}
-                icon={<Cube01 height={24} width={24} />}
-                rightIcon={
-                  <Share03 height={24} width={24} color={theme.tertiaryText} />
+                icon={<Icon color="primary" as={Cube01} />}
+                rightIcon={<Icon color="tertiary" as={Share03} />}
+                onClick={() =>
+                  browser.tabs.create({
+                    url: `https://viewblock.io/arweave/address/${wallet.address}`
+                  })
                 }
                 hideSquircle
               />
               <ListItem
                 title={"AO Link"}
                 titleStyle={{ fontSize: 18, fontWeight: 500 }}
-                icon={<ArrowUpRight height={24} width={24} />}
-                rightIcon={
-                  <Share03 height={24} width={24} color={theme.tertiaryText} />
+                icon={<Icon color="primary" as={ArrowUpRight} />}
+                rightIcon={<Icon color="tertiary" as={Share03} />}
+                hideSquircle
+                onClick={() =>
+                  browser.tabs.create({
+                    url: `https://www.ao.link/#/entity/${wallet.address}`
+                  })
                 }
-                hideSquircle
               />
               <ListItem
-                title={"Generate QR Code"}
+                title={browser.i18n.getMessage("generate_qr_code")}
                 titleStyle={{ fontSize: 18, fontWeight: 500 }}
-                icon={<QrCode02 height={24} width={24} />}
+                icon={<Icon color="primary" as={QrCode02} />}
                 hideSquircle
                 showArrow
+                onClick={() =>
+                  navigate(`/quick-settings/wallets/${address}/qr`)
+                }
               />
               <ListItem
-                title={"Export keyfile"}
+                title={browser.i18n.getMessage("export_keyfile")}
                 titleStyle={{ fontSize: 18, fontWeight: 500 }}
-                icon={<Download01 height={24} width={24} />}
+                icon={<Icon color="primary" as={Download01} />}
                 hideSquircle
                 showArrow
+                onClick={() =>
+                  navigate(`/quick-settings/wallets/${address}/export`)
+                }
               />
             </div>
           </div>
@@ -332,7 +344,31 @@ export function WalletView({ params: { address } }: WalletViewProps) {
               >
                 {browser.i18n.getMessage("cancel")}
               </Button>
-              <RemoveButton fullWidth onClick={() => removeWallet(address)}>
+              <RemoveButton
+                fullWidth
+                onClick={async () => {
+                  try {
+                    await removeWallet(address);
+                    setToast({
+                      type: "success",
+                      content: browser.i18n.getMessage(
+                        "removed_wallet_notification"
+                      ),
+                      duration: 2000
+                    });
+                    navigate("/quick-settings/wallets");
+                  } catch (e) {
+                    console.log("Error removing wallet", e);
+                    setToast({
+                      type: "error",
+                      content: browser.i18n.getMessage(
+                        "remove_wallet_error_notification"
+                      ),
+                      duration: 2000
+                    });
+                  }
+                }}
+              >
                 {browser.i18n.getMessage("remove")}
               </RemoveButton>
             </div>
@@ -407,4 +443,11 @@ const RemoveButton = styled(Button).attrs({
       theme.displayTheme === "dark" ? "#372323" : "#ffeeed"};
     opacity: 0.8;
   }
+`;
+
+const Icon = styled(Cube01)<{ color?: "primary" | "secondary" | "tertiary" }>`
+  height: 24px;
+  width: 24px;
+  color: ${({ theme, color }) =>
+    color ? theme[`${color}Text`] : theme.primaryText};
 `;

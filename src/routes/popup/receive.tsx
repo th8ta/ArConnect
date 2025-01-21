@@ -127,6 +127,7 @@ export const AddressField = styled.div`
   border-radius: 8px;
   word-break: break-word;
   flex-wrap: wrap;
+  box-sizing: border-box;
 `;
 
 export const CopyAction = styled(CopyIcon)`
@@ -146,13 +147,13 @@ export const CopyAction = styled(CopyIcon)`
   }
 `;
 
-export const QRCodeWrapper = styled.div`
+export const QRCodeWrapper = styled.div<{ size?: number }>`
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: ${(props) => props.theme.primary};
   border-radius: 24px;
   padding: 16px;
-  width: 176px;
-  height: 176px;
+  width: ${(props) => props.size ?? 176}px;
+  height: ${(props) => props.size ?? 176}px;
 `;

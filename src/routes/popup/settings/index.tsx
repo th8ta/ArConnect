@@ -49,6 +49,7 @@ export function MenuView({ params }: QuickSettingsViewProps) {
             <Online />
           </div>
         }
+        titleStyle={{ fontWeight: 500 }}
         subtitle={formatAddress(address, 4)}
         squircleSize={40}
         showArrow
@@ -70,6 +71,7 @@ export function MenuView({ params }: QuickSettingsViewProps) {
       <Spacer y={0.75} />
       <ListItem
         height={40}
+        titleStyle={{ fontWeight: 500 }}
         title={browser.i18n.getMessage("manage_accounts")}
         subtitleExtra={wallets.length}
         hideSquircle

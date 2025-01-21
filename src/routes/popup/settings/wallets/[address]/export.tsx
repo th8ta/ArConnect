@@ -1,11 +1,11 @@
 import {
-  ButtonV2,
-  InputV2,
-  Spacer,
+  Button,
+  Input,
+  Section,
   Text,
   useInput,
   useToasts
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import { type StoredWallet } from "~wallets";
 import { useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
@@ -13,12 +13,11 @@ import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { ExtensionStorage } from "~utils/storage";
 import { downloadFile } from "~utils/file";
 import browser from "webextension-polyfill";
-import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
-import { ErrorTypes } from "~utils/error/error.utils";
 import { LoadingView } from "~components/page/common/loading/loading.view";
+import { Wrapper } from "~routes/popup/receive";
 
 export interface ExportWalletViewParams {
   address: string;
@@ -99,28 +98,32 @@ export function ExportWalletView({
         title={browser.i18n.getMessage("export_keyfile")}
         back={() => navigate(`/quick-settings/wallets/${address}`)}
       />
-      <Wrapper>
-        <Text style={{ fontSize: "0.98rem" }}>
-          {browser.i18n.getMessage("export_keyfile_description")}
-        </Text>
-        <InputV2
-          small
-          type="password"
-          placeholder={browser.i18n.getMessage("password")}
-          {...passwordInput.bindings}
-          fullWidth
-        />
-        <Spacer y={1} />
-        <ButtonV2 fullWidth onClick={exportWallet} loading={loading}>
-          {browser.i18n.getMessage("export")}
-        </ButtonV2>
+      <Wrapper style={{ height: "calc(100vh - 100px)" }}>
+        <Section
+          style={{ justifyContent: "space-between", flex: 1 }}
+          showPaddingVertical={false}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <Text noMargin>
+              {browser.i18n.getMessage("export_keyfile_description")}
+            </Text>
+            <Input
+              size="small"
+              type="password"
+              placeholder={browser.i18n.getMessage("password")}
+              {...passwordInput.bindings}
+              fullWidth
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                exportWallet();
+              }}
+            />
+          </div>
+          <Button fullWidth onClick={exportWallet} loading={loading}>
+            {browser.i18n.getMessage("export")}
+          </Button>
+        </Section>
       </Wrapper>
     </>
   );
 }
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 0 1rem;
-`;
