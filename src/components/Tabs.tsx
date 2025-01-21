@@ -10,7 +10,7 @@ interface TabType {
 }
 
 interface TabsProps {
-  tabs: readonly TabType[];
+  tabs: TabType[];
   activeTab: number;
   setActiveTab: Dispatch<SetStateAction<number>>;
 }
@@ -60,6 +60,7 @@ export default function Tabs({ tabs, activeTab, setActiveTab }: TabsProps) {
 
 const TabWrapper = styled.div`
   display: flex;
+  flex: 1;
   justify-content: center;
   align-items: center;
 `;
@@ -85,7 +86,7 @@ const TabsWrapper = styled.div`
 
 const StyledTab = styled.button<{ active?: boolean; tabId: number }>`
   display: flex;
-  width: 108px;
+  flex: 1;
   height: 32px;
   padding: 3px 10px;
   align-items: center;

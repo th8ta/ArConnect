@@ -2803,5 +2803,9 @@
   "wallet_actions": {
     "message": "Wallet actions",
     "description": "Wallet actions text"
+  },
+  "contacts": {
+    "message": "Contacts",
+    "description": "Contacts text"
   }
 }

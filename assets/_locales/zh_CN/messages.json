@@ -2793,5 +2793,9 @@
     "wallet_actions": {
         "message": "钱包操作",
         "description": "Wallet actions text"
+    },
+    "contacts": {
+        "message": "联系人",
+        "description": "Contacts text"
     }
 }
