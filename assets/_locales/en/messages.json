@@ -682,8 +682,8 @@
     "description": "Confirm button text"
   },
   "confirm_transaction": {
-    "message": "Confirm Transaction",
-    "description": "Confirm Transaction Header"
+    "message": "Confirm transaction",
+    "description": "Confirm transaction Header"
   },
   "subscription_payment": {
     "message": "Subscription Payment",
@@ -2835,5 +2835,9 @@
   "edit_note": {
     "message": "Edit note",
     "description": "Edit note text"
+  },
+  "enter_amount": {
+    "message": "Enter amount",
+    "description": "Enter amount text"
   }
 }

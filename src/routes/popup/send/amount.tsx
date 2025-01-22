@@ -244,7 +244,7 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
   const contact = useContact(recipient);
 
   // token price
-  const { price = "0" } = useTokenPrice(id || token?.id, currency);
+  const { price = "0" } = useTokenPrice(tokenID, currency);
   const tokenSearch = useInput();
 
   const filterFn = useCallback(
@@ -352,7 +352,7 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
   }
 
   const handleAddNote = () => {
-    navigate(`/send/note/`);
+    navigate(`/send/note`);
   };
 
   const amountValidationState = useMemo(() => {
@@ -552,7 +552,7 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
             fullWidth
             onClick={send}
           >
-            {browser.i18n.getMessage("next")}
+            {browser.i18n.getMessage(qty ? "next" : "enter_amount")}
           </Button>
         </BottomActions>
 

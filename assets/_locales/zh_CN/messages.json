@@ -2825,5 +2825,9 @@
     "edit_note": {
         "message": "编辑备注",
         "description": "Edit note text"
+    },
+    "enter_amount": {
+        "message": "输入金额",
+        "description": "Enter amount text"
     }
 }

@@ -865,7 +865,7 @@ const Titles = styled.div`
 `;
 
 const Wrapper = styled.div`
-  height: calc(100vh - 75px);
+  height: calc(100vh - 100px);
   position: relative;
 `;
 
