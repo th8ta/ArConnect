@@ -91,7 +91,6 @@ async function generateWalletWorkShares(
     2
   );
 
-  // TODO: Need to add Buffer polyfill
   return {
     authShare: Buffer.from(authShareBuffer).toString("base64"),
     deviceShare: Buffer.from(deviceShareBuffer).toString("base64")
@@ -130,7 +129,6 @@ async function generateWalletRecoveryShares(
     2
   );
 
-  // TODO: Need to add Buffer polyfill
   return {
     recoveryAuthShare: Buffer.from(recoveryAuthShareBuffer).toString("base64"),
     recoveryBackupShare: Buffer.from(recoveryBackupShareBuffer).toString(
