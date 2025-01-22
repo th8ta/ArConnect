@@ -287,7 +287,7 @@ export function SendView({ params: { id } }: SendViewProps) {
         }
       }
       if (recipientAddress) {
-        navigate(`/send/amount/${recipientAddress}/${id}`);
+        navigate(`/send/amount/${recipientAddress}/${id ?? "AR"}`);
       } else {
         setToast({
           type: "error",
@@ -319,7 +319,7 @@ export function SendView({ params: { id } }: SendViewProps) {
       const days = calculateDaysSinceTimestamp(recipient.timestamp);
       setOpen(days > 30);
     }
-  }, [recipient?.timestamp]);
+  }, [recipient]);
 
   return (
     <>

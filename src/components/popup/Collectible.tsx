@@ -1,14 +1,32 @@
-import { type MouseEventHandler } from "react";
+import { useMemo, type MouseEventHandler } from "react";
 import { concatGatewayURL } from "~gateways/utils";
 import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 import { hoverEffect } from "~utils/theme";
 import styled from "styled-components";
 import placeholderUrl from "url:/assets/placeholder.png";
-
 import Skeleton from "~components/Skeleton";
+import { useTokenBalance } from "~tokens/hooks";
+import { useWallets } from "~utils/wallets/wallets.hooks";
+
 export default function Collectible({ id, onClick, ...props }: Props) {
-  // gateway
   const gateway = useGateway(FULL_HISTORY);
+  const { activeAddress } = useWallets();
+
+  const tokenInfo = useMemo(() => {
+    return {
+      id,
+      processId: id,
+      Ticker: props.name,
+      Name: props.name,
+      Denomination: props.divisibility,
+      Logo: id
+    };
+  }, [props]);
+
+  const { data: balance, isLoading } = useTokenBalance(
+    tokenInfo,
+    activeAddress
+  );
 
   return (
     <Wrapper onClick={onClick}>
@@ -18,10 +36,10 @@ export default function Collectible({ id, onClick, ...props }: Props) {
       >
         <NameAndQty>
           <Name>{props.name || ""}</Name>
-          {props.balance === undefined ? (
+          {isLoading ? (
             <Skeleton width="24px" height="20px" />
           ) : (
-            <Qty>{props.balance || "0"}</Qty>
+            <Qty>{balance || "0"}</Qty>
           )}
         </NameAndQty>
       </Image>
@@ -98,8 +116,6 @@ const Qty = styled(Name)`
 interface Props {
   id: string;
   name: string;
-  balance: string;
   divisibility?: number;
-  decimals?: number;
   onClick?: MouseEventHandler<HTMLDivElement>;
 }

@@ -1059,10 +1059,6 @@
     "message": "estimated",
     "description": "estimated"
   },
-  "invalid_amount": {
-    "message": "Amount has to be more than 0",
-    "description": "Invalid tx amount message"
-  },
   "invalid_address": {
     "message": "Target is not a valid address",
     "description": "Invalid address message"
@@ -2815,5 +2811,29 @@
   "verify_full_address_description": {
     "message": "You haven’t interacted with this address recently. Please ensure the entire address is correct.",
     "description": "Verify the full address description"
+  },
+  "select_token": {
+    "message": "Select token",
+    "description": "Select token text"
+  },
+  "select_amount": {
+    "message": "Select amount",
+    "description": "Select amount text"
+  },
+  "insufficient_balance": {
+    "message": "Insufficient balance",
+    "description": "Insufficient balance text"
+  },
+  "invalid_amount": {
+    "message": "Invalid amount",
+    "description": "Invalid amount text"
+  },
+  "add_a_note": {
+    "message": "Add a note",
+    "description": "Add a note text"
+  },
+  "edit_note": {
+    "message": "Edit note",
+    "description": "Edit note text"
   }
 }

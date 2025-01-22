@@ -1047,10 +1047,6 @@
     "message": "预计",
     "description": "estimated"
   },
-  "invalid_amount": {
-      "message": "金额必须大于 0",
-      "description": "Invalid tx amount message"
-  },
   "invalid_address": {
       "message": "目标地址无效",
       "description": "Invalid address message"
@@ -2805,5 +2801,29 @@
     "verify_full_address_description": {
         "message": "您最近没有与这个地址互动。请确保整个地址正确。",
         "description": "Verify the full address description"
+    },
+    "select_token": {
+        "message": "选择代币",
+        "description": "Select token text"
+    },
+    "select_amount": {
+        "message": "选择数量",
+        "description": "Select amount text"
+    },
+    "insufficient_balance": {
+        "message": "余额不足",
+        "description": "Insufficient balance text"
+    },
+    "invalid_amount": {
+        "message": "金额无效",
+        "description": "Invalid amount text"
+    },
+    "add_a_note": {
+        "message": "添加备注",
+        "description": "Add a note text"
+    },
+    "edit_note": {
+        "message": "编辑备注",
+        "description": "Edit note text"
     }
 }

@@ -30,7 +30,6 @@ import { defaultQueryCache, useTokenPrices } from "~tokens/hooks";
 import { useQueries } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import type { Token } from "~tokens/token";
-import { getArPrice } from "~lib/coingecko";
 
 export type AoInstance = ReturnType<typeof connect>;
 
@@ -118,7 +117,6 @@ export function useAoTokens({
   hidden,
   sortFn
 }: {
-  refresh?: boolean;
   type?: "asset" | "collectible";
   hidden?: boolean;
   sortFn?: (a: TokenInfo, b: TokenInfo) => number;
@@ -281,7 +279,7 @@ export async function getArTokenBalance(address: string) {
   if (isNaN(+winstonBalance)) {
     throw new Error("Invalid balance returned");
   }
-  const arBalance = arweave.ar.winstonToAr(winstonBalance);
+  const arBalance = BigNumber(winstonBalance).shiftedBy(-12).toFixed();
   return arBalance;
 }
 

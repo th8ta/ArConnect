@@ -433,7 +433,7 @@ export const Logo = styled.img.attrs({
 export const TokenName = styled(Text).attrs({
   noMargin: true,
   weight: "semibold",
-  size: "md"
+  lineHeight: 1.4
 })``;
 
 const NativeBalance = styled(Text).attrs({

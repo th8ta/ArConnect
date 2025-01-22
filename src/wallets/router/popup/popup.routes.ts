@@ -39,6 +39,7 @@ import { TransactionsView } from "~routes/popup/transaction/transactions";
 import { UnlockView } from "~routes/popup/unlock";
 import { getExtensionOverrides } from "~wallets/router/extension/extension.routes";
 import type { RouteConfig } from "~wallets/router/router.types";
+import { NoteView } from "~routes/popup/send/note";
 
 export type PopupRoutePath =
   | "/"
@@ -50,6 +51,7 @@ export type PopupRoutePath =
   | `/send/transfer/${string}`
   | `/send/amount/${string}/${string}`
   | `/send/auth/${string}`
+  | `/send/note`
   | `/explore`
   | `/subscriptions`
   | `/subscriptions/${string}`
@@ -91,6 +93,7 @@ export const PopupPaths = {
   Receive: "/receive",
   Send: "/send/transfer/:id?",
   Amount: "/send/amount/:recipient/:id?",
+  Note: "/send/note",
   SendAuth: "/send/auth/:tokenID?",
   Explore: "/explore",
   Subscriptions: "/subscriptions",
@@ -156,6 +159,10 @@ export const POPUP_ROUTES = [
   {
     path: PopupPaths.Amount,
     component: AmountView
+  },
+  {
+    path: PopupPaths.Note,
+    component: NoteView
   },
   {
     path: PopupPaths.SendAuth,

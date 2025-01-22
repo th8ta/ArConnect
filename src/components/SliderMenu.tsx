@@ -13,6 +13,7 @@ interface SliderMenuProps {
   paddingHorizontal?: number;
   paddingVertical?: number;
   children?: React.ReactNode;
+  height?: number | string;
 }
 
 export default function SliderMenu({
@@ -22,6 +23,7 @@ export default function SliderMenu({
   onClose,
   paddingHorizontal,
   paddingVertical,
+  height,
   children
 }: SliderMenuProps) {
   const wrapperElementRef = useRef<HTMLDivElement | null>(null);
@@ -41,6 +43,8 @@ export default function SliderMenu({
       />
 
       <Wrapper
+        height={height}
+        hasHeader={hasHeader && !!title}
         paddingHorizontal={paddingHorizontal}
         paddingVertical={paddingVertical}
         ref={wrapperElementRef}
@@ -75,11 +79,13 @@ const ExitButton = styled(CloseIcon)`
 const Wrapper = styled(motion.div)<{
   paddingHorizontal?: number;
   paddingVertical?: number;
+  hasHeader?: boolean;
+  height?: number | string;
 }>`
   position: fixed;
   bottom: 0;
   left: 0;
-  height: auto;
+  height: ${({ height }) => height || "auto"};
   max-height: calc(100% - 66px);
   display: flex;
   flex-direction: column;
@@ -90,7 +96,8 @@ const Wrapper = styled(motion.div)<{
     theme.displayTheme === "light" ? "#ffffff" : "#1B1B1B"};
   border-radius: 24px 24px 0px 0px;
   padding: ${({ paddingVertical = 24, paddingHorizontal = 24 }) =>
-    `${paddingVertical}px ${paddingHorizontal}px ${paddingVertical}px`};
+    `${paddingVertical}px ${paddingHorizontal}px`};
+  ${({ hasHeader }) => hasHeader && "padding-top: 0;"}
   box-sizing: border-box;
 `;
 
@@ -113,7 +120,6 @@ export const animationSlideFromBottom: Variants = {
 
 const Body = styled.div`
   display: flex;
-  gap: 15px;
   flex-direction: column;
   position: relative;
 `;
