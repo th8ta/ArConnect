@@ -15,6 +15,31 @@ import { EmbeddedProvider } from "~utils/embedded/embedded.provider";
 export function ArConnectEmbeddedApp() {
   useEffect(() => {
     handleSyncLabelsAlarm();
+
+    window.addEventListener("message", (event: MessageEvent) => {
+      if (!event.data) return;
+
+      // Example: check if the message is from our SDK
+      if (event.data.type === "FROM_SDK") {
+        const incomingMsg = event.data.payload;
+        console.log(
+          "Iframe received message from WanderEmbedded:",
+          incomingMsg
+        );
+
+        // Respond back
+        event.source?.postMessage({
+          type: "FROM_IFRAME",
+          payload: `Got your message: ${incomingMsg}`
+        });
+      }
+    });
+
+    return () => {
+      window.removeEventListener("message", (event: MessageEvent) => {
+        if (!event.data) return;
+      });
+    };
   }, []);
 
   return (
