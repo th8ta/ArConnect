@@ -2797,5 +2797,13 @@
     "contacts": {
         "message": "联系人",
         "description": "Contacts text"
+    },
+    "verify_full_address": {
+        "message": "验证完整地址",
+        "description": "Verify the full address text"
+    },
+    "verify_full_address_description": {
+        "message": "您最近没有与这个地址互动。请确保整个地址正确。",
+        "description": "Verify the full address description"
     }
 }

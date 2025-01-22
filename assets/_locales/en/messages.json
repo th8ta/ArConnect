@@ -2807,5 +2807,13 @@
   "contacts": {
     "message": "Contacts",
     "description": "Contacts text"
+  },
+  "verify_full_address": {
+    "message": "Verify the full address",
+    "description": "Verify the full address text"
+  },
+  "verify_full_address_description": {
+    "message": "You haven’t interacted with this address recently. Please ensure the entire address is correct.",
+    "description": "Verify the full address description"
   }
 }

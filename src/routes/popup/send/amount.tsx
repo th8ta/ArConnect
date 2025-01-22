@@ -93,7 +93,7 @@ export interface SendViewParams {
 
 export type SendViewProps = CommonRouteProps<SendViewParams>;
 
-export function SendView({ params: { id } }: SendViewProps) {
+export function AmountView({ params: { id } }: SendViewProps) {
   const { navigate, back } = useLocation();
   const theme = useTheme();
 

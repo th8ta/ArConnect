@@ -1,20 +1,38 @@
 import { PageType, trackPage } from "~utils/analytics";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import {
   Button,
   Input,
   Section,
-  useInput
+  useInput,
+  Text,
+  ListItem,
+  useToasts
 } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import { type Token as TokenInterface } from "~tokens/token";
-import { useLocation } from "~wallets/router/router.utils";
 import HeadV2 from "~components/popup/HeadV2";
-import { type Contact } from "~components/Recipient";
+import {
+  generateProfileIcon,
+  type Contact,
+  type Contacts
+} from "~components/Recipient";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { Flex } from "~components/common/Flex";
 import Tabs from "~components/Tabs";
+import { useContacts, type Recipient } from "~contacts/hooks";
+import { useWallets } from "~utils/wallets/wallets.hooks";
+import { formatAddress, isAddressFormat } from "~utils/format";
+import { User01 } from "@untitled-ui/icons-react";
+import {
+  calculateDaysSinceTimestamp,
+  humanizeTimestampForRecipient
+} from "~utils/timestamp";
+import { isANS, getAnsProfileByLabel } from "~lib/ans";
+import { searchArNSName } from "~lib/arns";
+import SliderMenu from "~components/SliderMenu";
+import { useLocation } from "~wallets/router/router.utils";
 
 // default size for the qty text
 export const arPlaceholder: TokenInterface = {
@@ -29,6 +47,7 @@ export const arPlaceholder: TokenInterface = {
 export type RecipientType = {
   contact?: Contact;
   address: string;
+  timestamp?: number;
 };
 
 export interface TransactionData {
@@ -49,25 +68,262 @@ export interface SendViewParams {
 
 export type SendViewProps = CommonRouteProps<SendViewParams>;
 
-export function SendView({}: SendViewProps) {
-  const { back } = useLocation();
+interface OnClickRecipient {
+  address: string;
+  contact?: Contact;
+  timestamp?: number;
+}
+
+const ContactsTab = ({
+  filteredAndGroupedContacts,
+  hasContacts,
+  onClick,
+  activeRecipient
+}: {
+  filteredAndGroupedContacts: Record<string, Contacts>;
+  hasContacts: boolean;
+  onClick?: (recipient: OnClickRecipient) => void;
+  activeRecipient: string;
+}) => {
+  return (
+    <ContactsSection>
+      {hasContacts ? (
+        <Flex direction="column" gap={16}>
+          {Object.keys(filteredAndGroupedContacts).map((letter) => (
+            <ContactList key={letter}>
+              <ContactAddress>{letter}</ContactAddress>
+
+              {filteredAndGroupedContacts[letter].map((contact) => (
+                <ListItem
+                  title={contact?.name}
+                  subtitle={formatAddress(contact.address, 4)}
+                  img={
+                    contact.profileIcon
+                      ? contact.profileIcon
+                      : generateProfileIcon(contact?.name || contact.address)
+                  }
+                  squircleSize={40}
+                  height={56}
+                  key={contact.address}
+                  onClick={() => onClick({ contact, address: contact.address })}
+                  active={activeRecipient === contact.address}
+                />
+              ))}
+            </ContactList>
+          ))}
+        </Flex>
+      ) : (
+        <Text noMargin>{browser.i18n.getMessage("no_contacts")}</Text>
+      )}
+    </ContactsSection>
+  );
+};
+
+const RecipientsTab = ({
+  possibleTargets,
+  contacts,
+  onClick,
+  activeRecipient
+}: {
+  possibleTargets: Recipient[];
+  contacts: Contacts;
+  onClick?: (recipient: OnClickRecipient) => void;
+  activeRecipient: string;
+}) => {
+  const recipients = useMemo(() => {
+    return possibleTargets.map((target) => ({
+      address: target.address,
+      contact: contacts.find((contact) => contact.address === target.address),
+      timestamp: target.timestamp
+    }));
+  }, [contacts, possibleTargets]);
+
+  return (
+    <AddressesList>
+      {recipients.map((recipient) => (
+        <ListItem
+          title={formatAddress(recipient.address, 4)}
+          subtitle={
+            recipient?.timestamp &&
+            humanizeTimestampForRecipient(recipient.timestamp)
+          }
+          img={
+            recipient?.contact?.profileIcon && recipient?.contact?.profileIcon
+          }
+          icon={!recipient?.contact && <User01 height={24} width={24} />}
+          squircleSize={40}
+          height={56}
+          key={recipient.address}
+          onClick={() =>
+            onClick({
+              address: recipient.address,
+              timestamp: recipient.timestamp,
+              contact: recipient.contact
+            })
+          }
+          active={activeRecipient === recipient.address}
+        />
+      ))}
+    </AddressesList>
+  );
+};
+
+export function SendView({ params: { id } }: SendViewProps) {
+  const { navigate } = useLocation();
   const addressInput = useInput();
+  const { activeAddress } = useWallets();
+  const { setToast } = useToasts();
+  const { lastRecipients, storedContacts } = useContacts(activeAddress);
 
+  const [recipient, setRecipient] = useState<RecipientType>({ address: "" });
   const [activeTab, setActiveTab] = useState(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
 
-  const tabs = [
-    { id: 0, name: "contacts", component: () => null },
-    { id: 1, name: "recents", component: () => null }
-  ] as const;
+  const possibleTargets = useMemo(() => {
+    const query = addressInput.state;
+
+    if (!query || query === "") {
+      return lastRecipients;
+    }
+
+    if (isAddressFormat(query)) {
+      return [{ address: addressInput.state }];
+    }
+
+    return lastRecipients.filter(({ address }) =>
+      address.toLowerCase().includes(query.toLowerCase())
+    );
+  }, [lastRecipients, addressInput]);
+
+  const filteredAndGroupedContacts = useMemo(() => {
+    const query = addressInput.state ? addressInput.state.toLowerCase() : "";
+
+    const filteredContacts = storedContacts.filter(
+      (contact) =>
+        contact?.name.toLowerCase().includes(query) ||
+        contact.address.toLowerCase().includes(query)
+    );
+
+    return filteredContacts.reduce((groups, contact) => {
+      let letter = contact.name
+        ? contact?.name[0].toUpperCase()
+        : contact.address[0].toUpperCase();
+
+      if (!letter.match(/[A-Z]/)) {
+        letter = "0-9";
+      }
+
+      if (!groups[letter]) {
+        groups[letter] = [];
+      }
+      groups[letter].push(contact);
+      return groups;
+    }, {} as Record<string, Contacts>);
+  }, [storedContacts, addressInput.state]);
+
+  const hasContacts = Object.keys(filteredAndGroupedContacts).length > 0;
+
+  const tabs = useMemo(
+    () => [
+      {
+        id: 0,
+        name: "contacts",
+        component: () => (
+          <ContactsTab
+            filteredAndGroupedContacts={filteredAndGroupedContacts}
+            hasContacts={hasContacts}
+            onClick={setRecipient}
+            activeRecipient={recipient.address}
+          />
+        )
+      },
+      {
+        id: 1,
+        name: "recents",
+        component: () => (
+          <RecipientsTab
+            possibleTargets={possibleTargets}
+            onClick={setRecipient}
+            contacts={storedContacts}
+            activeRecipient={recipient.address}
+          />
+        )
+      }
+    ],
+    [
+      filteredAndGroupedContacts,
+      possibleTargets,
+      hasContacts,
+      recipient.address
+    ]
+  );
+
+  const submit = async () => {
+    try {
+      setLoading(true);
+      const input = addressInput.state?.trim() || recipient?.address || "";
+      let recipientAddress = "";
+      if (isAddressFormat(input)) {
+        recipientAddress = input;
+        setRecipient({ address: input });
+      } else if (isANS(input)) {
+        const result = await getAnsProfileByLabel(input.slice(0, -3));
+        if (!result) {
+          setToast({
+            type: "error",
+            content: browser.i18n.getMessage("incorrect_address"),
+            duration: 2400
+          });
+        } else {
+          recipientAddress = result.user;
+          setRecipient({ address: result.user });
+        }
+      } else if (input.startsWith("ar://")) {
+        const result = await searchArNSName(input.slice(5));
+        if (result.success) {
+          recipientAddress = result.record.owner;
+          setRecipient({ address: result.record.owner });
+        }
+      }
+      if (recipientAddress) {
+        navigate(`/send/amount/${recipientAddress}/${id}`);
+      } else {
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("check_address"),
+          duration: 2400
+        });
+      }
+    } catch {
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Segment
   useEffect(() => {
     trackPage(PageType.SEND);
   }, []);
 
+  useEffect(() => {
+    if (storedContacts.length > 0) {
+      setActiveTab(0);
+    } else {
+      setActiveTab(1);
+    }
+  }, [storedContacts.length]);
+
+  useEffect(() => {
+    if (recipient?.timestamp) {
+      const days = calculateDaysSinceTimestamp(recipient.timestamp);
+      setOpen(days > 30);
+    }
+  }, [recipient?.timestamp]);
+
   return (
     <>
-      <HeadV2 back={back} title={browser.i18n.getMessage("send_to")} />
+      <HeadV2 title={browser.i18n.getMessage("send_to")} />
 
       <Wrapper>
         <Flex direction="column" gap={24}>
@@ -77,15 +333,78 @@ export function SendView({}: SendViewProps) {
               sizeVariant="small"
               {...addressInput.bindings}
               placeholder="Address or ArNS name"
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                submit();
+              }}
             />
             <Button
               style={{ padding: "12px 24px", width: "max-content", height: 42 }}
+              disabled={loading}
+              loading={loading}
+              onClick={submit}
             >
               {browser.i18n.getMessage("next")}
             </Button>
           </Flex>
-          <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+          <Tabs
+            tabs={tabs}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            containerStyle={{ paddingBottom: 24 }}
+          />
         </Flex>
+        <SliderMenu
+          hasHeader={false}
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          paddingVertical={32}
+        >
+          <Section
+            showPaddingHorizontal={false}
+            showPaddingVertical={false}
+            style={{
+              alignItems: "center",
+              gap: 24,
+              height: "60vh",
+              justifyContent: "space-between"
+            }}
+          >
+            <Flex direction="column" gap={24} width="100%">
+              <Flex direction="column" gap={12}>
+                <Text weight="bold" style={{ fontSize: 22 }} noMargin>
+                  {browser.i18n.getMessage("verify_full_address")}
+                </Text>
+                <Text variant="secondary" weight="medium" noMargin>
+                  {browser.i18n.getMessage("verify_full_address_description")}
+                </Text>
+              </Flex>
+              <AddressBox>
+                <Text weight="medium" lineHeight={1.3} noMargin>
+                  {recipient.address}
+                </Text>
+              </AddressBox>
+            </Flex>
+            <Flex direction="column" gap={12} width="100%">
+              <Button
+                fullWidth
+                onClick={() => {
+                  submit();
+                  setOpen(false);
+                }}
+              >
+                {browser.i18n.getMessage("confirm")}
+              </Button>
+              <Button
+                fullWidth
+                variant="secondary"
+                onClick={() => setOpen(false)}
+              >
+                {browser.i18n.getMessage("cancel")}
+              </Button>
+            </Flex>
+          </Section>
+        </SliderMenu>
       </Wrapper>
     </>
   );
@@ -150,17 +469,44 @@ export const WarningWrapper = styled.div`
   align-items: center;
 `;
 
-export const SendInput = styled(Input)<{ error?: boolean }>`
-  color: ${(props) => (props.error ? "red" : "#b9b9b9")};
-  background-color: rgba(171, 154, 255, 0.15);
-  font-weight: 400;
-  font-size: 1rem;
-  padding: 10px;
+const ContactAddress = styled(Text).attrs({
+  size: "sm",
+  variant: "secondary",
+  weight: "medium",
+  noMargin: true
+})``;
 
-  // remove counter
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
+const ContactsSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 4px;
+  justify-content: space-between;
+`;
+
+const ContactList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: space-between;
+`;
+
+const AddressesList = styled.div`
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const AddressBox = styled.div`
+  padding: 1rem;
+  border-radius: 8px;
+  background: ${(props) => props.theme.surfaceTertiary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  text-wrap: wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
 `;

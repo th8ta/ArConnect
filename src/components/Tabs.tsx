@@ -1,5 +1,5 @@
 import { Section } from "@arconnect/components";
-import { type Dispatch, type SetStateAction } from "react";
+import { type CSSProperties, type Dispatch, type SetStateAction } from "react";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
 
@@ -10,9 +10,10 @@ interface TabType {
 }
 
 interface TabsProps {
-  tabs: TabType[];
+  tabs: readonly TabType[];
   activeTab: number;
   setActiveTab: Dispatch<SetStateAction<number>>;
+  containerStyle?: CSSProperties;
 }
 
 interface TabProps {
@@ -31,11 +32,16 @@ const Tab = ({ tab, active, setActiveTab }: TabProps) => (
   </StyledTab>
 );
 
-export default function Tabs({ tabs, activeTab, setActiveTab }: TabsProps) {
+export default function Tabs({
+  tabs,
+  activeTab,
+  setActiveTab,
+  containerStyle
+}: TabsProps) {
   const ActiveComponent = tabs[activeTab].component;
 
   return (
-    <Section style={{ padding: 0 }}>
+    <Section style={{ padding: 0, ...containerStyle }}>
       <TabsWrapper>
         {tabs.map((tab, index) => (
           <TabWrapper key={tab.id}>

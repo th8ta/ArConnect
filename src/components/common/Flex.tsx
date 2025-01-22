@@ -10,6 +10,7 @@ interface FlexProps extends React.HTMLAttributes<HTMLDivElement> {
   flex?: CSSProperties["flex"];
   width?: CSSProperties["width"];
   height?: CSSProperties["height"];
+  padding?: CSSProperties["padding"];
 }
 
 export const Flex: React.FC<FlexProps> = ({
@@ -22,6 +23,7 @@ export const Flex: React.FC<FlexProps> = ({
   flex,
   width,
   height,
+  padding,
   style,
   ...props
 }) => {
@@ -37,6 +39,7 @@ export const Flex: React.FC<FlexProps> = ({
         flex,
         width,
         height,
+        padding,
         ...style
       }}
       {...props}

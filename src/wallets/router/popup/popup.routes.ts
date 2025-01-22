@@ -10,6 +10,7 @@ import { PendingPurchaseView } from "~routes/popup/pending";
 import { PurchaseView } from "~routes/popup/purchase";
 import { ReceiveView } from "~routes/popup/receive";
 import { SendView } from "~routes/popup/send";
+import { AmountView } from "~routes/popup/send/amount";
 import { SendAuthView } from "~routes/popup/send/auth";
 import { TransactionCompletedView } from "~routes/popup/send/completed";
 import { ConfirmView } from "~routes/popup/send/confirm";
@@ -47,6 +48,7 @@ export type PopupRoutePath =
   | `/receive`
   | `/send/transfer`
   | `/send/transfer/${string}`
+  | `/send/amount/${string}/${string}`
   | `/send/auth/${string}`
   | `/explore`
   | `/subscriptions`
@@ -88,6 +90,7 @@ export const PopupPaths = {
   PendingPurchase: "/purchase-pending",
   Receive: "/receive",
   Send: "/send/transfer/:id?",
+  Amount: "/send/amount/:recipient/:id?",
   SendAuth: "/send/auth/:tokenID?",
   Explore: "/explore",
   Subscriptions: "/subscriptions",
@@ -149,6 +152,10 @@ export const POPUP_ROUTES = [
   {
     path: PopupPaths.Send,
     component: SendView
+  },
+  {
+    path: PopupPaths.Amount,
+    component: AmountView
   },
   {
     path: PopupPaths.SendAuth,
