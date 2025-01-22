@@ -23,7 +23,10 @@ export function NoteView() {
 
   return (
     <>
-      <HeadV2 title={browser.i18n.getMessage("add_a_note")} />
+      <HeadV2
+        title={browser.i18n.getMessage("add_a_note")}
+        showOptions={false}
+      />
 
       <Section
         style={{ height: "calc(100vh - 100px)" }}

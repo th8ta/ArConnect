@@ -245,7 +245,6 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
 
   // token price
   const { price = "0" } = useTokenPrice(id || token?.id, currency);
-  const message = useInput();
   const tokenSearch = useInput();
 
   const filterFn = useCallback(
@@ -280,8 +279,8 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
       }
 
       let byte = 0;
-      if (message.state) {
-        byte = new TextEncoder().encode(message.state).byteLength;
+      if (note) {
+        byte = new TextEncoder().encode(note).byteLength;
       }
       const gateway = await findGateway({});
       const arweave = new Arweave(gateway);
@@ -289,7 +288,7 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
 
       setNetworkFee(arweave.ar.winstonToAr(txPrice));
     })();
-  }, [token, message.state, recipient]);
+  }, [token.id, note, recipient]);
 
   // maximum possible send amount
   const max = useMemo(() => {
@@ -343,7 +342,7 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
       recipient,
       estimatedFiat: qtyMode === "fiat" ? qty : secondaryQty.toFixed(),
       estimatedNetworkFee: BigNumber(networkFee).multipliedBy(price).toFixed(),
-      message: message.state,
+      message: note,
       qtyMode,
       isAo
     });

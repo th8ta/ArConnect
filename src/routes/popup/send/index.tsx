@@ -33,6 +33,7 @@ import { isANS, getAnsProfileByLabel } from "~lib/ans";
 import { searchArNSName } from "~lib/arns";
 import SliderMenu from "~components/SliderMenu";
 import { useLocation } from "~wallets/router/router.utils";
+import { ExtensionStorage, TempTransactionStorage } from "~utils/storage";
 
 // default size for the qty text
 export const arPlaceholder: TokenInterface = {
@@ -287,6 +288,8 @@ export function SendView({ params: { id } }: SendViewProps) {
         }
       }
       if (recipientAddress) {
+        await ExtensionStorage.set("last_send_qty", "");
+        await TempTransactionStorage.set("last_send_note", "");
         navigate(`/send/amount/${recipientAddress}/${id ?? "AR"}`);
       } else {
         setToast({
