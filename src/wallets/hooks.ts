@@ -11,7 +11,7 @@ import type { StoredWallet } from "~wallets";
 import Arweave from "arweave";
 import { isPasswordFresh } from "./auth";
 import { useQuery } from "@tanstack/react-query";
-import BigNumber from "bignumber.js";
+import { useWallets } from "~utils/wallets/wallets.hooks";
 
 /**
  * Wallets with details hook
@@ -62,27 +62,15 @@ export function useWalletsDetails(wallets: JWKInterface[]) {
  * Active wallet data (unencrypted)
  */
 export function useActiveWallet() {
-  // current address
-  const [activeAddress] = useStorage<string>({
-    key: "active_address",
-    instance: ExtensionStorage
-  });
-
-  // all wallets added
-  const [wallets] = useStorage<StoredWallet[]>(
-    {
-      key: "wallets",
-      instance: ExtensionStorage
-    },
-    []
-  );
+  const { wallets, activeAddress } = useWallets();
 
   // active wallet
   const wallet = useMemo(
     () =>
       wallets?.find(({ address }) => address === activeAddress) || {
         address: activeAddress,
-        nickname: ""
+        nickname: "",
+        type: "local"
       },
     [activeAddress, wallets]
   );

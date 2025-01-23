@@ -29,6 +29,7 @@ import { useBalance } from "~wallets/hooks";
 import { useTokenBalance } from "~tokens/hooks";
 import { BalanceFetchError, NetworkError } from "~utils/error/error.utils";
 import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
+import Image from "~components/common/Image";
 
 export default function Token({
   onClick,
@@ -404,7 +405,7 @@ export const LogoWrapper = styled(Squircle)<{ small?: boolean }>`
   color: rgba(${(props) => props.theme.theme}, 0.2);
 `;
 
-export const Logo = styled.img.attrs({
+export const Logo = styled(Image).attrs({
   draggable: false
 })`
   width: 40px;

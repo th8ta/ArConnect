@@ -180,6 +180,7 @@ export default function WalletSwitcher({ open, close }: Props) {
             </Text>
             {activeWallet?.address === activeAddress && <ActiveIndicator />}
           </div>
+          <Spacer y={0.2} />
           <div
             style={{
               display: "flex",
