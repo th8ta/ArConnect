@@ -83,13 +83,6 @@ export function GenerateQRView({ params: { address } }: GenerateQRViewProps) {
             ? wallet?.nickname ?? "Account"
             : browser.i18n.getMessage("generate_qr_code")
         }
-        back={() => {
-          if (address) {
-            navigate(`/quick-settings/wallets/${address}`);
-          } else {
-            navigate("/");
-          }
-        }}
         showOptions={false}
       />
       <Wrapper style={{ height: "calc(100vh - 100px)" }}>

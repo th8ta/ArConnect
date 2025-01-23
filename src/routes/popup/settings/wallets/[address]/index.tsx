@@ -146,7 +146,6 @@ export function WalletView({ params: { address } }: WalletViewProps) {
     <>
       <HeadV2
         title={browser.i18n.getMessage("edit_account")}
-        back={() => navigate("/quick-settings/wallets")}
         showOptions={false}
       />
       <Wrapper>

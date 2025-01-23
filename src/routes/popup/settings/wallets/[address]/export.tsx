@@ -96,7 +96,6 @@ export function ExportWalletView({
     <>
       <HeadV2
         title={browser.i18n.getMessage("export_keyfile")}
-        back={() => navigate(`/quick-settings/wallets/${address}`)}
         showOptions={false}
       />
       <Wrapper style={{ height: "calc(100vh - 100px)" }}>
