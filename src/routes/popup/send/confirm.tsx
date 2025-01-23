@@ -26,7 +26,7 @@ import { useLocation } from "~wallets/router/router.utils";
 import { fallbackGateway, type Gateway } from "~gateways/gateway";
 import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
 import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
-import { getActiveKeyfile, getActiveWallet } from "~wallets";
+import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
@@ -112,7 +112,21 @@ export function ConfirmView({
 
   const ao = useAo();
   const [currency] = useSetting("currency");
-  const { activeAddress, wallets } = useWallets();
+
+  // current address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
+
+  // all wallets added
+  const [wallets] = useStorage<StoredWallet[]>(
+    {
+      key: "wallets",
+      instance: ExtensionStorage
+    },
+    []
+  );
 
   const fromAddress = activeAddress;
   const toAddress = recipient?.address;

@@ -2454,6 +2454,10 @@
     "message": "Set custom permissions",
     "description": "Set custom permissions"
   },
+  "custom_permissions_set": {
+    "message": "Custom permissions set",
+    "description": "Custom permissions set"
+  },
   "permission_settings": {
     "message": "Permission Settings",
     "description": "Permission settings title"

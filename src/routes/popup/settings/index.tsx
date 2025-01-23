@@ -16,13 +16,15 @@ import {
 import { useActiveWallet } from "~wallets/hooks";
 import { formatAddress } from "~utils/format";
 import { Users01 } from "@untitled-ui/icons-react";
-import { useWallets } from "~utils/wallets/wallets.hooks";
 import { HorizontalLine } from "~components/HorizontalLine";
 import SliderMenu from "~components/SliderMenu";
 import { useState } from "react";
 import WanderIcon from "url:assets/icon.svg";
 import { removeDecryptionKey } from "~wallets/auth";
 import Online from "~components/Online";
+import type { StoredWallet } from "~wallets";
+import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 
 export interface QuickSettingsViewParams {
   setting?: string;
@@ -37,8 +39,15 @@ export function MenuView({ params }: QuickSettingsViewProps) {
 
   const theme = useTheme();
   const wallet = useActiveWallet();
-  const { wallets } = useWallets();
   const [open, setOpen] = useState(false);
+
+  const [wallets] = useStorage<StoredWallet[]>(
+    {
+      key: "wallets",
+      instance: ExtensionStorage
+    },
+    []
+  );
 
   return (
     <Section style={{ paddingBottom: 100 }}>

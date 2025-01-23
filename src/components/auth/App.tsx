@@ -4,7 +4,7 @@ import {
   Spacer,
   Text,
   ListItem
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import { defaultGateway, type Gateway } from "~gateways/gateway";
 import { useTheme as useDisplayTheme } from "~utils/theme";
 import type { Allowance } from "~applications/allowance";
@@ -64,11 +64,11 @@ export default function App({
           <Spacer y={0.4} />
         </>
       )}
-      <SidePaddingSection size="slim">
+      <SidePaddingSection>
         <ListItem
           title={<PrimaryText>{appName || appUrl}</PrimaryText>}
           img={appIcon}
-          description={
+          subtitle={
             <SecondaryText>{`${browser.i18n.getMessage("gateway")}: ${
               gateway?.host || ""
             }`}</SecondaryText>
@@ -113,10 +113,7 @@ export default function App({
   );
 }
 
-const SidePaddingSection = styled(Section)`
-  padding-top: 0;
-  padding-bottom: 0;
-`;
+const SidePaddingSection = styled(Section)``;
 
 const Wrapper = styled.div<{ displayTheme: DisplayTheme }>`
   border-radius: 10px;

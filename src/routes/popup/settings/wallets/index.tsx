@@ -8,13 +8,27 @@ import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 import WalletListItem from "~components/dashboard/list/WalletListItem";
 import HeadV2 from "~components/popup/HeadV2";
 import { useLocation } from "~wallets/router/router.utils";
-import { useWallets } from "~utils/wallets/wallets.hooks";
+import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
+import type { StoredWallet } from "~wallets";
 
 export function WalletsView() {
   const { navigate } = useLocation();
 
-  // wallets
-  const { wallets, activeAddress } = useWallets();
+  // current address
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
+
+  // all wallets added
+  const [wallets] = useStorage<StoredWallet[]>(
+    {
+      key: "wallets",
+      instance: ExtensionStorage
+    },
+    []
+  );
 
   // ans data
   const [ansProfiles, setAnsProfiles] = useState<AnsUser[]>([]);

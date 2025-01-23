@@ -17,11 +17,15 @@ export const Checkbox = ({
 }: CheckboxProps & Omit<HTMLProps<HTMLDivElement>, "onChange">) => {
   const effectiveId = useMemo(() => id || generateUniqueId(), [id]);
 
-  const toggle = useCallback(() => {
-    if (onChange) {
-      onChange(!checked);
-    }
-  }, [onChange, checked]);
+  const toggle = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      e.preventDefault();
+
+      onChange?.(!checked);
+    },
+    [onChange, checked]
+  );
 
   return (
     <CheckboxContainer size={size} onClick={toggle}>
@@ -48,7 +52,7 @@ interface CheckboxProps {
   onChange?: (checked: boolean) => void;
   id?: string;
   size?: number;
-  label?: string;
+  label?: React.ReactNode;
   labelProps?: TextProps & Omit<HTMLAttributes<HTMLElement>, keyof TextProps>;
 }
 

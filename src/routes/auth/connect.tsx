@@ -1,12 +1,11 @@
 import {
-  Button,
-  InputV2,
+  Input,
   Section,
   Spacer,
   Text,
   useInput,
   useToasts
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import {
   permissionData,
   signPolicyOptions,
@@ -16,7 +15,6 @@ import { useCurrentAuthRequest } from "~utils/auth/auth.hooks";
 import { AnimatePresence, motion } from "framer-motion";
 import { unlock as globalUnlock } from "~wallets/auth";
 import { useEffect, useMemo, useState } from "react";
-import { InformationIcon } from "@iconicicons/react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
@@ -26,24 +24,32 @@ import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import Label from "~components/auth/Label";
 import App from "~components/auth/App";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { EventType, trackEvent } from "~utils/analytics";
 import Application, { type SignPolicy } from "~applications/application";
 import { defaultGateway } from "~gateways/gateway";
-import { CheckIcon, CloseIcon } from "@iconicicons/react";
 import Permissions from "../../components/auth/Permissions";
 import { HeadAuth } from "~components/HeadAuth";
 import { AuthButtons } from "~components/auth/AuthButtons";
-import arconnectLogo from "url:/assets/ecosystem/arconnect.svg";
 import Squircle from "~components/Squircle";
 import { useActiveWallet, useAskPassword } from "~wallets/hooks";
 import Checkbox from "~components/Checkbox";
-import { Eye, EyeOff } from "@untitled-ui/icons-react";
-import { CloseLayer } from "~components/popup/WalletHeader";
+import {
+  ChevronRight,
+  Edit02,
+  Eye,
+  EyeOff,
+  InfoCircle
+} from "@untitled-ui/icons-react";
+import WanderIcon from "url:assets/icon.svg";
+import Image from "~components/common/Image";
+import { Flex } from "~components/common/Flex";
 
-type Page = "unlock" | "connect" | "permissions" | "review" | "confirm";
+type Page = "unlock" | "connect" | "permissions" | "confirm";
 
 export function ConnectAuthRequestView() {
+  const theme = useTheme();
+
   // active address
   const [activeAddress] = useStorage<string>({
     key: "active_address",
@@ -169,10 +175,8 @@ export function ConnectAuthRequestView() {
   }
 
   async function handleBack() {
-    if (page === "review") {
+    if (page === "confirm") {
       setPage("connect");
-    } else if (page === "confirm") {
-      setPage("review");
     } else if (page === "permissions") {
       setPage("confirm");
     }
@@ -180,8 +184,6 @@ export function ConnectAuthRequestView() {
 
   async function handlePrimaryOnClick() {
     if (page === "connect") {
-      setPage("review");
-    } else if (page === "review") {
       setPage("confirm");
     } else if (page === "confirm") {
       if (!askPassword) {
@@ -238,13 +240,14 @@ export function ConnectAuthRequestView() {
           <AppIconsWrapper>
             <IconWrapper src={appInfo.logo} alt={appInfo.name} />
             <IconWrapper
-              src={arconnectLogo}
+              backgroundColor="#EBE0FF"
+              src={WanderIcon}
               style={{ marginLeft: "-4px" }}
-              alt="Arconnect Logo"
+              alt="Wander Icon"
             />
           </AppIconsWrapper>
           <Spacer y={1} />
-          <div style={{ textAlign: "center" }}>
+          <div style={{ textAlign: "center", gap: 4 }}>
             <ConnectToApp>
               {browser.i18n.getMessage("enter_your_password")}
             </ConnectToApp>
@@ -254,10 +257,10 @@ export function ConnectAuthRequestView() {
             </Gateway>
           </div>
         </div>
-        <InputV2
+        <Input
           type={showPassword ? "text" : "password"}
           placeholder={browser.i18n.getMessage("enter_your_password")}
-          icon={
+          iconRight={
             showPassword ? (
               <EyeOff
                 height={22}
@@ -300,13 +303,14 @@ export function ConnectAuthRequestView() {
           <AppIconsWrapper>
             <IconWrapper src={appInfo.logo} alt={appInfo.name} />
             <IconWrapper
-              src={arconnectLogo}
+              backgroundColor="#EBE0FF"
+              src={WanderIcon}
               style={{ marginLeft: "-4px" }}
-              alt="Arconnect Logo"
+              alt="Wander Icon"
             />
           </AppIconsWrapper>
           <Spacer y={1} />
-          <div style={{ textAlign: "center" }}>
+          <Flex direction="column" gap={4} justify="center">
             <ConnectToApp>
               {browser.i18n.getMessage("connect_to_app", [appInfo.name || url])}
             </ConnectToApp>
@@ -314,14 +318,14 @@ export function ConnectAuthRequestView() {
               {browser.i18n.getMessage("gateway")}:{" "}
               {(gateway || defaultGateway)?.host || ""}
             </Gateway>
-          </div>
+          </Flex>
         </ConnectPageSectionHeader>
         <div>
-          <SecondaryText>
+          <SecondaryText fontSize={16}>
             {browser.i18n.getMessage("select_account", [appInfo.name || url])}:
           </SecondaryText>
           <Spacer y={0.5} />
-          <ConnectWalletWrapper>
+          <ConnectWalletWrapper onClick={() => setSwitcherOpen(true)}>
             <div style={{ display: "flex", flexDirection: "row", gap: "12px" }}>
               <AccountSquircle>
                 <AccountInitial>
@@ -335,73 +339,21 @@ export function ConnectAuthRequestView() {
                 </SecondaryText>
               </div>
             </div>
-            <ChangeText onClick={() => setSwitcherOpen((prev) => !prev)}>
-              {browser.i18n.getMessage("change")}
-            </ChangeText>
+            <ChangeText>{browser.i18n.getMessage("change")}</ChangeText>
             <WalletSwitcher
               open={switcherOpen}
               close={() => setSwitcherOpen(false)}
             />
-            {switcherOpen && (
-              <CloseLayer onClick={() => setSwitcherOpen(false)} />
-            )}
           </ConnectWalletWrapper>
         </div>
       </ConnectPageSection>
     </ConnectPageContent>
   );
 
-  const ReviewPage = () => (
-    <ConnectPageContent>
-      <Section
-        style={{ display: "flex", flexDirection: "column", gap: "16px" }}
-      >
-        <SecondaryText fontSize={16}>
-          {browser.i18n.getMessage("connect_request_1", [appInfo.name || url])}
-          <span>
-            {" "}
-            {wallet?.nickname} ({formatAddress(activeAddress || "", 4)}){" "}
-          </span>
-          {browser.i18n.getMessage("connect_request_2")}
-        </SecondaryText>
-        <SecondaryText>{url}</SecondaryText>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "8px"
-          }}
-        >
-          {requestedPermissions.map((permission, i) => (
-            <Permission key={i}>
-              <StyledCheckIcon />
-              <PermissionItem>
-                {browser.i18n.getMessage(
-                  permissionData[permission.toUpperCase()]
-                )}
-              </PermissionItem>
-            </Permission>
-          ))}
-          {requestedPermCopy
-            .filter((permission) => !requestedPermissions.includes(permission))
-            .map((permission, i) => (
-              <Permission key={i}>
-                <StyledCloseIcon />
-                <PermissionItem>
-                  {browser.i18n.getMessage(
-                    permissionData[permission.toUpperCase()]
-                  )}
-                </PermissionItem>
-              </Permission>
-            ))}
-        </div>
-      </Section>
-    </ConnectPageContent>
-  );
-
   const ConfirmPage = () => (
     <ConnectPageContent>
       <Section
+        showPaddingVertical={false}
         style={{ display: "flex", flexDirection: "column", gap: "24px" }}
       >
         <div style={{ textAlign: "center" }}>
@@ -416,7 +368,7 @@ export function ConnectAuthRequestView() {
           {signPolicyOptions.map((option) => (
             <PolicyOption key={option} onClick={() => setSignPolicy(option)}>
               <Checkbox
-                size={16}
+                size={20}
                 onChange={() => setSignPolicy(option)}
                 checked={signPolicy === option}
               />
@@ -432,14 +384,19 @@ export function ConnectAuthRequestView() {
           <PrimaryText fontSize={16}>
             {browser.i18n.getMessage(
               isCustomPermissions
-                ? "custom_permissions"
+                ? "custom_permissions_set"
                 : "set_custom_permissions"
             )}
           </PrimaryText>
+          {isCustomPermissions ? (
+            <Edit02 height={24} width={24} color={theme.tertiaryText} />
+          ) : (
+            <ChevronRight height={24} width={24} color={theme.tertiaryText} />
+          )}
         </CustomPermissionsButton>
         <CustomPermissionsInfo>
           <div>
-            <InformationIcon height={24} width={24} />
+            <InfoCircle height={24} width={24} color={theme.secondaryText} />
           </div>
           <SecondaryText fontSize={14}>
             {browser.i18n.getMessage(`${signPolicy}_description`)}
@@ -450,7 +407,7 @@ export function ConnectAuthRequestView() {
   );
 
   return (
-    <Wrapper>
+    <Wrapper withBackground>
       <>
         <HeadAuth
           showHead={!["connect", "unlock"].includes(page)}
@@ -473,7 +430,6 @@ export function ConnectAuthRequestView() {
         <ContentWrapper style={{ flex: 1 }}>
           <AnimatePresence initial={false}>
             {page === "connect" && <ConnectPage />}
-            {page === "review" && <ReviewPage />}
             {page === "confirm" && <ConfirmPage />}
             {page === "unlock" && <UnlockPage />}
             {page === "permissions" && <PermissionsPage />}
@@ -506,37 +462,6 @@ export function ConnectAuthRequestView() {
   );
 }
 
-const Permission = styled.div`
-  margin: 0;
-  align-items: center;
-  display: flex;
-  gap: 8px;
-`;
-
-const StyledCheckIcon = styled(CheckIcon)`
-  width: 17px;
-  height: 17px;
-  min-width: 17px;
-  min-height: 17px;
-  flex-shrink: 0;
-  color: rgba(20, 209, 16, 1);
-`;
-
-const StyledCloseIcon = styled(CloseIcon)`
-  width: 17px;
-  height: 17px;
-  min-width: 17px;
-  min-height: 17px;
-  flex-shrink: 0;
-  color: ${(props) => props.theme.fail};
-`;
-
-const PermissionItem = styled(Text)`
-  color: ${(props) => props.theme.primaryTextv2};
-  margin: 0;
-  font-size: 14px;
-`;
-
 const ContentWrapper = styled.div`
   display: flex;
   flex: 1;
@@ -557,14 +482,19 @@ const UnlockWrapper = styled(motion.div).attrs({
   }
 `;
 
-const IconWrapper = styled.img`
-  height: 48px;
-  width: 48px;
-  overflow: hidden;
-  border-radius: 48px;
-`;
+const IconWrapper = styled(Image).attrs((props) => ({
+  height: 48,
+  width: 48,
+  borderRadius: 48,
+  objectFit: "contain",
+  backgroundColor: props.backgroundColor || "#fffefc"
+}))``;
 
-const AppIconsWrapper = styled.div``;
+const AppIconsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 const ConnectPageContent = styled.div`
   width: 100vw;
@@ -576,16 +506,16 @@ const ConnectPageContent = styled.div`
 const ConnectToApp = styled(Text).attrs({
   noMargin: true
 })`
-  font-size: 22px;
-  font-weight: 600;
-  color: ${(props) => props.theme.primaryTextv2};
-  line-height: 120%;
+  font-size: 24px;
+  font-weight: 700;
+  color: ${(props) => props.theme.primaryText};
+  line-height: 130%;
 `;
 
 const Gateway = styled(Text).attrs({
   noMargin: true
 })`
-  color: ${(props) => props.theme.secondaryTextv2};
+  color: ${(props) => props.theme.secondaryText};
   font-size: 14px;
   font-weight: 500;
   line-height: 150%;
@@ -593,12 +523,13 @@ const Gateway = styled(Text).attrs({
 
 const ConnectWalletWrapper = styled.div`
   display: flex;
-  padding: 8px;
+  padding: 12px;
   justify-content: space-between;
   align-items: center;
   align-self: stretch;
   border-radius: 10px;
-  background: ${(props) => props.theme.backgroundSecondary};
+  background: ${(props) => props.theme.surfaceTertiary};
+  cursor: pointer;
 `;
 
 export const AccountSquircle = styled(Squircle)`
@@ -629,18 +560,18 @@ const WalletName = styled(Text).attrs({
 })`
   font-size: 18px;
   font-weight: 500;
-  color: ${(props) => props.theme.primaryTextv2};
+  color: ${(props) => props.theme.primaryText};
 `;
 
 const SecondaryText = styled(Text).attrs({
   noMargin: true
 })<{ fontSize?: number }>`
-  color: ${(props) => props.theme.secondaryTextv2};
+  color: ${(props) => props.theme.secondaryText};
   font-size: ${(props) => props.fontSize || 14}px;
   font-weight: 500;
 
   span {
-    color: ${(props) => props.theme.primaryTextv2};
+    color: ${(props) => props.theme.primaryText};
     font-size: ${(props) => props.fontSize || 14}px;
     font-weight: 500;
   }
@@ -649,7 +580,7 @@ const SecondaryText = styled(Text).attrs({
 const PrimaryText = styled(Text).attrs({
   noMargin: true
 })<{ fontSize?: number; fontWeight?: number; textAlign?: string }>`
-  color: ${(props) => props.theme.primaryTextv2};
+  color: ${(props) => props.theme.primaryText};
   font-size: ${(props) => props.fontSize || 14}px;
   font-weight: ${(props) => props.fontWeight || 500};
   text-align: ${(props) => props.textAlign || "left"};
@@ -658,9 +589,9 @@ const PrimaryText = styled(Text).attrs({
 const ChangeText = styled(Text).attrs({
   noMargin: true
 })`
-  color: ${(props) => props.theme.primary};
+  color: ${(props) => props.theme.input.icons.searchActive};
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
 `;
 
@@ -677,14 +608,26 @@ const PolicyOption = styled.div`
   cursor: pointer;
 `;
 
-const CustomPermissionsButton = styled(Button)`
+const CustomPermissionsButton = styled.div`
   display: flex;
-  padding: 8px;
-  justify-content: center;
+  padding-top: 8px;
+  padding-bottom: 8px;
   align-items: center;
+  justify-content: space-between;
   align-self: stretch;
-  border-radius: 8px;
-  background: ${(props) => props.theme.backgroundSecondary};
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+
+  &:hover,
+  svg:hover {
+    opacity: 0.85;
+  }
+
+  &:active,
+  svg:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
 `;
 
 const CustomPermissionsInfo = styled.div`

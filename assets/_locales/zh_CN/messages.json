@@ -2444,6 +2444,10 @@
         "message": "设置自定义权限",
         "description": "Set custom permissions"
     },
+    "custom_permissions_set": {
+        "message": "自定义权限设置",
+        "description": "Custom permissions set"
+    },
     "permission_settings": {
         "message": "权限设置",
         "description": "Permission settings title"

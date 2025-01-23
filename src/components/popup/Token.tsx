@@ -114,10 +114,12 @@ export default function Token({
   useEffect(() => {
     const fetchLogo = async () => {
       if (!props?.id || logo) return;
-      const logoUrl = props.defaultLogo
-        ? await getUserAvatar(props.defaultLogo)
-        : arweaveLogo;
-      setLogo(logoUrl || arweaveLogo);
+      if (props.defaultLogo) {
+        const logo = await getUserAvatar(props.defaultLogo);
+        setLogo(logo);
+      } else {
+        setLogo(arweaveLogo);
+      }
     };
     fetchLogo();
   }, [props, logo, arweaveLogo]);
@@ -406,14 +408,14 @@ export const LogoWrapper = styled(Squircle)<{ small?: boolean }>`
 `;
 
 export const Logo = styled(Image).attrs({
-  draggable: false
+  draggable: false,
+  backgroundColor: "#fffefc"
 })`
   width: 40px;
   height: 40px;
   flex-shrink: 0;
   border-radius: 29px;
   object-fit: cover;
-  background: #fffefc;
 
   ${(props) =>
     props.theme.displayTheme === "light" &&

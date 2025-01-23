@@ -35,6 +35,7 @@ import SliderMenu from "~components/SliderMenu";
 import { useLocation } from "~wallets/router/router.utils";
 import { ExtensionStorage, TempTransactionStorage } from "~utils/storage";
 import type { TokenInfo } from "~tokens/aoTokens/ao";
+import { useStorage } from "@plasmohq/storage/hook";
 
 // default size for the qty text
 export const arPlaceholder: TokenInterface = {
@@ -173,8 +174,13 @@ const RecipientsTab = ({
 export function SendView({ params: { id } }: SendViewProps) {
   const { navigate } = useLocation();
   const addressInput = useInput();
-  const { activeAddress } = useWallets();
   const { setToast } = useToasts();
+
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
+
   const { lastRecipients, storedContacts } = useContacts(activeAddress);
 
   const [recipient, setRecipient] = useState<RecipientType>({ address: "" });

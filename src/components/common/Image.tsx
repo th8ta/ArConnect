@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import styled from "styled-components";
 import placeholderUrl from "url:/assets/placeholder.png";
 
@@ -10,8 +10,10 @@ interface ImageProps {
   height?: number | string;
   className?: string;
   borderRadius?: number | string;
-  fallbackColor?: string;
+  backgroundColor?: string;
   objectFit?: "contain" | "cover" | "fill" | "none" | "scale-down";
+  transitionDuration?: number;
+  style?: React.CSSProperties;
 }
 
 export default function Image({
@@ -21,11 +23,12 @@ export default function Image({
   height = "100%",
   className,
   borderRadius = 0,
-  fallbackColor = "#E4E4EB",
-  objectFit = "cover"
+  backgroundColor = "transparent",
+  objectFit = "cover",
+  transitionDuration = 0.2,
+  style
 }: ImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
 
   return (
     <ImageWrapper
@@ -33,38 +36,30 @@ export default function Image({
       height={height}
       className={className}
       borderRadius={borderRadius}
+      style={style}
     >
-      <AnimatePresence>
-        {!isLoaded && !hasError && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              borderRadius:
-                typeof borderRadius === "number"
-                  ? `${borderRadius}px`
-                  : borderRadius,
-              overflow: "hidden"
-            }}
-          >
-            <img
-              src={placeholderUrl}
-              alt="Loading..."
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <motion.div
+        initial={{ opacity: 1 }}
+        animate={{ opacity: isLoaded ? 0 : 1 }}
+        transition={{ duration: transitionDuration }}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          borderRadius:
+            typeof borderRadius === "number"
+              ? `${borderRadius}px`
+              : borderRadius,
+          overflow: "hidden",
+          backgroundImage: `url(${placeholderUrl})`,
+          backgroundSize: objectFit,
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          zIndex: 1
+        }}
+      />
 
       <motion.img
         src={src}
@@ -72,9 +67,8 @@ export default function Image({
         draggable={false}
         initial={{ opacity: 0 }}
         animate={{ opacity: isLoaded ? 1 : 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: transitionDuration }}
         onLoad={() => setIsLoaded(true)}
-        onError={() => setHasError(true)}
         style={{
           width: "100%",
           height: "100%",
@@ -83,7 +77,9 @@ export default function Image({
             typeof borderRadius === "number"
               ? `${borderRadius}px`
               : borderRadius,
-          background: hasError ? fallbackColor : "transparent"
+          background: backgroundColor,
+          position: "relative",
+          zIndex: 0
         }}
       />
     </ImageWrapper>

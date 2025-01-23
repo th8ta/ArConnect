@@ -7,10 +7,16 @@ import placeholderUrl from "url:/assets/placeholder.png";
 import Skeleton from "~components/Skeleton";
 import { useTokenBalance } from "~tokens/hooks";
 import { useWallets } from "~utils/wallets/wallets.hooks";
+import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
 
 export default function Collectible({ id, onClick, ...props }: Props) {
   const gateway = useGateway(FULL_HISTORY);
-  const { activeAddress } = useWallets();
+
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
 
   const tokenInfo = useMemo(() => {
     return {
