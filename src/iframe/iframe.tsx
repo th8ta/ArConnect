@@ -11,6 +11,7 @@ import {
   useEmbeddedLocation
 } from "~wallets/router/iframe/iframe-router.hook";
 import { EmbeddedProvider } from "~utils/embedded/embedded.provider";
+import { BodyScroller } from "~wallets/router/router.utils";
 
 export function ArConnectEmbeddedApp() {
   useEffect(() => {
