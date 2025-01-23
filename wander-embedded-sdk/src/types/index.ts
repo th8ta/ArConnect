@@ -1,5 +1,11 @@
 export interface WanderEmbeddedOptions {
-  theme: Theme;
+  buttonRef?: HTMLButtonElement;
+  iframeRef?: HTMLIFrameElement;
+  buttonStyles?: CSSStyleDeclaration;
+  iframeStyles?: CSSStyleDeclaration;
+  onOpen?: () => void;
+  onClose?: () => void;
+  onResize?: (dimensions: { width: number; height: number }) => void;
 }
 
 export type Theme = {
