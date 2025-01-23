@@ -36,7 +36,7 @@ export function MenuView({ params }: QuickSettingsViewProps) {
   const activeSetting = params.setting;
 
   const theme = useTheme();
-  const { address, nickname } = useActiveWallet();
+  const wallet = useActiveWallet();
   const { wallets } = useWallets();
   const [open, setOpen] = useState(false);
 
@@ -46,16 +46,18 @@ export function MenuView({ params }: QuickSettingsViewProps) {
         height={56}
         title={
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {nickname}
+            {wallet.nickname}
             <Online />
           </div>
         }
         titleStyle={{ fontWeight: 500 }}
-        subtitle={formatAddress(address, 4)}
+        subtitle={formatAddress(wallet.address, 4)}
         squircleSize={40}
         showArrow
         onClick={() => {
-          navigate(`/quick-settings/wallets/${address}` as PopupRoutePath);
+          navigate(
+            `/quick-settings/wallets/${wallet.address}` as PopupRoutePath
+          );
         }}
       >
         <ListItemIcon>
@@ -65,7 +67,7 @@ export function MenuView({ params }: QuickSettingsViewProps) {
             noMargin
             style={{ textAlign: "center", color: "white" }}
           >
-            {nickname?.charAt(0)?.toUpperCase() || "A"}
+            {wallet.nickname?.charAt(0)?.toUpperCase() || "A"}
           </Text>
         </ListItemIcon>
       </ListItem>

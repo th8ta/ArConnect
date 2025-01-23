@@ -34,6 +34,7 @@ import { searchArNSName } from "~lib/arns";
 import SliderMenu from "~components/SliderMenu";
 import { useLocation } from "~wallets/router/router.utils";
 import { ExtensionStorage, TempTransactionStorage } from "~utils/storage";
+import type { TokenInfo } from "~tokens/aoTokens/ao";
 
 // default size for the qty text
 export const arPlaceholder: TokenInterface = {
@@ -55,7 +56,7 @@ export interface TransactionData {
   networkFee: string;
   estimatedFiat: string;
   qty: string;
-  token: TokenInterface;
+  token: TokenInfo;
   estimatedNetworkFee: string;
   recipient: RecipientType;
   qtyMode: string;

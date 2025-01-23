@@ -407,7 +407,8 @@ export function TransactionView({
                   style={{
                     display: "flex",
                     paddingTop: 0,
-                    flexDirection: "column"
+                    flexDirection: "column",
+                    gap: 8
                   }}
                 >
                   {transactionDirection && (
@@ -416,7 +417,7 @@ export function TransactionView({
                     </TransactionDirection>
                   )}
                   <AdaptiveBalanceDisplay
-                    transaction={transaction}
+                    balance={transaction.quantity.ar}
                     ticker={ticker || "AR"}
                     ao={ao}
                     logo={logo}
@@ -806,7 +807,7 @@ export const FiatAmount = styled(Text).attrs({
   }
 `;
 
-const AddContact = styled.div`
+export const AddContact = styled.div`
   font-size: 10px;
   font-weight: 600;
   color: ${(props) => props.theme.primaryText};

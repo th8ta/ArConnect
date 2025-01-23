@@ -39,14 +39,14 @@ const TokenLogo = styled(Logo)`
 `;
 
 export const AdaptiveBalanceDisplay: React.FC<{
-  transaction: GQLNodeInterface;
+  balance: string;
   ao: { isAo: boolean; tokenId?: string | null };
   ticker: string | null;
   logo?: string;
-}> = ({ transaction, ao, ticker, logo }) => {
+}> = ({ balance, ao, ticker, logo }) => {
   const formattedBalance = !ao.isAo
-    ? formatTokenBalance(transaction.quantity.ar || "0")
-    : transaction.quantity.ar.toString();
+    ? formatTokenBalance(balance || "0")
+    : balance;
 
   const isLongBalance = formattedBalance.length > 8;
 

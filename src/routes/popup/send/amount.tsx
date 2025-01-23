@@ -137,7 +137,7 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
   const [isOpen, setOpen] = useState(true);
 
   // active address
-  const { address: activeAddress, nickname } = useActiveWallet();
+  const wallet = useActiveWallet();
 
   // quantity
   const [qty, setQty] = useStorage<string>(
@@ -210,7 +210,7 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
 
   const { data: balance = "0", isLoading } = useTokenBalance(
     token,
-    activeAddress
+    wallet?.address
   );
 
   const degraded = useMemo(() => {
@@ -358,7 +358,7 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
       networkFee,
       qty: qtyMode === "fiat" ? secondaryQty.toFixed() : qty,
       token,
-      recipient,
+      recipient: { address: recipient },
       estimatedFiat: qtyMode === "fiat" ? qty : secondaryQty.toFixed(),
       estimatedNetworkFee: BigNumber(networkFee).multipliedBy(price).toFixed(),
       message: note,
@@ -433,7 +433,7 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
                   From:
                 </Text>
                 <Text weight="medium" noMargin>
-                  {nickname} ({formatAddress(activeAddress, 4)})
+                  {wallet?.nickname} ({formatAddress(wallet?.address, 4)})
                 </Text>
               </Flex>
               <Flex gap={4}>

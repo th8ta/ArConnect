@@ -1,15 +1,15 @@
 import { AnimatePresence, type Variants, motion } from "framer-motion";
-import { Section, Text } from "@arconnect/components";
+import { Button, Section, Text } from "@arconnect/components-rebrand";
 import { useLocation, useSearchParams } from "~wallets/router/router.utils";
-import { CheckIcon, ShareIcon } from "@iconicicons/react";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import HeadV2 from "~components/popup/HeadV2";
 import type {
   ArConnectRoutePath,
   CommonRouteProps
 } from "~wallets/router/router.types";
-import { SendButton } from ".";
+import { LinkExternal02 } from "@untitled-ui/icons-react";
+import Lottie from "react-lottie";
+import checkmarkAnimationData from "assets/lotties/checkmark.json";
 
 export interface TransactionCompletedParams {
   id: string;
@@ -21,7 +21,7 @@ export type TransactionCompletedViewProps =
 export function TransactionCompletedView({
   params: { id }
 }: TransactionCompletedViewProps) {
-  const { navigate, back } = useLocation();
+  const { navigate } = useLocation();
   const { back: backPath, isAo } = useSearchParams<{
     back?: string;
     isAo: boolean;
@@ -35,19 +35,28 @@ export function TransactionCompletedView({
     browser.tabs.create({ url });
   }
 
+  function handleDone() {
+    navigate((backPath as ArConnectRoutePath) || "/");
+  }
+
   if (!id) return null;
 
   return (
     <Wrapper>
       <MainWrapper>
-        <HeadV2
-          title={browser.i18n.getMessage("transaction_complete")}
-          back={() => navigate((backPath as ArConnectRoutePath) || "/")}
-        />
         <BodyWrapper>
-          <Circle>
-            <CheckIcon height={35} width={35} color="#fff" />
-          </Circle>
+          <Lottie
+            options={{
+              loop: false,
+              autoplay: true,
+              animationData: checkmarkAnimationData,
+              rendererSettings: {
+                preserveAspectRatio: "xMidYMid slice"
+              }
+            }}
+            height={200}
+            width={200}
+          />
           <TextContainer>
             <Title>{browser.i18n.getMessage("transaction_complete")}</Title>
             <SubTitle>
@@ -75,11 +84,14 @@ export function TransactionCompletedView({
             animate="shown"
             exit="hidden"
           >
-            <Section>
-              <SendButton fullWidth onClick={handleOpen}>
+            <Section style={{ gap: 12 }}>
+              <Button fullWidth onClick={handleDone}>
+                {browser.i18n.getMessage("done")}
+              </Button>
+              <Button variant="secondary" fullWidth onClick={handleOpen}>
                 {isAo ? "AOLink" : "Viewblock"}
-                <ShareIcon style={{ marginLeft: "5px" }} />
-              </SendButton>
+                <LinkExternal02 style={{ marginLeft: "8px" }} />
+              </Button>
             </Section>
           </motion.div>
         )}
@@ -112,18 +124,7 @@ const BodyWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 16px;
-`;
-
-const Circle = styled.div`
-  width: 75px;
-  height: 75px;
-  border-radius: 50%;
-  background-color: rgba(20, 209, 16, 0.25);
-  border: 4px solid #14d110;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  gap: 18px;
 `;
 
 const TextContainer = styled.div`
@@ -135,27 +136,30 @@ const TextContainer = styled.div`
 `;
 
 const Title = styled(Text).attrs({
-  noMargin: true
+  noMargin: true,
+  weight: "bold"
 })`
-  font-size: 20px;
+  font-size: 22px;
   word-break: break-word;
   overflow-wrap: break-word;
-  color: ${(props) => props.theme.primaryTextv2};
 `;
 
 const SubTitle = styled(Text).attrs({
-  noMargin: true
+  noMargin: true,
+  variant: "secondary",
+  size: "sm"
 })`
   display: flex;
   flex-wrap: wrap;
-  font-size: 16px;
-  color: ${(props) => props.theme.secondaryTextv2};
   word-break: break-word;
   overflow-wrap: break-word;
+  text-align: center;
 `;
 
-const LinkText = styled(Text)`
-  font-size: 16px;
-  color: ${(props) => props.theme.primary};
+const LinkText = styled(Text).attrs({
+  noMargin: true,
+  weight: "medium"
+})`
+  color: ${(props) => props.theme.input.icons.searchActive};
   cursor: pointer;
 `;

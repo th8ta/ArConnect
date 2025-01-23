@@ -1,10 +1,11 @@
 import {
-  InputV2,
+  Input,
+  Section,
   Spacer,
   Text,
   useInput,
   useToasts
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import { ArrowRightIcon } from "@iconicicons/react";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
@@ -25,24 +26,24 @@ import { useLocation } from "~wallets/router/router.utils";
 import { fallbackGateway, type Gateway } from "~gateways/gateway";
 import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
 import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
-import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
+import { getActiveKeyfile, getActiveWallet } from "~wallets";
 import { isLocalWallet } from "~utils/assertions";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
-import { concatGatewayURL } from "~gateways/utils";
+import { concatGatewayURL, getArweaveLink } from "~gateways/utils";
 import type { JWKInterface } from "arbundles";
 import {
   AutoContactPic,
   generateProfileIcon,
   ProfilePicture
 } from "~components/Recipient";
-import { fractionedToBalance } from "~tokens/currency";
-import { type Token } from "~tokens/token";
+import { formatFiatBalance, fractionedToBalance } from "~tokens/currency";
 import { useContact } from "~contacts/hooks";
 import {
   sendAoTransfer,
   sendAoTransferKeystone,
-  useAo
+  useAo,
+  type TokenInfo
 } from "~tokens/aoTokens/ao";
 import { useActiveWallet } from "~wallets/hooks";
 import { UR } from "@ngraveio/bc-ur";
@@ -60,10 +61,21 @@ import { checkPassword } from "~wallets/auth";
 import BigNumber from "bignumber.js";
 import { SignType } from "@keystonehq/bc-ur-registry-arweave";
 import type { CommonRouteProps } from "~wallets/router/router.types";
-
-function formatNumber(amount: string, decimalPlaces: number = 2): string {
-  return BigNumber(amount).toFixed(decimalPlaces);
-}
+import { useWallets } from "~utils/wallets/wallets.hooks";
+import { AdaptiveBalanceDisplay } from "~components/AdaptiveBalanceDisplay";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  TransactionDirection,
+  FiatAmount,
+  Properties,
+  PropertyName,
+  PropertyValue,
+  TransactionProperty,
+  AddContact
+} from "../transaction/[id]";
+import prettyBytes from "pretty-bytes";
+import { stringToBuffer } from "arweave/web/lib/utils";
+import useSetting from "~settings/hook";
 
 export interface ConfirmViewParams {
   token: string;
@@ -76,38 +88,38 @@ export interface ConfirmViewParams {
 export type ConfirmViewProps = CommonRouteProps<ConfirmViewParams>;
 
 export function ConfirmView({
-  params: { token: tokenID, qty: qtyParam, subscription }
+  params: { token: tokenID, subscription }
 }: ConfirmViewProps) {
   const { navigate } = useLocation();
-  // TODO: Add generic utils to parse params:
-  const qty = Number(qtyParam || "0");
+  const queryClient = useQueryClient();
 
   // TODO: Need to get Token information
-  const [token, setToken] = useState<Token | undefined>();
+  const [token, setToken] = useState<TokenInfo | undefined>();
   const [amount, setAmount] = useState<string>("");
 
   const [isAo, setIsAo] = useState<boolean>(false);
   const passwordInput = useInput();
   const [estimatedFiatAmount, setEstimatedFiatAmount] = useState<string>("");
   const [networkFee, setNetworkFee] = useState<string>("");
-  const [estimatedFiatNetworkFee, setEstimatedFiatNetworkFee] =
-    useState<string>("");
-  const [estimatedTotal, setEstimatedTotal] = useState<string>("");
   const [message, setMessage] = useState<string | undefined>();
   const [recipient, setRecipient] = useState<RecipientType | undefined>(
     undefined
   );
-  const contact = useContact(recipient?.address);
+  const [logo, setLogo] = useState<string | undefined>();
   const [needsSign, setNeedsSign] = useState<boolean>(true);
   const { setToast } = useToasts();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const ao = useAo();
+  const [currency] = useSetting("currency");
+  const { activeAddress, wallets } = useWallets();
 
-  const [activeAddress] = useStorage<string>({
-    key: "active_address",
-    instance: ExtensionStorage
-  });
+  const fromAddress = activeAddress;
+  const toAddress = recipient?.address;
+  const fromMe = wallets.find((wallet) => wallet.address === fromAddress);
+  const toMe = wallets.find((wallet) => wallet.address === toAddress);
+  const fromContact = useContact(activeAddress);
+  const toContact = useContact(toAddress);
 
   const [allowance] = useStorage<number>(
     {
@@ -144,12 +156,11 @@ export function ConfirmView({
             .toFixed(2);
           setIsAo(data.isAo);
           setRecipient(data.recipient);
-          setEstimatedTotal(estimatedFiatTotal.toString());
           setToken(data.token);
+          setLogo(await getArweaveLink(data.token.Logo));
           setNetworkFee(data.networkFee);
           setAmount(data.qty);
           setEstimatedFiatAmount(data.estimatedFiat);
-          setEstimatedFiatNetworkFee(data.estimatedNetworkFee);
 
           //optional message state
           if (data.message) {
@@ -167,14 +178,6 @@ export function ConfirmView({
     trackPage(PageType.CONFIRM_SEND);
   }, [allowance, allowanceEnabled]);
 
-  const [wallets] = useStorage<StoredWallet[]>(
-    {
-      key: "wallets",
-      instance: ExtensionStorage
-    },
-    []
-  );
-
   const walletName = useMemo(() => {
     if (wallets && activeAddress) {
       const wallet = wallets.find(({ address }) => address === activeAddress);
@@ -184,6 +187,11 @@ export function ConfirmView({
       return "";
     }
   }, [activeAddress]);
+
+  const dataSize = useMemo(() => {
+    const data = new Uint8Array(stringToBuffer(message));
+    return prettyBytes(data.byteLength);
+  }, [message]);
 
   async function prepare(
     target: string
@@ -202,7 +210,11 @@ export function ConfirmView({
 
       const tx = await arweave.createTransaction({
         target,
-        quantity: fractionedToBalance(amount, token, "AR"),
+        quantity: fractionedToBalance(
+          amount,
+          { decimals: token.Denomination },
+          "AR"
+        ),
         data: message ? decodeURIComponent(message) : undefined
       });
 
@@ -312,6 +324,13 @@ export function ConfirmView({
       }
     }
 
+    queryClient.invalidateQueries({
+      queryKey: ["tokenBalance", tokenID, fromAddress]
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["tokenBalance", tokenID, toAddress]
+    });
+
     // 2/21/24: Checking first if it's an ao transfer and will handle in this block
     if (isAo) {
       try {
@@ -319,7 +338,7 @@ export function ConfirmView({
           ao,
           tokenID,
           recipient.address,
-          fractionedToBalance(amount, token, "AO")
+          fractionedToBalance(amount, { decimals: token.Denomination }, "AO")
         );
         if (res) {
           setToast({
@@ -382,7 +401,7 @@ export function ConfirmView({
             duration: 2000
           });
           trackEvent(EventType.TX_SENT, {
-            contact: contact ? true : false,
+            contact: toContact ? true : false,
             amount: tokenID === "AR" ? +transactionAmount : 0,
             fee: networkFee
           });
@@ -447,7 +466,7 @@ export function ConfirmView({
             duration: 2000
           });
           trackEvent(EventType.TX_SENT, {
-            contact: contact ? true : false,
+            contact: toContact ? true : false,
             amount: tokenID === "AR" ? +transactionAmount : 0,
             fee: networkFee
           });
@@ -533,7 +552,7 @@ export function ConfirmView({
             ao,
             tokenID,
             recipient.address,
-            fractionedToBalance(amount, token, "AO"),
+            fractionedToBalance(amount, { decimals: token.Denomination }, "AO"),
             keystoneSigner
           );
           if (res) {
@@ -577,7 +596,7 @@ export function ConfirmView({
         navigate("/send/transfer");
       }
     })();
-  }, [wallet, recipient, keystoneSigner, setIsLoading]);
+  }, [wallet, recipient?.address, keystoneSigner]);
 
   // current hardware wallet operation
   const [hardwareStatus, setHardwareStatus] = useState<"play" | "scan">();
@@ -636,7 +655,7 @@ export function ConfirmView({
           (await ExtensionStorage.get("last_send_qty")) || "0"
         );
         trackEvent(EventType.TX_SENT, {
-          contact: contact ? true : false,
+          contact: toContact ? true : false,
           amount: tokenID === "AR" ? latestTxQty : 0,
           fee: networkFee
         });
@@ -663,53 +682,192 @@ export function ConfirmView({
       />
       <ConfirmWrapper>
         <BodyWrapper>
-          <AddressWrapper>
-            <Address>
-              {walletName}{" "}
-              <span style={{ color: "#aeadcd" }}>
-                ({activeAddress && formatAddress(activeAddress, 5)})
-              </span>
-            </Address>
-            <ArrowRightIcon />
-            <Address>
-              {contact && contact.profileIcon ? (
-                <ProfilePicture size="22px" src={contact.profileIcon} />
-              ) : (
-                contact && (
-                  <AutoContactPic size="22px">
-                    {generateProfileIcon(contact?.name || contact.address)}
-                  </AutoContactPic>
-                )
-              )}
-              {contact && contact.name
-                ? contact.name.slice(0, 8)
-                : recipient && formatAddress(recipient.address, 5)}
-            </Address>
-          </AddressWrapper>
-          <div style={{ marginTop: "16px" }}>
+          {hardwareStatus && (
+            <AddressWrapper>
+              <Address>
+                {walletName}{" "}
+                <Text variant="secondary" noMargin>
+                  ({activeAddress && formatAddress(activeAddress, 4)})
+                </Text>
+              </Address>
+              <ArrowRightIcon />
+              <Address>
+                {toContact && toContact.profileIcon ? (
+                  <ProfilePicture size="22px" src={toContact.profileIcon} />
+                ) : (
+                  toContact && (
+                    <AutoContactPic size="22px">
+                      {generateProfileIcon(
+                        toContact?.name || toContact.address
+                      )}
+                    </AutoContactPic>
+                  )
+                )}
+                {toContact && toContact.name
+                  ? toContact.name.slice(0, 8)
+                  : recipient && formatAddress(recipient.address, 4)}
+              </Address>
+            </AddressWrapper>
+          )}
+          <div>
             {token && !hardwareStatus && (
               <>
-                <BodySection
-                  alternate
-                  ticker={token?.ticker}
-                  title={browser.i18n.getMessage("transaction_sending_token")}
-                  value={formatNumber(amount)}
-                  estimatedValue={isAo ? "-.--" : estimatedFiatAmount}
-                />
-                <BodySection
-                  alternate
-                  title={`AR ${browser.i18n.getMessage("network_fee")}`}
-                  subtitle={`(${browser.i18n.getMessage("estimated")})`}
-                  value={networkFee}
-                  estimatedValue={estimatedFiatNetworkFee}
-                />
-                <BodySection
-                  alternate
-                  title={browser.i18n.getMessage("confirm_total")}
-                  value={amount.toString()}
-                  ticker={token.ticker}
-                  estimatedValue={isAo ? "-.--" : estimatedTotal}
-                />
+                <Section
+                  showPaddingHorizontal={false}
+                  style={{
+                    display: "flex",
+                    paddingTop: 0,
+                    flexDirection: "column",
+                    gap: 8
+                  }}
+                >
+                  <TransactionDirection>
+                    {browser.i18n.getMessage("send")}
+                  </TransactionDirection>
+
+                  <AdaptiveBalanceDisplay
+                    balance={amount}
+                    ticker={token.Ticker || "AR"}
+                    ao={{ isAo, tokenId: tokenID }}
+                    logo={logo}
+                  />
+                  <FiatAmount>
+                    {formatFiatBalance(estimatedFiatAmount, currency)}
+                  </FiatAmount>
+                </Section>
+                <Section
+                  showPaddingVertical={false}
+                  showPaddingHorizontal={false}
+                >
+                  <Properties>
+                    <TransactionProperty>
+                      <PropertyName>
+                        {browser.i18n.getMessage("transaction_from")}
+                      </PropertyName>
+                      <PropertyValue>
+                        <div>
+                          {!fromContact ? (
+                            <>
+                              {formatAddress(fromMe || fromAddress, 6)}
+
+                              {fromMe ? null : (
+                                <AddContact>
+                                  {browser.i18n.getMessage(
+                                    "user_not_in_contacts"
+                                  )}{" "}
+                                  <span
+                                    onClick={(e) => {
+                                      e.preventDefault();
+
+                                      trackEvent(EventType.ADD_CONTACT, {
+                                        fromSendFlow: true
+                                      });
+
+                                      navigate(
+                                        `/quick-settings/contacts/new?address=${fromAddress}`
+                                      );
+                                    }}
+                                  >
+                                    {browser.i18n.getMessage("create_contact")}
+                                  </span>
+                                </AddContact>
+                              )}
+                            </>
+                          ) : (
+                            <div
+                              style={{ display: "flex", alignItems: "center" }}
+                            >
+                              {fromContact.profileIcon ? (
+                                <ProfilePicture
+                                  src={fromContact.profileIcon}
+                                  size="19px"
+                                />
+                              ) : (
+                                <AutoContactPic size="19px">
+                                  {generateProfileIcon(
+                                    fromContact?.name || fromContact.address
+                                  )}
+                                </AutoContactPic>
+                              )}
+                              {fromContact?.name ||
+                                formatAddress(fromContact.address, 6)}
+                            </div>
+                          )}
+                        </div>
+                      </PropertyValue>
+                    </TransactionProperty>
+                    <TransactionProperty>
+                      <PropertyName>
+                        {browser.i18n.getMessage("transaction_to")}
+                      </PropertyName>
+                      <PropertyValue>
+                        <div>
+                          {!toContact ? (
+                            <>
+                              {formatAddress(toMe || toAddress, 6)}
+
+                              {toMe ? null : (
+                                <AddContact>
+                                  {browser.i18n.getMessage(
+                                    "user_not_in_contacts"
+                                  )}{" "}
+                                  <span
+                                    onClick={(e) => {
+                                      e.preventDefault();
+
+                                      trackEvent(EventType.ADD_CONTACT, {
+                                        fromSendFlow: true
+                                      });
+
+                                      navigate(
+                                        `/quick-settings/contacts/new?address=${toAddress}`
+                                      );
+                                    }}
+                                  >
+                                    {browser.i18n.getMessage("create_contact")}
+                                  </span>
+                                </AddContact>
+                              )}
+                            </>
+                          ) : (
+                            <div
+                              style={{ display: "flex", alignItems: "center" }}
+                            >
+                              {toContact.profileIcon ? (
+                                <ProfilePicture
+                                  src={toContact.profileIcon}
+                                  size="19px"
+                                />
+                              ) : (
+                                <AutoContactPic size="19px">
+                                  {generateProfileIcon(
+                                    toContact?.name || toContact.address
+                                  )}
+                                </AutoContactPic>
+                              )}
+                              {toContact?.name ||
+                                formatAddress(toContact.address, 6)}
+                            </div>
+                          )}
+                        </div>
+                      </PropertyValue>
+                    </TransactionProperty>
+                    <TransactionProperty>
+                      <PropertyName>
+                        {browser.i18n.getMessage("transaction_fee")}
+                      </PropertyName>
+                      <PropertyValue>{networkFee} AR</PropertyValue>
+                    </TransactionProperty>
+                    {!message && (
+                      <TransactionProperty>
+                        <PropertyName>
+                          {browser.i18n.getMessage("transaction_size")}
+                        </PropertyName>
+                        <PropertyValue>{dataSize}</PropertyValue>
+                      </TransactionProperty>
+                    )}
+                  </Properties>
+                </Section>
               </>
             )}
             {hardwareStatus === "play" && transactionUR && (
@@ -749,11 +907,10 @@ export function ConfirmView({
               <Description>
                 {browser.i18n.getMessage("sign_enter_password")}
               </Description>
-              <InputV2
+              <Input
                 placeholder={browser.i18n.getMessage("enter_password")}
-                small
+                sizeVariant="small"
                 {...passwordInput.bindings}
-                label={browser.i18n.getMessage("password")}
                 type="password"
                 fullWidth
                 onKeyDown={async (e) => {
@@ -786,8 +943,7 @@ export function ConfirmView({
         >
           {(hardwareStatus === "play" &&
             browser.i18n.getMessage("keystone_scan")) ||
-            browser.i18n.getMessage("confirm")}
-          {" >"}
+            browser.i18n.getMessage("next")}
         </SendButton>
       </ConfirmWrapper>
     </Wrapper>
@@ -796,20 +952,12 @@ export function ConfirmView({
 
 const PasswordWrapper = styled.div`
   display: flex;
-  padding: 16px 0;
+  padding: 24px 0;
   flex-direction: column;
+  gap: 12px;
+`;
 
-  p {
-    text-transform: capitalize;
-  }
-`;
-const Description = styled.p`
-  margin: 0;
-  font-size: 16px;
-  padding-bottom: 15px;
-  color: #aeadcd;
-  font-weight: 500;
-`;
+const Description = styled(Text).attrs({ noMargin: true, weight: "medium" })``;
 
 const BodyWrapper = styled.div`
   display: flex;
@@ -869,18 +1017,19 @@ const Wrapper = styled.div`
   position: relative;
 `;
 
-export const ConfirmWrapper = styled.div`
+export const ConfirmWrapper = styled(Section).attrs({
+  showPaddingVertical: false
+})`
   display: flex;
   justify-content: space-between;
   height: 100%;
   flex-direction: column;
-  padding: 0 15px;
 `;
 
 export const Address = styled.div`
   display: flex;
-  background-color: rgba(171, 154, 255, 0.15);
-  border: 1px solid rgba(171, 154, 255, 0.17);
+  background-color: ${(props) => props.theme.surfaceSecondary};
+  border: 1px solid ${(props) => props.theme.borderSecondary};
   padding: 7px 4px;
   border-radius: 10px;
 `;
