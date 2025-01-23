@@ -268,15 +268,15 @@ export default function WalletSwitcher({ open, close }: Props) {
                         alignItems: "center"
                       }}
                     >
-                      <CopyToClipboard
-                        labelStyle={{
-                          fontSize: 14,
-                          color: theme.secondaryText,
-                          fontWeight: 500
-                        }}
-                        label={formatAddress(wallet.address, 4)}
-                        text={wallet.address}
-                      />
+                      <Text
+                        variant="secondary"
+                        size="sm"
+                        weight="medium"
+                        noMargin
+                      >
+                        {formatAddress(wallet.address, 4)}
+                      </Text>
+                      <CopyToClipboard text={wallet.address} />
                       <QrCode02
                         height={16}
                         width={16}
