@@ -81,7 +81,10 @@ export function TransactionView({
   params: { id, gateway: gw, message }
 }: TransactionViewProps) {
   const { navigate, back } = useLocation();
-  const { back: backPath } = useSearchParams<{ back?: string }>();
+  const { back: backPath, fromSend } = useSearchParams<{
+    back?: string;
+    fromSend?: boolean;
+  }>();
 
   if (!id) {
     throw new Error(ErrorTypes.MissingTxId);
@@ -158,6 +161,10 @@ export function TransactionView({
 
     return transaction.owner.address === activeAddress ? "Sent" : "Received";
   }, [transaction, wallets]);
+
+  function handleDone() {
+    navigate((backPath as ArConnectRoutePath) || "/");
+  }
 
   useEffect(() => {
     if (!id || !graphqlGateways.length) return;
@@ -714,7 +721,12 @@ export function TransactionView({
             animate="shown"
             exit="hidden"
           >
-            <Section>
+            <Section style={{ gap: 12 }}>
+              {fromSend && (
+                <Button fullWidth onClick={handleDone}>
+                  {browser.i18n.getMessage("done")}
+                </Button>
+              )}
               <Button
                 variant="secondary"
                 fullWidth

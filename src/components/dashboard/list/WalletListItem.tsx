@@ -30,7 +30,7 @@ export default function WalletListItem({
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {name}
-          <Online />
+          {activeWallet && <Online />}
         </div>
       }
       subtitle={formattedAddress}

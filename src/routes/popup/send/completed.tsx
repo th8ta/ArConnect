@@ -67,7 +67,7 @@ export function TransactionCompletedView({
                 navigate(
                   `/transaction/${id}${
                     backPath ? `?back=${encodeURIComponent(backPath)}` : ""
-                  }` as ArConnectRoutePath
+                  }&fromSend=true` as ArConnectRoutePath
                 )
               }
             >

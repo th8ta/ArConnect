@@ -55,7 +55,6 @@ export function WalletsView() {
     <>
       <HeadV2
         title={browser.i18n.getMessage("manage_accounts")}
-        back={() => navigate("/quick-settings")}
         showOptions={false}
       />
       <Wrapper showPaddingVertical={false}>

@@ -46,7 +46,7 @@ export function MenuView({ params }: QuickSettingsViewProps) {
         height={56}
         title={
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {wallet.nickname}
+            {wallet?.nickname}
             <Online />
           </div>
         }
@@ -67,7 +67,7 @@ export function MenuView({ params }: QuickSettingsViewProps) {
             noMargin
             style={{ textAlign: "center", color: "white" }}
           >
-            {wallet.nickname?.charAt(0)?.toUpperCase() || "A"}
+            {wallet?.nickname?.charAt(0)?.toUpperCase() || "A"}
           </Text>
         </ListItemIcon>
       </ListItem>

@@ -111,23 +111,15 @@ export default function Token({
   };
 
   useEffect(() => {
-    (async () => {
+    const fetchLogo = async () => {
       if (!props?.id || logo) return;
-
-      if (props.defaultLogo) {
-        const logo = await getUserAvatar(props.defaultLogo);
-        setLogo(logo);
-      } else {
-        setLogo(arweaveLogo);
-      }
-    })();
-  }, [props, theme, logo, arweaveLogo]);
-
-  useEffect(() => {
-    if (!props.defaultLogo) {
-      setLogo(arweaveLogo);
-    }
-  }, [arweaveLogo]);
+      const logoUrl = props.defaultLogo
+        ? await getUserAvatar(props.defaultLogo)
+        : arweaveLogo;
+      setLogo(logoUrl || arweaveLogo);
+    };
+    fetchLogo();
+  }, [props, logo, arweaveLogo]);
 
   useEffect(() => {
     if (activeAddress && AO_NATIVE_TOKEN === props.id) {
