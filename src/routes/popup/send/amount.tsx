@@ -156,20 +156,6 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
     ""
   );
 
-  // currency setting
-  const [currency] = useSetting<string>("currency");
-
-  // aoTokens
-  const { tokens: assets, loading } = useAoTokens({ type: "asset" });
-  const { tokens: collectibles } = useAoTokens({ type: "collectible" });
-
-  const { prices } = useTokenPrices(
-    assets.map((t) => t.id).filter((id) => id !== "AR" && id !== EXP_TOKEN)
-  );
-
-  // set ao for following page
-  const [isAo, setIsAo] = useState<boolean>(false);
-
   // qty mode (fiat/token)
   const [qtyMode, setQtyMode] = useStorage<QtyMode>(
     {
@@ -187,6 +173,20 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
     },
     "AR"
   );
+
+  // currency setting
+  const [currency] = useSetting<string>("currency");
+
+  // aoTokens
+  const { tokens: assets } = useAoTokens({ type: "asset" });
+  const { tokens: collectibles } = useAoTokens({ type: "collectible" });
+
+  const { prices } = useTokenPrices(
+    assets.map((t) => t.id).filter((id) => id !== "AR" && id !== EXP_TOKEN)
+  );
+
+  // set ao for following page
+  const [isAo, setIsAo] = useState<boolean>(false);
 
   const token = useMemo(() => {
     const matchingTokenInAoToken = [...assets, ...collectibles].find(
@@ -208,19 +208,22 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
     };
   }, [tokenID, assets, collectibles]);
 
-  const { data: balance = "0" } = useTokenBalance(token, activeAddress);
+  const { data: balance = "0", isLoading } = useTokenBalance(
+    token,
+    activeAddress
+  );
 
   const degraded = useMemo(() => {
-    if (loading) return false;
+    if (isLoading) return false;
 
     return balance === null;
-  }, [token, loading]);
+  }, [token, isLoading]);
 
   // if the ID is defined on mount, that means that
   // we need to reset the qty field
   useEffect(() => {
     if (!id) return;
-    setTokenID(id);
+    // setTokenID(id);
     // TODO: commented this to make sure we don't reset the qty
     // field when note is set and returned to amount page
     // setQty("");
@@ -273,22 +276,38 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
   const [networkFee, setNetworkFee] = useState<string>("0");
 
   useEffect(() => {
-    (async () => {
-      if (token.id !== "AR") {
-        return setNetworkFee("0");
-      }
+    if (tokenID !== "AR") {
+      setNetworkFee("0");
+      return;
+    }
 
-      let byte = 0;
-      if (note) {
-        byte = new TextEncoder().encode(note).byteLength;
-      }
-      const gateway = await findGateway({});
-      const arweave = new Arweave(gateway);
-      const txPrice = await arweave.transactions.getPrice(byte, recipient);
+    const calculateNetworkFee = async () => {
+      try {
+        let byte = 0;
+        if (note) {
+          byte = new TextEncoder().encode(note).byteLength;
+        }
+        const gateway = await findGateway({});
+        const arweave = new Arweave(gateway);
+        const txPrice = await arweave.transactions.getPrice(byte, recipient);
 
-      setNetworkFee(arweave.ar.winstonToAr(txPrice));
-    })();
-  }, [token.id, note, recipient]);
+        if (tokenID === "AR") {
+          setNetworkFee(arweave.ar.winstonToAr(txPrice));
+        } else {
+          setNetworkFee("0");
+        }
+      } catch (error) {
+        console.error("Error calculating network fee:", error);
+        setNetworkFee("0");
+      }
+    };
+
+    const timeoutId = setTimeout(() => {
+      calculateNetworkFee();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [tokenID, note, recipient]);
 
   // maximum possible send amount
   const max = useMemo(() => {

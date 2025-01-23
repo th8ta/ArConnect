@@ -289,6 +289,7 @@ export function SendView({ params: { id } }: SendViewProps) {
       }
       if (recipientAddress) {
         await ExtensionStorage.set("last_send_qty", "");
+        await ExtensionStorage.set("last_send_token", id ?? "AR");
         await TempTransactionStorage.set("last_send_note", "");
         navigate(`/send/amount/${recipientAddress}/${id ?? "AR"}`);
       } else {
