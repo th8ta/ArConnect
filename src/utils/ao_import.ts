@@ -2,6 +2,7 @@ import { getAoTokens } from "~tokens";
 import { ExtensionStorage } from "./storage";
 
 export const AO_NATIVE_TOKEN = "m3PaWzK4PTG9lAaqYQPaPdOcXdO8hYqi5Fe9NWqXd0w";
+export const EXP_TOKEN = "aYrCboXVSl1AXL9gPFe3tfRxRf0ZmkOXH65mKT0HHZw";
 export const AO_NATIVE_TOKEN_BALANCE_MIRROR =
   "Pi-WmAQp2-mh-oWH9lWpz5EthlUDj_W0IusAv-RXhRk";
 export const AO_NATIVE_OLD_TOKEN =

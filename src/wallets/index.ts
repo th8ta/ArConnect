@@ -113,7 +113,11 @@ export async function openOrSelectWelcomePage(force = false) {
 
   // Make sure we clear any stored value from previous installations before
   // opening the welcome page to onboard the user:
-  await resetStorage();
+  // Skip reset for test environment
+  const manifest = browser.runtime.getManifest();
+  if (manifest["__TEST_MODE__"] !== true) {
+    await resetStorage();
+  }
 
   const url = browser.runtime.getURL("tabs/welcome.html");
   const welcomePageTabs = await browser.tabs.query({ url });
