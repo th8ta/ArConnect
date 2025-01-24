@@ -22,7 +22,8 @@ export class WanderEmbedded {
     const button = new WanderButton({
       buttonStyles: options?.buttonStyles,
       onClick: () => this.open(),
-      buttonRef: options?.buttonRef
+      logo: options?.logo,
+      balance: options?.balance
     });
 
     const iframe = new WanderIframe({
@@ -31,12 +32,6 @@ export class WanderEmbedded {
       iframeRef: options?.iframeRef,
       iframeStyles: options?.iframeStyles
     });
-
-    // Only append elements to DOM if they weren't provided as refs
-    if (!options?.buttonRef) {
-      container.appendChild(button.getElement());
-      document.body.appendChild(container);
-    }
 
     if (!options?.iframeRef) {
       document.body.appendChild(iframe.getElement());
@@ -89,9 +84,6 @@ export class WanderEmbedded {
 
   public destroy(): void {
     this.components.iframe.destroy();
-    // Only remove container if we created the button
-    if (!this.options.buttonRef) {
-      this.components.container.remove();
-    }
+    this.components.container.remove();
   }
 }

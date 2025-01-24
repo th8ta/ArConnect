@@ -14,14 +14,9 @@ export class WanderButton {
   }
 
   private initializeButton(): HTMLButtonElement {
-    if (this.config.buttonRef) {
-      // Use existing button but apply our styles and click handler
-      this.button = this.config.buttonRef;
-    } else {
-      // Create new button
-      this.button = document.createElement("button");
-      this.button.innerText = "Open";
-    }
+    // Create new button
+    this.button = document.createElement("button");
+    this.button.innerText = "Open";
 
     const defaultStyles: WanderButtonStyles = {
       backgroundColor: "black",
@@ -39,15 +34,12 @@ export class WanderButton {
       zIndex: "9999"
     };
 
-    // Only apply default styles if no buttonRef was provided
-    if (!this.config.buttonRef) {
-      Object.assign(this.button.style, defaultStyles);
-    }
-
     // Always apply custom styles if provided
     if (this.config.buttonStyles) {
-      const styles = { ...defaultStyles, ...this.config.buttonStyles };
+      const styles = { ...this.config.buttonStyles };
       Object.assign(this.button.style, styles);
+    } else {
+      Object.assign(this.button.style, defaultStyles);
     }
 
     if (this.config.onClick) {

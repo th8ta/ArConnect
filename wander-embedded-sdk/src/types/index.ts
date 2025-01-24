@@ -1,5 +1,6 @@
 export interface WanderEmbeddedOptions {
-  buttonRef?: HTMLButtonElement;
+  logo?: string;
+  balance?: string;
   iframeRef?: HTMLIFrameElement;
   buttonStyles?: CSSStyleDeclaration;
   iframeStyles?: CSSStyleDeclaration;
