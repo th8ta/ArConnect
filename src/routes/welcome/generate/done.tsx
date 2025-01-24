@@ -15,7 +15,7 @@ import {
 } from "~utils/analytics";
 import useSetting from "~settings/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import JSConfetti from "js-confetti";
 import { useLocation } from "~wallets/router/router.utils";
 import { loadTokens } from "~tokens/token";

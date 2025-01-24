@@ -1,4 +1,4 @@
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import styled from "styled-components";
 import PermissionCheckbox from "~components/auth/PermissionCheckbox";
 import { ExtensionStorage } from "~utils/storage";

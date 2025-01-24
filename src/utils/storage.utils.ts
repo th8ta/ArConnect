@@ -1,4 +1,3 @@
-import browser from "webextension-polyfill";
 import { ExtensionStorage } from "~utils/storage";
 
 export const ARCONNECT_THEME_BACKGROUND_COLOR =
@@ -17,7 +16,7 @@ export async function resetStorage() {
   try {
     // get all keys except gateways
     const allStoredKeys = Object.keys(
-      (await browser.storage.local.get(null)) || {}
+      (await ExtensionStorage.getAll()) || {}
     ).filter((key) => key !== "gateways");
 
     // remove all keys except gateways

@@ -17,7 +17,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { unlock as globalUnlock } from "~wallets/auth";
 import { useEffect, useMemo, useState } from "react";
 import { InformationIcon } from "@iconicicons/react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
 import { addApp } from "~applications";

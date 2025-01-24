@@ -89,6 +89,8 @@ export async function handleAppConfigChange(
     }
   }
 
+  // TODO: Update this to work with Embedded:
+
   // send permissions to the appropriate tab
   await forEachTab(async (tab) => {
     // return if no tab url is present

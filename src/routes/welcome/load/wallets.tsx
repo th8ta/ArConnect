@@ -10,7 +10,7 @@ import type { KeystoneAccount } from "~wallets/hardware/keystone";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { ArrowRightIcon } from "@iconicicons/react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { PasswordContext, type SetupWelcomeViewParams } from "../setup";
 import {
   ButtonV2,

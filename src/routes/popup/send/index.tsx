@@ -30,8 +30,11 @@ import {
   fractionedToBalance,
   getCurrencySymbol
 } from "~tokens/currency";
-import { useStorage } from "@plasmohq/storage/hook";
-import { ExtensionStorage, TempTransactionStorage } from "~utils/storage";
+import {
+  ExtensionStorage,
+  TempTransactionStorage,
+  useStorage
+} from "~utils/storage";
 import { loadTokenLogo, type Token as TokenInterface } from "~tokens/token";
 import { useTheme } from "~utils/theme";
 import arLogoLight from "url:/assets/ar/logo_light.png";

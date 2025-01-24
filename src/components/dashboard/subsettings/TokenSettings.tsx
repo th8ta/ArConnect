@@ -8,7 +8,7 @@ import {
 } from "@arconnect/components";
 import type { TokenType } from "~tokens/token";
 import { Token as aoToken } from "ao-tokens";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { TrashIcon } from "@iconicicons/react";
 import { removeToken } from "~tokens";

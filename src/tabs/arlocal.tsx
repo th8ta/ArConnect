@@ -2,7 +2,7 @@ import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { RefreshButton } from "~components/IconButton";
 import { useEffect, useMemo, useState } from "react";
 import { urlToGateway } from "~gateways/utils";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { RefreshIcon } from "@iconicicons/react";
 import {

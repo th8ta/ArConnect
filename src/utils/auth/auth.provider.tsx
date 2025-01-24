@@ -34,7 +34,10 @@ import { isomorphicOnMessage } from "~utils/messaging/messaging.utils";
 import type { IBridgeMessage } from "@arconnect/webext-bridge";
 import { log, LOG_GROUP } from "~utils/log/log.utils";
 import { isError } from "~utils/error/error.utils";
-import type { RouteOverride } from "~wallets/router/router.types";
+import type {
+  RouteOverride,
+  RouteRedirect
+} from "~wallets/router/router.types";
 
 interface AuthRequestsContextState {
   authRequests: AuthRequest[];
@@ -60,7 +63,7 @@ export const AuthRequestsContext = createContext<AuthRequestsContextData>({
 });
 
 interface AuthRequestProviderProps extends PropsWithChildren {
-  useStatusOverride: () => RouteOverride;
+  useStatusOverride: () => RouteOverride | RouteRedirect;
 }
 
 export function AuthRequestsProvider({
@@ -89,7 +92,7 @@ export function AuthRequestsProvider({
     // clear automatically.
 
     function closeOrClear() {
-      if (process.env.PLASMO_PUBLIC_APP_TYPE !== "extension") {
+      if (import.meta.env?.VITE_IS_EMBEDDED_APP === "1") {
         // TODO: This might cause an infinite loop in the embedded wallet:
         setAuthRequestContextState(AUTH_REQUESTS_CONTEXT_INITIAL_STATE);
       } else {

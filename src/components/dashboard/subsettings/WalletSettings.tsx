@@ -13,12 +13,12 @@ import { CopyIcon, DownloadIcon, TrashIcon } from "@iconicicons/react";
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { removeWallet, type StoredWallet } from "~wallets";
 import { useEffect, useMemo, useState } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { IconButton } from "~components/IconButton";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
-import { downloadFile } from "~utils/file";
+import { downloadKeyfile } from "~utils/file";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -147,11 +147,7 @@ export function WalletSettingsDashboardView({
       );
 
       // download the file
-      downloadFile(
-        JSON.stringify(decrypted, null, 2),
-        "application/json",
-        `arweave-keyfile-${address}.json`
-      );
+      downloadKeyfile(address, decrypted);
 
       // remove wallet from memory
       freeDecryptedWallet(decrypted);

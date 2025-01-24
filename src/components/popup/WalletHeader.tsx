@@ -1,6 +1,6 @@
 import { type MouseEventHandler, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import HardwareWalletIcon, {
   hwIconAnimateProps
@@ -412,7 +412,7 @@ export default function WalletHeader() {
                         activeAppData ? "appConnected" : "not_connected"
                       )}
                   </AppName>
-                  <AppUrl>{getAppURL(activeTab.url)}</AppUrl>
+                  <AppUrl>{getAppURL(activeTab?.url)}</AppUrl>
                 </div>
               </AppInfo>
               <AppOptions>
@@ -440,7 +440,7 @@ export default function WalletHeader() {
                       <ButtonV2
                         fullWidth
                         onClick={async () => {
-                          await removeApp(getAppURL(activeTab.url));
+                          await removeApp(getAppURL(activeTab?.url));
                           setActiveAppData(undefined);
                           setAppDataOpen(false);
                         }}

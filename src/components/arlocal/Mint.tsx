@@ -6,7 +6,7 @@ import {
   useToasts
 } from "@arconnect/components";
 import { InputWithBtn, InputWrapper } from "./InputWrapper";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
 import browser from "webextension-polyfill";
