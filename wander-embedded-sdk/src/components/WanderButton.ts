@@ -14,6 +14,7 @@ export class WanderButton {
   }
 
   private initializeButton(): HTMLButtonElement {
+    // TODO: Add logo and balance if provided
     // Create new button
     this.button = document.createElement("button");
     this.button.innerText = "Open";

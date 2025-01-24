@@ -1,4 +1,8 @@
-import { OutgoingMessage, isIncomingMessage } from "../types/messages";
+import {
+  IncomingResizeMessageData,
+  OutgoingMessage,
+  isIncomingMessage
+} from "../types/messages";
 import { WanderIframeConfig, WanderIframeStyles } from "../types/wander-iframe";
 
 export class WanderIframe {
@@ -25,9 +29,10 @@ export class WanderIframe {
     this.iframe.style.display = "none";
   }
 
-  public resize(dimensions: { width: number; height: number }): void {
-    this.iframe.style.setProperty("--iframe-width", `${dimensions.width}px`);
-    this.iframe.style.setProperty("--iframe-height", `${dimensions.height}px`);
+  public resize(data: IncomingResizeMessageData): void {
+    data.width &&
+      this.iframe.style.setProperty("--iframe-width", `${data.width}px`);
+    this.iframe.style.setProperty("--iframe-height", `${data.height}px`);
   }
 
   public sendMessage(message: OutgoingMessage): void {

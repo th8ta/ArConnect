@@ -1,7 +1,11 @@
 import { WanderEmbeddedOptions } from "./types";
 import { WanderButton } from "./components/WanderButton";
 import { WanderIframe } from "./components/WanderIframe";
-import { IncomingMessage } from "./types/messages";
+import {
+  IncomingMessage,
+  IncomingMessageId,
+  IncomingResizeMessageData
+} from "./types/messages";
 import { UIComponents } from "./types/embedded";
 
 export class WanderEmbedded {
@@ -46,19 +50,22 @@ export class WanderEmbedded {
     return container;
   }
 
-  private handleIframeMessage(message: IncomingMessage): void {
+  private handleIframeMessage(
+    message: IncomingMessage<IncomingMessageId>
+  ): void {
     switch (message.type) {
-      case "embedded_open":
-        this.components.iframe.show();
-        this.options.onOpen?.();
-        break;
       case "embedded_close":
         this.components.iframe.hide();
         this.options.onClose?.();
         break;
       case "embedded_resize":
-        this.components.iframe.resize(message.payload);
-        this.options.onResize?.(message.payload);
+        this.components.iframe.resize(
+          message.data as IncomingResizeMessageData
+        );
+        this.components.iframe.show();
+
+        this.options.onOpen?.();
+        this.options.onResize?.(message.data as IncomingResizeMessageData);
         break;
     }
   }

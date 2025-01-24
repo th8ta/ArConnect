@@ -1,3 +1,5 @@
+import { IncomingResizeMessageData } from "./messages";
+
 export interface WanderEmbeddedOptions {
   logo?: string;
   balance?: string;
@@ -6,7 +8,7 @@ export interface WanderEmbeddedOptions {
   iframeStyles?: CSSStyleDeclaration;
   onOpen?: () => void;
   onClose?: () => void;
-  onResize?: (dimensions: { width: number; height: number }) => void;
+  onResize?: (data: IncomingResizeMessageData) => void;
 }
 
 export type Theme = {
