@@ -8,7 +8,7 @@ const Wrapper = styled.div<{ withBackground?: boolean }>`
   background: ${({ theme, withBackground }) =>
     withBackground
       ? `linear-gradient(180deg, #26126f 0%, ${
-          theme.displayTheme === "dark" ? "#111" : "#f2f2f2"
+          theme.displayTheme === "dark" ? "#111" : "#FFF"
         } 150px);`
       : "transparent"};
 `;

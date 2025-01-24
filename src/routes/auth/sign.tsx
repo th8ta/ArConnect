@@ -19,13 +19,13 @@ import {
   TransactionProperty
 } from "~routes/popup/transaction/[id]";
 import {
-  InputV2,
+  Input,
   Section,
   Spacer,
   Text,
   useInput,
   useToasts
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
 import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 import Wrapper from "~components/auth/Wrapper";
@@ -376,9 +376,9 @@ export function SignAuthRequestView() {
         {askPassword && (
           <>
             <PasswordWrapper>
-              <InputV2
+              <Input
                 placeholder="Enter your password"
-                small
+                sizeVariant="small"
                 {...passwordInput.bindings}
                 label={"Password"}
                 type="password"

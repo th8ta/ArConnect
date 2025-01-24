@@ -14,7 +14,7 @@ import {
 import { useCurrentAuthRequest } from "~utils/auth/auth.hooks";
 import { AnimatePresence, motion } from "framer-motion";
 import { unlock as globalUnlock } from "~wallets/auth";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
@@ -24,7 +24,7 @@ import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import Label from "~components/auth/Label";
 import App from "~components/auth/App";
-import styled, { useTheme } from "styled-components";
+import styled, { useTheme, type DefaultTheme } from "styled-components";
 import { EventType, trackEvent } from "~utils/analytics";
 import Application, { type SignPolicy } from "~applications/application";
 import { defaultGateway } from "~gateways/gateway";
@@ -40,6 +40,8 @@ import Image from "~components/common/Image";
 import { Flex } from "~components/common/Flex";
 
 type Page = "unlock" | "connect" | "permissions" | "confirm";
+
+const PAGES_WITH_BACKGROUND = new Set(["connect", "unlock"]);
 
 export function ConnectAuthRequestView() {
   const theme = useTheme();
@@ -89,6 +91,10 @@ export function ConnectAuthRequestView() {
   const [requestedPermCopy, setRequestedPermCopy] = useState<PermissionType[]>(
     []
   );
+
+  const withBackground = useMemo(() => {
+    return PAGES_WITH_BACKGROUND.has(page);
+  }, [page]);
 
   const isCustomPermissions = useMemo(() => {
     if (requestedPermissions.length !== requestedPermCopy.length) return true;
@@ -166,15 +172,15 @@ export function ConnectAuthRequestView() {
     acceptRequest();
   }
 
-  async function handleBack() {
+  const handleBack = useCallback(async () => {
     if (page === "confirm") {
       setPage("connect");
     } else if (page === "permissions") {
       setPage("confirm");
     }
-  }
+  }, [page]);
 
-  async function handlePrimaryOnClick() {
+  const handlePrimaryOnClick = useCallback(async () => {
     if (page === "connect") {
       setPage("confirm");
     } else if (page === "confirm") {
@@ -186,7 +192,7 @@ export function ConnectAuthRequestView() {
     } else if (page === "unlock") {
       await connect();
     }
-  }
+  }, [page, askPassword]);
 
   useEffect(() => {
     (async () => {
@@ -215,185 +221,17 @@ export function ConnectAuthRequestView() {
 
   useEffect(() => setPermissions(requestedPermissions), [requestedPermissions]);
 
-  const UnlockPage = () => (
-    <UnlockWrapper>
-      <Section
-        style={{ display: "flex", flexDirection: "column", gap: "32px" }}
-      >
-        <div
-          style={{
-            textAlign: "center",
-            height: "200px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-end"
-          }}
-        >
-          <AppIconsWrapper>
-            <IconWrapper src={appInfo.logo} alt={appInfo.name} />
-            <IconWrapper
-              backgroundColor="#EBE0FF"
-              src={WanderIcon}
-              style={{ marginLeft: "-4px" }}
-              alt="Wander Icon"
-            />
-          </AppIconsWrapper>
-          <Spacer y={1} />
-          <div style={{ textAlign: "center", gap: 4 }}>
-            <ConnectToApp>
-              {browser.i18n.getMessage("enter_your_password")}
-            </ConnectToApp>
-            <Gateway>
-              {browser.i18n.getMessage("gateway")}:{" "}
-              {(gateway || defaultGateway)?.host || ""}
-            </Gateway>
-          </div>
-        </div>
-        <Input
-          type="password"
-          placeholder={browser.i18n.getMessage("enter_your_password")}
-          fullWidth
-          {...passwordInput.bindings}
-          autoFocus
-          onKeyDown={(e) => {
-            if (e.key !== "Enter") return;
-            connect();
-          }}
-        />
-      </Section>
-    </UnlockWrapper>
-  );
-
-  const PermissionsPage = () => (
-    <Permissions
-      connectAuthRequest={authRequest}
-      requestedPermissions={requestedPermissions}
-      update={setRequestedPermissions}
-      closeEdit={() => setPage("confirm")}
-    />
-  );
-
-  const ConnectPage = () => (
-    <ConnectPageContent>
-      <ConnectPageSection>
-        <ConnectPageSectionHeader>
-          <AppIconsWrapper>
-            <IconWrapper src={appInfo.logo} alt={appInfo.name} />
-            <IconWrapper
-              backgroundColor="#EBE0FF"
-              src={WanderIcon}
-              style={{ marginLeft: "-4px" }}
-              alt="Wander Icon"
-            />
-          </AppIconsWrapper>
-          <Spacer y={1} />
-          <Flex direction="column" gap={4} justify="center">
-            <ConnectToApp>
-              {browser.i18n.getMessage("connect_to_app", [appInfo.name || url])}
-            </ConnectToApp>
-            <Gateway>
-              {browser.i18n.getMessage("gateway")}:{" "}
-              {(gateway || defaultGateway)?.host || ""}
-            </Gateway>
-          </Flex>
-        </ConnectPageSectionHeader>
-        <div>
-          <SecondaryText fontSize={16}>
-            {browser.i18n.getMessage("select_account", [appInfo.name || url])}:
-          </SecondaryText>
-          <Spacer y={0.5} />
-          <ConnectWalletWrapper onClick={() => setSwitcherOpen(true)}>
-            <div style={{ display: "flex", flexDirection: "row", gap: "12px" }}>
-              <AccountSquircle>
-                <AccountInitial>
-                  {wallet?.nickname?.charAt(0) || "A"}
-                </AccountInitial>
-              </AccountSquircle>
-              <div>
-                <WalletName>{wallet?.nickname}</WalletName>
-                <SecondaryText>
-                  {formatAddress(activeAddress || "", 4)}
-                </SecondaryText>
-              </div>
-            </div>
-            <ChangeText>{browser.i18n.getMessage("change")}</ChangeText>
-            <WalletSwitcher
-              open={switcherOpen}
-              close={() => setSwitcherOpen(false)}
-            />
-          </ConnectWalletWrapper>
-        </div>
-      </ConnectPageSection>
-    </ConnectPageContent>
-  );
-
-  const ConfirmPage = () => (
-    <ConnectPageContent>
-      <Section
-        showPaddingVertical={false}
-        style={{ display: "flex", flexDirection: "column", gap: "24px" }}
-      >
-        <div style={{ textAlign: "center" }}>
-          <PrimaryText fontSize={20} fontWeight={600}>
-            {browser.i18n.getMessage("confirm_permissions", [
-              appInfo.name || url
-            ])}
-          </PrimaryText>
-          <SecondaryText>{url}</SecondaryText>
-        </div>
-        <PolicyOptionContainer>
-          {signPolicyOptions.map((option) => (
-            <PolicyOption key={option} onClick={() => setSignPolicy(option)}>
-              <Checkbox
-                size={20}
-                onChange={() => setSignPolicy(option)}
-                checked={signPolicy === option}
-              />
-              <div>
-                <PrimaryText fontSize={16}>
-                  {browser.i18n.getMessage(option)}
-                </PrimaryText>
-              </div>
-            </PolicyOption>
-          ))}
-        </PolicyOptionContainer>
-        <CustomPermissionsButton onClick={() => setPage("permissions")}>
-          <PrimaryText fontSize={16}>
-            {browser.i18n.getMessage(
-              isCustomPermissions
-                ? "custom_permissions_set"
-                : "set_custom_permissions"
-            )}
-          </PrimaryText>
-          {isCustomPermissions ? (
-            <Edit02 height={24} width={24} color={theme.tertiaryText} />
-          ) : (
-            <ChevronRight height={24} width={24} color={theme.tertiaryText} />
-          )}
-        </CustomPermissionsButton>
-        <CustomPermissionsInfo>
-          <div>
-            <InfoCircle height={24} width={24} color={theme.secondaryText} />
-          </div>
-          <SecondaryText fontSize={14}>
-            {browser.i18n.getMessage(`${signPolicy}_description`)}
-          </SecondaryText>
-        </CustomPermissionsInfo>
-      </Section>
-    </ConnectPageContent>
-  );
-
   return (
-    <Wrapper withBackground>
+    <Wrapper withBackground={withBackground}>
       <>
         <HeadAuth
-          showHead={!["connect", "unlock"].includes(page)}
+          showHead={!PAGES_WITH_BACKGROUND.has(page)}
           title={browser.i18n.getMessage(page)}
           back={handleBack}
           appInfo={appInfo}
         />
 
-        {!["connect", "unlock"].includes(page) && (
+        {!PAGES_WITH_BACKGROUND.has(page) && (
           <App
             appName={appInfo.name || url}
             appUrl={url}
@@ -406,10 +244,44 @@ export function ConnectAuthRequestView() {
 
         <ContentWrapper style={{ flex: 1 }}>
           <AnimatePresence initial={false}>
-            {page === "connect" && <ConnectPage />}
-            {page === "confirm" && <ConfirmPage />}
-            {page === "unlock" && <UnlockPage />}
-            {page === "permissions" && <PermissionsPage />}
+            {page === "connect" && (
+              <ConnectPage
+                appInfo={appInfo}
+                url={url}
+                gateway={gateway}
+                wallet={wallet}
+                activeAddress={activeAddress}
+                switcherOpen={switcherOpen}
+                setSwitcherOpen={setSwitcherOpen}
+              />
+            )}
+            {page === "confirm" && (
+              <ConfirmPage
+                appInfo={appInfo}
+                url={url}
+                signPolicy={signPolicy}
+                setSignPolicy={setSignPolicy}
+                isCustomPermissions={isCustomPermissions}
+                setPage={setPage}
+                theme={theme}
+              />
+            )}
+            {page === "unlock" && (
+              <UnlockPage
+                appInfo={appInfo}
+                gateway={gateway}
+                passwordBindings={passwordInput.bindings}
+                connect={connect}
+              />
+            )}
+            {page === "permissions" && (
+              <PermissionsPage
+                authRequest={authRequest}
+                requestedPermissions={requestedPermissions}
+                setRequestedPermissions={setRequestedPermissions}
+                setPage={setPage}
+              />
+            )}
           </AnimatePresence>
         </ContentWrapper>
       </>
@@ -438,6 +310,224 @@ export function ConnectAuthRequestView() {
     </Wrapper>
   );
 }
+
+const UnlockPage = ({
+  appInfo,
+  gateway,
+  passwordBindings,
+  connect
+}: {
+  appInfo: any;
+  gateway: any;
+  passwordBindings: any;
+  connect: () => Promise<void>;
+}) => (
+  <UnlockWrapper>
+    <Section style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+      <div
+        style={{
+          textAlign: "center",
+          height: "200px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-end"
+        }}
+      >
+        <AppIconsWrapper>
+          <IconWrapper src={appInfo.logo} alt={appInfo.name} />
+          <IconWrapper
+            backgroundColor="#EBE0FF"
+            src={WanderIcon}
+            style={{ marginLeft: "-4px" }}
+            alt="Wander Icon"
+          />
+        </AppIconsWrapper>
+        <Spacer y={1} />
+        <div style={{ textAlign: "center", gap: 4 }}>
+          <ConnectToApp>
+            {browser.i18n.getMessage("enter_your_password")}
+          </ConnectToApp>
+          <Gateway>
+            {browser.i18n.getMessage("gateway")}:{" "}
+            {(gateway || defaultGateway)?.host || ""}
+          </Gateway>
+        </div>
+      </div>
+      <Input
+        type="password"
+        placeholder={browser.i18n.getMessage("enter_your_password")}
+        fullWidth
+        {...passwordBindings}
+        autoFocus
+        onKeyDown={(e) => {
+          if (e.key !== "Enter") return;
+          connect();
+        }}
+      />
+    </Section>
+  </UnlockWrapper>
+);
+
+const PermissionsPage = ({
+  authRequest,
+  requestedPermissions,
+  setRequestedPermissions,
+  setPage
+}: {
+  authRequest: any;
+  requestedPermissions: PermissionType[];
+  setRequestedPermissions: (perms: PermissionType[]) => void;
+  setPage: (page: Page) => void;
+}) => (
+  <Permissions
+    connectAuthRequest={authRequest}
+    requestedPermissions={requestedPermissions}
+    update={setRequestedPermissions}
+    closeEdit={() => setPage("confirm")}
+  />
+);
+
+const ConnectPage = ({
+  appInfo,
+  url,
+  gateway,
+  wallet,
+  activeAddress,
+  switcherOpen,
+  setSwitcherOpen
+}: {
+  appInfo: any;
+  url: string;
+  gateway: any;
+  wallet: any;
+  activeAddress: string;
+  switcherOpen: boolean;
+  setSwitcherOpen: (open: boolean) => void;
+}) => (
+  <ConnectPageContent>
+    <ConnectPageSection>
+      <ConnectPageSectionHeader>
+        <AppIconsWrapper>
+          <IconWrapper src={appInfo.logo} alt={appInfo.name} />
+          <IconWrapper
+            backgroundColor="#EBE0FF"
+            src={WanderIcon}
+            style={{ marginLeft: "-4px" }}
+            alt="Wander Icon"
+          />
+        </AppIconsWrapper>
+        <Spacer y={1} />
+        <Flex direction="column" gap={4} justify="center">
+          <ConnectToApp>
+            {browser.i18n.getMessage("connect_to_app", [appInfo.name || url])}
+          </ConnectToApp>
+          <Gateway>
+            {browser.i18n.getMessage("gateway")}:{" "}
+            {(gateway || defaultGateway)?.host || ""}
+          </Gateway>
+        </Flex>
+      </ConnectPageSectionHeader>
+      <div>
+        <SecondaryText fontSize={16}>
+          {browser.i18n.getMessage("select_account", [appInfo.name || url])}:
+        </SecondaryText>
+        <Spacer y={0.5} />
+        <ConnectWalletWrapper onClick={() => setSwitcherOpen(true)}>
+          <div style={{ display: "flex", flexDirection: "row", gap: "12px" }}>
+            <AccountSquircle>
+              <AccountInitial>
+                {wallet?.nickname?.charAt(0) || "A"}
+              </AccountInitial>
+            </AccountSquircle>
+            <div>
+              <WalletName>{wallet?.nickname}</WalletName>
+              <SecondaryText>
+                {formatAddress(activeAddress || "", 4)}
+              </SecondaryText>
+            </div>
+          </div>
+          <ChangeText>{browser.i18n.getMessage("change")}</ChangeText>
+          <WalletSwitcher
+            open={switcherOpen}
+            close={() => setSwitcherOpen(false)}
+          />
+        </ConnectWalletWrapper>
+      </div>
+    </ConnectPageSection>
+  </ConnectPageContent>
+);
+
+const ConfirmPage = ({
+  appInfo,
+  url,
+  signPolicy,
+  setSignPolicy,
+  isCustomPermissions,
+  setPage,
+  theme
+}: {
+  appInfo: any;
+  url: string;
+  signPolicy: SignPolicy;
+  setSignPolicy: (policy: SignPolicy) => void;
+  isCustomPermissions: boolean;
+  setPage: (page: Page) => void;
+  theme: DefaultTheme;
+}) => (
+  <ConnectPageContent>
+    <Section
+      showPaddingVertical={false}
+      style={{ display: "flex", flexDirection: "column", gap: "24px" }}
+    >
+      <div style={{ textAlign: "center" }}>
+        <PrimaryText fontSize={20} fontWeight={600}>
+          {browser.i18n.getMessage("confirm_permissions", [
+            appInfo.name || url
+          ])}
+        </PrimaryText>
+        <SecondaryText>{url}</SecondaryText>
+      </div>
+      <PolicyOptionContainer>
+        {signPolicyOptions.map((option) => (
+          <PolicyOption key={option} onClick={() => setSignPolicy(option)}>
+            <Checkbox
+              size={20}
+              onChange={() => setSignPolicy(option)}
+              checked={signPolicy === option}
+            />
+            <div>
+              <PrimaryText fontSize={16}>
+                {browser.i18n.getMessage(option)}
+              </PrimaryText>
+            </div>
+          </PolicyOption>
+        ))}
+      </PolicyOptionContainer>
+      <CustomPermissionsButton onClick={() => setPage("permissions")}>
+        <PrimaryText fontSize={16}>
+          {browser.i18n.getMessage(
+            isCustomPermissions
+              ? "custom_permissions_set"
+              : "set_custom_permissions"
+          )}
+        </PrimaryText>
+        {isCustomPermissions ? (
+          <Edit02 height={24} width={24} color={theme.tertiaryText} />
+        ) : (
+          <ChevronRight height={24} width={24} color={theme.tertiaryText} />
+        )}
+      </CustomPermissionsButton>
+      <CustomPermissionsInfo>
+        <div>
+          <InfoCircle height={24} width={24} color={theme.secondaryText} />
+        </div>
+        <SecondaryText fontSize={14}>
+          {browser.i18n.getMessage(`${signPolicy}_description`)}
+        </SecondaryText>
+      </CustomPermissionsInfo>
+    </Section>
+  </ConnectPageContent>
+);
 
 const ContentWrapper = styled.div`
   display: flex;

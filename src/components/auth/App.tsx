@@ -26,29 +26,29 @@ export default function App({
   allowance,
   showTitle = true
 }: Props) {
-  // allowance spent in AR
-  const spent = useMemo(() => {
-    if (!allowance) return new Quantity("0");
+  // // allowance spent in AR
+  // const spent = useMemo(() => {
+  //   if (!allowance) return new Quantity("0");
 
-    return winstonToArFormatted(allowance.spent);
-  }, [allowance]);
+  //   return winstonToArFormatted(allowance.spent);
+  // }, [allowance]);
 
-  // allowance limit in AR
-  const limit = useMemo(() => {
-    if (!allowance) return new Quantity("0");
+  // // allowance limit in AR
+  // const limit = useMemo(() => {
+  //   if (!allowance) return new Quantity("0");
 
-    return winstonToArFormatted(allowance.limit);
-  }, [allowance]);
+  //   return winstonToArFormatted(allowance.limit);
+  // }, [allowance]);
 
-  function winstonToArFormatted(val: string) {
-    const arweave = new Arweave(defaultGateway);
-    const arVal = arweave.ar.winstonToAr(val.toString());
+  // function winstonToArFormatted(val: string) {
+  //   const arweave = new Arweave(defaultGateway);
+  //   const arVal = arweave.ar.winstonToAr(val.toString());
 
-    return new Quantity("0", 20n).fromString(arVal);
-  }
+  //   return new Quantity("0", 20n).fromString(arVal);
+  // }
 
-  // display theme
-  const theme = useDisplayTheme();
+  // // display theme
+  // const theme = useDisplayTheme();
 
   return (
     <>

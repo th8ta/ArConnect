@@ -1,12 +1,12 @@
 import {
-  InputV2,
+  Input,
   Loading,
   Section,
   Spacer,
   Text,
   useInput,
   useToasts
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import {
   FiatAmount,
   AmountTitle,
@@ -380,9 +380,9 @@ export function SignDataItemAuthRequestView() {
         {askPassword && (
           <>
             <PasswordWrapper>
-              <InputV2
+              <Input
                 placeholder="Enter your password"
-                small
+                sizeVariant="small"
                 {...passwordInput.bindings}
                 label={"Password"}
                 type="password"

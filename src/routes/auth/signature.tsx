@@ -1,4 +1,4 @@
-import { Section, Text } from "@arconnect/components";
+import { Section, Text } from "@arconnect/components-rebrand";
 import Message from "~components/auth/Message";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";

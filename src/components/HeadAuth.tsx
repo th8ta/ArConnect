@@ -242,6 +242,7 @@ function getAuthRequestLogIndicatorStyles(props: AuthRequestIndicatorProps) {
 const PreLogItem = styled.pre<AuthRequestIndicatorProps>`
   position: relative;
   padding: 16px 16px 16px 32px;
+  color: ${(props) => props.theme.primaryText};
 
   &::before {
     content: "";

@@ -95,7 +95,8 @@ export function AuthButtons({
 const PStatusLabel = styled.p<{ status: AuthRequestStatus }>`
   margin: 0;
   padding: 16px;
-  background: ${(props) =>
-    props.theme.displayTheme === "light" ? "#f5f5f5" : "#191919"};
+  background: ${(props) => props.theme.surfaceSecondary};
+  color: ${(props) => props.theme.primaryText};
   border-radius: 10px;
+  font-weight: 500;
 `;

@@ -221,7 +221,7 @@ const Wrapper = styled(Section)`
   background: linear-gradient(
     180deg,
     #26126f 0%,
-    ${({ theme }) => (theme.displayTheme === "dark" ? "#111" : "#f2f2f2")} 150px
+    ${({ theme }) => (theme.displayTheme === "dark" ? "#111" : "#FFF")} 150px
   );
 `;
 
