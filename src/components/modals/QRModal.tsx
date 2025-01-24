@@ -1,4 +1,4 @@
-import { ModalV2 } from "@arconnect/components-rebrand";
+import { Modal } from "@arconnect/components-rebrand";
 import { useRef } from "react";
 import { ContentWrapper, Content } from "./Components";
 import { QRCodeSVG } from "qrcode.react";
@@ -15,7 +15,7 @@ const QRModal = ({ isOpen, setOpen, address }: Props) => {
   const modalRef = useRef(null);
 
   return (
-    <ModalV2
+    <Modal
       root={document.getElementById("__plasmo")}
       open={isOpen}
       setOpen={setOpen}
@@ -35,7 +35,7 @@ const QRModal = ({ isOpen, setOpen, address }: Props) => {
           </QRCodeWrapper>
         </Content>
       </ContentWrapper>
-    </ModalV2>
+    </Modal>
   );
 };
 

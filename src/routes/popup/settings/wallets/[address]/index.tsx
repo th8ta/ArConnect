@@ -4,7 +4,7 @@ import {
   ListItem,
   Section,
   Text,
-  TooltipV2,
+  Tooltip,
   useInput,
   useToasts
 } from "@arconnect/components-rebrand";
@@ -167,7 +167,7 @@ export function WalletView({ params: { address } }: WalletViewProps) {
               <WalletName>
                 {ansLabel || wallet.nickname}
                 {wallet.type === "hardware" && (
-                  <TooltipV2
+                  <Tooltip
                     content={
                       wallet.api.slice(0, 1).toUpperCase() + wallet.api.slice(1)
                     }
@@ -176,7 +176,7 @@ export function WalletView({ params: { address } }: WalletViewProps) {
                     <HardwareWalletIcon
                       src={wallet.api === "keystone" ? keystoneLogo : undefined}
                     />
-                  </TooltipV2>
+                  </Tooltip>
                 )}
               </WalletName>
               <Edit02

@@ -2,7 +2,7 @@ import {
   type DisplayTheme,
   Section,
   Text,
-  TooltipV2
+  Tooltip
 } from "@arconnect/components-rebrand";
 import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
 import { AnimatePresence } from "framer-motion";
@@ -129,7 +129,7 @@ export default function HeadV2({
       </PageTitle>
 
       {!showOptions && appName ? (
-        <TooltipV2 content={appName} position="bottomEnd">
+        <Tooltip content={appName} position="bottomEnd">
           <SquircleWrapper>
             <SquircleImg
               img={appInfo?.logo}
@@ -137,7 +137,7 @@ export default function HeadV2({
               onClick={onAppInfoClick}
             />
           </SquircleWrapper>
-        </TooltipV2>
+        </Tooltip>
       ) : null}
 
       {showOptions ? (

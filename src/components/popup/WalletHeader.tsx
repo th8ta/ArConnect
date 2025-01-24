@@ -17,7 +17,7 @@ import {
   type DisplayTheme,
   Text,
   useToasts,
-  TooltipV2
+  Tooltip
 } from "@arconnect/components-rebrand";
 import {
   CheckIcon,
@@ -188,14 +188,14 @@ export default function WalletHeader() {
           setAppDataOpen(true);
         }}
       >
-        <TooltipV2
+        <Tooltip
           content={browser.i18n.getMessage(
             !activeAppData ? "disconnected" : "account_connected"
           )}
           position="bottomStart"
         >
           <Action as={GlobeIcon} style={{ width: "30px", height: "30px" }} />
-        </TooltipV2>
+        </Tooltip>
         <AppOnline online={!!activeAppData} />
       </AppAction>
 
@@ -225,7 +225,7 @@ export default function WalletHeader() {
             <Address>{address}</Address>
           </WalletName>
         </Wallet>
-        <TooltipV2
+        <Tooltip
           content={browser.i18n.getMessage("copy_address")}
           position="bottom"
         >
@@ -235,10 +235,10 @@ export default function WalletHeader() {
             active={copied}
             style={{ width: "24px", height: "24px" }}
           />
-        </TooltipV2>
+        </Tooltip>
       </AddressContainer>
 
-      <TooltipV2
+      <Tooltip
         content={browser.i18n.getMessage("setting_notifications")}
         position="bottomEnd"
       >
@@ -251,7 +251,7 @@ export default function WalletHeader() {
           style={{ width: "24px", height: "24px" }}
         />
         {newNotifications && <Notifier />}
-      </TooltipV2>
+      </Tooltip>
 
       {appDataOpen && (
         <CloseLayer
@@ -279,7 +279,7 @@ export default function WalletHeader() {
             <Card>
               <AppInfo>
                 {(!!activeAppData && (
-                  <TooltipV2
+                  <Tooltip
                     content={
                       browser.i18n.getMessage("gateway") +
                       ": " +
@@ -297,7 +297,7 @@ export default function WalletHeader() {
                       )) || <NoAppIcon />}
                       <AppOnline online={!!activeAppData} />
                     </ActiveAppIcon>
-                  </TooltipV2>
+                  </Tooltip>
                 )) || (
                   <ActiveAppIcon connected={false}>
                     <NoAppIcon />

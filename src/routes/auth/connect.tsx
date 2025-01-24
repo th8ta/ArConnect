@@ -34,13 +34,7 @@ import { AuthButtons } from "~components/auth/AuthButtons";
 import Squircle from "~components/Squircle";
 import { useActiveWallet, useAskPassword } from "~wallets/hooks";
 import Checkbox from "~components/Checkbox";
-import {
-  ChevronRight,
-  Edit02,
-  Eye,
-  EyeOff,
-  InfoCircle
-} from "@untitled-ui/icons-react";
+import { ChevronRight, Edit02, InfoCircle } from "@untitled-ui/icons-react";
 import WanderIcon from "url:assets/icon.svg";
 import Image from "~components/common/Image";
 import { Flex } from "~components/common/Flex";
@@ -95,8 +89,6 @@ export function ConnectAuthRequestView() {
   const [requestedPermCopy, setRequestedPermCopy] = useState<PermissionType[]>(
     []
   );
-
-  const [showPassword, setShowPassword] = useState(false);
 
   const isCustomPermissions = useMemo(() => {
     if (requestedPermissions.length !== requestedPermCopy.length) return true;
@@ -258,23 +250,8 @@ export function ConnectAuthRequestView() {
           </div>
         </div>
         <Input
-          type={showPassword ? "text" : "password"}
+          type="password"
           placeholder={browser.i18n.getMessage("enter_your_password")}
-          iconRight={
-            showPassword ? (
-              <EyeOff
-                height={22}
-                width={22}
-                onClick={() => setShowPassword(false)}
-              />
-            ) : (
-              <Eye
-                height={22}
-                width={22}
-                onClick={() => setShowPassword(true)}
-              />
-            )
-          }
           fullWidth
           {...passwordInput.bindings}
           autoFocus

@@ -10,7 +10,6 @@ import { useLocation } from "~wallets/router/router.utils";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import styled from "styled-components";
 import { Button, Input, Spacer } from "@arconnect/components-rebrand";
-import { Eye, EyeOff } from "@untitled-ui/icons-react";
 
 export type PasswordWelcomeViewProps = CommonRouteProps<SetupWelcomeViewParams>;
 
@@ -27,13 +26,7 @@ export function PasswordWelcomeView({ params }: PasswordWelcomeViewProps) {
   // password context
   const { setPassword } = useContext(PasswordContext);
 
-  const passwordModal = useModal();
-
   const [passwordType, setPasswordType] = useState("password");
-
-  function handlePasswordTypeChange() {
-    setPasswordType((prev) => (prev === "password" ? "text" : "password"));
-  }
 
   // handle done button
   function done(skip: boolean = false) {
@@ -89,16 +82,9 @@ export function PasswordWelcomeView({ params }: PasswordWelcomeViewProps) {
         </Paragraph>
         <div>
           <Input
-            type={passwordType}
+            type="password"
             {...passwordInput.bindings}
             placeholder={browser.i18n.getMessage("enter_your_password")}
-            iconRight={
-              passwordType === "password" ? (
-                <Eye onClick={handlePasswordTypeChange} />
-              ) : (
-                <EyeOff onClick={handlePasswordTypeChange} />
-              )
-            }
             fullWidth
             onKeyDown={(e) => {
               if (e.key !== "Enter") return;

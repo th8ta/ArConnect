@@ -11,8 +11,6 @@ import {
 import styled, { useTheme } from "styled-components";
 import WanderIcon from "url:assets/icon.svg";
 import IconText from "~components/IconText";
-import { useState } from "react";
-import { Eye, EyeOff } from "@untitled-ui/icons-react";
 import StarIcons from "~components/welcome/StarIcons";
 
 export function UnlockView() {
@@ -22,12 +20,6 @@ export function UnlockView() {
 
   // toasts
   const { setToast } = useToasts();
-
-  const [passwordType, setPasswordType] = useState("password");
-
-  function handlePasswordTypeChange() {
-    setPasswordType((prev) => (prev === "password" ? "text" : "password"));
-  }
 
   // unlock ArConnect
   async function unlockWallet() {
@@ -64,15 +56,9 @@ export function UnlockView() {
           </Text>
           <PasswordInput
             variant="dropdown"
-            type={passwordType}
+            type="password"
             {...passwordInput.bindings}
             placeholder={browser.i18n.getMessage("enter_password")}
-            iconRight={
-              <EyeIcon
-                as={passwordType === "password" ? Eye : EyeOff}
-                onClick={handlePasswordTypeChange}
-              />
-            }
             fullWidth
             onKeyDown={(e) => {
               if (e.key !== "Enter") return;
@@ -150,8 +136,4 @@ const PasswordInput = styled(Input)`
   ::placeholder {
     color: ${({ theme }) => theme.secondaryText};
   }
-`;
-
-const EyeIcon = styled(Eye)`
-  color: ${({ theme }) => theme.secondaryText};
 `;

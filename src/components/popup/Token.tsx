@@ -10,7 +10,7 @@ import { hoverEffect, useTheme } from "~utils/theme";
 import { type Token } from "~tokens/token";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
-import { Button, Text, TooltipV2 } from "@arconnect/components-rebrand";
+import { Button, Text, Tooltip } from "@arconnect/components-rebrand";
 import { useArPrice } from "~lib/coingecko";
 import arLogoLight from "url:/assets/ar/logo_light.png";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
@@ -385,11 +385,11 @@ const InnerWrapper = styled.div<{ width: string }>`
   width: ${(props) => props.width};
 `;
 
-const BalanceTooltip = styled(TooltipV2)`
+const BalanceTooltip = styled(Tooltip)`
   margin-right: 1rem;
 `;
 
-const MessageTooltip = styled(TooltipV2)`
+const MessageTooltip = styled(Tooltip)`
   max-width: 290px;
 `;
 

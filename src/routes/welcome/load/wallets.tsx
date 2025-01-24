@@ -20,7 +20,7 @@ import {
 } from "../setup";
 import {
   Button,
-  ModalV2,
+  Modal,
   Spacer,
   Text,
   useModal,
@@ -326,7 +326,7 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
             </Button>
           </Actions>
         )}
-        <ModalV2
+        <Modal
           {...migrationModal.bindings}
           root={document.getElementById("__plasmo")}
           actions={
@@ -380,7 +380,7 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
             {browser.i18n.getMessage("migration_available_paragraph")}
           </ModalText>
           <Spacer y={0.75} />
-        </ModalV2>
+        </Modal>
         <WalletKeySizeErrorModal {...walletModal} back={() => navigate(`/`)} />
       </Container>
     );
