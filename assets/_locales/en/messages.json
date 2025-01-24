@@ -2843,5 +2843,9 @@
   "enter_amount": {
     "message": "Enter amount",
     "description": "Enter amount text"
+  },
+  "address_or_arns_name": {
+    "message": "Address or ArNS name",
+    "description": "Address or ArNS name text"
   }
 }

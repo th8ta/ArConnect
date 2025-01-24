@@ -2833,5 +2833,9 @@
     "enter_amount": {
         "message": "输入金额",
         "description": "Enter amount text"
+    },
+    "address_or_arns_name": {
+        "message": "地址或ArNS名称",
+        "description": "Address or ArNS name text"
     }
 }

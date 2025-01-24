@@ -1,5 +1,5 @@
 import { PageType, trackPage } from "~utils/analytics";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import styled from "styled-components";
 import {
   Button,
@@ -22,7 +22,6 @@ import type { CommonRouteProps } from "~wallets/router/router.types";
 import { Flex } from "~components/common/Flex";
 import Tabs from "~components/Tabs";
 import { useContacts, type Recipient } from "~contacts/hooks";
-import { useWallets } from "~utils/wallets/wallets.hooks";
 import { formatAddress, isAddressFormat } from "~utils/format";
 import { User01 } from "@untitled-ui/icons-react";
 import {
@@ -187,11 +186,12 @@ export function SendView({ params: { id } }: SendViewProps) {
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
+  const [isManualAddress, setIsManualAddress] = useState<boolean>(true);
 
   const possibleTargets = useMemo(() => {
     const query = addressInput.state;
 
-    if (!query || query === "") {
+    if (!query || query === "" || !isManualAddress) {
       return lastRecipients;
     }
 
@@ -202,16 +202,18 @@ export function SendView({ params: { id } }: SendViewProps) {
     return lastRecipients.filter(({ address }) =>
       address.toLowerCase().includes(query.toLowerCase())
     );
-  }, [lastRecipients, addressInput]);
+  }, [lastRecipients, addressInput, isManualAddress]);
 
   const filteredAndGroupedContacts = useMemo(() => {
     const query = addressInput.state ? addressInput.state.toLowerCase() : "";
 
-    const filteredContacts = storedContacts.filter(
-      (contact) =>
-        contact?.name.toLowerCase().includes(query) ||
-        contact.address.toLowerCase().includes(query)
-    );
+    const filteredContacts = isManualAddress
+      ? storedContacts.filter(
+          (contact) =>
+            contact?.name.toLowerCase().includes(query) ||
+            contact.address.toLowerCase().includes(query)
+        )
+      : storedContacts;
 
     return filteredContacts.reduce((groups, contact) => {
       let letter = contact.name
@@ -228,9 +230,21 @@ export function SendView({ params: { id } }: SendViewProps) {
       groups[letter].push(contact);
       return groups;
     }, {} as Record<string, Contacts>);
-  }, [storedContacts, addressInput.state]);
+  }, [storedContacts, addressInput.state, isManualAddress]);
 
-  const hasContacts = Object.keys(filteredAndGroupedContacts).length > 0;
+  const hasContacts = useMemo(
+    () => Object.keys(filteredAndGroupedContacts).length > 0,
+    [filteredAndGroupedContacts]
+  );
+
+  const handleTabOnClick = useCallback(
+    (recipient: OnClickRecipient) => {
+      setRecipient(recipient);
+      setIsManualAddress(false);
+      addressInput.setState(recipient.address);
+    },
+    [recipient]
+  );
 
   const tabs = useMemo(
     () => [
@@ -241,7 +255,7 @@ export function SendView({ params: { id } }: SendViewProps) {
           <ContactsTab
             filteredAndGroupedContacts={filteredAndGroupedContacts}
             hasContacts={hasContacts}
-            onClick={setRecipient}
+            onClick={handleTabOnClick}
             activeRecipient={recipient.address}
           />
         )
@@ -252,7 +266,7 @@ export function SendView({ params: { id } }: SendViewProps) {
         component: () => (
           <RecipientsTab
             possibleTargets={possibleTargets}
-            onClick={setRecipient}
+            onClick={handleTabOnClick}
             contacts={storedContacts}
             activeRecipient={recipient.address}
           />
@@ -312,6 +326,17 @@ export function SendView({ params: { id } }: SendViewProps) {
     }
   };
 
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!isManualAddress && recipient?.address) {
+        setRecipient({ address: "" });
+      }
+      setIsManualAddress(true);
+      addressInput.setState(e.target.value);
+    },
+    [isManualAddress, recipient?.address]
+  );
+
   // Segment
   useEffect(() => {
     trackPage(PageType.SEND);
@@ -343,7 +368,8 @@ export function SendView({ params: { id } }: SendViewProps) {
               fullWidth
               sizeVariant="small"
               {...addressInput.bindings}
-              placeholder="Address or ArNS name"
+              onChange={handleInputChange}
+              placeholder={browser.i18n.getMessage("address_or_arns_name")}
               onKeyDown={(e) => {
                 if (e.key !== "Enter") return;
                 submit();
