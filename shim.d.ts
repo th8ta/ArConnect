@@ -60,10 +60,10 @@ declare module "@arconnect/webext-bridge" {
 
     // EMBEDDED:
 
-    embedded_auth: any;
-    embedded_balance: any;
-    embedded_resize: any;
-    embedded_close: any;
+    embedded_auth: EmbeddedAuthMessageData;
+    embedded_balance: EmbeddedBalanceMessageData;
+    embedded_resize: EmbeddedResizeMessageData;
+    embedded_close: void;
 
     // OTHER:
 

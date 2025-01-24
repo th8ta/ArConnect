@@ -4,32 +4,32 @@ import {
   fakeAuthenticate,
   fakeRefreshSession,
   signOut
-} from "~utils/embedded/sdk/authentication/sdk-authentication.utils";
+} from "~utils/embedded/sdk/domains/authentication/sdk-authentication.utils";
 import {
   registerRecoveryShare,
   registerWalletExport
-} from "~utils/embedded/sdk/backup/sdk-backup.utils";
+} from "~utils/embedded/sdk/domains/backup/sdk-backup.utils";
 import {
   generateWalletRecoveryChallenge,
   fetchRecoverableAccounts,
   generateAccountRecoveryChallenge,
   recoverAccount
-} from "~utils/embedded/sdk/share-recovery/sdk-share-recovery.utils";
+} from "~utils/embedded/sdk/domains/share-recovery/sdk-share-recovery.utils";
 import {
   generateAuthShareChallenge,
   activateWallet,
   rotateAuthShare
-} from "~utils/embedded/sdk/shares/sdk-shares.utils";
+} from "~utils/embedded/sdk/domains/shares/sdk-shares.utils";
 import {
   generateShareRecoveryChallenge,
   recoverWallet
-} from "~utils/embedded/sdk/wallet-recovery/sdk-wallet-recovery.utils";
+} from "~utils/embedded/sdk/domains/wallet-recovery/sdk-wallet-recovery.utils";
 import {
   fetchWallets,
   createWallet,
   updateWallet,
   deleteWallet
-} from "~utils/embedded/sdk/wallets/sdk-wallets.utils";
+} from "~utils/embedded/sdk/domains/wallets/sdk-wallets.utils";
 
 export const EmbeddedSDK = {
   Auth: {

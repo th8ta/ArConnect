@@ -1,6 +1,12 @@
 import { type Variants, motion } from "framer-motion";
 import { useEffect, useRef, useState, type PropsWithChildren } from "react";
 import styled from "styled-components";
+import { postEmbeddedMessage } from "~utils/embedded/utils/messages/embedded-messages.utils";
+import {
+  locationToRouteType,
+  routeTypeToPreferredLayout
+} from "~utils/embedded/utils/routes/embedded-routes.utils";
+import type { ArConnectRoutePath } from "~wallets/router/router.types";
 
 export interface PageProps extends PropsWithChildren {}
 
@@ -21,17 +27,36 @@ export function Page({ children }: PageProps) {
     if (!mainElement || import.meta.env?.VITE_IS_EMBEDDED_APP !== "1") return;
 
     const resizeObserver = new ResizeObserver((entries) => {
-      const height = Math.ceil(entries[0].contentBoxSize[0].blockSize);
+      const size = entries?.[0]?.contentBoxSize?.[0] || {
+        inlineSize: 0,
+        blockSize: 0
+      };
+      const width = Math.ceil(size.inlineSize);
+      const height = Math.ceil(size.blockSize);
 
-      console.log("height =", height);
+      if (width > 0 && height > 0) {
+        // We get the path manually to avoid causing duplicate re-renders of the `Page` component if using the
+        // `useLocation` hook:
+        const path = location.hash.replace("#", "") as ArConnectRoutePath;
+        const routeType = locationToRouteType(path);
+        const preferredLayout = routeTypeToPreferredLayout(routeType);
 
-      if (height > 0) setHeight(height);
+        postEmbeddedMessage({
+          type: "embedded_resize",
+          data: {
+            routeType,
+            preferredLayout,
+            width,
+            height
+          }
+        });
+
+        // For debugging only:;
+        setHeight(height);
+      }
     });
 
     resizeObserver.observe(mainElement);
-
-    // TODO: The parent would need the route or what type of route it is at least, as once inside the wallet we just set a fixed size for all screens.
-    // window.parent.postMessage();
 
     return () => {
       resizeObserver.disconnect();

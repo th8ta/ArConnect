@@ -28,8 +28,8 @@ import type {
   TempWalletPromise,
   RecoveryJSON
 } from "~utils/embedded/embedded.types";
-import { isTempWalletPromiseExpired } from "~utils/embedded/embedded.utils";
 import { log, LOG_GROUP } from "~utils/log/log.utils";
+import { isTempWalletPromiseExpired } from "~utils/embedded/utils/wallets/embedded-wallets.utils";
 
 const EMBEDDED_CONTEXT_INITIAL_STATE: EmbeddedContextState = {
   authStatus: "unknown",

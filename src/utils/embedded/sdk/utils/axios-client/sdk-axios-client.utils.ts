@@ -1,13 +1,11 @@
 import axios from "axios";
+import { EMBEDDED_API_KEY } from "~utils/embedded/sdk/utils/url/sdk-url.utils";
 
 const instance = axios.create({
   baseURL: "https://arconnect-embedded.com/api/"
 });
 
-const searchParams = new URLSearchParams(document.location.search);
-const appApiKey = searchParams.get("API_KEY");
-
-instance.defaults.headers["x-api-key"] = appApiKey;
+instance.defaults.headers["x-api-key"] = EMBEDDED_API_KEY;
 
 export function setAuthorization(jwtString: string | null) {
   if (jwtString)
