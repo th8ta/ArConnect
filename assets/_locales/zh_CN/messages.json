@@ -2837,5 +2837,9 @@
     "address_or_arns_name": {
         "message": "地址或ArNS名称",
         "description": "Address or ArNS name text"
+    },
+    "cannot_send_to_self": {
+        "message": "不能发送给自己",
+        "description": "Cannot send to self text"
     }
 }

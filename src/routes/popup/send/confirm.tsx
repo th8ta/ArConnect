@@ -61,7 +61,6 @@ import { checkPassword } from "~wallets/auth";
 import BigNumber from "bignumber.js";
 import { SignType } from "@keystonehq/bc-ur-registry-arweave";
 import type { CommonRouteProps } from "~wallets/router/router.types";
-import { useWallets } from "~utils/wallets/wallets.hooks";
 import { AdaptiveBalanceDisplay } from "~components/AdaptiveBalanceDisplay";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -693,6 +692,7 @@ export function ConfirmView({
         title={browser.i18n.getMessage(
           !subscription ? "confirm_transaction" : "subscription_payment"
         )}
+        showOptions={false}
       />
       <ConfirmWrapper>
         <BodyWrapper>

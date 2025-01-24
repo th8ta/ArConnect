@@ -7,7 +7,8 @@ import {
   Section,
   Spacer,
   Text,
-  useInput
+  useInput,
+  useToasts
 } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import Token, {
@@ -133,6 +134,7 @@ export type AmountViewProps = CommonRouteProps<SendViewParams>;
 export function AmountView({ params: { id, recipient } }: AmountViewProps) {
   const { navigate, back } = useLocation();
   const theme = useTheme();
+  const { setToast } = useToasts();
 
   const [isOpen, setOpen] = useState(true);
 
@@ -385,6 +387,17 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
       amountValidationState !== AmountValidationState.Empty
     );
   }, [amountValidationState]);
+
+  useEffect(() => {
+    if (recipient === wallet?.address) {
+      setToast({
+        type: "error",
+        content: browser.i18n.getMessage("cannot_send_to_self"),
+        duration: 2400
+      });
+      back();
+    }
+  }, [recipient, wallet?.address]);
 
   // Segment
   useEffect(() => {

@@ -2847,5 +2847,9 @@
   "address_or_arns_name": {
     "message": "Address or ArNS name",
     "description": "Address or ArNS name text"
+  },
+  "cannot_send_to_self": {
+    "message": "Cannot send to self",
+    "description": "Cannot send to self text"
   }
 }

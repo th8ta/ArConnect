@@ -287,6 +287,14 @@ export function SendView({ params: { id } }: SendViewProps) {
       const input = addressInput.state?.trim() || recipient?.address || "";
       let recipientAddress = "";
       if (isAddressFormat(input)) {
+        if (input === activeAddress) {
+          setToast({
+            type: "error",
+            content: browser.i18n.getMessage("cannot_send_to_self"),
+            duration: 2400
+          });
+          return;
+        }
         recipientAddress = input;
         setRecipient({ address: input });
       } else if (isANS(input)) {
