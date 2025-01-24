@@ -42,8 +42,8 @@ export function isDashboardRouteConfig(
 export const basicSettings: (DashboardRouteConfig | Setting)[] = [
   {
     name: "wallets",
-    displayName: "setting_wallets",
-    description: "setting_wallets_description",
+    displayName: "setting_accounts",
+    description: "setting_accounts_description",
     icon: Users01,
     component: WalletsDashboardView
   },

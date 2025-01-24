@@ -1,6 +1,6 @@
 import type { DragControls } from "framer-motion";
 import { SettingsIcon } from "@iconicicons/react";
-import { Text } from "@arconnect/components";
+import { Text } from "@arconnect/components-rebrand";
 import type { HTMLProps, ReactNode } from "react";
 import Squircle from "~components/Squircle";
 import ReorderIcon from "../ReorderIcon";
@@ -140,4 +140,5 @@ export const SettingsList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding-top: 0.5rem;
 `;

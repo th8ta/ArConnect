@@ -416,12 +416,12 @@
     "description": "Quick Settings title"
   },
   "setting_apps": {
-      "message": "应用程序",
-      "description": "Apps settings title"
+      "message": "已连接应用",
+      "description": "Connected apps settings title"
   },
-  "setting_wallets": {
-      "message": "钱包",
-      "description": "Wallets settings title"
+  "setting_accounts": {
+      "message": "账户",
+      "description": "Accounts settings title"
   },
   "setting_config": {
       "message": "下载配置",
@@ -488,7 +488,7 @@
       "description": "Notifications settings title"
   },
   "setting_notifications_description": {
-      "message": "管理钱包活动警报",
+      "message": "管理账户活动警报",
       "description": "Notifications settings description"
   },
   "setting_all_settings": {
@@ -503,16 +503,16 @@
       "message": "查看所有已连接的应用程序和设置",
       "description": "App settings description"
   },
-  "setting_wallets_description": {
-      "message": "管理您的钱包",
-      "description": "Wallet settings description"
+  "setting_accounts_description": {
+      "message": "管理您的账户",
+      "description": "Accounts settings description"
   },
   "setting_config_description": {
       "message": "下载 ArConnect 配置",
       "description": "Config settings description"
   },
   "setting_about_description": {
-      "message": "关于 ArConnect 的信息",
+      "message": "关于 Wander 的信息",
       "description": "Config settings description"
   },
   "setting_reset_description": {
@@ -1080,7 +1080,7 @@
       "description": "Tokens setting title"
   },
   "setting_tokens_description": {
-      "message": "管理由去中心化应用程序或用户添加的代币",
+      "message": "管理由应用程序或用户添加的代币",
       "description": "Tokens setting description"
   },
   "setting_contacts": {
@@ -2841,5 +2841,13 @@
     "cannot_send_to_self": {
         "message": "不能发送给自己",
         "description": "Cannot send to self text"
+    },
+    "more_settings": {
+        "message": "更多设置",
+        "description": "More settings text"
+    },
+    "less_settings": {
+        "message": "更少设置",
+        "description": "Less settings text"
     }
 }
