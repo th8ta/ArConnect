@@ -10,8 +10,11 @@
     "skipLibCheck": true,
     "declaration": true,
     "outDir": "./sdk-dist",
-    "sourceMap": true
+    "sourceMap": true,
+    "paths": {
+      "wallet-api/*": ["./wallet-api-dist/*"]
+    }
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src", "wallet-api-dist"],
+  "exclude": ["node_modules", "sdk-dist"]
 }

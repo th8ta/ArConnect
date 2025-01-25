@@ -1,3 +1,4 @@
+import { setupWalletSDK } from "wallet-api/wallet-sdk.es.js";
 import { WanderEmbeddedOptions } from "./types";
 import { WanderButton } from "./components/WanderButton";
 import { WanderIframe } from "./components/WanderIframe";
@@ -17,7 +18,6 @@ export class WanderEmbedded {
   constructor(options?: WanderEmbeddedOptions) {
     this.options = options || {};
     this.components = this.initializeComponents(options);
-    this.initializeWalletShim();
   }
 
   private initializeComponents(options?: WanderEmbeddedOptions): UIComponents {
@@ -40,6 +40,8 @@ export class WanderEmbedded {
     if (!options?.iframeRef) {
       document.body.appendChild(iframe.getElement());
     }
+
+    this.initializeWalletShim(iframe.getElement());
 
     return { container, button, iframe };
   }
@@ -70,14 +72,9 @@ export class WanderEmbedded {
     }
   }
 
-  private initializeWalletShim(): void {
+  private initializeWalletShim(iframe: HTMLIFrameElement): void {
     if (typeof window !== "undefined") {
-      if (!window.arweaveWallet) {
-        window.arweaveWallet = {};
-      }
-      window.arweaveWallet.someRandomMethod = () => {
-        console.log("Hello from arweaveWallet!");
-      };
+      setupWalletSDK(iframe.contentWindow as Window);
     }
   }
 
