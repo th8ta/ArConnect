@@ -4,7 +4,7 @@ export interface WanderEmbeddedOptions {
   logo?: string;
   balance?: string;
   iframeRef?: HTMLIFrameElement;
-  buttonStyles?: CSSStyleDeclaration;
+  buttonStyles?: CSSStyleDeclaration | "none";
   iframeStyles?: CSSStyleDeclaration;
   onOpen?: () => void;
   onClose?: () => void;

@@ -11,8 +11,7 @@ import { UIComponents } from "./types/embedded";
 
 export class WanderEmbedded {
   private components: UIComponents;
-  private readonly DEFAULT_IFRAME_SRC =
-    "https://arweave.net/PI6EC3mZA-fVlb5Jq63-kihE1Hgt6eepsRAcocELIKA";
+  private readonly DEFAULT_IFRAME_SRC = "http://localhost:5174/";
   private options: WanderEmbeddedOptions;
 
   constructor(options?: WanderEmbeddedOptions) {
@@ -21,15 +20,6 @@ export class WanderEmbedded {
   }
 
   private initializeComponents(options?: WanderEmbeddedOptions): UIComponents {
-    const container = this.createContainer();
-
-    const button = new WanderButton({
-      buttonStyles: options?.buttonStyles,
-      onClick: () => this.open(),
-      logo: options?.logo,
-      balance: options?.balance
-    });
-
     const iframe = new WanderIframe({
       src: this.DEFAULT_IFRAME_SRC,
       onMessage: (message) => this.handleIframeMessage(message),
@@ -40,10 +30,24 @@ export class WanderEmbedded {
     if (!options?.iframeRef) {
       document.body.appendChild(iframe.getElement());
     }
-
     this.initializeWalletShim(iframe.getElement());
 
-    return { container, button, iframe };
+    if (options?.buttonStyles && options?.buttonStyles !== "none") {
+      const container = this.createContainer();
+
+      const button = new WanderButton({
+        buttonStyles: options?.buttonStyles,
+        onClick: () => this.open(),
+        logo: options?.logo,
+        balance: options?.balance
+      });
+      container.appendChild(button.getElement());
+      document.body.appendChild(container);
+
+      return { container, button, iframe };
+    }
+
+    return { iframe };
   }
 
   private createContainer(): HTMLDivElement {
@@ -88,6 +92,6 @@ export class WanderEmbedded {
 
   public destroy(): void {
     this.components.iframe.destroy();
-    this.components.container.remove();
+    this.components?.container?.remove();
   }
 }
