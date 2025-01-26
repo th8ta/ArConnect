@@ -6,6 +6,13 @@ import type {
   EmbeddedMessageMap
 } from "~utils/embedded/utils/messages/embedded-messages.types";
 
+const EMBEDDED_MESSAGE_IDS = [
+  "embedded_auth",
+  "embedded_balance",
+  "embedded_resize",
+  "embedded_close"
+] as const satisfies EmbeddedMessageId[];
+
 export interface PostEmbeddedMessageData<K extends EmbeddedMessageId> {
   type: K;
   data: EmbeddedMessageMap[K];
@@ -15,9 +22,11 @@ export function postEmbeddedMessage<K extends EmbeddedMessageId>({
   type,
   data
 }: PostEmbeddedMessageData<K>) {
-  if (!type.startsWith("embedded_"))
+  if (!EMBEDDED_MESSAGE_IDS.includes(type))
     throw new Error(
-      `Only "embedded_auth", "embedded_balance", "embedded_resize" or "embedded_data" can be posted to the upper frame.`
+      `Only the following message types are allowed: ${EMBEDDED_MESSAGE_IDS.join(
+        ", "
+      )}.`
     );
 
   const parent = window.parent;
