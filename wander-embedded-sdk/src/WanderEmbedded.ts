@@ -32,7 +32,7 @@ export class WanderEmbedded {
     }
     this.initializeWalletShim(iframe.getElement());
 
-    if (options?.buttonStyles && options?.buttonStyles !== "none") {
+    if (options?.buttonStyles !== "none") {
       const container = this.createContainer();
 
       const button = new WanderButton({

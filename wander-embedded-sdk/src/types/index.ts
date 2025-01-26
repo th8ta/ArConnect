@@ -4,8 +4,8 @@ export interface WanderEmbeddedOptions {
   logo?: string;
   balance?: string;
   iframeRef?: HTMLIFrameElement;
-  buttonStyles?: CSSStyleDeclaration | "none";
-  iframeStyles?: CSSStyleDeclaration;
+  buttonStyles?: Partial<CSSStyleDeclaration> | "none";
+  iframeStyles?: Partial<CSSStyleDeclaration>;
   onOpen?: () => void;
   onClose?: () => void;
   onResize?: (data: IncomingResizeMessageData) => void;
