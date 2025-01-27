@@ -34,16 +34,23 @@ export function NotificationSettingsDashboardView() {
   return (
     <>
       <Wrapper>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center"
+          }}
+        >
           <Text size="lg" weight="medium" noMargin>
             {browser.i18n.getMessage("setting_notifications")}
           </Text>
           <ToggleSwitch
+            width={51}
+            height={31}
             checked={notificationSettings}
             setChecked={toggleNotificationSetting}
           />
         </div>
-        <Spacer y={1.7} />
         <RadioWrapper>
           {/* AR AND AO TRANSFER NOTIFICATIONS  */}
           <Checkbox

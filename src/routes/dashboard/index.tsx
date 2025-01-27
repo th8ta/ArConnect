@@ -127,6 +127,7 @@ export function SettingsDashboardView({ params }: SettingsDashboardViewProps) {
           <Spacer y={1} />
           {basicSettings.filter(filterSearchResults).map((setting, i) => (
             <SettingListItem
+              theme={theme}
               displayName={setting.displayName}
               description={setting.description}
               icon={setting.icon}
@@ -160,6 +161,7 @@ export function SettingsDashboardView({ params }: SettingsDashboardViewProps) {
               .filter(filterSearchResults)
               .map((setting, i) => (
                 <SettingListItem
+                  theme={theme}
                   displayName={setting.displayName}
                   description={setting.description}
                   icon={setting.icon}
@@ -184,7 +186,7 @@ export function SettingsDashboardView({ params }: SettingsDashboardViewProps) {
             </MidSettingsSubTitle>
           </Flex>
         </HeaderFlex>
-        <PanelContainer>
+        <PanelContainer showTwoPanels={actualActiveSetting?.name !== "about"}>
           <Panel showRightBorder={hasSubRoutes}>
             {isDashboardRouteConfig(actualActiveSetting) ? (
               <actualActiveSetting.component />
@@ -196,13 +198,15 @@ export function SettingsDashboardView({ params }: SettingsDashboardViewProps) {
             )}
           </Panel>
 
-          <Panel style={{ visibility: hasSubRoutes ? "visible" : "hidden" }}>
-            <Routes
-              routes={DASHBOARD_SUB_SETTING_ROUTES}
-              diffLocation
-              pageComponent={null}
-            />
-          </Panel>
+          {actualActiveSetting?.name !== "about" && (
+            <Panel style={{ visibility: hasSubRoutes ? "visible" : "hidden" }}>
+              <Routes
+                routes={DASHBOARD_SUB_SETTING_ROUTES}
+                diffLocation
+                pageComponent={null}
+              />
+            </Panel>
+          )}
         </PanelContainer>
       </MainContent>
     </SettingsWrapper>
@@ -348,11 +352,12 @@ const MidSettingsTitle = styled(Text).attrs({
   text-transform: capitalize;
 `;
 
-const PanelContainer = styled.div`
+const PanelContainer = styled.div<{ showTwoPanels: boolean }>`
   flex: 1;
   width: 100%;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: ${(props) =>
+    props.showTwoPanels ? `1fr 1fr` : `1fr`};
   overflow: hidden;
 
   & > ${Panel} {

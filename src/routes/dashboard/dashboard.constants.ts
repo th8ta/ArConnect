@@ -1,6 +1,7 @@
 import { type SettingItemProps } from "~components/dashboard/list/SettingListItem";
 import {
   AlertOctagon,
+  BarChart07,
   Bell03,
   Coins04,
   CreditCard01,
@@ -26,6 +27,7 @@ import { AboutDashboardView } from "~components/dashboard/About";
 // Advance Settings:
 import { SignSettingsDashboardView } from "~components/dashboard/SignSettings";
 import { ResetDashboardView } from "~components/dashboard/Reset";
+import { AnalyticsSettingsDashboardView } from "~components/dashboard/Analytics";
 
 export interface DashboardRouteConfig extends Omit<SettingItemProps, "active"> {
   name: string;
@@ -68,6 +70,7 @@ export const basicSettings: (DashboardRouteConfig | Setting)[] = [
     icon: UserSquare,
     component: ContactsDashboardView
   },
+  getSetting("display_theme"),
   {
     name: "notifications",
     displayName: "setting_notifications",
@@ -75,7 +78,6 @@ export const basicSettings: (DashboardRouteConfig | Setting)[] = [
     icon: Bell03,
     component: NotificationSettingsDashboardView
   },
-  getSetting("display_theme"),
   {
     name: "about",
     displayName: "setting_about",
@@ -101,6 +103,13 @@ export const advancedSettings: (DashboardRouteConfig | Setting)[] = [
     description: "setting_config_description",
     icon: DownloadIcon
   },*/
+  {
+    name: "analytics",
+    displayName: "setting_analytic",
+    icon: BarChart07,
+    description: "setting_analytics_description",
+    component: AnalyticsSettingsDashboardView
+  },
   {
     name: "reset",
     displayName: "setting_reset",

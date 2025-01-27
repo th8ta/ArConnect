@@ -1,17 +1,11 @@
-import {
-  Checkbox,
-  Input,
-  Spacer,
-  Text,
-  useInput
-} from "@arconnect/components-rebrand";
+import { Checkbox, Input, Text, useInput } from "@arconnect/components-rebrand";
 import { setting_element_padding } from "./list/BaseElement";
 import type SettingType from "~settings/setting";
 import browser from "webextension-polyfill";
 import Squircle from "~components/Squircle";
 import SearchInput from "./SearchInput";
 import useSetting from "~settings/hook";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { createCoinWithAnimation } from "~api/modules/sign/animation";
 import { arconfettiIcon } from "~api/modules/sign/utils";
 import { EventType, trackEvent } from "~utils/analytics";
@@ -25,6 +19,8 @@ export interface SettingDashboardViewProps {
 export function SettingDashboardView({ setting }: SettingDashboardViewProps) {
   // setting state
   const [settingState, updateSetting] = useSetting(setting.name);
+
+  const theme = useTheme();
 
   // fixup displayed option
   const fixupBooleanDisplay = (val: string) => {
@@ -72,15 +68,23 @@ export function SettingDashboardView({ setting }: SettingDashboardViewProps) {
     case "boolean":
       return (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <Text variant="secondary" weight="medium" noMargin>
+          {/* <Text variant="secondary" weight="medium" noMargin>
             {browser.i18n.getMessage(setting.description)}
-          </Text>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
+          </Text> */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}
+          >
             <Text size="md" weight="medium" noMargin>
               {browser.i18n.getMessage(!!settingState ? "enabled" : "disabled")}
             </Text>
 
             <ToggleSwitch
+              width={51}
+              height={31}
               checked={!!settingState}
               setChecked={() => {
                 updateSetting((val) => !val);
@@ -98,6 +102,11 @@ export function SettingDashboardView({ setting }: SettingDashboardViewProps) {
       return (
         <Input
           label={browser.i18n.getMessage(setting.displayName)}
+          labelStyle={{
+            fontSize: 16,
+            fontWeight: 500,
+            color: theme.primaryText
+          }}
           type={setting.type === "string" ? "text" : "number"}
           value={settingState}
           onChange={(e) => {
@@ -122,11 +131,12 @@ export function SettingDashboardView({ setting }: SettingDashboardViewProps) {
             <>
               <SearchWrapper>
                 <SearchInput
-                  placeholder={browser.i18n.getMessage("search_pick_option")}
+                  placeholder={browser.i18n.getMessage(
+                    setting?.inputPlaceholder || "search_pick_option"
+                  )}
                   {...searchInput.bindings}
                 />
               </SearchWrapper>
-              <Spacer y={1} />
             </>
           )}
           <RadioWrapper>
@@ -161,6 +171,7 @@ export const RadioWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  padding: 1.5rem 0;
 `;
 
 export const Radio = styled(Squircle).attrs((props) => ({
@@ -207,5 +218,5 @@ const SearchWrapper = styled.div`
   left: 0;
   right: 0;
   z-index: 20;
-  background-color: rgb(${(props) => props.theme.cardBackground});
+  background-color: ${(props) => props.theme.cardBackground};
 `;

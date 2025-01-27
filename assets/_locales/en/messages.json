@@ -520,8 +520,8 @@
     "description": "Reset settings description"
   },
   "setting_analytics_description": {
-    "message": "Provide the ArConnect team useful anonymous data to improve the project",
-    "description": "ArConnect Analytics description"
+    "message": "Provide the Wander team useful anonymous data to improve the project",
+    "description": "Wander Analytics description"
   },
   "setting_fee_multiplier_description": {
     "message": "Control the fees paid after transactions",
@@ -2873,5 +2873,17 @@
         "example": "seedphrase"
       }
     }
+  },
+  "search_currency": {
+    "message": "Search currency",
+    "description": "Search currency text"
+  },
+  "enable_disable": {
+    "message": "Enable/disable",
+    "description": "Enable/disable text"
+  },
+  "privacy_policy": {
+    "message": "Privacy policy",
+    "description": "Privacy policy text"
   }
 }

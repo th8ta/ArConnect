@@ -36,7 +36,8 @@ const settings: Setting[] = [
     description: "setting_setting_currency_description",
     type: "pick",
     options: currencies,
-    defaultValue: "USD"
+    defaultValue: "USD",
+    inputPlaceholder: "search_currency"
   }),
   /*new Setting({
     name: "arverify",
@@ -52,7 +53,7 @@ const settings: Setting[] = [
     icon: Sun,
     description: "setting_display_theme_description",
     type: "pick",
-    options: ["light", "dark", "system"],
+    options: ["system", "light", "dark"],
     defaultValue: "system"
   }),
   new Setting({
@@ -71,15 +72,15 @@ const settings: Setting[] = [
     description: "setting_wayfinder_description",
     type: "boolean",
     defaultValue: true
-  }),
-  new Setting({
-    name: "analytics",
-    displayName: "setting_analytic",
-    icon: BarChart07,
-    description: "setting_analytics_description",
-    type: "boolean",
-    defaultValue: false
   })
+  // new Setting({
+  //   name: "analytics",
+  //   displayName: "setting_analytic",
+  //   icon: BarChart07,
+  //   description: "setting_analytics_description",
+  //   type: "boolean",
+  //   defaultValue: false
+  // })
 ];
 
 /**

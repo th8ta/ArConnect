@@ -43,7 +43,7 @@ export function PermissionsWelcomeView({
 
   const [analyticSetting, setAnalyticSetting] = useStorage(
     {
-      key: "setting_analytic",
+      key: "setting_analytics",
       instance: ExtensionStorage
     },
     (v) => v ?? false

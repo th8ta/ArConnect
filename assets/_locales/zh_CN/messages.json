@@ -516,8 +516,8 @@
       "description": "Reset settings description"
   },
   "setting_analytics_description": {
-      "message": "向 ArConnect 团队提供有用的匿名数据以改进项目",
-      "description": "ArConnect Analytics description"
+      "message": "向 Wander 团队提供有用的匿名数据以改进项目",
+      "description": "Wander Analytics description"
   },
   "setting_fee_multiplier_description": {
       "message": "控制交易后的费用",
@@ -2863,5 +2863,17 @@
                 "example": "seedphrase"
             }
         }
+    },
+    "search_currency": {
+        "message": "搜索货币",
+        "description": "Search currency text"
+    },
+    "enable_disable": {
+        "message": "启用/禁用",
+        "description": "Enable/disable text"
+    },
+    "privacy_policy": {
+        "message": "隐私政策",
+        "description": "Privacy policy text"
     }
 }

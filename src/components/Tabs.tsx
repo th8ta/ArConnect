@@ -1,4 +1,4 @@
-import { Section } from "@arconnect/components";
+import { Section } from "@arconnect/components-rebrand";
 import { type CSSProperties, type Dispatch, type SetStateAction } from "react";
 import styled from "styled-components";
 import browser from "webextension-polyfill";

@@ -58,6 +58,8 @@ export const SignSettingsDashboardView = () => {
       <ToggleSwitchWrapper>
         <Text>{browser.i18n.getMessage("enable_transfer_settings")}</Text>
         <ToggleSwitch
+          width={51}
+          height={31}
           checked={signatureAllowanceEnabled}
           setChecked={setSignatureAllowanceEnabled}
         />
@@ -84,5 +86,5 @@ const ToggleSwitchWrapper = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
 `;
