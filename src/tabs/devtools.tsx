@@ -1,4 +1,4 @@
-import { Card, Spacer, Text } from "@arconnect/components";
+import { Card, Spacer, Text } from "@arconnect/components-rebrand";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
@@ -54,7 +54,7 @@ function DevTools() {
     <Wrapper>
       {walletStatus === "noWallets" && <NoWallets />}
       <CardBody>
-        <Title>ArConnect {browser.i18n.getMessage("devtools")}</Title>
+        <Title>Wander {browser.i18n.getMessage("devtools")}</Title>
         <ConnectionText>
           {browser.i18n.getMessage(
             connected ? "appConnected" : "appNotConnected"

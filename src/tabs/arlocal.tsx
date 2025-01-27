@@ -6,14 +6,13 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { RefreshIcon } from "@iconicicons/react";
 import {
-  ButtonV2 as Button,
-  InputV2 as Input,
-  Provider,
+  Button,
+  Input,
   Spacer,
   useInput,
   Text,
   useToasts
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import {
   CardBody,
   ConnectionStatus,
@@ -165,7 +164,7 @@ function ArLocal() {
         <Title>
           ArLocal {browser.i18n.getMessage("devtools")}
           <Spacer x={0.2} />
-          <Text noMargin>by ArConnect</Text>
+          <Text noMargin>by Wander</Text>
         </Title>
         <ConnectionText>
           {browser.i18n.getMessage(online ? "testnetLive" : "testnetDown")}
@@ -183,7 +182,7 @@ function ArLocal() {
             />
           </InputWrapper>
           <RefreshButton
-            secondary
+            variant="secondary"
             onClick={() => loadTestnet()}
             refreshing={loadingTestnet}
           >
@@ -197,7 +196,12 @@ function ArLocal() {
             <Spacer y={1} />
             <ArLocalTransaction arweave={arweave} />
             <Spacer y={1} />
-            <Button fullWidth secondary loading={mining} onClick={mine}>
+            <Button
+              fullWidth
+              variant="secondary"
+              loading={mining}
+              onClick={mine}
+            >
               {browser.i18n.getMessage("mine")}
             </Button>
           </>
