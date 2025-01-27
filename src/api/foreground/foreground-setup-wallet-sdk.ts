@@ -30,10 +30,6 @@ export function setupWalletSDK(targetWindow: Window = window) {
   ): Promise<any> {
     const mod = moduleMap.get(fnName);
 
-    if (!mod) {
-      throw new Error(`Method "${fnName}" is not implemented.`);
-    }
-
     return new Promise<any>(async (resolve, reject) => {
       // execute foreground module
       // TODO: Use a default function for those that do not have/need one and see if chunking can be done automatically or if it is needed at all:
