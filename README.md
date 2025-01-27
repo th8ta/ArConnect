@@ -14,7 +14,7 @@ After signing up, a new account is created. Verify:
 - The wallet seedphrase is persisted encrypted in `localStorage` to allow future wallet exports as seedphrase (in this
   same device only).
 - A `deviceNonce` is generated and persisted in `localStorage`.
-- Its `authShare` is stored in the server
+- Its `authShare` is stored in the server, linked to that specific `deviceNonce`.
 - Its `deviceShare` is persisted in `localStorage`.
 
 **Wallet backup:**
@@ -53,32 +53,48 @@ the stored device data (ip, country, userAgent...).
 
 **Wallet recovery (`deviceNonce` gone):**
 
+On an active session or previously used device, remove the `deviceNonce` from `localStorage`. Then verify:
+
+- The app detects the `deviceNonce` is gone and re-generates it.
+- Trying to activate a wallet will fail as the newly generated `deviceNonce` is not linked to any of the existing shares
+  stored in the DB.
+- The wallet recovery flow is presented to users.
+- The `recoveryBackupSharePublicKey` is generated using the `recoveryBackupShare` the user provided using a wallet
+  recovery file.
+- A wallet recovery challenge is requested form the backend, providing the target `walletId`. As this is the first
+  action performed using the newly generated `deviceNonce`, the new device will be registered on the backend.
+- A `recoveryAuthShare` is fetched after solving the server wallet recovery challenge and providing it with the new
+  `deviceNonce`, which was just registered.
+- The wallet private key is reconstructed and stored encrypted in memory, with a randomly generated password that is
+  rotated regularly (until the wallet is deactivated in v1.0). Also, the private key is split again using SSS and the
+  new work shares are stored in `localStorage` and the server (as per the _New account & wallet_ flow).
+
 **Wallet recovery (`deviceShare` gone):**
 
-4A. (AR+R) Delete deviceShare. Reload. Account fetched. no authShare fetched, deviceNonce not sent (because
-deviceShare is missing). Recovery screen. recoveryShare provided. authRecoveryShare fetched.
-pk reconstructed. pk re-split into new deviceShare and authShare. Recovery stays the same. deviceNonce with
-corresponding authShare stays on the server (we have no way to tell if it's still needed).
+On an active session or previously used device, remove the `deviceShare` from `localStorage`. Then verify:
 
-4B. (AR+R) Delete deviceNonce. Same as above.
+- The app detects the `deviceShare` is gone and the recovery flow is presented to users.
+- The `recoveryBackupSharePublicKey` is generated using the `recoveryBackupShare` the user provided using a wallet
+  recovery file.
+- A wallet recovery challenge is requested form the backend, providing the target `walletId` and the `deviceNonce`.
+- A `recoveryAuthShare` is fetched after solving the server wallet recovery challenge.
+- The wallet private key is reconstructed and stored encrypted in memory, with a randomly generated password that is
+  rotated regularly (until the wallet is deactivated in v1.0). Also, the private key is split again using SSS and the
+  new work shares are stored in `localStorage` and the server (as per the _New account & wallet_ flow).
 
-5A. encrypted recoveryShare deleted. Download recoveryShard. It needs to be re-split, so a new recoveryShare -
-authRecoveryShare is generated and stored.
+**Account recovery:**
 
-5B. encrypted recoveryShare deleted. Download recoveryShard. It needs to be re-split, so a new recoveryShare -
-authRecoveryShare is generated and stored. The backend says only 2 can be stored, so user must pick which one
-to delete.
+Click on the account recovery option, import a wallet seedphrase or private key linked to an account. Then verify:
 
-6. (DR+R) Recover account. This rare scenario happens when the user loses access to their authentication,
-   but still has access to a previously used device and recoveryShare.
-   recoveryShare provided. pk reconstructed. Challenge signature sent. Old auth methods
-   cleared. New one added. pk re-split. deviceNonce, authShare and deviceShare generated.
+- An account recovery list challenge is requested, sending the `walletAddress`.
+- A list of wallets linked to that wallet is received upon successful resolution of the challenge.
+- After selecting one account (if more than one are linked to the same wallet), an account recovery challenge is
+  requested, sending the `accountId`.
+- A new authentication method can be linked to the account after solving the server account recovery challenge.
 
-7 (DR + AR) Recover account. This rare scenario happens when the user has access to a previously used device that
-somehow lost the deviceShare, but not the deviceRecoveryShare, and they do not have the recovery share (so 6 and
-4 not possible). This is unlikely to happen, so we could not serve AR, given DR, only given R. This just happens
-to be a possibility if we go for a 2/3 SSS scheme for the recovery shares to enable DR+R.
+**Missing test scenarios:**
 
-7. (pk) Recover account. pk provided. Signature sent. Auth methods cleared. pk re-split.
-
-8. Weird scenarios where the address is not right.
+- Reached out work shares limit.
+- Reached out recovery shares limit.
+- Link auth methods to existing accounts.
+- Different errors when the different params mentioned in all the above are incorrect.
