@@ -19,7 +19,7 @@ export default function TokenListItem({ token, active, onClick }: Props) {
 
   // format address
   const formattedAddress = useMemo(
-    () => formatAddress(token.id, 8),
+    () => (token.id === "AR" ? "AR" : formatAddress(token.id, 8)),
     [token.id]
   );
 
