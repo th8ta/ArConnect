@@ -1,12 +1,12 @@
 import {
-  ButtonV2,
-  InputV2,
-  SelectV2 as Select,
+  Button,
+  Input,
+  Select,
   Spacer,
   Text,
   useInput,
   useToasts
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import { useEffect, useState } from "react";
 import { type TokenInfo } from "~tokens/aoTokens/ao";
@@ -125,9 +125,9 @@ export function AddTokenDashboardView({
           </Select>
         </>
 
-        <Spacer y={0.5} />
-        <InputV2
-          small={isQuickSetting}
+        <Spacer y={1.5} />
+        <Input
+          sizeVariant={isQuickSetting ? "small" : "normal"}
           {...targetInput.bindings}
           type="string"
           fullWidth
@@ -149,9 +149,9 @@ export function AddTokenDashboardView({
           </TokenWrapper>
         )}
       </div>
-      <ButtonV2 fullWidth disabled={!token || loading} onClick={onImportToken}>
+      <Button fullWidth disabled={!token || loading} onClick={onImportToken}>
         Add Token
-      </ButtonV2>
+      </Button>
     </Wrapper>
   );
 }
@@ -166,7 +166,8 @@ const Image = styled.div<{ src: string }>`
 `;
 
 const Title = styled(Text).attrs({
-  title: true,
+  size: "3xl",
+  weight: "bold",
   noMargin: true
 })`
   font-weight: 600;
