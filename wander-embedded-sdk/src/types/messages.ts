@@ -43,10 +43,10 @@ export interface IncomingMessage<K extends IncomingMessageId> {
 }
 
 // Messages sent from SDK to iframe examples
-export type OutgoingMessage =
-  | { type: "THEME_UPDATE"; payload: { primary: string; secondary: string } }
-  | { type: "WALLET_CONNECTED"; payload: { address: string } }
-  | { type: "WALLET_DISCONNECTED" };
+export type OutgoingMessage = {
+  type: "THEME_UPDATE";
+  payload: string;
+};
 
 // Type guard for incoming messages
 export function isIncomingMessage<K extends IncomingMessageId>(
