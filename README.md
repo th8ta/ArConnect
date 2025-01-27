@@ -24,8 +24,7 @@ const wander = new WanderEmbedded({
   iframeStyles: {
     /* custom styles */
   },
-  logo: "custom-logo-url",
-  balance: true
+  logo: "custom-logo-url"
 });
 ```
 
@@ -35,16 +34,16 @@ const wander = new WanderEmbedded({
 
 The `WanderEmbedded` constructor accepts an optional configuration object with the following properties:
 
-| Option         | Type                         | Default     | Description                                                                      |
-| -------------- | ---------------------------- | ----------- | -------------------------------------------------------------------------------- |
-| `buttonStyles` | `string \| object \| 'none'` | `undefined` | Customize the appearance of the Wander button. Set to 'none' to hide the button. |
-| `iframeRef`    | `HTMLIFrameElement`          | `undefined` | Reference to an existing iframe element to use instead of creating a new one.    |
-| `iframeStyles` | `object`                     | `undefined` | Custom styles to apply to the iframe.                                            |
-| `logo`         | `string`                     | `undefined` | Custom logo URL for the button.                                                  |
-| `balance`      | `boolean`                    | `undefined` | Whether to show balance information on the button.                               |
-| `onOpen`       | `() => void`                 | `undefined` | Callback function called when the iframe is opened.                              |
-| `onClose`      | `() => void`                 | `undefined` | Callback function called when the iframe is closed.                              |
-| `onResize`     | `(data: ResizeData) => void` | `undefined` | Callback function called when the iframe is resized.                             |
+| **Option**     | **Type**                     | **Default** | **Description**                                                                                                     |
+| -------------- | ---------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------- |
+| `buttonStyles` | object \| 'none'             | `undefined` | Customize the button’s appearance: - **object**: inline style object ; **'none'**: hide the button                  |
+| `iframeRef`    | `HTMLIFrameElement`          | `undefined` | Use an existing iframe element instead of creating a new one.                                                       |
+| `iframeStyles` | `object`                     | `undefined` | Inline styles for the iframe (e.g., `{ border: 'none', borderRadius: '12px' }`).                                    |
+| `logo`         | `string`                     | `undefined` | URL for a custom logo displayed on the Wander button.                                                               |
+| `balance`      | `string`                     | `undefined` | Show balance information on the button.                                                                             |
+| `onOpen`       | `() => void`                 | `undefined` | Callback fired when the Wander iframe is opened.                                                                    |
+| `onClose`      | `() => void`                 | `undefined` | Callback fired when the Wander iframe is closed.                                                                    |
+| `onResize`     | `(data: ResizeData) => void` | `undefined` | Callback fired when the Wander iframe is resized. The `data` object typically includes new width and height values. |
 
 ### Methods
 
@@ -133,5 +132,4 @@ const wander = new WanderEmbedded({
 ## Notes
 
 - The SDK automatically injects necessary elements into your webpage unless custom references are provided.
-- The iframe source defaults to `http://localhost:5174/` for development.
 - Make sure to call `destroy()` when cleaning up to prevent memory leaks.
