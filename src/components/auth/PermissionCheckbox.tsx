@@ -7,6 +7,9 @@ const PermissionCheckbox = styled(ToggleSwitch)`
 `;
 
 export const PermissionDescription = styled(Text).attrs({
+  variant: "secondary",
+  size: "sm",
+  weight: "medium",
   noMargin: true
 })`
   margin-top: 0.2rem;

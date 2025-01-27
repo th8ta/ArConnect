@@ -81,10 +81,6 @@
     "message": "产生",
     "description": "Generate button text"
   },
-  "add_wallet": {
-      "message": "添加钱包",
-      "description": "Add a wallet text"
-  },
   "analytics_description": {
       "message": "我们现在使用分析工具。",
       "description": "Opting into Analytics text"
@@ -559,8 +555,8 @@
       "message": "搜索应用...",
       "description": "Search input placeholder for apps"
   },
-  "search_wallets": {
-      "message": "搜索钱包...",
+  "search_accounts": {
+      "message": "搜索账户",
       "description": "Search input placeholder for wallets"
   },
   "search_tokens": {
@@ -955,6 +951,10 @@
   },
   "provide_seedphrase_paragraph": {
       "message": "输入为您的钱包生成的恢复短语。请确保顺序正确。",
+      "description": "Explainer about the seedphrase loading"
+  },
+  "provide_keyfile_seedphrase_paragraph": {
+      "message": "拖放您的密钥文件或输入为您的钱包生成的恢复短语。请确保顺序正确。",
       "description": "Explainer about the seedphrase loading"
   },
   "sign_in": {
@@ -2849,5 +2849,19 @@
     "less_settings": {
         "message": "更少设置",
         "description": "Less settings text"
+    },
+    "seedphrase": {
+        "message": "恢复短语",
+        "description": "Seedphrase text"
+    },
+    "i_have_a_import_type": {
+        "message": "我有一个 $TYPE$",
+        "description": "I have a import type text",
+        "placeholders": {
+            "type": {
+                "content": "$1",
+                "example": "seedphrase"
+            }
+        }
     }
 }

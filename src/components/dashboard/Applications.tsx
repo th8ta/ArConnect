@@ -106,6 +106,9 @@ export function ApplicationsDashboardView() {
             icon={app.icon}
             active={activeApp === app.url}
             onClick={() => navigate(`/apps/${encodeURIComponent(app.url)}`)}
+            squircleSize={40}
+            style={{ height: 64 }}
+            showArrow
             key={i}
           />
         ))}

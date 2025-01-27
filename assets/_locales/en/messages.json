@@ -81,10 +81,6 @@
     "message": "Generate",
     "description": "Generate button text"
   },
-  "add_wallet": {
-    "message": "Add wallet",
-    "description": "Add a wallet text"
-  },
   "analytics_description" : {
     "message" : "We now use analytics.",
     "description" : "Opting into Analytics text"
@@ -563,8 +559,8 @@
     "message": "Search for an app...",
     "description": "Search input placeholder for apps"
   },
-  "search_wallets": {
-    "message": "Search for a wallet...",
+  "search_accounts": {
+    "message": "Search accounts",
     "description": "Search input placeholder for wallets"
   },
   "search_tokens": {
@@ -963,6 +959,10 @@
   },
   "provide_seedphrase_paragraph": {
     "message": "Enter the recovery phrase generated for your wallet. Please ensure it is in the correct order.",
+    "description": "Explainer about the seedphrase loading"
+  },
+  "provide_keyfile_seedphrase_paragraph": {
+    "message": "Drag and drop your keyfile or enter the recovery phrase generated for your wallet. Please ensure it is in the correct order.",
     "description": "Explainer about the seedphrase loading"
   },
   "sign_in": {
@@ -2859,5 +2859,19 @@
   "less_settings": {
     "message": "Less settings",
     "description": "Less settings text"
+  },
+  "seedphrase": {
+    "message": "Seedphrase",
+    "description": "Seedphrase text"
+  },
+  "i_have_a_import_type": {
+    "message": "I have a $TYPE$",
+    "description": "I have a import type text",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "seedphrase"
+      }
+    }
   }
 }

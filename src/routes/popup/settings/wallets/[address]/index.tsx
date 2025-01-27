@@ -429,7 +429,7 @@ export const CopyButton = styled(CopyIcon)`
   }
 `;
 
-const RemoveButton = styled(Button).attrs({
+export const RemoveButton = styled(Button).attrs({
   variant: "secondary"
 })`
   background: ${({ theme }) =>

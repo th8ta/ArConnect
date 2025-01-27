@@ -1,5 +1,5 @@
 import { concatGatewayURL } from "~gateways/utils";
-import { ButtonV2, Spacer, useInput } from "@arconnect/components";
+import { Button, Spacer, useInput } from "@arconnect/components-rebrand";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "@plasmohq/storage/hook";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
@@ -114,11 +114,11 @@ export function WalletsDashboardView() {
       <Wrapper>
         <SearchWrapper>
           <SearchInput
-            placeholder={browser.i18n.getMessage("search_wallets")}
+            placeholder={browser.i18n.getMessage("search_accounts")}
             {...searchInput.bindings}
           />
           <AddWalletButton onClick={() => navigate("/wallets/new")}>
-            {browser.i18n.getMessage("add_wallet")}
+            {browser.i18n.getMessage("add_account")}
           </AddWalletButton>
         </SearchWrapper>
         <Spacer y={1} />
@@ -164,7 +164,7 @@ const SearchWrapper = styled.div`
   background-color: rgb(${(props) => props.theme.cardBackground});
 `;
 
-const AddWalletButton = styled(ButtonV2).attrs({
+const AddWalletButton = styled(Button).attrs({
   secondary: false
 })`
   width: 100%;

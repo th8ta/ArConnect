@@ -40,6 +40,7 @@ import useSetting from "~settings/hook";
 import { PageType, trackPage } from "~utils/analytics";
 import BigNumber from "bignumber.js";
 import type { CommonRouteProps } from "~wallets/router/router.types";
+import { Flex } from "~components/common/Flex";
 
 export interface SubscriptionDetailsViewParams {
   id?: string;
@@ -447,26 +448,41 @@ interface ToggleSwitchProps {
   setChecked: Dispatch<SetStateAction<boolean>>;
   width?: number;
   height?: number;
+  children?: React.ReactNode;
 }
 
 export const ToggleSwitch = ({
   checked,
   setChecked,
   width = 44,
-  height = 22
+  height = 22,
+  children
 }: ToggleSwitchProps) => {
-  const handleChange = () => setChecked(!checked);
+  const [state, setState] = useState(checked);
+
+  const handleChange = () => {
+    const newState = !state;
+    setState(newState);
+    setChecked(newState);
+  };
+
+  useEffect(() => {
+    setState(checked);
+  }, [checked]);
 
   return (
-    <SwitchWrapper width={width} height={height}>
-      <Checkbox
-        width={width}
-        height={height}
-        type="checkbox"
-        onChange={handleChange}
-      />
-      <Slider width={width} height={height} checked={checked} />
-    </SwitchWrapper>
+    <Flex gap={8}>
+      <SwitchWrapper width={width} height={height}>
+        <Checkbox
+          width={width}
+          height={height}
+          type="checkbox"
+          onChange={handleChange}
+        />
+        <Slider width={width} height={height} checked={state} />
+      </SwitchWrapper>
+      {children}
+    </Flex>
   );
 };
 

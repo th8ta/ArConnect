@@ -83,7 +83,7 @@ export function TokensDashboardView() {
           axis="y"
           onReorder={() => {}}
           values={aoTokens}
-          style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}
+          style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
         >
           {enhancedAoTokens.map((token) => (
             <div onClick={() => handleTokenClick(token)} key={token.id}>
@@ -108,5 +108,5 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: calc(100% - 64px);
+  height: 100%;
 `;

@@ -7,9 +7,7 @@ import {
 import { EditIcon } from "@iconicicons/react";
 import { useEffect, useMemo, useState } from "react";
 import { IconButton } from "~components/IconButton";
-import PermissionCheckbox, {
-  PermissionDescription
-} from "~components/auth/PermissionCheckbox";
+import { PermissionDescription } from "~components/auth/PermissionCheckbox";
 import { removeApp } from "~applications";
 import {
   Button,
@@ -31,6 +29,8 @@ import Arweave from "arweave";
 import { defaultGateway, suggestedGateways, testnets } from "~gateways/gateway";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { LoadingView } from "~components/page/common/loading/loading.view";
+import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
+import { Flex } from "~components/common/Flex";
 
 export interface AppSettingsDashboardViewParams {
   url: string;
@@ -146,8 +146,8 @@ export function AppSettingsDashboardView({
 
         return (
           <div key={i}>
-            <PermissionCheckbox
-              onChange={(checked) =>
+            <ToggleSwitch
+              setChecked={(checked) =>
                 updateSettings((val) => {
                   // toggle permission
                   if (checked && !val.permissions.includes(permissionName)) {
@@ -163,12 +163,15 @@ export function AppSettingsDashboardView({
               }
               checked={settings.permissions.includes(permissionName)}
             >
-              {formattedPermissionName}
-              <br />
-              <PermissionDescription>
-                {browser.i18n.getMessage(permissionData[permissionName])}
-              </PermissionDescription>
-            </PermissionCheckbox>
+              <Flex direction="column">
+                <Text size="md" weight="medium" noMargin>
+                  {formattedPermissionName}
+                </Text>
+                <PermissionDescription>
+                  {browser.i18n.getMessage(permissionData[permissionName])}
+                </PermissionDescription>
+              </Flex>
+            </ToggleSwitch>
             {i !== Object.keys(permissionData).length - 1 && <Spacer y={0.8} />}
           </div>
         );
@@ -184,7 +187,7 @@ export function AppSettingsDashboardView({
             }
           >
             <Checkbox
-              size={16}
+              size={20}
               onChange={() =>
                 updateSettings((val) => ({ ...val, signPolicy: option }))
               }
@@ -406,6 +409,8 @@ export function AppSettingsDashboardView({
 }
 
 const AppName = styled(Text).attrs({
+  size: "3xl",
+  weight: "bold",
   noMargin: true
 })`
   font-weight: 600;
