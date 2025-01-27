@@ -33,7 +33,7 @@ export function setupWalletSDK(targetWindow: Window = window) {
     return new Promise<any>(async (resolve, reject) => {
       // execute foreground module
       // TODO: Use a default function for those that do not have/need one and see if chunking can be done automatically or if it is needed at all:
-      const foregroundResult = await mod.function(...params);
+      const foregroundResult = mod ? await mod.function(...params) : null;
 
       // 2. Prepare the payload to send
       const callID = nanoid();
@@ -88,7 +88,7 @@ export function setupWalletSDK(targetWindow: Window = window) {
         }
 
         // call the finalizer function if it exists
-        if (mod.finalizer) {
+        if (mod && mod.finalizer) {
           const finalizerResult = await mod.finalizer(
             res.data,
             foregroundResult,
