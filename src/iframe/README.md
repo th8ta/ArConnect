@@ -1,4 +1,4 @@
-# ArConnect Browser Extension & ArConnect Embedded
+# ArConnect Embedded
 
 ## Testing
 
