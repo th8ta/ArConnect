@@ -5,19 +5,23 @@ import { foregroundModules } from "~api/foreground/foreground-modules";
 import mitt from "mitt";
 import { log, LOG_GROUP } from "~utils/log/log.utils";
 import { version } from "../../../package.json";
+// import { version as sdkVersion } from "../../../wander-embedded-sdk/package.json";
 
 export function setupWalletSDK(targetWindow: Window = window) {
   log(LOG_GROUP.SETUP, "setupWalletSDK()");
+  const isEmbedded = import.meta.env?.VITE_IS_EMBEDDED_APP === "1";
 
   /** Init events */
   const events = mitt<InjectedEvents>();
 
-  /**
-   * Store modules in a map for quick lookup.
-   */
+  const walletAPI = {};
   const moduleMap = new Map<string, (typeof foregroundModules)[number]>();
+
   for (const mod of foregroundModules) {
     moduleMap.set(mod.functionName, mod);
+    walletAPI[mod.functionName] = (...params: any[]) => {
+      return callForegroundThenBackground(mod.functionName, params);
+    };
   }
 
   /**
@@ -37,9 +41,13 @@ export function setupWalletSDK(targetWindow: Window = window) {
 
       // 2. Prepare the payload to send
       const callID = nanoid();
-      const data: ApiCall & { ext: "arconnect" } = {
+      const data: ApiCall & {
+        ext: "arconnect" | "arconnectEmbedded";
+        sdkVersion: string;
+      } = {
         type: `api_${mod.functionName}`,
-        ext: "arconnect",
+        ext: isEmbedded ? "arconnectEmbedded" : "arconnect",
+        sdkVersion: version,
         callID,
         data: {
           params: foregroundResult || params
@@ -117,17 +125,21 @@ export function setupWalletSDK(targetWindow: Window = window) {
    * Create the Proxy object.
    */
   const proxyWallet = new Proxy<Record<string, any>>(
-    {},
+    {
+      walletName: isEmbedded ? "ArConnect Embedded" : "ArConnect",
+      ...walletAPI
+    },
     {
       get(target, propKey: string) {
-        // Pass through known constants or objects:
-        if (propKey === "walletName") return "ArConnect";
-        if (propKey === "walletVersion") return version;
-        if (propKey === "events") return events;
-
         // If the property is a symbol or some internal property:
         if (typeof propKey !== "string") {
           return Reflect.get(target, propKey);
+        }
+
+        // Get value from target if it exists
+        const value = Reflect.get(target, propKey);
+        if (value !== undefined) {
+          return value;
         }
 
         // Forward generically or throw:
