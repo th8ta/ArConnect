@@ -21,7 +21,7 @@ export default defineConfig({
       formats: ["es", "umd"],
       fileName: (format) => `wallet-sdk.${format}.js`
     },
-    outDir: "wander-embedded-sdk/wallet-api-dist",
+    outDir: "arconnect-embedded-sdk/wallet-api-dist",
     sourcemap: true,
     rollupOptions: {
       external: [
