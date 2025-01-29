@@ -1,6 +1,5 @@
 import { ButtonV2, Checkbox, Spacer, Text } from "@arconnect/components";
 import { PasswordContext, WalletContext } from "../setup";
-import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { formatAddress } from "~utils/format";
 import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
@@ -19,6 +18,7 @@ import { useStorage } from "~utils/storage";
 import JSConfetti from "js-confetti";
 import { useLocation } from "~wallets/router/router.utils";
 import { loadTokens } from "~tokens/token";
+import { getNameServiceProfile } from "~lib/nameservice";
 
 export function GenerateDoneWelcomeView() {
   const { navigate } = useLocation();
@@ -66,12 +66,12 @@ export function GenerateDoneWelcomeView() {
     }
 
     try {
-      const ansProfile = (await getAnsProfile(
+      const nameServiceProfile = await getNameServiceProfile(
         walletRef.current.address
-      )) as AnsUser;
+      );
 
-      if (ansProfile) {
-        nickname = ansProfile.currentLabel;
+      if (nameServiceProfile) {
+        nickname = nameServiceProfile.name;
       }
     } catch {}
 

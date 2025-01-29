@@ -2,7 +2,6 @@ import { concatGatewayURL } from "~gateways/utils";
 import { ButtonV2, Spacer, useInput } from "@arconnect/components";
 import { useEffect, useState } from "react";
 import { useStorage } from "~utils/storage";
-import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import type { StoredWallet } from "~wallets";
 import { Reorder } from "framer-motion";
@@ -13,6 +12,8 @@ import WalletListItem from "~components/dashboard/list/WalletListItem";
 import SearchInput from "~components/dashboard/SearchInput";
 import HeadV2 from "~components/popup/HeadV2";
 import { useLocation } from "~wallets/router/router.utils";
+import { getNameServiceProfiles } from "~lib/nameservice";
+import type { NameServiceProfile } from "~lib/types";
 
 export function WalletsView() {
   const { navigate } = useLocation();
@@ -27,27 +28,31 @@ export function WalletsView() {
   );
 
   // ans data
-  const [ansProfiles, setAnsProfiles] = useState<AnsUser[]>([]);
+  const [nameServiceProfiles, setNameServiceProfiles] = useState<
+    NameServiceProfile[]
+  >([]);
 
   useEffect(() => {
     (async () => {
       if (!wallets) return;
 
       // fetch profiles
-      const profiles = await getAnsProfile(wallets.map((w) => w.address));
+      const profiles = await getNameServiceProfiles(
+        wallets.map((w) => w.address)
+      );
 
-      setAnsProfiles(profiles as AnsUser[]);
+      setNameServiceProfiles(profiles);
     })();
   }, [wallets]);
 
   // ans shortcuts
   const findProfile = (address: string) =>
-    ansProfiles.find((profile) => profile.user === address);
+    nameServiceProfiles.find((profile) => profile.address === address);
 
   const gateway = useGateway(FULL_HISTORY);
 
   function findAvatar(address: string) {
-    const avatar = findProfile(address)?.avatar;
+    const avatar = findProfile(address)?.logo;
     const gatewayUrl = concatGatewayURL(gateway);
 
     if (!avatar) return undefined;
@@ -55,10 +60,7 @@ export function WalletsView() {
   }
 
   function findLabel(address: string) {
-    const label = findProfile(address)?.currentLabel;
-
-    if (!label) return undefined;
-    return label + ".ar";
+    return findProfile(address)?.name;
   }
 
   // search

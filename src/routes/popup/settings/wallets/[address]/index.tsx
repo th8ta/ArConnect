@@ -16,7 +16,6 @@ import { removeWallet, type StoredWallet } from "~wallets";
 import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "~utils/storage";
 import { IconButton } from "~components/IconButton";
-import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
 import browser from "webextension-polyfill";
@@ -26,8 +25,8 @@ import { formatAddress } from "~utils/format";
 import HeadV2 from "~components/popup/HeadV2";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
-import { ErrorTypes } from "~utils/error/error.utils";
 import { LoadingView } from "~components/page/common/loading/loading.view";
+import { getNameServiceProfile } from "~lib/nameservice";
 
 export interface WalletViewParams {
   address: string;
@@ -56,19 +55,15 @@ export function WalletView({ params: { address } }: WalletViewProps) {
   // toasts
   const { setToast } = useToasts();
 
-  // ans
-  const [ansLabel, setAnsLabel] = useState<string>();
+  // name service name
+  const [nameServiceName, setNameServiceName] = useState<string>();
 
   useEffect(() => {
     (async () => {
       if (!wallet) return;
 
-      // get ans profile
-      const profile = (await getAnsProfile(wallet.address)) as AnsUser;
-
-      if (!profile?.currentLabel) return;
-
-      setAnsLabel(profile.currentLabel + ".ar");
+      const arnsProfile = await getNameServiceProfile(wallet.address);
+      setNameServiceName(arnsProfile?.name);
     })();
   }, [wallet?.address]);
 
@@ -77,12 +72,12 @@ export function WalletView({ params: { address } }: WalletViewProps) {
 
   useEffect(() => {
     if (!wallet) return;
-    walletNameInput.setState(ansLabel || wallet.nickname);
-  }, [wallet, ansLabel]);
+    walletNameInput.setState(nameServiceName || wallet.nickname);
+  }, [wallet, nameServiceName]);
 
   // update nickname function
   async function updateNickname() {
-    if (!!ansLabel) return;
+    if (!!nameServiceName) return;
 
     // check name
     const newName = walletNameInput.state;
@@ -142,7 +137,7 @@ export function WalletView({ params: { address } }: WalletViewProps) {
         <div>
           <div>
             <WalletName>
-              {ansLabel || wallet.nickname}
+              {nameServiceName || wallet.nickname}
               {wallet.type === "hardware" && (
                 <TooltipV2
                   content={
@@ -180,8 +175,10 @@ export function WalletView({ params: { address } }: WalletViewProps) {
           </div>
 
           <Title>{browser.i18n.getMessage("edit_wallet_name")}</Title>
-          {!!ansLabel && (
-            <Warning>{browser.i18n.getMessage("cannot_edit_with_ans")}</Warning>
+          {!!nameServiceName && (
+            <Warning>
+              {browser.i18n.getMessage("cannot_edit_with_name_service")}
+            </Warning>
           )}
           <InputWithBtn>
             <InputWrapper>
@@ -191,13 +188,13 @@ export function WalletView({ params: { address } }: WalletViewProps) {
                 type="text"
                 placeholder={browser.i18n.getMessage("edit_wallet_name")}
                 fullWidth
-                disabled={!!ansLabel}
+                disabled={!!nameServiceName}
               />
             </InputWrapper>
             <IconButton
               style={{ height: "2.625rem" }}
               onClick={updateNickname}
-              disabled={!!ansLabel}
+              disabled={!!nameServiceName}
             >
               Save
             </IconButton>

@@ -8,7 +8,6 @@ import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
 import { AnimatePresence } from "framer-motion";
 import { useTheme } from "~utils/theme";
 import { useStorage } from "~utils/storage";
-import { useAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import HardwareWalletIcon, {
   hwIconAnimateProps
@@ -23,6 +22,7 @@ import type { AppLogoInfo } from "~applications/application";
 import Squircle from "~components/Squircle";
 import { useLocation } from "~wallets/router/router.utils";
 import { ArrowNarrowLeft } from "@untitled-ui/icons-react";
+import { useNameServiceProfile } from "~lib/nameservice";
 
 export interface HeadV2Props {
   title: string;
@@ -86,7 +86,7 @@ export default function HeadV2({
     instance: ExtensionStorage
   });
 
-  const ans = useAnsProfile(activeAddress);
+  const nameServiceProfile = useNameServiceProfile(activeAddress);
 
   const svgieAvatar = useMemo(
     () => svgie(activeAddress, { asDataURI: true }),
@@ -144,12 +144,12 @@ export default function HeadV2({
         <>
           <AvatarButton>
             <ButtonAvatar
-              img={ans?.avatar || svgieAvatar}
+              img={nameServiceProfile?.logo || svgieAvatar}
               onClick={() => {
                 setOpen(true);
               }}
             >
-              {!ans?.avatar && !svgieAvatar && <NoAvatarIcon />}
+              {!nameServiceProfile?.logo && !svgieAvatar && <NoAvatarIcon />}
               <AnimatePresence initial={false}>
                 {hardwareApi === "keystone" && (
                   <HardwareWalletIcon

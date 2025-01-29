@@ -12,7 +12,6 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { formatTokenBalance } from "~tokens/currency";
 import type { HardwareApi } from "~wallets/hardware";
 import { useStorage } from "~utils/storage";
-import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress } from "~utils/format";
 import type { StoredWallet } from "~wallets";
@@ -28,6 +27,7 @@ import { svgie } from "~utils/svgies";
 import { Action } from "./WalletHeader";
 import copy from "copy-to-clipboard";
 import { useLocation } from "~wallets/router/router.utils";
+import { getNameServiceProfiles } from "~lib/nameservice";
 
 export default function WalletSwitcher({
   open,
@@ -80,27 +80,23 @@ export default function WalletSwitcher({
       if (wallets.length === 0 || loadedAns) return;
 
       // get ans profiles
-      const profiles = (await getAnsProfile(
+      const profiles = await getNameServiceProfiles(
         wallets.map((val) => val.address)
-      )) as AnsUser[];
+      );
       const gateway = await findGateway({ startBlock: 0 });
 
       // update wallets state
       setWallets((val) =>
         val.map((wallet) => {
-          const profile = profiles.find(({ user }) => user === wallet.address);
+          const profile = profiles.find(
+            ({ address }) => address === wallet.address
+          );
           const svgieAvatar = svgie(wallet.address, { asDataURI: true });
 
           return {
             ...wallet,
-            name: profile?.currentLabel
-              ? profile.currentLabel + ".ar"
-              : wallet.name,
-            avatar: profile?.avatar
-              ? concatGatewayURL(gateway) + "/" + profile.avatar
-              : svgieAvatar
-              ? svgieAvatar
-              : undefined,
+            name: profile?.name || wallet.name,
+            avatar: profile?.logo || svgieAvatar,
             hasAns: !!profile
           };
         })
