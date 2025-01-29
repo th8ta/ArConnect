@@ -1,10 +1,10 @@
 import { IncomingMessage, IncomingMessageId } from "./messages";
 
-export interface WanderIframeStyles extends Partial<CSSStyleDeclaration> {}
+export interface ArConnectIframeStyles extends Partial<CSSStyleDeclaration> {}
 
-export interface WanderIframeConfig {
+export interface ArConnectIframeConfig {
   src: string;
-  iframeStyles?: WanderIframeStyles;
+  iframeStyles?: ArConnectIframeStyles;
   onMessage: (message: IncomingMessage<IncomingMessageId>) => void;
   iframeRef?: HTMLIFrameElement;
 }

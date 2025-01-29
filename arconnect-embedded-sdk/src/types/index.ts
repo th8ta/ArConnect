@@ -1,6 +1,6 @@
 import { IncomingResizeMessageData } from "./messages";
 
-export interface WanderEmbeddedOptions {
+export interface ArConnectEmbeddedOptions {
   logo?: string;
   balance?: string;
   iframeRef?: HTMLIFrameElement;
@@ -10,8 +10,3 @@ export interface WanderEmbeddedOptions {
   onClose?: () => void;
   onResize?: (data: IncomingResizeMessageData) => void;
 }
-
-export type Theme = {
-  primary: string;
-  secondary: string;
-};

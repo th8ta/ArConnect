@@ -1,7 +1,7 @@
 import { setupWalletSDK } from "wallet-api/wallet-sdk.es.js";
-import { WanderEmbeddedOptions } from "./types";
-import { WanderButton } from "./components/WanderButton";
-import { WanderIframe } from "./components/WanderIframe";
+import { ArConnectEmbeddedOptions } from "./types";
+import { ArConnectButton } from "./components/ArConnectButton";
+import { ArConnectIframe } from "./components/ArConnectIframe";
 import {
   IncomingMessage,
   IncomingMessageId,
@@ -9,18 +9,20 @@ import {
 } from "./types/messages";
 import { UIComponents } from "./types/embedded";
 
-export class WanderEmbedded {
+export class ArConnectEmbedded {
   private components: UIComponents;
   private readonly DEFAULT_IFRAME_SRC = "http://localhost:5174/";
-  private options: WanderEmbeddedOptions;
+  private options: ArConnectEmbeddedOptions;
 
-  constructor(options?: WanderEmbeddedOptions) {
+  constructor(options?: ArConnectEmbeddedOptions) {
     this.options = options || {};
     this.components = this.initializeComponents(options);
   }
 
-  private initializeComponents(options?: WanderEmbeddedOptions): UIComponents {
-    const iframe = new WanderIframe({
+  private initializeComponents(
+    options?: ArConnectEmbeddedOptions
+  ): UIComponents {
+    const iframe = new ArConnectIframe({
       src: this.DEFAULT_IFRAME_SRC,
       onMessage: (message) => this.handleIframeMessage(message),
       iframeRef: options?.iframeRef,
@@ -35,7 +37,7 @@ export class WanderEmbedded {
     if (options?.buttonStyles !== "none") {
       const container = this.createContainer();
 
-      const button = new WanderButton({
+      const button = new ArConnectButton({
         buttonStyles: options?.buttonStyles,
         onClick: () => this.open(),
         logo: options?.logo,
@@ -52,7 +54,7 @@ export class WanderEmbedded {
 
   private createContainer(): HTMLDivElement {
     const container = document.createElement("div");
-    container.id = "wander-embedded-container";
+    container.id = "arconnect-embedded-container";
     return container;
   }
 

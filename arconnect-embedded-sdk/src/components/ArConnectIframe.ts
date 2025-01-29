@@ -3,14 +3,17 @@ import {
   OutgoingMessage,
   isIncomingMessage
 } from "../types/messages";
-import { WanderIframeConfig, WanderIframeStyles } from "../types/wander-iframe";
+import {
+  ArConnectIframeConfig,
+  ArConnectIframeStyles
+} from "../types/arconnect-iframe";
 
-export class WanderIframe {
+export class ArConnectIframe {
   private iframe: HTMLIFrameElement;
-  private config: WanderIframeConfig;
+  private config: ArConnectIframeConfig;
   private messageHandler: (event: MessageEvent) => void;
 
-  constructor(config: WanderIframeConfig) {
+  constructor(config: ArConnectIframeConfig) {
     this.config = config;
     this.messageHandler = this.createMessageHandler();
     this.iframe = this.initializeIframe();
@@ -63,10 +66,10 @@ export class WanderIframe {
     } else {
       this.iframe = document.createElement("iframe");
       this.iframe.src = this.config.src;
-      this.iframe.id = "wander-embedded-iframe";
+      this.iframe.id = "arconnect-embedded-iframe";
     }
 
-    const defaultStyles: WanderIframeStyles = {
+    const defaultStyles: ArConnectIframeStyles = {
       position: "fixed",
       bottom: "120px",
       right: "20px",

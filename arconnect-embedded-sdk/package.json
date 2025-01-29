@@ -1,7 +1,7 @@
 {
-  "name": "@kranthicodes/wander-embedded-sdk",
+  "name": "arconnect-embedded-sdk",
   "version": "0.0.5",
-  "description": "wander embedded sdk",
+  "description": "arconnect embedded sdk",
   "author": "kranthicodes",
   "license": "MIT",
   "files": [
@@ -10,9 +10,9 @@
   ],
   "exports": {
     ".": {
-      "require": "./sdk-dist/index.cjs",
+      "types": "./sdk-dist/index.d.ts",
       "import": "./sdk-dist/index.js",
-      "types": "./sdk-dist/index.d.ts"
+      "require": "./sdk-dist/index.cjs"
     }
   },
   "main": "sdk-dist/index.cjs",
