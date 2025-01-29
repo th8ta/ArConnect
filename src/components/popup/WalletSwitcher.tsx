@@ -11,7 +11,6 @@ import { type Variants } from "framer-motion";
 import { formatFiatBalance } from "~tokens/currency";
 import type { HardwareApi } from "~wallets/hardware";
 import { useStorage } from "~utils/storage";
-import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import { formatAddress, truncateMiddle } from "~utils/format";
 import type { StoredWallet } from "~wallets";
@@ -24,6 +23,7 @@ import Squircle from "~components/Squircle";
 import styled, { useTheme } from "styled-components";
 import { svgie } from "~utils/svgies";
 import { useLocation } from "~wallets/router/router.utils";
+import { getNameServiceProfiles } from "~lib/nameservice";
 import SliderMenu from "~components/SliderMenu";
 import { CopyToClipboard } from "~components/CopyToClipboard";
 import { PlusCircle, QrCode02, XClose } from "@untitled-ui/icons-react";
@@ -97,29 +97,23 @@ export default function WalletSwitcher({ open, close }: Props) {
       if (wallets.length === 0 || !updateAvatars) return;
 
       // get ans profiles
-      const profiles = loadedAns
-        ? []
-        : ((await getAnsProfile(
-            wallets.map((val) => val.address)
-          )) as AnsUser[]);
+      const profiles = await getNameServiceProfiles(
+        wallets.map((val) => val.address)
+      );
       const gateway = await findGateway({ startBlock: 0 });
 
       // update wallets state
       setWallets((val) =>
         val.map((wallet) => {
-          const profile = profiles.find(({ user }) => user === wallet.address);
+          const profile = profiles.find(
+            ({ address }) => address === wallet.address
+          );
           const svgieAvatar = svgie(wallet.address, { asDataURI: true });
 
           return {
             ...wallet,
-            name: profile?.currentLabel
-              ? profile.currentLabel + ".ar"
-              : wallet.name,
-            avatar: profile?.avatar
-              ? concatGatewayURL(gateway) + "/" + profile.avatar
-              : svgieAvatar
-              ? svgieAvatar
-              : undefined,
+            name: profile?.name || wallet.name,
+            avatar: profile?.logo || svgieAvatar,
             hasAns: !!profile
           };
         })

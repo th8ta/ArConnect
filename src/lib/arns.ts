@@ -1,5 +1,8 @@
 import { pLimit } from "plimit-lit";
 import { AOProcess } from "./ao";
+import { findGateway } from "~gateways/wayfinder";
+import { concatGatewayURL } from "~gateways/utils";
+import type { NameServiceProfile } from "./types";
 
 export const AO_ARNS_PROCESS = "agYcCFJtrMG6cqMuZfskIkFTGvUPddICmtQSBIoPdiA";
 
@@ -47,6 +50,12 @@ export type ANTInfo = {
   Ticker: string;
   Denomination: number;
   Owner: string;
+};
+export type ArNSPrimaryName = {
+  owner: WalletAddress;
+  name: string;
+  startTimestamp: number;
+  processId: string;
 };
 
 export async function getArNSRecord(
@@ -141,4 +150,70 @@ export async function searchArNSName(name: string) {
     success: false,
     record: null
   };
+}
+
+/**
+ * Generalized method to find the logo (avatar) for an ArNS name.
+ * Fetches the ArNS record and ANT info to retrieve the transaction ID for the logo.
+ * @param name - The ArNS name to fetch the logo for.
+ * @returns The transaction ID of the logo if found, otherwise undefined.
+ */
+export async function findLogo(processId: string): Promise<string | undefined> {
+  try {
+    // Fetch the ANT info to get the logo transaction ID
+    const antInfo = await getANTState(processId);
+    return antInfo?.Logo || undefined;
+  } catch (error) {
+    console.error(`Failed to fetch logo for name ${name}:`, error);
+    return undefined;
+  }
+}
+
+/**
+ * Fetches the primary ArNS name for a wallet address.
+ * @param address - Wallet address to fetch the primary name for.
+ * @returns Primary name record or undefined.
+ */
+export async function getPrimaryArNSName(
+  address: WalletAddress
+): Promise<ArNSPrimaryName | undefined> {
+  const ArIO = new AOProcess({ processId: AO_ARNS_PROCESS });
+  const primaryName = ArIO.read<ArNSPrimaryName>({
+    tags: [
+      { name: "Action", value: "Primary-Name" },
+      { name: "Address", value: address }
+    ]
+  });
+  console.log(primaryName);
+  return primaryName;
+}
+
+export async function getArNSProfile(
+  query: string
+): Promise<NameServiceProfile | undefined> {
+  if (!query) {
+    return undefined;
+  }
+
+  try {
+    // Fetch the primary name and logo
+    const primaryName = await getPrimaryArNSName(query);
+    const gateway = await findGateway({ startBlock: 0 });
+    let logoUrl: string | undefined;
+
+    if (primaryName?.name) {
+      logoUrl = await findLogo(primaryName.processId);
+      logoUrl = logoUrl ? concatGatewayURL(gateway) + "/" + logoUrl : undefined;
+    }
+
+    return {
+      address: query,
+      name: primaryName?.name,
+      logo: logoUrl
+    };
+  } catch (error) {
+    console.error("Error fetching ArNS profile:", error);
+  }
+
+  return undefined;
 }
