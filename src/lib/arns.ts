@@ -176,13 +176,15 @@ export async function getPrimaryArNSName(
   address: WalletAddress
 ): Promise<ArNSPrimaryName | undefined> {
   const ArIO = new AOProcess({ processId: AO_ARNS_PROCESS });
+  // Use retries of 1 as AOProcess is treating assertion errors (i.e., "Primary name not found") as
+  // a retry-able error.
   const primaryName = ArIO.read<ArNSPrimaryName>({
     tags: [
       { name: "Action", value: "Primary-Name" },
       { name: "Address", value: address }
-    ]
+    ],
+    retries: 1
   });
-  console.log(primaryName);
   return primaryName;
 }
 
