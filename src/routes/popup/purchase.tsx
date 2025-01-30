@@ -1,6 +1,4 @@
 import {
-  InputV2,
-  useInput,
   Text,
   ListItem,
   ButtonV2,
@@ -8,6 +6,7 @@ import {
   useToasts,
   ListItemIcon
 } from "@arconnect/components";
+import { Input as InputV2, useInput } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import { Bank, BankNote01, ChevronDown } from "@untitled-ui/icons-react";
 import switchIcon from "url:/assets/ecosystem/switch-vertical.svg";
@@ -175,6 +174,11 @@ export function PurchaseView() {
     }
   }, [debouncedYouPayInput, selectedCurrency, paymentMethod, arConversion]);
 
+  useEffect(() => {
+    youPayInput.setState("");
+    setExchangeRate(0);
+  }, [selectedCurrency]);
+
   const buyAR = async () => {
     try {
       const baseUrl = "https://global.transak.com/";
@@ -203,20 +207,16 @@ export function PurchaseView() {
         <Top>
           {/* TODO Only allow numbers */}
           <InputV2
-            small
+            sizeVariant="normal"
             placeholder={
               arConversion
                 ? "0"
                 : `${getSymbolFromCurrency(selectedCurrency?.symbol) || ""}0`
             }
             {...youPayInput.bindings}
-            // label={
-            //   !arConversion
-            //     ? browser.i18n.getMessage("buy_screen_pay")
-            //     : browser.i18n.getMessage("buy_screen_receive")
-            // }
             fullWidth
-            icon={
+            hasRightIcon
+            iconRight={
               arConversion ? (
                 <AR />
               ) : (
@@ -227,6 +227,20 @@ export function PurchaseView() {
                 />
               )
             }
+            inputContainerStyle={{
+              background: theme.surfaceTertiary,
+              height: "90px",
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              color: arConversion
+                ? quote?.fiatAmount.toString()
+                  ? theme.primaryTextv2
+                  : theme.input.placeholder.search
+                : quote?.cryptoAmount.toString()
+                ? theme.primaryTextv2
+                : theme.input.placeholder.search
+            }}
           />
           <Switch
             onClick={() => {
@@ -284,7 +298,7 @@ export function PurchaseView() {
               )
             }
           />
-          {exchangeRate ? (
+          {exchangeRate && youPayInput.bindings.value ? (
             <div
               style={{
                 display: "flex",
@@ -497,8 +511,8 @@ const CurrencySelectorScreen = ({
         <InputV2
           placeholder="Enter currency name"
           fullWidth
-          search
-          small
+          variant="search"
+          sizeVariant="small"
           {...searchInput.bindings}
         />
       </div>
