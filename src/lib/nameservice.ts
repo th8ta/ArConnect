@@ -2,6 +2,34 @@ import { useEffect, useState } from "react";
 import type { NameServiceProfile } from "./types";
 import { getAnsNameServiceProfile } from "./ans";
 import { getArNSProfile } from "./arns";
+import { ExtensionStorage } from "~utils/storage";
+
+let IN_MEM_CACHE: Record<string, NameServiceProfile> = {};
+
+async function updateCache() {
+  for (const walletAddress of Object.keys(IN_MEM_CACHE)) {
+    const profile =
+      (await getArNSProfile(walletAddress)) ||
+      (await getAnsNameServiceProfile(walletAddress));
+    IN_MEM_CACHE[walletAddress] = profile;
+  }
+  ExtensionStorage.set("name_service_cache", IN_MEM_CACHE);
+}
+
+ExtensionStorage.get<Record<string, NameServiceProfile>>("name_service_cache")
+  .then((cache) => {
+    if (cache) {
+      IN_MEM_CACHE = cache;
+    }
+
+    // update cache every 2 minutes
+    // TODO: make this more robust
+    updateCache();
+    setInterval(updateCache, 2 * 60 * 1000);
+  })
+  .catch((e) => {
+    console.error(e);
+  });
 
 /**
  * Return a NameServiceProfile for a query
@@ -13,10 +41,19 @@ import { getArNSProfile } from "./arns";
 export async function getNameServiceProfile(
   walletAddress: string
 ): Promise<NameServiceProfile | undefined> {
-  return (
+  const cached = IN_MEM_CACHE[walletAddress];
+  if (cached) {
+    return cached;
+  }
+
+  const profile =
     (await getArNSProfile(walletAddress)) ||
-    (await getAnsNameServiceProfile(walletAddress))
-  );
+    (await getAnsNameServiceProfile(walletAddress));
+
+  IN_MEM_CACHE[walletAddress] = profile;
+  ExtensionStorage.set("name_service_cache", IN_MEM_CACHE);
+
+  return profile;
 }
 
 /**
