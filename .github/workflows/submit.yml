@@ -29,7 +29,7 @@ jobs:
       - name: Modify package.json  and icons for BETA
         if: github.ref == 'refs/heads/staging'
         run: |
-          jq '.displayName = "ArConnect BETA"' package.json > temp.json
+          jq '.displayName = "ArConnect BETA" package.json > temp.json
           mv temp.json package.json
           cp -rf assets-beta/* assets/
 

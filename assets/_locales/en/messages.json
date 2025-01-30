@@ -1756,8 +1756,12 @@
     "description": "Switch button"
   },
   "buy_screen_payment_method": {
-    "message": "Payment Method",
+    "message": "Select Payment options",
     "description": "Select payment method title"
+  },
+  "buy_screen_payment_method_label": {
+    "message": "Pay with",
+    "description": "Select payment method input title"
   },
   "buy_screen_enter": {
     "message": "Enter amount",
@@ -1816,7 +1820,7 @@
     "description": "Info message text on purchase in progress page"
   },
   "order_id_purchase_pending": {
-    "message":  "Quote ID:",
+    "message":  "Order ID:",
     "description": "Order ID text on purchase in progress page"
   },
   "choose_payment_method": {
