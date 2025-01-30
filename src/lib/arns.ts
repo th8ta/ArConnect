@@ -1,7 +1,5 @@
 import { pLimit } from "plimit-lit";
 import { AOProcess } from "./ao";
-import { findGateway } from "~gateways/wayfinder";
-import { concatGatewayURL } from "~gateways/utils";
 import type { NameServiceProfile } from "./types";
 
 export const AO_ARNS_PROCESS = "agYcCFJtrMG6cqMuZfskIkFTGvUPddICmtQSBIoPdiA";
@@ -162,7 +160,7 @@ export async function findLogo(processId: string): Promise<string | undefined> {
   try {
     // Fetch the ANT info to get the logo transaction ID
     const antInfo = await getANTState(processId);
-    return antInfo?.Logo || undefined;
+    return antInfo?.Logo;
   } catch (error) {
     console.error(`Failed to fetch logo for name ${name}:`, error);
     return undefined;
@@ -198,18 +196,12 @@ export async function getArNSProfile(
   try {
     // Fetch the primary name and logo
     const primaryName = await getPrimaryArNSName(query);
-    const gateway = await findGateway({ startBlock: 0 });
-    let logoUrl: string | undefined;
-
-    if (primaryName?.name) {
-      logoUrl = await findLogo(primaryName.processId);
-      logoUrl = logoUrl ? concatGatewayURL(gateway) + "/" + logoUrl : undefined;
-    }
+    const logo = await findLogo(primaryName.processId);
 
     return {
       address: query,
       name: primaryName?.name,
-      logo: logoUrl
+      logo
     };
   } catch (error) {
     console.error("Error fetching ArNS profile:", error);

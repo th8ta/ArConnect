@@ -23,6 +23,8 @@ import Squircle from "~components/Squircle";
 import { useLocation } from "~wallets/router/router.utils";
 import { ArrowNarrowLeft } from "@untitled-ui/icons-react";
 import { useNameServiceProfile } from "~lib/nameservice";
+import { concatGatewayURL } from "~gateways/utils";
+import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 
 export interface HeadV2Props {
   title: string;
@@ -103,6 +105,7 @@ export default function HeadV2({
   const appIconPlaceholderText = appInfo?.placeholder;
 
   const SquircleWrapper = onAppInfoClick ? ButtonSquircle : React.Fragment;
+  const gateway = useGateway(FULL_HISTORY);
 
   return (
     <HeadWrapper
@@ -144,7 +147,11 @@ export default function HeadV2({
         <>
           <AvatarButton>
             <ButtonAvatar
-              img={nameServiceProfile?.logo || svgieAvatar}
+              img={
+                nameServiceProfile?.logo
+                  ? concatGatewayURL(gateway) + "/" + nameServiceProfile.logo
+                  : svgieAvatar
+              }
               onClick={() => {
                 setOpen(true);
               }}

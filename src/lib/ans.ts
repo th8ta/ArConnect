@@ -80,8 +80,6 @@ export async function getAnsNameServiceProfile(
         address: profile.user,
         name: profile.currentLabel + ".ar",
         logo: profile.avatar
-          ? concatGatewayURL(gateway) + "/" + profile.avatar
-          : undefined
       };
 }
 

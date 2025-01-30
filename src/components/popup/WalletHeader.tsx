@@ -40,6 +40,8 @@ import { Bell03 } from "@untitled-ui/icons-react";
 import { svgie } from "~utils/svgies";
 import { useLocation } from "~wallets/router/router.utils";
 import { useNameServiceProfile } from "~lib/nameservice";
+import { concatGatewayURL } from "~gateways/utils";
+import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 
 export default function WalletHeader() {
   const theme = useTheme();
@@ -84,6 +86,7 @@ export default function WalletHeader() {
 
   // profile picture
   const nameServiceProfile = useNameServiceProfile(activeAddress);
+  const gateway = useGateway(FULL_HISTORY);
 
   // fallback svgie for profile picture
   const svgieAvatar = useMemo(
@@ -205,7 +208,13 @@ export default function WalletHeader() {
             if (!isOpen) setOpen(true);
           }}
         >
-          <Avatar img={nameServiceProfile?.logo || svgieAvatar}>
+          <Avatar
+            img={
+              nameServiceProfile?.logo
+                ? concatGatewayURL(gateway) + "/" + nameServiceProfile.logo
+                : svgieAvatar
+            }
+          >
             {!nameServiceProfile?.logo && !svgieAvatar && <NoAvatarIcon />}
             <AnimatePresence initial={false}>
               {hardwareApi === "keystone" && (

@@ -113,7 +113,9 @@ export default function WalletSwitcher({ open, close }: Props) {
           return {
             ...wallet,
             name: profile?.name || wallet.name,
-            avatar: profile?.logo || svgieAvatar,
+            avatar: profile?.logo
+              ? concatGatewayURL(gateway) + "/" + profile.logo
+              : svgieAvatar,
             hasAns: !!profile
           };
         })

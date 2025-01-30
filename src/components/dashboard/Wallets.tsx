@@ -14,6 +14,7 @@ import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 import { useLocation } from "~wallets/router/router.utils";
 import { getNameServiceProfiles } from "~lib/nameservice";
 import type { NameServiceProfile } from "~lib/types";
+import { concatGatewayURL } from "~gateways/utils";
 
 export function WalletsDashboardView() {
   const { navigate } = useLocation();
@@ -82,7 +83,11 @@ export function WalletsDashboardView() {
   const gateway = useGateway(FULL_HISTORY);
 
   function findAvatar(address: string) {
-    return findProfile(address)?.logo;
+    const avatar = findProfile(address)?.logo;
+    const gatewayUrl = concatGatewayURL(gateway);
+
+    if (!avatar) return undefined;
+    return gatewayUrl + "/" + avatar;
   }
 
   function findLabel(address: string) {
