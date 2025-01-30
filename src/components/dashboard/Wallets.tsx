@@ -84,9 +84,9 @@ export function WalletsDashboardView() {
 
   function findAvatar(address: string) {
     const avatar = findProfile(address)?.logo;
-    const gatewayUrl = concatGatewayURL(gateway);
-
     if (!avatar) return undefined;
+
+    const gatewayUrl = concatGatewayURL(gateway);
     return gatewayUrl + "/" + avatar;
   }
 
