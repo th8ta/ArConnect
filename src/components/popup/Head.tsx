@@ -21,6 +21,8 @@ import styled from "styled-components";
 import { svgie } from "~utils/svgies";
 import { useLocation } from "~wallets/router/router.utils";
 import { useNameServiceProfile } from "~lib/nameservice";
+import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
+import { concatGatewayURL } from "~gateways/utils";
 
 export default function Head({
   title,
@@ -87,6 +89,7 @@ export default function Head({
 
   // hardware api type
   const hardwareApi = useHardwareApi();
+  const gateway = useGateway(FULL_HISTORY);
 
   return (
     <HeadWrapper
@@ -114,7 +117,11 @@ export default function Head({
       >
         <PageTitle>{title}</PageTitle>
         <ClickableAvatar
-          img={nameServiceProfile?.logo || svgieAvatar}
+          img={
+            nameServiceProfile?.logo
+              ? concatGatewayURL(gateway) + "/" + nameServiceProfile.logo
+              : svgieAvatar
+          }
           onClick={() => {
             if (!allowOpen) return;
             setOpen(true);

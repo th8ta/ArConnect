@@ -31,6 +31,7 @@ import { fetchWalletBalances } from "~utils/balances";
 import useSetting from "~settings/hook";
 import QRModal from "~components/modals/QRModal";
 import { getNameServiceProfiles } from "~lib/nameservice";
+import { concatGatewayURL } from "~gateways/utils";
 
 export default function WalletSwitcher({ open, close }: Props) {
   const theme = useTheme();
@@ -113,7 +114,9 @@ export default function WalletSwitcher({ open, close }: Props) {
           return {
             ...wallet,
             name: profile?.name || wallet.name,
-            avatar: profile?.logo || svgieAvatar,
+            avatar: profile?.logo
+              ? concatGatewayURL(gateway) + "/" + profile.logo
+              : svgieAvatar,
             hasAns: !!profile
           };
         })
