@@ -41,6 +41,7 @@ export function PurchaseView() {
   const [showCurrencySelector, setShowCurrencySelector] = useState(false);
   const [quote, setQuote] = useState<Quote | null>();
   const [exchangeRate, setExchangeRate] = useState<number>(0);
+  const [payInputValue, setpayInputValue] = useState<string>("");
   const { setToast } = useToasts();
   const theme = useTheme();
 
@@ -200,14 +201,20 @@ export function PurchaseView() {
     }
   };
 
+  const handleInputChange = (event: React.FormEvent<HTMLInputElement>) => {
+    const input = event.currentTarget;
+    input.value = input.value.replace(/[^0-9]/g, "");
+    setpayInputValue(input.value);
+  };
+
   return (
     <>
       <HeadV2 title="Buy" />
       <Wrapper>
         <Top>
-          {/* TODO Only allow numbers */}
           <InputV2
-            sizeVariant="normal"
+            onInput={handleInputChange}
+            inputMode="numeric"
             placeholder={
               arConversion
                 ? "0"
