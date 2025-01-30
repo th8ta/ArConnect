@@ -444,7 +444,7 @@
       "description": "Reset settings title"
   },
   "currency": {
-    "message": "货币",
+    "message": "选择法定货币",
     "description": "Select currency"
   },
   "setting_arverify": {
@@ -1733,11 +1733,11 @@
       "description": "Buy AR with Onramper button text"
   },
   "buy_screen_pay": {
-      "message": "您支付",
+      "message": "你花费",
       "description": "Payment input label title"
   },
   "buy_screen_receive": {
-      "message": "您接收",
+      "message": "你得到",
       "description": "Receive input label title"
   },
   "buy_screen_switch": {

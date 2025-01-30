@@ -448,7 +448,7 @@
     "description": "Reset settings title"
   },
   "currency": {
-    "message": "Currency",
+    "message": "Select Fiat Currency",
     "description": "Select currency"
   },
   "setting_arverify": {
@@ -1744,11 +1744,11 @@
     "description": "Buy AR with Onramper button text"
   },
   "buy_screen_pay": {
-    "message": "You Pay",
+    "message": "You spend",
     "description": "Payment input label title"
   },
   "buy_screen_receive": {
-    "message": "You Receive",
+    "message": "You get",
     "description": "Receive input label title"
   },
   "buy_screen_switch": {

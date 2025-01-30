@@ -495,7 +495,7 @@ const CurrencySelectorScreen = ({
     <SelectorWrapper>
       <div style={{ paddingBottom: "18px" }}>
         <InputV2
-          placeholder="Enter currency name"
+          placeholder="Search currency"
           fullWidth
           search
           small
