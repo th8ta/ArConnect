@@ -52,7 +52,11 @@ export function WalletsView() {
   const gateway = useGateway(FULL_HISTORY);
 
   function findAvatar(address: string) {
-    return findProfile(address)?.logo;
+    const avatar = findProfile(address)?.logo;
+    const gatewayUrl = concatGatewayURL(gateway);
+
+    if (!avatar) return undefined;
+    return gatewayUrl + "/" + avatar;
   }
 
   function findLabel(address: string) {

@@ -27,6 +27,7 @@ import { Action } from "./WalletHeader";
 import copy from "copy-to-clipboard";
 import { useLocation } from "~wallets/router/router.utils";
 import { getNameServiceProfiles } from "~lib/nameservice";
+import { concatGatewayURL } from "~gateways/utils";
 
 export default function WalletSwitcher({
   open,
@@ -95,7 +96,9 @@ export default function WalletSwitcher({
           return {
             ...wallet,
             name: profile?.name || wallet.name,
-            avatar: profile?.logo || svgieAvatar,
+            avatar: profile?.logo
+              ? concatGatewayURL(gateway) + "/" + profile.logo
+              : svgieAvatar,
             hasAns: !!profile
           };
         })
