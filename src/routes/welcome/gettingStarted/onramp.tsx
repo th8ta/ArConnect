@@ -4,6 +4,7 @@ import { PageType, trackPage } from "~utils/analytics";
 import { Container, Content } from "~components/welcome/Wrapper";
 import { Text } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
+import BuyImage from "url:/assets/setup/buy_tour.png";
 
 export function GettingStartedOnrampView() {
   // Segment
@@ -14,12 +15,7 @@ export function GettingStartedOnrampView() {
   return (
     <Container>
       <Content justifyContent="center" alignItems="center" textAlign="center">
-        <Image
-          src={
-            "https://archive.org/download/placeholder-image/placeholder-image.jpg"
-          }
-          alt="Placeholder Image"
-        />
+        <Image src={BuyImage} alt="Placeholder Image" />
         <Text size="lg" weight="medium" noMargin>
           {browser.i18n.getMessage("getting_started_onramp_title")}
         </Text>

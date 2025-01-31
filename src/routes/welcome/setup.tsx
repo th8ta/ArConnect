@@ -418,7 +418,7 @@ export const SetupCard = styled(Card)<{ transparentBackground?: boolean }>`
   gap: 24px;
   padding: 24px;
   width: 377.5px;
-  height: 600px;
+  min-height: 600px;
   ${({ transparentBackground }) =>
     transparentBackground && `background: transparent; border: none;`}
 `;
