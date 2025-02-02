@@ -213,6 +213,8 @@ export function PurchaseView() {
       <Wrapper>
         <Top>
           <InputV2
+            stacked
+            sizeVariant="large"
             onInput={handleInputChange}
             inputMode="numeric"
             placeholder={
@@ -223,6 +225,26 @@ export function PurchaseView() {
             {...youPayInput.bindings}
             fullWidth
             hasRightIcon
+            iconLeft={
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  marginRight: "10px",
+                  cursor: "default"
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "14px",
+                    color: theme.input.placeholder.default
+                  }}
+                >
+                  {arConversion ? "You get" : "You spend"}
+                </span>
+              </div>
+            }
             iconRight={
               arConversion ? (
                 <AR />
@@ -238,8 +260,10 @@ export function PurchaseView() {
               background: theme.surfaceTertiary,
               height: "90px",
               display: "flex",
-              alignItems: "flex-end",
+              alignItems: "flex-start",
               justifyContent: "space-between",
+              flexDirection: "column",
+              padding: "10px",
               color: arConversion
                 ? quote?.fiatAmount.toString()
                   ? theme.primaryTextv2
@@ -247,6 +271,11 @@ export function PurchaseView() {
                 : quote?.cryptoAmount.toString()
                 ? theme.primaryTextv2
                 : theme.input.placeholder.search
+            }}
+            inputStyle={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between"
             }}
           />
           <Switch
@@ -590,7 +619,7 @@ const InputButtonWrapper = styled.button`
   font-size: ${(props) => props.style?.fontSize ?? "16px"};
   display: flex;
   height: ${(props) => props.style?.height ?? "42px"};
-  padding: 10.5px 15px;
+  padding: 12px 15px;
   border-radius: 10px;
   width: 100%;
   justify-content: space-between;
