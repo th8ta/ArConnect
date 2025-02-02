@@ -151,6 +151,7 @@ const Header = styled.div`
 const Title = styled.h2`
   margin: 0;
   padding: 0;
+  color: ${(props) => props.theme.primaryText};
   font-size: 20px;
   font-style: normal;
   font-weight: 500;
