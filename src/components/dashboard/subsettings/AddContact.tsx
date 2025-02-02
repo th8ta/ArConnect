@@ -298,6 +298,7 @@ export function AddContactDashboardView({
         <InputWrapper>
           <ContactInput
             fullWidth
+            style={{ paddingLeft: "0px" }}
             small={isQuickSetting}
             name="name"
             placeholder={browser.i18n.getMessage("first_last_name")}
@@ -310,6 +311,7 @@ export function AddContactDashboardView({
         </SubTitle>
         <InputWrapper>
           <AddressInput
+            style={{ paddingLeft: "0px" }}
             type="text"
             list="addressOptions"
             fullWidth
