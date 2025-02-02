@@ -109,12 +109,14 @@ export function ConnectAuthRequestView() {
     );
   }, [requestedPermissions, requestedPermCopy]);
 
+  const passwordIn = useMemo(() => passwordInput.state, [passwordInput]);
+
   // connect
   async function connect(checkPassword = true) {
     if (!url) return;
 
     if (checkPassword) {
-      const unlockRes = await globalUnlock(passwordInput.state);
+      const unlockRes = await globalUnlock(passwordIn);
 
       if (!unlockRes) {
         passwordInput.setStatus("error");
