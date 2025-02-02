@@ -1,6 +1,6 @@
 import { Text } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import Token from "../Token";
 import { useBalanceSortedTokens } from "~tokens/aoTokens/ao";
 import { useLocation } from "~wallets/router/router.utils";
@@ -11,7 +11,7 @@ import { useState } from "react";
 export default function Tokens() {
   const { navigate } = useLocation();
   const [open, setOpen] = useState(false);
-
+  const theme = useTheme();
   const { tokens, prices } = useBalanceSortedTokens({
     type: "asset",
     hidden: false
@@ -41,7 +41,11 @@ export default function Tokens() {
         ))}
       </TokensList>
       <ManageAssetList onClick={() => setOpen(true)}>
-        <Settings04 height={20} width={20} />
+        <Settings04
+          style={{ color: theme.displayTheme === "light" ? "#666" : "#FFFFFF" }}
+          height={20}
+          width={20}
+        />
         <Text variant="secondary" weight="semibold" size="sm" noMargin>
           {browser.i18n.getMessage("manage_asset_list")}
         </Text>

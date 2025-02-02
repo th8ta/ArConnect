@@ -155,6 +155,8 @@ const Title = styled.h2`
   font-style: normal;
   font-weight: 500;
   line-height: normal;
+  color: ${({ theme }) =>
+    `${theme.displayTheme === "light" ? "#000000" : "#FFFFFF"}`};
 `;
 
 export const CloseLayer = styled(motion.div)`
