@@ -74,6 +74,8 @@ export default function SliderMenu({
 
 const ExitButton = styled(CloseIcon)`
   cursor: pointer;
+  color: ${({ theme }) =>
+    `${theme.displayTheme === "light" ? "#000000" : "#FFFFFF"}`};
 `;
 
 const Wrapper = styled(motion.div)<{
