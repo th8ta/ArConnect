@@ -745,7 +745,7 @@ export function ConfirmView({
                     ao={{ isAo, tokenId: tokenID }}
                     logo={logo}
                   />
-                  {estimatedFiatAmount && (
+                  {!isNaN(parseFloat(estimatedFiatAmount)) && (
                     <FiatAmount>
                       {formatFiatBalance(estimatedFiatAmount, currency)}
                     </FiatAmount>
