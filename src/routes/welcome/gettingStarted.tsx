@@ -83,12 +83,14 @@ export function GettingStartedSetupWelcomeView({
     <Wrapper linearBackground>
       <SetupCard transparentBackground>
         <HeaderContainer>
-          <CardHeader>
-            <BackButton onClick={() => navigateToPage(page - 1)} />
-            <Text style={{ fontSize: 22, margin: "auto" }} weight="bold">
-              {browser.i18n.getMessage("getting_started")}
-            </Text>
-          </CardHeader>
+          {page > 1 && (
+            <CardHeader>
+              <BackButton onClick={() => navigateToPage(page - 1)} />
+              <Text style={{ fontSize: 22, margin: "auto" }} weight="bold">
+                {browser.i18n.getMessage("getting_started")}
+              </Text>
+            </CardHeader>
+          )}
         </HeaderContainer>
         <Content>
           <PageWrapper style={{ height: contentSize }}>
