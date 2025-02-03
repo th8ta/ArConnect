@@ -109,14 +109,12 @@ export function ConnectAuthRequestView() {
     );
   }, [requestedPermissions, requestedPermCopy]);
 
-  const passwordIn = useMemo(() => passwordInput.state, [passwordInput]);
-
   // connect
   async function connect(checkPassword = true) {
     if (!url) return;
 
     if (checkPassword) {
-      const unlockRes = await globalUnlock(passwordIn);
+      const unlockRes = await globalUnlock(passwordInput.state);
 
       if (!unlockRes) {
         passwordInput.setStatus("error");
@@ -194,7 +192,7 @@ export function ConnectAuthRequestView() {
     } else if (page === "unlock") {
       await connect();
     }
-  }, [page, askPassword]);
+  }, [page, askPassword, passwordInput.state]);
 
   useEffect(() => {
     (async () => {
