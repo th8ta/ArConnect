@@ -299,6 +299,7 @@ const Category = styled.div`
   font-weight: 500;
   font-size: 14px;
   cursor: pointer;
+  color: ${(props) => props.theme.primaryText};
 
   &:hover {
     background: rgba(255, 255, 255, 0.12);
@@ -313,6 +314,7 @@ const Category = styled.div`
 const CategoryIcon = styled.div`
   height: 20px;
   width: 20px;
+  color: ${(props) => props.theme.primaryText};
 `;
 
 const Header = styled.div`
