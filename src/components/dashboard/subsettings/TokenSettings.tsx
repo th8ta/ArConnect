@@ -179,6 +179,7 @@ export function TokenSettingsDashboardView({
           <Title>{browser.i18n.getMessage("token_type")}</Title>
           <Spacer y={0.5} />
           <Select
+            style={{ paddingLeft: "0px" }}
             onChange={(e) => {
               // @ts-expect-error
               updateType(e.target.value as TokenType);
