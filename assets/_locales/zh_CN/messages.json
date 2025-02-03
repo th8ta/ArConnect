@@ -464,11 +464,11 @@
       "description": "Transfer settings title"
   },
   "setting_transfer_settings_description": {
-    "message": "转账时需要密码的额度",
+    "message": "签署交易时通知",
     "description": "Transfer settings description"
   },
   "enable_transfer_settings": {
-    "message": "启用转账设置",
+    "message": "签署交易时需要密码",
     "description": "Enable transfer settings title"
   },
   "setting_display_theme": {
@@ -1935,10 +1935,6 @@
   "address_in_use": {
       "message": "地址已在使用中。",
       "description": "Contacts error message if address is already in use"
-  },
-  "password_allowance": {
-      "message": "需要密码额度",
-      "description": "Input title for the password allowance label"
   },
   "add": {
       "message": "添加",

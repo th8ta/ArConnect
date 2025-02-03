@@ -1,57 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Input, Text } from "@arconnect/components-rebrand";
+import { Text } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { ExtensionStorage } from "~utils/storage";
 import { useStorage } from "@plasmohq/storage/hook";
-import { EventType, trackEvent } from "~utils/analytics";
 import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
 
 export const SignSettingsDashboardView = () => {
-  const valueChanged = useRef(false);
-  const [editingValue, setEditingValue] = useState(null);
-
-  const [signatureAllowance, setSignatureAllowance] = useStorage(
+  const [transferRequirePassword, setTransferRequirePassword] = useStorage(
     {
-      key: "signatureAllowance",
+      key: "transfer_require_password",
       instance: ExtensionStorage
     },
-    10
+    false
   );
-
-  const [signatureAllowanceEnabled, setSignatureAllowanceEnabled] = useStorage(
-    {
-      key: "signatureAllowanceEnabled",
-      instance: ExtensionStorage
-    },
-    true
-  );
-
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    valueChanged.current = true;
-    setEditingValue(e.target.value);
-  }, []);
-
-  const handleBlur = useCallback(
-    (e: React.FocusEvent<HTMLInputElement>) => {
-      const newAllowance = Number(e.target.value);
-
-      if (newAllowance !== signatureAllowance) {
-        trackEvent(EventType.SEND_ALLOWANCE_CHANGE, {
-          before: signatureAllowance,
-          after: newAllowance
-        });
-        setSignatureAllowance(newAllowance);
-      }
-    },
-    [signatureAllowance]
-  );
-
-  useEffect(() => {
-    if (!valueChanged.current) {
-      setEditingValue(signatureAllowance);
-    }
-  }, [signatureAllowance]);
 
   return (
     <Wrapper>
@@ -60,20 +21,10 @@ export const SignSettingsDashboardView = () => {
         <ToggleSwitch
           width={51}
           height={31}
-          checked={signatureAllowanceEnabled}
-          setChecked={setSignatureAllowanceEnabled}
+          checked={transferRequirePassword}
+          setChecked={setTransferRequirePassword}
         />
       </ToggleSwitchWrapper>
-      {signatureAllowanceEnabled && (
-        <Input
-          label={browser.i18n.getMessage("password_allowance")}
-          type="number"
-          value={editingValue}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          fullWidth
-        />
-      )}
     </Wrapper>
   );
 };

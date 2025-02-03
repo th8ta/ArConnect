@@ -42,6 +42,7 @@ import {
 import { EventType, trackEvent } from "~utils/analytics";
 import BigNumber from "bignumber.js";
 import type { CommonRouteProps } from "~wallets/router/router.types";
+import { useStorage } from "@plasmohq/storage/hook";
 
 export interface SendAuthViewParams {
   tokenID?: string;
@@ -55,21 +56,13 @@ export function SendAuthView({ params: { tokenID } }: SendAuthViewProps) {
   // loading
   const [loading, setLoading] = useState(false);
 
-  const [signAllowance, setSignAllowance] = useState<number>(10);
-  const [signAllowanceEnabled, setSignAllowanceEnabled] =
-    useState<boolean>(true);
-
-  useEffect(() => {
-    const fetchSignAllowance = async () => {
-      const allowance =
-        (await ExtensionStorage.get("signatureAllowance")) ?? 10;
-      const enabled =
-        (await ExtensionStorage.get("signatureAllowanceEnabled")) ?? true;
-      setSignAllowance(Number(allowance));
-      setSignAllowanceEnabled(enabled === "true" || enabled === undefined);
-    };
-    fetchSignAllowance();
-  }, []);
+  const [transferRequirePassword] = useStorage(
+    {
+      key: "transfer_require_password",
+      instance: ExtensionStorage
+    },
+    false
+  );
 
   // password input
   const passwordInput = useInput();
@@ -190,16 +183,8 @@ export function SendAuthView({ params: { tokenID } }: SendAuthViewProps) {
       return setLoading(false);
     }
 
-    console.log(
-      "transaction amount:",
-      transactionAmount.toFixed(),
-      "vs.",
-      "sign allowance:",
-      signAllowance
-    );
-
-    // Check if the transaction amount is less than the signature allowance
-    if (signAllowanceEnabled && transactionAmount.lte(signAllowance)) {
+    // If password is not required, process transaction without user signing
+    if (!transferRequirePassword) {
       // Process transaction without user signing
       try {
         // Decrypt wallet without user input

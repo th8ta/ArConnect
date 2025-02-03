@@ -105,7 +105,6 @@ export function ConfirmView({
     undefined
   );
   const [logo, setLogo] = useState<string | undefined>();
-  const [needsSign, setNeedsSign] = useState<boolean>(true);
   const { setToast } = useToasts();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -134,20 +133,12 @@ export function ConfirmView({
   const fromContact = useContact(activeAddress);
   const toContact = useContact(toAddress);
 
-  const [allowance] = useStorage<number>(
+  const [transferRequirePassword] = useStorage<boolean>(
     {
-      key: "signatureAllowance",
+      key: "transfer_require_password",
       instance: ExtensionStorage
     },
-    10
-  );
-
-  const [allowanceEnabled] = useStorage<boolean>(
-    {
-      key: "signatureAllowanceEnabled",
-      instance: ExtensionStorage
-    },
-    true
+    false
   );
 
   useEffect(() => {
@@ -155,15 +146,6 @@ export function ConfirmView({
       try {
         const data: TransactionData = await TempTransactionStorage.get("send");
         if (data) {
-          const qty = BigNumber(data.qty);
-          if (
-            !allowanceEnabled ||
-            (allowanceEnabled && qty.lte(Number(allowance)))
-          ) {
-            setNeedsSign(false);
-          } else {
-            setNeedsSign(true);
-          }
           const estimatedFiatTotal = BigNumber(data.estimatedFiat)
             .plus(data.estimatedNetworkFee)
             .toFixed(2);
@@ -189,7 +171,7 @@ export function ConfirmView({
 
     fetchData();
     trackPage(PageType.CONFIRM_SEND);
-  }, [allowance, allowanceEnabled]);
+  }, []);
 
   const walletName = useMemo(() => {
     if (wallets && activeAddress) {
@@ -324,7 +306,7 @@ export function ConfirmView({
     }
 
     // Check PW
-    if (needsSign) {
+    if (transferRequirePassword) {
       const checkPw = await checkPassword(passwordInput.state);
       if (!checkPw) {
         setToast({
@@ -380,10 +362,7 @@ export function ConfirmView({
       isLocalWallet(decryptedWallet);
       const keyfile = decryptedWallet.keyfile;
 
-      if (
-        !allowanceEnabled ||
-        (allowanceEnabled && transactionAmount.lte(allowance))
-      ) {
+      if (!transferRequirePassword) {
         try {
           convertedTransaction.setOwner(keyfile.n);
 
@@ -916,7 +895,7 @@ export function ConfirmView({
             )}
           </div>
           {/* Password if Necessary */}
-          {needsSign && (
+          {transferRequirePassword && (
             <PasswordWrapper>
               <Description>
                 {browser.i18n.getMessage("sign_enter_password")}
@@ -944,7 +923,7 @@ export function ConfirmView({
         <SendButton
           fullWidth
           disabled={
-            (needsSign && !passwordInput.state) ||
+            (transferRequirePassword && !passwordInput.state) ||
             isLoading ||
             hardwareStatus === "scan"
           }
