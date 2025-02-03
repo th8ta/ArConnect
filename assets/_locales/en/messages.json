@@ -468,7 +468,7 @@
     "description": "Transfer settings title"
   },
   "setting_transfer_settings_description": {
-    "message": "Notify when signing a transaction",
+    "message": "Requiring a password any time assets are being transferred",
     "description": "Transfer settings description"
   },
   "enable_transfer_settings": {
