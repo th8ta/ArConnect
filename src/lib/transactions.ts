@@ -192,7 +192,7 @@ export const getFormattedAmount = (transaction: ExtendedTransaction) => {
       if (transaction.aoInfo) {
         return `${balanceToFractioned(transaction.aoInfo.quantity, {
           divisibility: transaction.aoInfo.denomination
-        }).toFixed()} ${transaction.aoInfo.tickerName}`;
+        }).toFixed(3)} ${transaction.aoInfo.tickerName}`;
       }
       return "";
     case "printArchive":
