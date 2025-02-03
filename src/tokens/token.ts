@@ -70,7 +70,7 @@ export async function loadTokens() {
   } else {
     const arToken = defaultTokens[0];
     if (!aoTokens.some((t) => t.processId === arToken.processId)) {
-      aoTokens.push(arToken);
+      aoTokens.unshift(arToken);
       await ExtensionStorage.set("ao_tokens", aoTokens);
     }
   }

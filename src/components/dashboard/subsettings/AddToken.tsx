@@ -20,7 +20,7 @@ import { concatGatewayURL } from "~gateways/utils";
 import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { getTokenInfo } from "~tokens/aoTokens/router";
-import { AO_NATIVE_TOKEN, AO_NATIVE_TOKEN_INFO } from "~utils/ao_import";
+import { AO_NATIVE_TOKEN } from "~utils/ao_import";
 
 export interface AddTokenDashboardViewProps extends CommonRouteProps {
   isQuickSetting?: boolean;

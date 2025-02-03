@@ -468,11 +468,11 @@
     "description": "Transfer settings title"
   },
   "setting_transfer_settings_description": {
-    "message": "Allowance for requiring password when transferring",
+    "message": "Requiring a password any time assets are being transferred",
     "description": "Transfer settings description"
   },
   "enable_transfer_settings": {
-    "message": "Enable Transfer Settings",
+    "message": "Require password when signing a transaction",
     "description": "Enable transfer settings title"
   },
   "setting_display_theme": {
@@ -1946,10 +1946,6 @@
   "address_in_use": {
     "message": "Address is already in use.",
     "description": "Contacts error message if address is already in use"},
-  "password_allowance": {
-    "message": "Password required allowance",
-    "description": "Input title for the password allowance label"
-  },
   "add": {
     "message": "Add",
     "description" : "add button text"
