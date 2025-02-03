@@ -320,8 +320,8 @@ const Amount = styled(Text).attrs({
     props.success
       ? props.theme.success
       : props.theme.displayTheme === "light"
-      ? "#000000"
-      : "#FFFFFF"};
+      ? "#121212"
+      : "#EEEEEE"};
 `;
 
 const Transaction = styled.div`
