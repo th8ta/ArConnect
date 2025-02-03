@@ -42,7 +42,7 @@ export default function Tokens() {
       </TokensList>
       <ManageAssetList onClick={() => setOpen(true)}>
         <Settings04
-          style={{ color: theme.displayTheme === "light" ? "#666" : "#FFFFFF" }}
+          style={{ color: theme.displayTheme === "light" ? "#666" : "#AAA" }}
           height={20}
           width={20}
         />
