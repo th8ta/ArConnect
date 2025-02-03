@@ -316,7 +316,12 @@ const Amount = styled(Text).attrs({
   weight: "medium",
   size: "md"
 })<{ success?: boolean }>`
-  color: ${(props) => (props.success ? props.theme.success : "inherit")};
+  color: ${(props) =>
+    props.success
+      ? props.theme.success
+      : props.theme.displayTheme === "light"
+      ? "#121212"
+      : "#EEEEEE"};
 `;
 
 const Transaction = styled.div`
