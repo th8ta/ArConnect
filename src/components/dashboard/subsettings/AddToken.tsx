@@ -9,7 +9,7 @@ import {
 } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import { useEffect, useState } from "react";
-import { type TokenInfo } from "~tokens/aoTokens/ao";
+import { defaultTokens, type TokenInfo } from "~tokens/aoTokens/ao";
 import styled from "styled-components";
 import { isAddress } from "~utils/assertions";
 import { getAoTokens } from "~tokens";
@@ -76,13 +76,13 @@ export function AddTokenDashboardView({
       try {
         setLoading(true);
         //TODO double check
-        isAddress(targetInput.state);
+        targetInput.state !== "AR" && isAddress(targetInput.state);
 
-        const isAoToken = targetInput.state === AO_NATIVE_TOKEN;
+        const foundToken = defaultTokens.find(
+          (t) => t.processId === targetInput.state
+        );
 
-        const token = isAoToken
-          ? AO_NATIVE_TOKEN_INFO
-          : await getTokenInfo(targetInput.state);
+        const token = foundToken || (await getTokenInfo(targetInput.state));
         setToken(token);
         setLoading(false);
       } catch (err) {
