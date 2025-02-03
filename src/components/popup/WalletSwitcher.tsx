@@ -73,31 +73,35 @@ export default function WalletSwitcher({ open, close }: Props) {
   }, [wallets, activeAddress]);
 
   // load default wallets array
-  useEffect(
-    () =>
-      setWallets(
-        (storedWallets || []).map((wallet) => ({
-          name: wallet.nickname,
-          address: wallet.address,
-          balance: "0",
-          hasAns: false,
-          api: wallet.type === "hardware" ? wallet.api : undefined
-        }))
-      ),
-    [storedWallets]
-  );
+  useEffect(() => {
+    setWallets(
+      (storedWallets || []).map((wallet) => ({
+        name: wallet.nickname,
+        address: wallet.address,
+        balance: "0",
+        hasAns: false,
+        api: wallet.type === "hardware" ? wallet.api : undefined
+      }))
+    );
+    setUpdateAvatars(true);
+  }, [storedWallets]);
 
   // load ANS data for wallet
-  const [loadedAns, setLoadedAns] = useState(false);
+  const [loadedAns, setLoadedAns] = useState(true);
+
+  // update avatars flag
+  const [updateAvatars, setUpdateAvatars] = useState(false);
 
   useEffect(() => {
     (async () => {
-      if (wallets.length === 0 || loadedAns) return;
+      if (wallets.length === 0 || !updateAvatars) return;
 
       // get ans profiles
-      const profiles = (await getAnsProfile(
-        wallets.map((val) => val.address)
-      )) as AnsUser[];
+      const profiles = loadedAns
+        ? []
+        : ((await getAnsProfile(
+            wallets.map((val) => val.address)
+          )) as AnsUser[]);
       const gateway = await findGateway({ startBlock: 0 });
 
       // update wallets state
@@ -122,8 +126,9 @@ export default function WalletSwitcher({ open, close }: Props) {
       );
 
       setLoadedAns(true);
+      setUpdateAvatars(false);
     })();
-  }, [wallets.length]);
+  }, [wallets.length, updateAvatars]);
 
   useEffect(() => {
     const updateBalances = async () => {

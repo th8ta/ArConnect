@@ -18,13 +18,14 @@ import { formatAddress } from "~utils/format";
 import { Users01 } from "@untitled-ui/icons-react";
 import { HorizontalLine } from "~components/HorizontalLine";
 import SliderMenu from "~components/SliderMenu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import WanderIcon from "url:assets/icon.svg";
 import { removeDecryptionKey } from "~wallets/auth";
 import Online from "~components/Online";
 import type { StoredWallet } from "~wallets";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
+import { svgie } from "~utils/svgies";
 
 export interface QuickSettingsViewParams {
   setting?: string;
@@ -40,6 +41,7 @@ export function MenuView({ params }: QuickSettingsViewProps) {
   const theme = useTheme();
   const wallet = useActiveWallet();
   const [open, setOpen] = useState(false);
+  const [avatar, setAvatar] = useState("");
 
   const [wallets] = useStorage<StoredWallet[]>(
     {
@@ -48,6 +50,12 @@ export function MenuView({ params }: QuickSettingsViewProps) {
     },
     []
   );
+
+  useEffect(() => {
+    if (!wallet?.address) return;
+
+    setAvatar(svgie(wallet.address, { asDataURI: true }));
+  }, [wallet]);
 
   return (
     <Section style={{ paddingBottom: 100 }}>
@@ -68,17 +76,20 @@ export function MenuView({ params }: QuickSettingsViewProps) {
             `/quick-settings/wallets/${wallet.address}` as PopupRoutePath
           );
         }}
+        img={avatar}
       >
-        <ListItemIcon>
-          <Text
-            size="lg"
-            weight="medium"
-            noMargin
-            style={{ textAlign: "center", color: "white" }}
-          >
-            {wallet?.nickname?.charAt(0)?.toUpperCase() || "A"}
-          </Text>
-        </ListItemIcon>
+        {!avatar && (
+          <ListItemIcon>
+            <Text
+              size="lg"
+              weight="medium"
+              noMargin
+              style={{ textAlign: "center", color: "white" }}
+            >
+              {wallet?.nickname?.charAt(0)?.toUpperCase() || "A"}
+            </Text>
+          </ListItemIcon>
+        )}
       </ListItem>
       <Spacer y={0.75} />
       <ListItem
