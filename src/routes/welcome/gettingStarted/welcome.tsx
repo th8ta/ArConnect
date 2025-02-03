@@ -27,6 +27,4 @@ export function GettingStartedWelcomeView() {
   );
 }
 
-const Image = styled.img`
-  width: 100%;
-`;
+const Image = styled.img``;
