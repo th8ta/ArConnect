@@ -575,6 +575,7 @@ export const PicWrapper = styled.div`
 
 export const UploadIcon = styled(Upload01)`
   cursor: pointer;
+  color: ${(props) => props.theme.primaryText};
 `;
 
 export const AutoContactPic = styled.div<{ small?: boolean }>`
