@@ -21,7 +21,7 @@ export function UnlockView() {
   // toasts
   const { setToast } = useToasts();
 
-  // unlock ArConnect
+  // unlock Wander
   async function unlockWallet() {
     // unlock using password
     const res = await unlock(passwordInput.state);

@@ -210,7 +210,7 @@ export function SignAuthRequestView() {
     } catch (e) {
       // log error
       console.error(
-        `[ArConnect] Error decoding signature from keystone\n${e?.message || e}`
+        `[Wander] Error decoding signature from keystone\n${e?.message || e}`
       );
 
       await rejectRequest("Failed to decode signature from keystone");

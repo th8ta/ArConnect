@@ -10,7 +10,7 @@ import NoWallets from "~components/devtools/NoWallets";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
-import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
+import { WanderThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { useRemoveCover } from "~wallets/setup/non/non-wallet-setup.hook";
 import { useWallets } from "~utils/wallets/wallets.hooks";
 import { WalletsProvider } from "~utils/wallets/wallets.provider";
@@ -73,11 +73,11 @@ function DevTools() {
 
 export default function DevToolsRoot() {
   return (
-    <ArConnectThemeProvider>
+    <WanderThemeProvider>
       <WalletsProvider>
         <DevTools />
       </WalletsProvider>
-    </ArConnectThemeProvider>
+    </WanderThemeProvider>
   );
 }
 

@@ -349,7 +349,7 @@ export function SubscriptionDetailsView({
 export const InfoText: React.ReactNode = (
   <div style={{ fontSize: "10px", lineHeight: "14px", textAlign: "center" }}>
     Enable if you'd like <br />
-    ArConnect to <br />
+    Wander to <br />
     automatically transfer <br />
     to due payments
   </div>

@@ -112,7 +112,7 @@ export function AddWalletDashboardView() {
     setLoading(true);
 
     // prevent user from closing the window
-    // while ArConnect is loading the wallet
+    // while Wander is loading the wallet
     window.onbeforeunload = () =>
       browser.i18n.getMessage("close_tab_load_wallet_message");
 
@@ -237,7 +237,7 @@ export function AddWalletDashboardView() {
     window.onbeforeunload = null;
   }, [isAddGeneratedWallet, generating]);
 
-  // add the generated wallet to ArConnect
+  // add the generated wallet to Wander
   async function addGeneratedWallet() {
     // check if jwk was properly generated from seedphrase
     if (!generatedWallet?.jwk) {

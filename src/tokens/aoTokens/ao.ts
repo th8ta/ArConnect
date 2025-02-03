@@ -414,7 +414,7 @@ export const sendAoTransfer = async (
           value: recipient
         },
         { name: "Quantity", value: amount },
-        { name: "Client", value: "ArConnect" },
+        { name: "Client", value: "Wander" },
         { name: "Client-Version", value: browser.runtime.getManifest().version }
       ]
     });
@@ -465,7 +465,7 @@ export const sendAoTransferKeystone = async (
           value: recipient
         },
         { name: "Quantity", value: amount },
-        { name: "Client", value: "ArConnect" },
+        { name: "Client", value: "Wander" },
         { name: "Client-Version", value: browser.runtime.getManifest().version }
       ]
     });

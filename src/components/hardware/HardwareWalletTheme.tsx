@@ -32,7 +32,7 @@ function noThemeModifier(theme: ArconnectTheme): ArconnectTheme {
   return theme;
 }
 
-export function ArConnectThemeProvider({ children }: PropsWithChildren<{}>) {
+export function WanderThemeProvider({ children }: PropsWithChildren<{}>) {
   const hardwareApi = useHardwareApi();
   const theme = useTheme();
   const themeModifier = hardwareApi ? hardwareThemeModifier : noThemeModifier;

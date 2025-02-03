@@ -25,7 +25,7 @@ export interface RouteConfig<
   authType?: RouteAuthType;
 }
 
-export type ArConnectRoutePath =
+export type WanderRoutePath =
   | WelcomeRoutePath
   | AuthRoutePath
   | PopupRoutePath

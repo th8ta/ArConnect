@@ -147,7 +147,7 @@ export function SetupWelcomeView({ params }: SetupWelcomeViewProps) {
     if (setupMode !== "generate" || generatedWallet.address) return;
 
     // prevent user from closing the window
-    // while ArConnect is generating a wallet
+    // while Wander is generating a wallet
     window.onbeforeunload = () =>
       browser.i18n.getMessage("close_tab_generate_wallet_message");
 

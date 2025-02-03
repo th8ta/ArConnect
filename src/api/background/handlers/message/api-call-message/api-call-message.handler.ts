@@ -88,7 +88,7 @@ export const handleApiCallMessage: OnMessageCallback<
 
     // check if site is blocked
     if (await app.isBlocked()) {
-      throw new Error(`${app.url} is blocked from interacting with ArConnect`);
+      throw new Error(`${app.url} is blocked from interacting with Wander`);
     }
 
     // update events
@@ -114,7 +114,7 @@ export const handleApiCallMessage: OnMessageCallback<
       data: functionResult
     };
   } catch (e) {
-    console.error(`[ArConnect API] (${data.type})`, e?.message || e);
+    console.error(`[Wander API] (${data.type})`, e?.message || e);
 
     // return error
     return {

@@ -4,7 +4,7 @@ import { useLocation, useSearchParams } from "~wallets/router/router.utils";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import type {
-  ArConnectRoutePath,
+  WanderRoutePath,
   CommonRouteProps
 } from "~wallets/router/router.types";
 import { LinkExternal02 } from "@untitled-ui/icons-react";
@@ -36,7 +36,7 @@ export function TransactionCompletedView({
   }
 
   function handleDone() {
-    navigate((backPath as ArConnectRoutePath) || "/");
+    navigate((backPath as WanderRoutePath) || "/");
   }
 
   if (!id) return null;
@@ -67,7 +67,7 @@ export function TransactionCompletedView({
                 navigate(
                   `/transaction/${id}${
                     backPath ? `?back=${encodeURIComponent(backPath)}` : ""
-                  }&fromSend=true` as ArConnectRoutePath
+                  }&fromSend=true` as WanderRoutePath
                 )
               }
             >

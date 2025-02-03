@@ -1,6 +1,6 @@
 {
-  "name": "arconnect",
-  "displayName": "ArConnect",
+  "name": "wander",
+  "displayName": "Wander",
   "version": "1.18.1",
   "description": "__MSG_extensionDescription__",
   "author": "th8ta",
@@ -80,6 +80,7 @@
     "nanoid": "^4.0.0",
     "plimit-lit": "^3.0.1",
     "pretty-bytes": "^6.0.0",
+    "qr-scanner": "^1.4.2",
     "qrcode.react": "^3.1.0",
     "qrloop": "^1.4.1",
     "react": "18.2.0",

@@ -85,7 +85,7 @@ export const trackPage = async (title: PageType) => {
   if (process.env.NODE_ENV === "development") return;
 
   try {
-    // await analytics.page("ArConnect Extension", {
+    // await analytics.page("Wander Extension", {
     //   title
     // });
   } catch (err) {
