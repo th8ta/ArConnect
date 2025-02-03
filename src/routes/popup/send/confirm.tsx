@@ -588,7 +588,7 @@ export function ConfirmView({
         navigate("/send/transfer");
       }
     })();
-  }, [wallet, recipient?.address, keystoneSigner]);
+  }, [wallet, recipient?.address, keystoneSigner, amount]);
 
   // current hardware wallet operation
   const [hardwareStatus, setHardwareStatus] = useState<"play" | "scan">();
