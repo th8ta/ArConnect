@@ -1,5 +1,5 @@
 import { NavigationBar } from "~components/popup/Navigation";
-import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
+import { WanderThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { Routes } from "~wallets/router/routes.component";
 import { POPUP_ROUTES } from "~wallets/router/popup/popup.routes";
 import { Router as Wouter } from "wouter";
@@ -22,7 +22,7 @@ const queryClient = new QueryClient({
   }
 });
 
-export function ArConnectBrowserExtensionApp() {
+export function WanderBrowserExtensionApp() {
   useEffect(() => {
     handleSyncLabelsAlarm();
   }, []);
@@ -35,20 +35,20 @@ export function ArConnectBrowserExtensionApp() {
   );
 }
 
-export function ArConnectBrowserExtensionAppRoot() {
+export function WanderBrowserExtensionAppRoot() {
   return (
-    <ArConnectThemeProvider>
+    <WanderThemeProvider>
       <ErrorBoundary fallback={FallbackView}>
         <WalletsProvider redirectToWelcome>
           <QueryClientProvider client={queryClient}>
             <Wouter hook={useExtensionLocation}>
-              <ArConnectBrowserExtensionApp />
+              <WanderBrowserExtensionApp />
             </Wouter>
           </QueryClientProvider>
         </WalletsProvider>
       </ErrorBoundary>
-    </ArConnectThemeProvider>
+    </WanderThemeProvider>
   );
 }
 
-export default ArConnectBrowserExtensionAppRoot;
+export default WanderBrowserExtensionAppRoot;

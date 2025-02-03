@@ -160,7 +160,7 @@ export async function getActiveKeyfile(
       return activeWallet;
     }
 
-    // Get the `decryptionKey` if ArConnect is already unlocked, or unlock ArConnect if needed. This means the auth popup
+    // Get the `decryptionKey` if Wander is already unlocked, or unlock Wander if needed. This means the auth popup
     // will be displayed, prompting the user to enter their password:
     const decryptionKey = await getDecryptionKeyOrRequestUnlock(appData);
 
@@ -213,7 +213,7 @@ export async function getKeyfile(address: string): Promise<DecryptedWallet> {
     return wallet;
   }
 
-  // Get the `decryptionKey` if ArConnect is already unlocked, or unlock ArConnect if needed. This means the auth popup
+  // Get the `decryptionKey` if Wander is already unlocked, or unlock Wander if needed. This means the auth popup
   // will be displayed, prompting the user to enter their password:
   const decryptionKey = await getDecryptionKeyOrRequestUnlock(
     DEFAULT_MODULE_APP_DATA

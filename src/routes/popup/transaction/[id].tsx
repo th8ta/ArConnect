@@ -51,7 +51,7 @@ import { fetchTokenByProcessId } from "~lib/transactions";
 import { useStorage } from "@plasmohq/storage/hook";
 import type { StoredWallet } from "~wallets";
 import type {
-  ArConnectRoutePath,
+  WanderRoutePath,
   CommonRouteProps
 } from "~wallets/router/router.types";
 import { ErrorTypes } from "~utils/error/error.utils";
@@ -163,7 +163,7 @@ export function TransactionView({
   }, [transaction, wallets]);
 
   function handleDone() {
-    navigate((backPath as ArConnectRoutePath) || "/");
+    navigate((backPath as WanderRoutePath) || "/");
   }
 
   useEffect(() => {
@@ -402,7 +402,7 @@ export function TransactionView({
             if (backPath === "/notifications" || backPath === "/transactions") {
               back();
             } else {
-              navigate((backPath as ArConnectRoutePath) || "/");
+              navigate((backPath as WanderRoutePath) || "/");
             }
           }}
         />

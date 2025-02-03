@@ -1,8 +1,8 @@
 import { Link as Wink } from "wouter";
-import type { ArConnectRoutePath } from "~wallets/router/router.types";
+import type { WanderRoutePath } from "~wallets/router/router.types";
 
 export interface LinkProps {
-  to: ArConnectRoutePath;
+  to: WanderRoutePath;
   state?: unknown;
 }
 

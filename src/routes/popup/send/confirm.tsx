@@ -250,7 +250,7 @@ export function ConfirmView({
       transaction.addTag("Content-Type", "text/plain");
     }
     transaction.addTag("Type", "Transfer");
-    transaction.addTag("Client", "ArConnect");
+    transaction.addTag("Client", "Wander");
     transaction.addTag("Client-Version", browser.runtime.getManifest().version);
   }
 

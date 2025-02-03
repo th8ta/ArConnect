@@ -19,7 +19,7 @@ export interface HeadAuthProps {
 export const HeadAuth: React.FC<HeadAuthProps> = ({
   title,
   back,
-  appInfo: appInfoProp = { name: "ArConnect" },
+  appInfo: appInfoProp = { name: "Wander" },
   showHead = true
 }) => {
   const [areLogsExpanded, setAreLogsExpanded] = useState(false);

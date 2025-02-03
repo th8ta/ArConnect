@@ -27,7 +27,7 @@ import Mint from "~components/arlocal/Mint";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import axios from "axios";
-import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
+import { WanderThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { useRemoveCover } from "~wallets/setup/non/non-wallet-setup.hook";
 import { useWallets } from "~utils/wallets/wallets.hooks";
 import { WalletsProvider } from "~utils/wallets/wallets.provider";
@@ -213,10 +213,10 @@ function ArLocal() {
 
 export default function ArLocalRoot() {
   return (
-    <ArConnectThemeProvider>
+    <WanderThemeProvider>
       <WalletsProvider>
         <ArLocal />
       </WalletsProvider>
-    </ArConnectThemeProvider>
+    </WanderThemeProvider>
   );
 }

@@ -141,7 +141,7 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
     setLoading(true);
 
     // prevent user from closing the window
-    // while ArConnect is loading the wallet
+    // while Wander is loading the wallet
     window.onbeforeunload = () =>
       browser.i18n.getMessage("close_tab_load_wallet_message");
 

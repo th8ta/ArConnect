@@ -304,7 +304,7 @@
       "description": "Description for the \"SIGNATURE\" permission"
   },
   "permissionDescriptionArweaveConfig": {
-      "message": "允许读取 ArConnect 配置文件",
+      "message": "允许读取 Wander 配置文件",
       "description": "Description for the \"ACCESS_ARWEAVE_CONFIG\" permission"
   },
   "permissionDescriptionDispatch": {
@@ -384,7 +384,7 @@
       "description": "Remove app button"
   },
   "removeAppNote": {
-      "message": "移除所有权限并断开与 ArConnect 的应用连接。",
+      "message": "移除所有权限并断开与 Wander 的应用连接。",
       "description": "Remove app note paragraph"
   },
   "remove": {
@@ -433,7 +433,7 @@
   },
   "setting_analytic": {
       "message": "分析",
-      "description": "Analytics to help make ArConnect better"
+      "description": "Analytics to help make Wander better"
   },
   "setting_fee_multiplier": {
       "message": "费用倍数",
@@ -504,7 +504,7 @@
       "description": "Accounts settings description"
   },
   "setting_config_description": {
-      "message": "下载 ArConnect 配置",
+      "message": "下载 Wander 配置",
       "description": "Config settings description"
   },
   "setting_about_description": {
@@ -710,7 +710,7 @@
     "description": "Key Length Too Short error"
   },
   "import_wallet_key_length_short_error": {
-    "message": "您导入的钱包的密钥长度小于在 AO 网络上进行交易所需的长度。建议您创建一个新的ArConnect钱包，并将您的资产转移到新钱包中。",
+    "message": "您导入的钱包的密钥长度小于在 AO 网络上进行交易所需的长度。建议您创建一个新的Wander钱包，并将您的资产转移到新钱包中。",
     "description": "Key Length Too Short error"
   },
   "generate_wallet_in_progress": {
@@ -726,15 +726,15 @@
       "description": "Used permissions label"
   },
   "reset_warning": {
-      "message": "重置 ArConnect 将删除您所有的数据。这包括您的钱包、设置和缓存数据。",
-      "description": "Warning about resetting ArConnect"
+      "message": "重置 Wander 将删除您所有的数据。这包括您的钱包、设置和缓存数据。",
+      "description": "Warning about resetting Wander"
   },
   "irreversible_action": {
       "message": "此操作是不可逆的！",
       "description": "Warning about an irreversible action"
   },
   "reset_error": {
-      "message": "无法重置 ArConnect",
+      "message": "无法重置 Wander",
       "description": "Error message on reset"
   },
   "welcome_to": {
@@ -773,13 +773,13 @@
       "message": "Arweave 上的永久网络是网络的下一次进化，使开发者和用户能够共享一个在全球范围内大量复制的有韧性的知识库，永久存在。除了数据，Arweave 还托管许多完全去中心化的永久应用程序。",
       "description": "A short paragraph explaining the permaweb"
   },
-  "what_is_arconnect": {
-      "message": "什么是 ArConnect？",
-      "description": "What is arconnect title"
+  "what_is_wander": {
+      "message": "什么是 Wander？",
+      "description": "What is wander title"
   },
-  "about_arconnect": {
-      "message": "ArConnect 是一个加密钱包扩展，允许您安全地与永久网络应用程序互动。它还让您可以轻松存储和管理资金。使用 ArConnect，您可以简单无缝地进入 Arweave 生态系统。",
-      "description": "A short paragraph explaining arconnect"
+  "about_wander": {
+      "message": "Wander 是一个加密钱包扩展，允许您安全地与永久网络应用程序互动。它还让您可以轻松存储和管理资金。使用 Wander，您可以简单无缝地进入 Arweave 生态系统。",
+      "description": "A short paragraph explaining wander"
   },
   "read_more_arwiki": {
       "message": "阅读更多在",
@@ -1126,7 +1126,7 @@
       "description": "All set title"
   },
   "all_set_paragraph": {
-      "message": "ArConnect 已使用您的密码和钱包设置完成。您现在可以关闭窗口。",
+      "message": "Wander 已使用您的密码和钱包设置完成。您现在可以关闭窗口。",
       "description": "Paragraph indicating setup"
   },
   "token_add_failure": {
@@ -1194,7 +1194,7 @@
       "description": "Migration available title"
   },
   "migration_available_paragraph": {
-      "message": "看来您之前已经使用过旧版本的 ArConnect。我们可以迁移您之前版本中的钱包供使用。您仍需完成设置过程。",
+      "message": "看来您之前已经使用过旧版本的 Wander。我们可以迁移您之前版本中的钱包供使用。您仍需完成设置过程。",
       "description": "Migration available paragraph"
   },
   "migrate": {
@@ -1218,7 +1218,7 @@
       "description": "Migrate anyway button text"
   },
   "migration_available_welcome": {
-      "message": "您可以通过点击“我有一个钱包”来从旧的 ArConnect 迁移您的钱包。",
+      "message": "您可以通过点击“我有一个钱包”来从旧的 Wander 迁移您的钱包。",
       "description": "Migration available banner text"
   },
   "click_and_drag": {
@@ -1311,7 +1311,7 @@
   },
   "transaction_data_binary_warning": {
       "message": "无法显示二进制交易数据...",
-      "description": "Warning about ArConnect not being able to display a transaction's data"
+      "description": "Warning about Wander not being able to display a transaction's data"
   },
   "transaction_not_on_viewblock": {
       "message": "在 Viewblock 上不可用",
@@ -1579,7 +1579,7 @@
       "description": "Not connected indicator"
   },
   "not_connected_text": {
-      "message": "“连接/断开连接”是指示您的 ArConnect 钱包是否已连接到 Arweave 或 AO 应用程序的指示器。对于发送、接收、检查余额等常规使用，ArConnect 将始终显示断开连接。",
+      "message": "“连接/断开连接”是指示您的 Wander 钱包是否已连接到 Arweave 或 AO 应用程序的指示器。对于发送、接收、检查余额等常规使用，Wander 将始终显示断开连接。",
       "description": "Not connected indicator explainer"
   },
   "disconnect": {
@@ -1653,11 +1653,11 @@
       "description": "Installation complete title"
   },
   "installation_complete_paragraph": {
-      "message": "将 ArConnect 固定到您的浏览器，使其易于访问并连接到您喜欢的 dApps。",
+      "message": "将 Wander 固定到您的浏览器，使其易于访问并连接到您喜欢的 dApps。",
       "description": "Installation complete paragraph"
   },
   "enable_notifications_title": {
-      "message": "在 ArConnect 中启用通知",
+      "message": "在 Wander 中启用通知",
       "description": "Enable Notification title"
   },
   "no_notifications": {
@@ -1693,7 +1693,7 @@
       "description": "Get started title"
   },
   "get_started_description": {
-      "message": "通过 ArConnect 探索 Arweave 和 aoComputer 的无限可能",
+      "message": "通过 Wander 探索 Arweave 和 aoComputer 的无限可能",
       "description": "Get started description"
   },
   "example_astro_description": {
@@ -1985,7 +1985,7 @@
       "description": "Got it button text"
   },
   "display_ao_tokens": {
-      "message": "在 ArConnect 中显示 AO 代币（测试版）",
+      "message": "在 Wander 中显示 AO 代币（测试版）",
       "description": "Display AO tokens description"
   },
   "ao_computer": {
@@ -2039,7 +2039,7 @@
       "description": "ao degraded title text"
   },
   "ao_degraded_description": {
-      "message": "ArConnect 无法获取您的代币余额。这只是一个用户界面问题。请稍后重试。",
+      "message": "Wander 无法获取您的代币余额。这只是一个用户界面问题。请稍后重试。",
       "description": "ao degraded description text"
   },
   "network_issue": {
@@ -2221,11 +2221,11 @@
     "description": "recommended"
   },
  "add_wallet_error_message": {
-    "message": "请输入恢复短语或密钥文件，并输入 ArConnect 的密码后再继续。",
+    "message": "请输入恢复短语或密钥文件，并输入 Wander 的密码后再继续。",
     "description": "Error message if recovery section is left blank"
   },
   "empty_password_error_message": {
-    "message": "请输入 ArConnect 的密码，而不是您正在导入的钱包密码。",
+    "message": "请输入 Wander 的密码，而不是您正在导入的钱包密码。",
     "description": "Error message if password section is left blank"
   },
   "missing_recovery_error_message": {
@@ -2233,7 +2233,7 @@
     "description": "Error message if recovery phrase or key file is left blank"
   },
   "incorrect_password_error_message": {
-    "message": "密码错误。请输入 ArConnect 的密码后再试，而不是您正在导入的钱包密码。",
+    "message": "密码错误。请输入 Wander 的密码后再试，而不是您正在导入的钱包密码。",
     "description": "Error message if password is incorrect"
   },
   "mismatch_warning_title": {
@@ -2408,7 +2408,7 @@
       "placeholders": {
         "appname": {
           "content": "$1",
-          "example": "ArConnect"
+          "example": "Wander"
         }
       }
     },
@@ -2458,7 +2458,7 @@
         "placeholders": {
             "appname": {
                 "content": "$1",
-                "example": "ArConnect"
+                "example": "Wander"
             }
         }
     },
@@ -2472,7 +2472,7 @@
       "placeholders": {
         "appname": {
           "content": "$1",
-          "example": "ArConnect"
+          "example": "Wander"
         }
       }
     },
@@ -2486,7 +2486,7 @@
       "placeholders": {
         "appname": {
           "content": "$1",
-          "example": "ArConnect"
+          "example": "Wander"
         }
       }
     },

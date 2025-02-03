@@ -20,7 +20,7 @@ export function ResetDashboardView() {
   // toasts
   const { setToast } = useToasts();
 
-  // reset ArConnect
+  // reset Wander
   async function reset() {
     try {
       await resetStorage();
@@ -28,7 +28,7 @@ export function ResetDashboardView() {
       // close window
       window.top.close();
     } catch (e) {
-      console.log("Error resetting ArConnect", e);
+      console.log("Error resetting Wander", e);
       setToast({
         type: "error",
         content: browser.i18n.getMessage("reset_error"),
