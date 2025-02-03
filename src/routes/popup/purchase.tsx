@@ -1,6 +1,4 @@
 import {
-  InputV2,
-  useInput,
   Text,
   ListItem,
   ButtonV2,
@@ -8,8 +6,9 @@ import {
   useToasts,
   ListItemIcon
 } from "@arconnect/components";
+import { Input as InputV2, useInput } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
-import { ChevronRight, Bank, BankNote01 } from "@untitled-ui/icons-react";
+import { Bank, BankNote01, ChevronDown } from "@untitled-ui/icons-react";
 import switchIcon from "url:/assets/ecosystem/switch-vertical.svg";
 import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
@@ -21,6 +20,12 @@ import { ExtensionStorage } from "~utils/storage";
 import { useDebounce } from "~wallets/hooks";
 import { retryWithDelay } from "~utils/promises/retry";
 import SliderMenu from "~components/SliderMenu";
+import { paymentMethods } from "~utils/ramps";
+import { useTheme } from "styled-components";
+import arLogo from "url:/assets/ecosystem/ar-logo.svg";
+import CommonImage from "~components/common/Image";
+import getSymbolFromCurrency from "currency-symbol-map";
+import { useStorage } from "@plasmohq/storage/hook";
 
 export function PurchaseView() {
   const { navigate } = useLocation();
@@ -35,7 +40,15 @@ export function PurchaseView() {
   const [showPaymentSelector, setShowPaymentSelector] = useState(false);
   const [showCurrencySelector, setShowCurrencySelector] = useState(false);
   const [quote, setQuote] = useState<Quote | null>();
+  const [exchangeRate, setExchangeRate] = useState<number>(0);
+  const [payInputValue, setpayInputValue] = useState<string>("");
   const { setToast } = useToasts();
+  const theme = useTheme();
+
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
 
   const handlePaymentClose = () => {
     setShowPaymentSelector(false);
@@ -54,6 +67,10 @@ export function PurchaseView() {
   };
 
   const finishUp = (quote: Quote | null) => {
+    if (quote) {
+      const rate = quote.fiatAmount / quote.cryptoAmount;
+      setExchangeRate(rate);
+    }
     setQuote(quote);
     setLoading(false);
   };
@@ -158,44 +175,134 @@ export function PurchaseView() {
     }
   }, [debouncedYouPayInput, selectedCurrency, paymentMethod, arConversion]);
 
+  useEffect(() => {
+    youPayInput.setState("");
+    setExchangeRate(0);
+  }, [selectedCurrency]);
+
+  const buyAR = async () => {
+    try {
+      const baseUrl = "https://global.transak.com/";
+      const params = new URLSearchParams({
+        apiKey: process.env.PLASMO_PUBLIC_TRANSAK_API_KEY,
+        defaultCryptoCurrency: "AR",
+        defaultFiatAmount: (quote.fiatAmount + quote.totalFee).toString(),
+        defaultFiatCurrency: quote.fiatCurrency,
+        walletAddress: activeAddress,
+        defaultPaymentMethod: quote.paymentMethod
+      });
+      const url = `${baseUrl}?${params.toString()}`;
+      browser.tabs.create({
+        url: url
+      });
+      navigate("/purchase-pending");
+    } catch (error) {
+      console.error("Error buying AR:", error);
+    }
+  };
+
+  const handleInputChange = (event: React.FormEvent<HTMLInputElement>) => {
+    const input = event.currentTarget;
+    input.value = input.value.replace(/[^0-9]/g, "");
+    setpayInputValue(input.value);
+  };
+
   return (
     <>
-      <HeadV2 title="Buy AR" />
+      <HeadV2 title="Buy" />
       <Wrapper>
         <Top>
-          {/* TODO Only allow numbers */}
           <InputV2
-            small
-            placeholder="0"
-            {...youPayInput.bindings}
-            label={
-              !arConversion
-                ? browser.i18n.getMessage("buy_screen_pay")
-                : browser.i18n.getMessage("buy_screen_receive")
+            stacked
+            sizeVariant="large"
+            onInput={handleInputChange}
+            inputMode="numeric"
+            placeholder={
+              arConversion
+                ? "0"
+                : `${getSymbolFromCurrency(selectedCurrency?.symbol) || ""}0`
             }
+            {...youPayInput.bindings}
             fullWidth
-            icon={
+            hasRightIcon
+            iconLeft={
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  marginRight: "10px",
+                  cursor: "default"
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "14px",
+                    color: theme.input.placeholder.default
+                  }}
+                >
+                  {arConversion ? "You get" : "You spend"}
+                </span>
+              </div>
+            }
+            iconRight={
               arConversion ? (
                 <AR />
               ) : (
                 <Tag
                   onClick={() => setShowCurrencySelector(true)}
                   currency={selectedCurrency?.symbol || ""}
+                  currencyLogo={selectedCurrency?.logo || ""}
                 />
               )
             }
+            inputContainerStyle={{
+              background: theme.surfaceTertiary,
+              height: "90px",
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              flexDirection: "column",
+              padding: "10px",
+              color: arConversion
+                ? quote?.fiatAmount.toString()
+                  ? theme.primaryTextv2
+                  : theme.input.placeholder.search
+                : quote?.cryptoAmount.toString()
+                ? theme.primaryTextv2
+                : theme.input.placeholder.search
+            }}
+            inputStyle={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between"
+            }}
           />
           <Switch
             onClick={() => {
               setArConversion(!arConversion);
             }}
           >
-            <img src={switchIcon} />
-            <SwitchText noMargin>
-              {browser.i18n.getMessage("buy_screen_switch")}
-            </SwitchText>
+            <img style={{ height: "20px" }} src={switchIcon} />
           </Switch>
           <InputButton
+            style={{
+              background: theme.surfaceTertiary,
+              height: "90px",
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between"
+            }}
+            innerStyle={{
+              fontSize: "40px",
+              color: arConversion
+                ? quote?.fiatAmount.toString()
+                  ? theme.primaryTextv2
+                  : theme.input.placeholder.search
+                : quote?.cryptoAmount.toString()
+                ? theme.primaryTextv2
+                : theme.input.placeholder.search
+            }}
             disabled={!arConversion}
             label={
               arConversion
@@ -208,9 +315,11 @@ export function PurchaseView() {
               loading ? (
                 <Loading />
               ) : arConversion ? (
-                quote?.fiatAmount.toString() ?? "--"
+                `${getSymbolFromCurrency(selectedCurrency?.symbol) || ""}${
+                  quote?.fiatAmount.toFixed(2) ?? "0"
+                }`
               ) : (
-                quote?.cryptoAmount.toString() ?? "--"
+                quote?.cryptoAmount.toString() ?? "0"
               )
             }
             icon={
@@ -219,23 +328,52 @@ export function PurchaseView() {
               ) : (
                 <Tag
                   currency={selectedCurrency?.symbol || ""}
+                  currencyLogo={selectedCurrency?.logo || ""}
                   onClick={() => setShowCurrencySelector(true)}
                 />
               )
             }
           />
+          {exchangeRate && youPayInput.bindings.value ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%"
+              }}
+            >
+              <Label
+                style={{
+                  paddingTop: "14px",
+                  paddingBottom: "0px",
+                  fontSize: "14px"
+                }}
+              >
+                Exchange Rate
+              </Label>
+              <Label
+                style={{
+                  paddingTop: "14px",
+                  paddingBottom: "0px",
+                  fontSize: "14px",
+                  margin: "right"
+                }}
+              >
+                {getSymbolFromCurrency(selectedCurrency?.symbol) || ""}
+                {exchangeRate.toFixed(2)} = 1 AR
+              </Label>
+            </div>
+          ) : (
+            ""
+          )}
           <Line />
           <InputButton
-            label={browser.i18n.getMessage("buy_screen_payment_method")}
+            style={{ background: "#242426" }}
+            label={browser.i18n.getMessage("buy_screen_payment_method_label")}
             onClick={() => setShowPaymentSelector(true)}
             disabled={!paymentMethod}
-            body={
-              paymentMethod?.id === "pm_us_wire_bank_transfer"
-                ? "Wire Transfer"
-                : paymentMethod?.id === "pm_cash_app"
-                ? "Cash App"
-                : paymentMethod?.name || ""
-            }
+            body={paymentMethods(paymentMethod)}
             icon={
               <div
                 style={{
@@ -244,9 +382,10 @@ export function PurchaseView() {
                   justifyContent: "center"
                 }}
               >
-                <ChevronRight onClick={() => setShowPaymentSelector(true)} />
+                <ChevronDown onClick={() => setShowPaymentSelector(true)} />
               </div>
             }
+            outerLabel
           />
 
           <SliderMenu
@@ -282,10 +421,10 @@ export function PurchaseView() {
           fullWidth
           onClick={async () => {
             await ExtensionStorage.set("transak_quote", quote);
-            navigate(`/confirm-purchase/${quote.quoteId}`);
+            await buyAR();
           }}
         >
-          Next
+          {!quote ? "Enter amount" : "Review"}
         </ButtonV2>
       </Wrapper>
     </>
@@ -293,19 +432,50 @@ export function PurchaseView() {
 }
 
 const AR = () => {
-  return <div style={{ cursor: "default" }}>{"AR"}</div>;
+  return (
+    <div
+      style={{
+        cursor: "default",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        gap: "4px"
+      }}
+    >
+      <TokenLogo src={arLogo} />
+      <span
+        style={{
+          fontSize: "16px",
+          fontWeight: "bold",
+          lineHeight: "1"
+        }}
+      >
+        AR
+      </span>
+    </div>
+  );
 };
 
 const Tag = ({
   currency,
+  currencyLogo,
   onClick
 }: {
   currency: string;
+  currencyLogo: string;
   onClick: () => void;
 }) => {
   return (
-    <div style={{ display: "flex" }} onClick={onClick}>
-      {currency} <ChevronRight />
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "8px"
+      }}
+      onClick={onClick}
+    >
+      <TokenLogo src={currencyLogo} />
+      {currency} <ChevronDown />
     </div>
   );
 };
@@ -329,13 +499,7 @@ const PaymentSelectorScreen = ({
             <ListItem
               key={index}
               small
-              title={
-                isWireTransfer
-                  ? "Wire Transfer"
-                  : isCashApp
-                  ? "Cash App"
-                  : payment.name
-              }
+              title={paymentMethods(payment)}
               description={`processing time ${payment.processingTime}`}
               img={!isWireTransfer && !isCashApp && payment.icon}
               onClick={() => {
@@ -383,8 +547,8 @@ const CurrencySelectorScreen = ({
         <InputV2
           placeholder="Enter currency name"
           fullWidth
-          search
-          small
+          variant="search"
+          sizeVariant="small"
           {...searchInput.bindings}
         />
       </div>
@@ -412,19 +576,37 @@ const InputButton = ({
   body,
   icon,
   onClick,
-  disabled
+  disabled,
+  style,
+  innerStyle,
+  outerLabel
 }: {
   label: string;
   body: string | React.ReactNode;
   icon: React.ReactNode;
   onClick: () => void;
   disabled: boolean;
+  style?: React.CSSProperties;
+  innerStyle?: React.CSSProperties;
+  outerLabel?: boolean;
 }) => {
   return (
     <div>
-      <Label>{label}</Label>
-      <InputButtonWrapper onClick={onClick} disabled={disabled}>
-        <div>{body}</div>
+      {outerLabel && <Label outer={outerLabel}>{label}</Label>}
+      <InputButtonWrapper onClick={onClick} disabled={disabled} style={style}>
+        {!outerLabel && (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              textAlign: "left"
+            }}
+          >
+            <Label>{label}</Label>
+            <div style={innerStyle}>{body}</div>
+          </div>
+        )}
+        {outerLabel && <div style={innerStyle}>{body}</div>}
         {icon}
       </InputButtonWrapper>
     </div>
@@ -432,16 +614,15 @@ const InputButton = ({
 };
 
 const InputButtonWrapper = styled.button`
-  background: none;
+  background: ${(props) => props.style?.background ?? "none"};
   color: ${(props) => props.theme.primaryTextv2};
-  font-size: 16px;
+  font-size: ${(props) => props.style?.fontSize ?? "16px"};
   display: flex;
-  height: 42px;
-  padding: 8.5px 15px;
+  height: ${(props) => props.style?.height ?? "42px"};
+  padding: 12px 15px;
   border-radius: 10px;
   width: 100%;
   justify-content: space-between;
-  border: 1.5px solid ${(props) => props.theme.inputField};
   cursor: ${(props) => (props.disabled ? "default" : "pointer")};
 
   &:hover {
@@ -449,17 +630,22 @@ const InputButtonWrapper = styled.button`
   }
 `;
 
-const Label = styled.div`
-  padding-bottom: 8px;
-  font-size: 16px;
-  color: ${(props) => props.theme.primaryTextv2};
+const Label = styled.div<{ outer?: boolean }>`
+  margin: ${(props) => props.style?.margin || "0"};
+  padding-top: ${(props) => props.style?.paddingTop || "0px"};
+  padding-bottom: ${(props) => props.style?.paddingBottom || "8px"};
+  font-size: ${(props) => props.style?.fontSize || "16px"};
+  color: ${(props) =>
+    props.outer
+      ? props.theme.primaryTextv2
+      : props.theme.input.placeholder.default};
 `;
 
 const Wrapper = styled.div`
   padding: 15px;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 96px);
+  height: calc(100vh - 105px);
   justify-content: space-between;
 `;
 
@@ -478,14 +664,27 @@ const Switch = styled.button`
   outline: none;
   box-shadow: none;
   cursor: pointer;
+  margin: auto;
 `;
 export const Line = styled.div<{ margin?: string }>`
   margin: ${(props) => (props.margin ? props.margin : "18px")} 0;
   height: 1px;
   width: 100%;
-  background-color: ${(props) => props.theme.primary};
+  background-color: #333333;
 `;
 
 const SwitchText = styled(Text)`
   color: ${(props) => props.theme.primaryTextv2};
+`;
+
+export const TokenLogo = styled(CommonImage).attrs({
+  alt: "token-logo",
+  draggable: false,
+  backgroundColor: "#fffefc"
+})`
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  display: block;
+  vertical-align: middle;
 `;

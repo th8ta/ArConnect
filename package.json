@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@arconnect/components": "^1.0.0",
-    "@arconnect/components-rebrand": "git+https://github.com/arconnectio/components-rebrand.git#master",
+    "@arconnect/components-rebrand": "github:arconnectio/components-rebrand.git#master",
     "@arconnect/keystone-sdk": "^0.0.5",
     "@arconnect/webext-bridge": "^5.0.6",
     "@iconicicons/react": "^1.5.0",
@@ -71,6 +71,7 @@
     "bip39-web-crypto": "^4.0.1",
     "check-password-strength": "^2.0.7",
     "copy-to-clipboard": "^3.3.2",
+    "currency-symbol-map": "^5.1.0",
     "dayjs": "^1.11.6",
     "framer-motion": "^11.11.7",
     "human-crypto-keys": "^0.1.4",

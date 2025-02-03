@@ -45,7 +45,7 @@ export function PendingPurchaseView() {
       </MainContent>
       <Section>
         <ButtonV2 fullWidth onClick={() => navigate("/")}>
-          Home
+          Close
         </ButtonV2>
       </Section>
     </Wrapper>
