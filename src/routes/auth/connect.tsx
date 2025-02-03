@@ -38,6 +38,7 @@ import { ChevronRight, Edit02, InfoCircle } from "@untitled-ui/icons-react";
 import WanderIcon from "url:assets/icon.svg";
 import Image from "~components/common/Image";
 import { Flex } from "~components/common/Flex";
+import { svgie } from "~utils/svgies";
 
 type Page = "unlock" | "connect" | "permissions" | "confirm";
 
@@ -60,6 +61,14 @@ export function ConnectAuthRequestView() {
   const [permissions, setPermissions] = useState<PermissionType[]>([]);
 
   const wallet = useActiveWallet();
+
+  const [avatar, setAvatar] = useState("");
+
+  useEffect(() => {
+    if (!wallet?.address) return;
+
+    setAvatar(svgie(wallet?.address, { asDataURI: true }));
+  }, [wallet]);
 
   const { authRequest, acceptRequest, rejectRequest } =
     useCurrentAuthRequest("connect");
@@ -250,6 +259,7 @@ export function ConnectAuthRequestView() {
                 url={url}
                 gateway={gateway}
                 wallet={wallet}
+                avatar={avatar}
                 activeAddress={activeAddress}
                 switcherOpen={switcherOpen}
                 setSwitcherOpen={setSwitcherOpen}
@@ -392,6 +402,7 @@ const ConnectPage = ({
   url,
   gateway,
   wallet,
+  avatar,
   activeAddress,
   switcherOpen,
   setSwitcherOpen
@@ -400,6 +411,7 @@ const ConnectPage = ({
   url: string;
   gateway: any;
   wallet: any;
+  avatar: any;
   activeAddress: string;
   switcherOpen: boolean;
   setSwitcherOpen: (open: boolean) => void;
@@ -434,11 +446,15 @@ const ConnectPage = ({
         <Spacer y={0.5} />
         <ConnectWalletWrapper onClick={() => setSwitcherOpen(true)}>
           <div style={{ display: "flex", flexDirection: "row", gap: "12px" }}>
-            <AccountSquircle>
-              <AccountInitial>
-                {wallet?.nickname?.charAt(0) || "A"}
-              </AccountInitial>
-            </AccountSquircle>
+            {avatar ? (
+              <Avatar img={avatar} />
+            ) : (
+              <AccountSquircle>
+                <AccountInitial>
+                  {wallet?.nickname?.charAt(0) || "A"}
+                </AccountInitial>
+              </AccountSquircle>
+            )}
             <div>
               <WalletName>{wallet?.nickname}</WalletName>
               <SecondaryText>
@@ -596,6 +612,13 @@ const ConnectWalletWrapper = styled.div`
   align-self: stretch;
   border-radius: 10px;
   background: ${(props) => props.theme.surfaceTertiary};
+  cursor: pointer;
+`;
+
+const Avatar = styled(Squircle)`
+  position: relative;
+  width: 2.375rem;
+  height: 2.375rem;
   cursor: pointer;
 `;
 
