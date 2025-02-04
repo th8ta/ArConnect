@@ -7,7 +7,7 @@ import {
 import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
 import { AnimatePresence, motion } from "framer-motion";
 import { hoverEffect, useTheme } from "~utils/theme";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ArrowLeftIcon } from "@iconicicons/react";
 import { useAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
@@ -133,12 +133,7 @@ export default function Head({
         </ClickableAvatar>
       </PageInfo>
       {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
-      <WalletSwitcher
-        open={isOpen}
-        close={() => setOpen(false)}
-        showOptions={showOptions}
-        exactTop={true}
-      />
+      <WalletSwitcher open={isOpen} close={() => setOpen(false)} />
     </HeadWrapper>
   );
 }
@@ -195,7 +190,7 @@ const BackButton = styled(ArrowLeftIcon)`
   font-size: 1.6rem;
   width: 1em;
   height: 1em;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
   z-index: 2;
 
   path {

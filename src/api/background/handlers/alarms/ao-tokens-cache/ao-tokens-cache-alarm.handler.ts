@@ -16,6 +16,7 @@ export const handleAoTokenCacheAlarm = async (alarmInfo?: Alarms.Alarm) => {
   const updatedTokens = [...aoTokens];
 
   for (const token of aoTokens) {
+    if (token.processId === "AR") continue;
     try {
       const res = await timeoutPromise(
         dryrun({

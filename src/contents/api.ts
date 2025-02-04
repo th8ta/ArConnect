@@ -30,15 +30,15 @@ container.removeChild(script);
 // `window.postMessage(data, window.location.origin)`, which are received here. Because this is a (sandboxed) extension
 // content script, it can use `sendMessage(...)` to talk to the background script.
 //
-// Note this part is not needed for ArConnect Embedded, because `postMessage(...)` can talk directly to the iframe:
+// Note this part is not needed for Wander Embedded, because `postMessage(...)` can talk directly to the iframe:
 //
 //    iframeElement.contentWindow.postMessage(...);
 
 window.addEventListener(
   "message",
-  async ({ data }: MessageEvent<ApiCall & { ext: "arconnect" }>) => {
+  async ({ data }: MessageEvent<ApiCall & { ext: "wander" }>) => {
     // verify that the call is meant for the extension
-    if (data.ext !== "arconnect") {
+    if (data.ext !== "wander") {
       return;
     }
 

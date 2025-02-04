@@ -284,7 +284,7 @@ export function getPopupResponse<T>(authID: string, popupWindowTabID: number) {
         if (!data) {
           log(LOG_GROUP.AUTH, `auth_result for authID = "${authID}" = Empty)`);
 
-          reject(`Missing data from authID = "${authID}"'s "auth_result"`);
+          reject(`Missing data from authID = "${authID}"s "auth_result"`);
         } else if (isAuthErrorResult(data)) {
           log(
             LOG_GROUP.AUTH,

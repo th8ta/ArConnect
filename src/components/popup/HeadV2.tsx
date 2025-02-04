@@ -2,12 +2,12 @@ import {
   type DisplayTheme,
   Section,
   Text,
-  TooltipV2
-} from "@arconnect/components";
+  Tooltip
+} from "@arconnect/components-rebrand";
 import { Avatar, CloseLayer, NoAvatarIcon } from "./WalletHeader";
 import { AnimatePresence } from "framer-motion";
 import { useTheme } from "~utils/theme";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { useAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import HardwareWalletIcon, {
@@ -129,7 +129,7 @@ export default function HeadV2({
       </PageTitle>
 
       {!showOptions && appName ? (
-        <TooltipV2 content={appName} position="bottomEnd">
+        <Tooltip content={appName} position="bottomEnd">
           <SquircleWrapper>
             <SquircleImg
               img={appInfo?.logo}
@@ -137,7 +137,7 @@ export default function HeadV2({
               onClick={onAppInfoClick}
             />
           </SquircleWrapper>
-        </TooltipV2>
+        </Tooltip>
       ) : null}
 
       {showOptions ? (
@@ -162,12 +162,7 @@ export default function HeadV2({
             </ButtonAvatar>
           </AvatarButton>
 
-          <WalletSwitcher
-            open={isOpen}
-            close={() => setOpen(false)}
-            exactTop={true}
-            showOptions={false}
-          />
+          <WalletSwitcher open={isOpen} close={() => setOpen(false)} />
 
           {isOpen && <CloseLayer onClick={() => setOpen(false)} />}
         </>
@@ -193,7 +188,7 @@ const HeadWrapper = styled(Section)<{
   flex-direction: row;
   width: full;
   transition: padding 0.07s ease-in-out, border-color 0.23s ease-in-out;
-  padding: ${(props) => (props.padding ? props.padding : "15px")};
+  padding: ${(props) => (props.padding ? props.padding : "24px")};
   justify-content: ${(props) => (props.center ? "center" : "space-between")};
   align-items: center;
   background-color: rgba(${(props) => props.theme.background}, 0.75);
@@ -213,7 +208,7 @@ const BackButton = styled.button`
   width: 24px;
   height: 24px;
   top: 50%;
-  left: 12px;
+  left: 24px;
   transform: translate(0, -50%);
   display: flex;
   align-items: center;
@@ -245,19 +240,18 @@ const BackButtonIcon = styled(ArrowNarrowLeft)`
   font-size: 1rem;
   width: 1.5em;
   height: 1.5em;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
   z-index: 2;
 
   path {
-    stroke-width: 1.75 !important;
+    stroke-width: 2 !important;
   }
 `;
 
 const PageTitle = styled(Text).attrs({
-  subtitle: true,
   noMargin: true
 })<{ showLeftMargin: boolean }>`
-  font-size: 1.3rem;
+  font-size: 1.375rem;
   font-weight: 500;
   ${(props) => props.showLeftMargin && `margin-left: 28px;`}
 `;
@@ -268,7 +262,7 @@ const AvatarButton = styled.button`
   bottom: 0;
   right: 0;
   cursor: pointer;
-  padding: 0 15px;
+  padding: 0 24px;
   height: 100%;
   background: transparent;
   border: 0;
@@ -321,6 +315,6 @@ const ButtonSquircle = styled.button`
 `;
 
 const SquircleImg = styled(Squircle)`
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
 `;
