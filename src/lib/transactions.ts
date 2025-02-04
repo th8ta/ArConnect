@@ -282,17 +282,18 @@ export const groupTransactionsByMonth = (
   }, {} as Record<string, ExtendedTransaction[]>);
 
   return Object.entries(groups)
-    .map(([monthYear, transactions]) => ({
-      title: getFullMonthNameWithYear(monthYear),
-      data: transactions
-    }))
+    .map(([monthYear, transactions]) => {
+      const [month, year] = monthYear.split("-").map(Number);
+      return {
+        title: getFullMonthNameWithYear(monthYear),
+        data: transactions,
+        month,
+        year
+      };
+    })
     .sort((a, b) => {
-      const [monthA, yearA] = a.title.split(" ");
-      const [monthB, yearB] = b.title.split(" ");
-      if (yearA !== yearB) return Number(yearB) - Number(yearA);
-      return (
-        new Date(Date.parse(`${monthA} 1, 2000`)).getMonth() -
-        new Date(Date.parse(`${monthB} 1, 2000`)).getMonth()
-      );
-    });
+      if (a.year !== b.year) return b.year - a.year;
+      return b.month - a.month;
+    })
+    .map(({ title, data }) => ({ title, data }));
 };
