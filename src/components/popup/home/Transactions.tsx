@@ -1,8 +1,9 @@
 import browser from "webextension-polyfill";
 import { useEffect, useMemo, useState } from "react";
 import { ExtensionStorage } from "~utils/storage";
-import { useStorage } from "@plasmohq/storage/hook";
 import { Loading, Text } from "@arconnect/components-rebrand";
+import { useStorage } from "~utils/storage";
+
 import { gql } from "~gateways/api";
 import styled from "styled-components";
 import {

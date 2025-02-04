@@ -1,6 +1,6 @@
 import { Button, Spacer, Text, useInput } from "@arconnect/components-rebrand";
 import React, { useState, useEffect, useMemo } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { SettingsList } from "./list/BaseElement";
 import ContactListItem from "./list/ContactListItem";

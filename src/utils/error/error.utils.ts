@@ -2,6 +2,13 @@ export function isError(data: unknown): data is Error {
   return data instanceof Error;
 }
 
+export function getFriendlyErrorMessage(maybeError: unknown): string | boolean {
+  // TODO: This needs to be implemented properly, either with a custom error class that includes a `friendlyErrorMessage`
+  // property or mapping `error.name` or similar to i18n values.
+
+  return isError(maybeError) ? true : !!maybeError;
+}
+
 /**
  * For future reference, here are some error types that can be used:
  *

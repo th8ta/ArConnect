@@ -2,7 +2,7 @@ import type { WalletInterface } from "~components/welcome/load/Migrate";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { defaultGateway } from "~gateways/gateway";
 import { ExtensionStorage } from "~utils/storage";
 import { findGateway } from "~gateways/wayfinder";

@@ -21,6 +21,34 @@ export const STAKED_GQL_FULL_HISTORY: Requirements = {
 export async function findGateway(
   requirements: Requirements
 ): Promise<Gateway> {
+  // Get if the Wayfinder feature is enabled:
+  const wayfinderEnabled = await getSetting("wayfinder").getValue();
+
+  console.log("findGateway(), wayfinderEnabled =", wayfinderEnabled);
+
+  // This should have been loaded into the cache by handleGatewayUpdateAlarm, but sometimes this function might run
+  // before that, so in that case we fall back to the same behavior has having the Wayfinder disabled:
+  const procData = await getGatewayCache();
+
+  if (!wayfinderEnabled || !procData) {
+    if (requirements.arns) {
+      return {
+        host: "arweave.dev",
+        port: 443,
+        protocol: "https"
+      };
+    }
+
+    // wayfinder disabled or all the chain is needed
+    if (requirements.startBlock === 0) {
+      return defaultGateway;
+    }
+
+    throw new Error(
+      wayfinderEnabled ? "Missing gateway cache" : "Wayfinder disabled"
+    );
+  }
+
   try {
     // Get if the Wayfinder feature is enabled:
     const wayfinderEnabled = await getSetting("wayfinder").getValue();

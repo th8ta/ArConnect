@@ -20,7 +20,7 @@ import {
   useModal,
   useToasts
 } from "@arconnect/components-rebrand";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";

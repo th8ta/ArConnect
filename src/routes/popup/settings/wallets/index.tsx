@@ -1,6 +1,7 @@
 import { concatGatewayURL } from "~gateways/utils";
 import { Button, Section } from "@arconnect/components-rebrand";
 import { useEffect, useState } from "react";
+import { useStorage } from "~utils/storage";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
@@ -8,7 +9,6 @@ import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 import WalletListItem from "~components/dashboard/list/WalletListItem";
 import HeadV2 from "~components/popup/HeadV2";
 import { useLocation } from "~wallets/router/router.utils";
-import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import type { StoredWallet } from "~wallets";
 

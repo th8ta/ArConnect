@@ -31,7 +31,9 @@ import { log, LOG_GROUP } from "~utils/log/log.utils";
 export function setupBackgroundService() {
   log(
     LOG_GROUP.SETUP,
-    `background-setup.ts > setupBackgroundService(PLASMO_PUBLIC_APP_TYPE = "${process.env.PLASMO_PUBLIC_APP_TYPE}")`
+    `background-setup.ts > setupBackgroundService(VITE_IS_EMBEDDED_APP = "${
+      import.meta.env?.VITE_IS_EMBEDDED_APP
+    }")`
   );
 
   // MESSAGES:
@@ -80,7 +82,7 @@ export function setupBackgroundService() {
   // `ExtensionStorage.watch` requires a callbackMap param, so this cannot be done using `ExtensionStorage` directly.
   browser.storage.onChanged.addListener(handleAppConfigChange);
 
-  if (process.env.PLASMO_PUBLIC_APP_TYPE !== "extension") return;
+  if (import.meta.env?.VITE_IS_EMBEDDED_APP === "1") return;
 
   // ONLY BROWSER EXTENSION BELOW THIS LINE:
 

@@ -13,7 +13,7 @@ import HeadV2 from "~components/popup/HeadV2";
 import { SendButton, type RecipientType, type TransactionData } from ".";
 import { formatAddress } from "~utils/format";
 import type Transaction from "arweave/web/lib/transaction";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import {
   ExtensionStorage,
   TempTransactionStorage,

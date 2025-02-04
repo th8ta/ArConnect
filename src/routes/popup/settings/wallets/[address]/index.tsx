@@ -11,7 +11,7 @@ import {
 import { CopyIcon } from "@iconicicons/react";
 import { removeWallet, type StoredWallet } from "~wallets";
 import { useEffect, useMemo, useState } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import keystoneLogo from "url:/assets/hardware/keystone.png";

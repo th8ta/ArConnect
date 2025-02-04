@@ -4,7 +4,7 @@ import {
   type AllowanceBigNumber,
   defaultAllowance
 } from "./allowance";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import type { Storage } from "@plasmohq/storage";
 import { defaultGateway, type Gateway } from "~gateways/gateway";
