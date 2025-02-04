@@ -1,6 +1,6 @@
-# Contributing to Wander
+# Contributing to Arconnect
 
-Thank you for your interest in contributing to the Wander extension! Below are the guidelines to help you get started.
+Thank you for your interest in contributing to the Arconnect extension! Below are the guidelines to help you get started.
 
 > **Important:** Always work from the "development" branch when making contributions. This ensures your changes are based on the latest development version.
 
