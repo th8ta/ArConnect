@@ -10,9 +10,9 @@
     "@jridgewell/gen-mapping" "^0.3.5"
     "@jridgewell/trace-mapping" "^0.3.24"
 
-"@arconnect/components-rebrand@github:arconnectio/components-rebrand.git#master":
+"@arconnect/components-rebrand@https://github.com/arconnectio/components-rebrand.git#master":
   version "1.0.0"
-  resolved "git+ssh://git@github.com/arconnectio/components-rebrand.git#d8d6f0698f2f651391d3ca082af32e3c98ca03da"
+  resolved "https://github.com/arconnectio/components-rebrand.git#d8d6f0698f2f651391d3ca082af32e3c98ca03da"
   dependencies:
     "@iconicicons/react" "^1.5.1"
     "@untitled-ui/icons-react" "^0.1.4"
@@ -10703,6 +10703,7 @@ wouter@^3.3.5:
     use-sync-external-store "^1.0.0"
 
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
+  name wrap-ansi-cjs
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
