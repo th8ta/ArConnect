@@ -334,9 +334,6 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
   const [showTokenSelector, setShownTokenSelector] = useState(false);
 
   function updateSelectedToken(id: string) {
-    if (id === AO_NATIVE_TOKEN) {
-      setOpen(true);
-    }
     setTokenID(id);
     setQty("");
     setShownTokenSelector(false);
@@ -579,7 +576,7 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
               parseFloat(qty) === 0 ||
               qty === "" ||
               recipient === "" ||
-              AO_NATIVE_TOKEN === tokenID
+              EXP_TOKEN === tokenID
             }
             fullWidth
             onClick={send}
