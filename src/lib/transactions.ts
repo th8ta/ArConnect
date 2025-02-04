@@ -186,13 +186,17 @@ export const getFormattedAmount = (transaction: ExtendedTransaction) => {
   switch (transaction.transactionType) {
     case "sent":
     case "received":
-      return `${parseFloat(transaction.node.quantity.ar).toFixed(3)} AR`;
+      return `${parseFloat(transaction.node.quantity.ar)
+        .toFixed(3)
+        .replace(/\.?0+$/, "")} AR`;
     case "aoSent":
     case "aoReceived":
       if (transaction.aoInfo) {
         return `${balanceToFractioned(transaction.aoInfo.quantity, {
           divisibility: transaction.aoInfo.denomination
-        }).toFixed()} ${transaction.aoInfo.tickerName}`;
+        })
+          .toFixed(3)
+          .replace(/\.?0+$/, "")} ${transaction.aoInfo.tickerName}`;
       }
       return "";
     case "printArchive":
