@@ -31,8 +31,11 @@ export default defineConfig({
       "~wallets": path.resolve(__dirname, "./src/wallets"),
 
       // Assets:
+      "assets/lotties": path.resolve(__dirname, "./assets/lotties"),
       "url:/assets": path.resolve(__dirname, "./assets"),
+      "url:assets": path.resolve(__dirname, "./assets"),
       "url:/assets-beta": path.resolve(__dirname, "./assets-beta"),
+      "url:assets-beta": path.resolve(__dirname, "./assets-beta"),
 
       // Polyfill `webextension-polyfill` for embedded, as that's not a BE but a regular SPA:
       "webextension-polyfill": path.resolve(__dirname, "./src/iframe/browser")

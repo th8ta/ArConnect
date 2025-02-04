@@ -1,6 +1,6 @@
 import { useHashLocation } from "wouter/use-hash-location";
 import { useEmbedded } from "~utils/embedded/embedded.hooks";
-import type { AuthStatus } from "~utils/embedded/embedded.provider";
+import type { AuthStatusCopy as AuthStatus } from "~utils/embedded/embedded.provider";
 import { NOOP } from "~utils/misc";
 import { useAuthRequestsLocation } from "~wallets/router/auth/auth-router.hook";
 import type { ExtensionRouteOverride } from "~wallets/router/extension/extension.routes";
@@ -42,7 +42,7 @@ const AUTH_STATUS_TO_OVERRIDE: Record<
 
 export function useAuthStatusOverride(
   location?: RoutePath
-): null | ExtensionRouteOverride | RouteRedirect<ArConnectRoutePath> {
+): null | ExtensionRouteOverride | RouteRedirect<WanderRoutePath> {
   const { authStatus, lastRegisteredWallet, promptToBackUp } = useEmbedded();
 
   // TODO: Memo all  this:
@@ -137,10 +137,10 @@ export function useAuthStatusOverride(
 }
 
 export const useEmbeddedLocation: BaseLocationHook = () => {
-    const [wocation, wavigate] = useHashLocation();
-    const { authStatus } = useAuth();
-    const override = useAuthStatusOverride();
-    const [authRequestsLocation, authRequestsNavigate] =
+  const [wocation, wavigate] = useHashLocation();
+  const override = useAuthStatusOverride(wocation as RoutePath);
+  // const override = useAuthStatusOverride();
+  const [authRequestsLocation, authRequestsNavigate] =
     useAuthRequestsLocation();
 
   if (override) {
@@ -153,4 +153,3 @@ export const useEmbeddedLocation: BaseLocationHook = () => {
 
   return [wocation as WanderRoutePath, wavigate];
 };
-

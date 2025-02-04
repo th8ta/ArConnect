@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
+import { WanderThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { NavigationBar } from "~components/popup/Navigation";
 import { AuthRequestsProvider } from "~utils/auth/auth.provider";
 import { Routes } from "~wallets/router/routes.component";
@@ -27,7 +27,7 @@ export function ArConnectEmbeddedApp() {
 
 export function ArConnectEmbeddedAppRoot() {
   return (
-    <ArConnectThemeProvider>
+    <WanderThemeProvider>
       <EmbeddedProvider>
         <AuthRequestsProvider useStatusOverride={useAuthStatusOverride}>
           <Wouter hook={useEmbeddedLocation}>
@@ -35,6 +35,6 @@ export function ArConnectEmbeddedAppRoot() {
           </Wouter>
         </AuthRequestsProvider>
       </EmbeddedProvider>
-    </ArConnectThemeProvider>
+    </WanderThemeProvider>
   );
 }
