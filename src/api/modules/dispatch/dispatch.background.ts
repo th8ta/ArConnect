@@ -66,7 +66,7 @@ const background: BackgroundModuleFunction<ReturnType> = async (
     value: tag.get("value", { decode: true, string: true })
   }));
 
-  // add ArConnect tags to the tag list
+  // add Wander tags to the tag list
   tags.push(...signedTxTags);
 
   // get allowance
@@ -128,7 +128,7 @@ const background: BackgroundModuleFunction<ReturnType> = async (
     // reflect that. Maybe we could even reuse the same AuthRequest item instead of creating a separated one.
 
     // sign & post if there is something wrong with turbo
-    // add ArConnect tags to the tx object
+    // add Wander tags to the tx object
     for (const arcTag of signedTxTags) {
       transaction.addTag(arcTag.name, arcTag.value);
     }

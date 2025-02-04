@@ -1,5 +1,5 @@
 import { concatGatewayURL } from "~gateways/utils";
-import { Section, Spacer, Text } from "@arconnect/components";
+import { Section, Spacer, Text } from "@arconnect/components-rebrand";
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Link } from "../token/[id]";
@@ -25,7 +25,6 @@ export interface CollectibleViewParams {
 export type CollectibleViewProps = CommonRouteProps<CollectibleViewParams>;
 
 export function CollectibleView({ params: { id } }: CollectibleViewProps) {
-  // load state
   const [loading, setLoading] = useState(false);
   const [description, setDescription] = useState<string>("");
   const [aoTokens] = useStorage<TokenInfoWithBalance[]>(
@@ -75,18 +74,18 @@ export function CollectibleView({ params: { id } }: CollectibleViewProps) {
   useEffect(() => {
     if (!id || description) return;
     getCollectionDescription();
-  }, [id]);
+  }, [id, description]);
 
   return (
     <>
       <HeadV2 title={browser.i18n.getMessage("collectible")} />
-      <Spacer y={0.75} />
+
       <Thumbnail
         src={`${concatGatewayURL(defaultGateway)}/${id}`}
         fallback={placeholderUrl}
       />
       <Section>
-        <Title heading noMargin>
+        <Title size="lg" weight="medium" noMargin>
           {token?.Name || token?.Ticker || <Skeleton width="6rem" />}
         </Title>
         {price && (
@@ -112,7 +111,9 @@ export function CollectibleView({ params: { id } }: CollectibleViewProps) {
               ))}
         </Description>
         <Spacer y={1} />
-        <Title noMargin>{browser.i18n.getMessage("info_title")}</Title>
+        <Title size="lg" weight="medium" noMargin>
+          {browser.i18n.getMessage("info_title")}
+        </Title>
         <Spacer y={0.6} />
         {(!loading && (
           <>
@@ -153,9 +154,10 @@ const Price = styled(Text)`
 `;
 
 const Description = styled(Text).attrs({
-  noMargin: true
+  noMargin: true,
+  variant: "secondary",
+  weight: "medium"
 })`
-  font-size: 0.9rem;
   text-align: justify;
 `;
 

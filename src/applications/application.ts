@@ -111,7 +111,7 @@ export default class Application {
   }
 
   /**
-   * Get if the app is connected to ArConnect
+   * Get if the app is connected to Wander
    */
   async isConnected() {
     const permissions = await this.getPermissions();
@@ -174,7 +174,7 @@ export default class Application {
   }
 
   /**
-   * Blocked from interacting with ArConnect
+   * Blocked from interacting with Wander
    */
   async isBlocked(): Promise<boolean> {
     const settings = await this.#getSettings();

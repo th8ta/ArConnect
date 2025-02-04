@@ -1,19 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import browser from "webextension-polyfill";
 import { PageType, trackPage } from "~utils/analytics";
-import HeadV2 from "~components/popup/HeadV2";
 import styled from "styled-components";
-import { InputV2, useInput } from "@arconnect/components";
-import { SearchIcon } from "@iconicicons/react";
-import AppIcon from "~components/popup/home/AppIcon";
-import { ShareIcon } from "@iconicicons/react";
-import { apps, type App } from "~utils/apps";
-import { useTheme } from "~utils/theme";
+import { Input, Section, useInput, Text } from "@arconnect/components-rebrand";
+import { apps, categories, type App } from "~utils/apps";
+import {
+  ArrowLeft,
+  ArrowRight,
+  LinkExternal01
+} from "@untitled-ui/icons-react";
+import { getAppURL, truncateMiddle } from "~utils/format";
+import WanderIcon from "url:assets/icon.svg";
 
 export function ExploreView() {
   const [filteredApps, setFilteredApps] = useState(apps);
   const searchInput = useInput();
-  const theme = useTheme();
+  const categoriesRef = useRef<HTMLDivElement>(null);
+
+  const scroll = useCallback((direction: "left" | "right") => {
+    if (categoriesRef.current) {
+      const scrollAmount = 100;
+      categoriesRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth"
+      });
+    }
+  }, []);
+
+  const handleCategoryClick = useCallback((category: string) => {
+    setFilteredApps(category === "All" ? apps : filterApps(apps, "", category));
+  }, []);
 
   useEffect(() => {
     trackPage(PageType.EXPLORE);
@@ -24,73 +40,163 @@ export function ExploreView() {
   }, [searchInput.state]);
 
   return (
-    <>
-      <HeadV2 title={browser.i18n.getMessage("explore")} />
-      <Wrapper>
-        <InputV2
-          {...searchInput.bindings}
-          small
-          fullWidth
-          icon={<SearchIcon />}
-          placeholder="Search for a dApp"
-        />
-        <div>
-          {filteredApps.map((app, index) => (
-            <AppWrapper
-              key={index}
-              onClick={() => {
-                browser.tabs.create({ url: app.links.website });
-              }}
+    <Wrapper>
+      <Header>
+        <img src={WanderIcon} alt="Wander Icon" width={38.407} height={18} />
+        <ScrollButton direction="left" onClick={() => scroll("left")}>
+          <ArrowLeft height={20} width={20} />
+        </ScrollButton>
+        <Categories ref={categoriesRef}>
+          {categories.map((category) => (
+            <Category
+              key={category.title}
+              onClick={() => handleCategoryClick(category.title)}
             >
-              <LogoDescriptionWrapper>
-                <LogoWrapper>
-                  <AppShortcut
-                    bgColor={
-                      theme === "light"
-                        ? app.assets?.lightBackground
-                        : app.assets?.darkBackground
-                    }
-                  >
-                    <Logo src={app.assets.logo} />
-                  </AppShortcut>
-                </LogoWrapper>
-                <Description>
-                  <Title>
-                    <AppTitle>{app.name}</AppTitle>
-                    <Pill>{app.category}</Pill>
-                  </Title>
-                  <AppDescription>{app.description}</AppDescription>
-                </Description>
-              </LogoDescriptionWrapper>
-              <IconWrapper>
-                <ShareIcon
-                  style={{ cursor: "pointer" }}
-                  width={16}
-                  height={16}
-                  onClick={() => {
-                    browser.tabs.create({ url: app.links.website });
-                  }}
-                />
-              </IconWrapper>
-            </AppWrapper>
+              <CategoryIcon as={category.icon} />
+              {category.title}
+            </Category>
           ))}
-        </div>
-      </Wrapper>
-    </>
+        </Categories>
+        <ScrollButton direction="right" onClick={() => scroll("right")}>
+          <ArrowRight height={20} width={20} />
+        </ScrollButton>
+      </Header>
+      <Input
+        {...searchInput.bindings}
+        sizeVariant="small"
+        variant="search"
+        fullWidth
+        placeholder="Search for an app"
+      />
+      <AppList>
+        {filteredApps.map((app, index) => (
+          <AppWrapper
+            key={index}
+            onClick={() => {
+              browser.tabs.create({ url: app.url });
+            }}
+          >
+            <LogoDescriptionWrapper>
+              {app.useAppIconWrapper ? (
+                <AppLinearGradientIconWrapper
+                  source={app.icon}
+                  alt={app.name}
+                  objectFit={app.objectFit}
+                />
+              ) : (
+                <AppIconWrapper
+                  source={app.icon}
+                  alt={app.name}
+                  backgroundColor={app.backgroundColor}
+                  objectFit={app.objectFit}
+                />
+              )}
+              <Description>
+                <Title>
+                  <AppTitle>{app.name}</AppTitle>
+                  <Pill>{app.category}</Pill>
+                </Title>
+                <AppDescription>
+                  {truncateMiddle(getAppURL(app.url), 30)}
+                </AppDescription>
+              </Description>
+            </LogoDescriptionWrapper>
+            <LinkExternalIcon />
+          </AppWrapper>
+        ))}
+      </AppList>
+    </Wrapper>
   );
 }
 
-const filterApps = (apps: App[], searchTerm: string = ""): App[] => {
-  return apps.filter(
-    (app: App) =>
-      app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filterApps = (
+  apps: App[],
+  searchTerm: string = "",
+  category?: string
+): App[] => {
+  const lowercaseSearch = searchTerm.toLowerCase();
+  return apps.filter((app: App) => {
+    if (category && category !== app.category) return false;
+
+    return (
+      !searchTerm ||
+      app.name.toLowerCase().includes(lowercaseSearch) ||
+      app.category.toLowerCase().includes(lowercaseSearch) ||
+      app.url.toLowerCase().includes(lowercaseSearch)
+    );
+  });
 };
 
-const IconWrapper = styled.div`
-  width: 16px;
+const IconWrapper = styled.div<{ backgroundColor?: string }>`
+  background-color: ${(props) => props.backgroundColor || "white"};
+  border-radius: 12px;
+  overflow: hidden;
+  height: 40px;
+  width: 40px;
+`;
+
+const IconImage = styled.img<{ objectFit?: "contain" | "cover" }>`
+  width: 100%;
+  height: 100%;
+  object-fit: ${(props) => props.objectFit || "contain"};
+`;
+
+const GradientWrapper = styled.div<{ colors?: string[] }>`
+  border-radius: 12px;
+  overflow: hidden;
+  height: 40px;
+  width: 40px;
+  background: ${(props) =>
+    props.colors
+      ? `linear-gradient(135deg, ${props.colors[0]} 0%, ${props.colors[1]} 100%)`
+      : "linear-gradient(135deg, #8B57FE 0%, #886DFB 100%)"};
+`;
+
+interface AppIconProps {
+  source: string;
+  alt?: string;
+  backgroundColor?: string;
+  objectFit?: "contain" | "cover";
+}
+
+function AppIconWrapper({
+  source,
+  alt,
+  backgroundColor,
+  objectFit
+}: AppIconProps) {
+  return (
+    <IconWrapper backgroundColor={backgroundColor}>
+      <IconImage src={source} alt={alt || ""} objectFit={objectFit} />
+    </IconWrapper>
+  );
+}
+
+interface AppGradientIconProps {
+  source: string;
+  alt?: string;
+  colors?: string[];
+  objectFit?: "contain" | "cover";
+}
+
+function AppLinearGradientIconWrapper({
+  source,
+  alt,
+  colors,
+  objectFit
+}: AppGradientIconProps) {
+  return (
+    <GradientWrapper colors={colors}>
+      <IconImage objectFit={objectFit} src={source} alt={alt || ""} />
+    </GradientWrapper>
+  );
+}
+
+const LinkExternalIcon = styled(LinkExternal01)`
+  height: 24px;
+  width: 24px;
+  cursor: pointer;
+  color: ${(props) => props.theme.tertiaryText};
 `;
 
 const Description = styled.div`
@@ -105,28 +211,35 @@ const Title = styled.div`
   align-items: center;
 `;
 
-const Wrapper = styled.div`
-  padding: 18px 1rem 64px 1rem;
+const Wrapper = styled(Section)`
   display: flex;
+  flex: 1;
+  height: 100%;
   flex-direction: column;
-  gap: 18px;
+  gap: 1rem;
+  padding-bottom: 100px;
+  background: linear-gradient(
+    180deg,
+    #26126f 0%,
+    ${({ theme }) => (theme.displayTheme === "dark" ? "#111" : "#FFF")} 150px
+  );
 `;
 
-const AppTitle = styled.h3`
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 500;
-  color: ${(props) => props.theme.primaryTextv2};
-`;
+const AppTitle = styled(Text).attrs({
+  noMargin: true,
+  weight: "semibold"
+})``;
 
 const Pill = styled.div`
-  color: ${(props) => props.theme.primaryTextv2};
+  color: ${(props) => props.theme.primaryText};
   background-color: ${(props) => props.theme.backgroundSecondary};
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 50px;
   border: 1px solid ${(props) => props.theme.inputField};
+  box-sizing: border-box;
 
   font-size: 10px;
+  font-weight: 400;
 `;
 
 const AppDescription = styled.p`
@@ -137,31 +250,36 @@ const AppDescription = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   margin: 0;
-  font-size: 10px;
-  color: ${(props) => props.theme.secondaryTextv2};
-`;
-
-const LogoWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  height: 100$;
-`;
-
-const Logo = styled.img`
-  height: 25px;
-  width: 25px;
+  font-size: 14px;
+  font-weight: 500;
+  color: ${(props) => props.theme.secondaryText};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const AppWrapper = styled.button`
-  padding: 10px;
+  padding-top: 8px;
+  padding-bottom: 8px;
   gap: 12px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background: none;
   border: none;
   cursor: pointer;
   width: 100%;
   text-align: left;
+
+  transition: all 0.125s ease-in-out;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 `;
 
 const LogoDescriptionWrapper = styled.div`
@@ -169,18 +287,85 @@ const LogoDescriptionWrapper = styled.div`
   display: flex;
 `;
 
-const AppShortcut = styled(AppIcon)<{ bgColor?: string }>`
-  transition: all 0.125s ease-in-out;
-  color: ${(props) => (props.bgColor ? props.bgColor : props.theme.background)};
-
-  width: 32px;
-  height: 32px;
+const Category = styled.div`
+  flex-shrink: 0;
+  display: flex;
+  padding: 8px 12px;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(4px);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  color: ${(props) => props.theme.primaryText};
 
   &:hover {
-    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.12);
   }
 
   &:active {
-    transform: scale(0.92);
+    background: rgba(${({ theme }) => theme.background}, 0.16);
+    transform: scale(0.98);
   }
+`;
+
+const CategoryIcon = styled.div`
+  height: 20px;
+  width: 20px;
+  color: ${(props) => props.theme.primaryText};
+`;
+
+const Header = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  position: relative;
+`;
+
+const ScrollButton = styled.button<{ direction: "left" | "right" }>`
+  ${(props) => props.direction}: 0;
+
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+  opacity: 0.8;
+  color: ${(props) => props.theme.primaryText};
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
+const Categories = styled.div`
+  display: flex;
+  gap: 12px;
+  overflow-x: scroll;
+  white-space: nowrap;
+  cursor: default;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+`;
+
+const AppList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;

@@ -1,4 +1,4 @@
-import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
+import { WanderThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { AuthRequestsProvider } from "~utils/auth/auth.provider";
 import { Routes } from "~wallets/router/routes.component";
 import { useAuthRequestsLocation } from "~wallets/router/auth/auth-router.hook";
@@ -21,7 +21,7 @@ export function AuthApp() {
 
 export function AuthAppRoot() {
   return (
-    <ArConnectThemeProvider>
+    <WanderThemeProvider>
       <ErrorBoundary fallback={FallbackView}>
         <WalletsProvider redirectToWelcome>
           <AuthRequestsProvider useStatusOverride={useExtensionStatusOverride}>
@@ -31,7 +31,7 @@ export function AuthAppRoot() {
           </AuthRequestsProvider>
         </WalletsProvider>
       </ErrorBoundary>
-    </ArConnectThemeProvider>
+    </WanderThemeProvider>
   );
 }
 
