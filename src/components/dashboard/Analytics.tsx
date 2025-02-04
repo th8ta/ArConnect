@@ -35,7 +35,7 @@ export const AnalyticsSettingsDashboardView = () => {
         align="center"
         cursor="pointer"
         onClick={() =>
-          browser.tabs.create({ url: "https://www.arconnect.io/privacy" })
+          browser.tabs.create({ url: "https://www.wander.app/privacy" })
         }
       >
         <Text size="md" weight="medium" noMargin>

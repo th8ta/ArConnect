@@ -30,7 +30,7 @@ export default function AnalyticsConsent() {
             <ConsentText>
               {browser.i18n.getMessage("analytics_description")}{" "}
               <a
-                href="https://arconnect.io/pp"
+                href="https://www.wander.app/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}

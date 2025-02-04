@@ -27,6 +27,7 @@ import {
   handleTabUpdate
 } from "~api/background/handlers/browser/tabs/tabs.handler";
 import { log, LOG_GROUP } from "~utils/log/log.utils";
+import { handleAuthStateChange } from "./handlers/storage/auth-state-change/auth-state-change.handler";
 
 export function setupBackgroundService() {
   log(
@@ -73,7 +74,8 @@ export function setupBackgroundService() {
   ExtensionStorage.watch({
     apps: handleAppsChange,
     active_address: handleActiveAddressChange,
-    wallets: handleWalletsChange
+    wallets: handleWalletsChange,
+    decryption_key: handleAuthStateChange
   });
 
   // listen for app config updates
