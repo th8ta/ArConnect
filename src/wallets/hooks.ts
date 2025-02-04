@@ -2,16 +2,15 @@ import type { WalletInterface } from "~components/welcome/load/Migrate";
 import type { JWKInterface } from "arweave/web/lib/wallet";
 import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { defaultGateway } from "~gateways/gateway";
 import { ExtensionStorage } from "~utils/storage";
 import { findGateway } from "~gateways/wayfinder";
 import type { HardwareApi } from "./hardware";
 import type { StoredWallet } from "~wallets";
 import Arweave from "arweave";
-import BigNumber from "bignumber.js";
-import { retryWithDelayAndTimeout } from "~utils/promises/retry";
 import { isPasswordFresh } from "./auth";
+import { useQuery } from "@tanstack/react-query";
 
 /**
  * Wallets with details hook
@@ -79,7 +78,12 @@ export function useActiveWallet() {
 
   // active wallet
   const wallet = useMemo(
-    () => wallets?.find(({ address }) => address === activeAddress),
+    () =>
+      wallets?.find(({ address }) => address === activeAddress) || {
+        address: activeAddress,
+        nickname: "",
+        type: "local"
+      },
     [activeAddress, wallets]
   );
 
@@ -112,14 +116,8 @@ export function useBalance() {
     instance: ExtensionStorage
   });
 
-  // balance in AR
-  const [balance, setBalance] = useState(BigNumber("0"));
-
   const fetchBalance = useCallback(async () => {
-    if (!activeAddress) {
-      setBalance(BigNumber("0"));
-      return;
-    }
+    if (!activeAddress) return "0";
 
     const gateway = await findGateway({});
     const arweave = new Arweave(gateway);
@@ -129,19 +127,25 @@ export function useBalance() {
     if (isNaN(+winstonBalance)) {
       throw new Error("Invalid balance returned");
     }
-    const arBalance = BigNumber(arweave.ar.winstonToAr(winstonBalance));
-    setBalance(arBalance);
+    const arBalance = arweave.ar.winstonToAr(winstonBalance);
+    return arBalance;
   }, [activeAddress]);
 
-  useEffect(() => {
-    if (!activeAddress) return;
-
-    retryWithDelayAndTimeout(fetchBalance).catch((error) => {
-      console.log(`Error fetching balance: ${error}`);
-    });
-  }, [activeAddress, fetchBalance]);
-
-  return balance;
+  return useQuery({
+    queryKey: ["arBalance", activeAddress],
+    queryFn: async () => {
+      const balance = await fetchBalance();
+      return balance || "0";
+    },
+    refetchInterval: 300_000,
+    staleTime: 300_000,
+    gcTime: 300_000,
+    retry: 3,
+    select: (data) => data || "0",
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: true,
+    enabled: !!activeAddress
+  });
 }
 
 export function useDebounce<T>(value: T, delay: number): T {

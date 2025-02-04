@@ -229,7 +229,7 @@ Verify validity of a cryptographic signature for a given piece of data
 
 - `data`: `ArrayBuffer` data to verify against the signature
 - `signature`: `ArrayBuffer | string` Signature to validate
-- `publicKey?`: `string` Arweave wallet `JWK.n` field, tx owner field or [public key from Arconnect](#getactivepublickey-promisestring)
+- `publicKey?`: `string` Arweave wallet `JWK.n` field, tx owner field or [public key from ArConnect](#getactivepublickey-promisestring)
 - `options`: [`SignMessageOptions`](#options) Configuration for the signature
   <br />
 - `returns`: `Boolean` Validity of the signature

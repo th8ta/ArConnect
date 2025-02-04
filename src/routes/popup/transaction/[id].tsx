@@ -1,11 +1,7 @@
-import {
-  balanceToFractioned,
-  formatFiatBalance,
-  formatTokenBalance
-} from "~tokens/currency";
+import { balanceToFractioned, formatFiatBalance } from "~tokens/currency";
 import { AnimatePresence, type Variants, motion } from "framer-motion";
-import { Section, Spacer, Text } from "@arconnect/components";
-import type { GQLNodeInterface } from "ar-gql/dist/faces";
+import { Button, Section, Spacer, Text } from "@arconnect/components-rebrand";
+import type { GQLNodeInterface, GQLTagInterface } from "ar-gql/dist/faces";
 import {
   useCallback,
   useEffect,
@@ -23,12 +19,14 @@ import { useLocation, useSearchParams } from "~wallets/router/router.utils";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
-  DownloadIcon,
-  ShareIcon
+  DownloadIcon
 } from "@iconicicons/react";
 import { formatAddress } from "~utils/format";
-import { getArPrice } from "~lib/coingecko";
-import { concatGatewayURL, urlToGateway } from "~gateways/utils";
+import {
+  concatGatewayURL,
+  getArweaveLink,
+  urlToGateway
+} from "~gateways/utils";
 import { gql } from "~gateways/api";
 import CustomGatewayWarning from "~components/auth/CustomGatewayWarning";
 import Skeleton from "~components/Skeleton";
@@ -40,7 +38,6 @@ import styled from "styled-components";
 import Arweave from "arweave";
 import HeadV2 from "~components/popup/HeadV2";
 import dayjs from "dayjs";
-import { SendButton } from "../send";
 import {
   AutoContactPic,
   generateProfileIcon,
@@ -51,13 +48,17 @@ import { useContact } from "~contacts/hooks";
 import { EventType, PageType, trackEvent, trackPage } from "~utils/analytics";
 import BigNumber from "bignumber.js";
 import { fetchTokenByProcessId } from "~lib/transactions";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import type { StoredWallet } from "~wallets";
 import type {
-  ArConnectRoutePath,
+  WanderRoutePath,
   CommonRouteProps
 } from "~wallets/router/router.types";
 import { ErrorTypes } from "~utils/error/error.utils";
+import { LinkExternal02 } from "@untitled-ui/icons-react";
+import { AdaptiveBalanceDisplay } from "~components/AdaptiveBalanceDisplay";
+import arweaveLogo from "url:/assets/ar/logo_light.png";
+import { useTokenPrice } from "~tokens/hooks";
 
 // pull contacts and check if to address is in contacts
 
@@ -80,7 +81,10 @@ export function TransactionView({
   params: { id, gateway: gw, message }
 }: TransactionViewProps) {
   const { navigate, back } = useLocation();
-  const { back: backPath } = useSearchParams<{ back?: string }>();
+  const { back: backPath, fromSend } = useSearchParams<{
+    back?: string;
+    fromSend?: boolean;
+  }>();
 
   if (!id) {
     throw new Error(ErrorTypes.MissingTxId);
@@ -88,12 +92,7 @@ export function TransactionView({
 
   // fetch tx data
   const [transaction, setTransaction] = useState<GQLNodeInterface>();
-  const [quantity, setQuantity] = useState("");
-
-  // adjust amount title font sizes
-  const parentRef = useRef(null);
-  const childRef = useRef(null);
-  useAdjustAmountTitleWidth(parentRef, childRef, quantity);
+  const [logo, setLogo] = useState<string | undefined>(undefined);
 
   const [wallets] = useStorage<StoredWallet[]>(
     {
@@ -102,6 +101,11 @@ export function TransactionView({
     },
     []
   );
+
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
 
   const fromAddress = transaction?.owner.address;
   const toAddress = transaction?.recipient;
@@ -132,6 +136,35 @@ export function TransactionView({
 
   // arweave client
   const arweave = useMemo(() => new Arweave(gateway), [gateway]);
+
+  const transactionDirection = useMemo(() => {
+    if (!transaction || !activeAddress) return;
+
+    const isAoTransaction = transaction.tags.some(
+      (tag: GQLTagInterface) =>
+        tag.name === "Data-Protocol" && tag.value === "ao"
+    );
+
+    if (isAoTransaction) {
+      const actionTag = transaction.tags.find((tag) => tag.name === "Action");
+      if (actionTag?.value === "Transfer") {
+        const recipientTag = transaction.tags.find(
+          (tag) => tag.name === "Recipient"
+        );
+        if (recipientTag) {
+          return recipientTag.value === activeAddress ? "Received" : "Sent";
+        }
+      }
+    }
+
+    if (!transaction.recipient) return;
+
+    return transaction.owner.address === activeAddress ? "Sent" : "Received";
+  }, [transaction, wallets]);
+
+  function handleDone() {
+    navigate((backPath as WanderRoutePath) || "/");
+  }
 
   useEffect(() => {
     if (!id || !graphqlGateways.length) return;
@@ -185,40 +218,64 @@ export function TransactionView({
         timeoutID = setTimeout(fetchTx, 5000);
       } else {
         timeoutID = undefined;
-
-        const dataProtocolTag = data.transaction.tags.find(
-          (tag) => tag.name === "Data-Protocol"
-        );
-        if (dataProtocolTag && dataProtocolTag.value === "ao") {
-          setAo({ isAo: true, tokenId: data.transaction.recipient });
-          const aoRecipient = data.transaction.tags.find(
-            (tag) => tag.name === "Recipient"
+        try {
+          const dataProtocolTag = data.transaction.tags.find(
+            (tag) => tag.name === "Data-Protocol"
           );
-          const aoQuantity = data.transaction.tags.find(
-            (tag) => tag.name === "Quantity"
-          );
-
-          if (aoQuantity) {
-            const tokenInfo = await fetchTokenByProcessId(
-              data.transaction.recipient
+          if (dataProtocolTag && dataProtocolTag.value === "ao") {
+            setAo({ isAo: true, tokenId: data.transaction.recipient });
+            const aoRecipient = data.transaction.tags.find(
+              (tag) => tag.name === "Recipient"
             );
-            if (tokenInfo) {
-              const amount = balanceToFractioned(aoQuantity.value, {
-                id: data.transaction.recipient,
-                decimals: Number(tokenInfo.Denomination)
-              });
-              setTicker(
-                tokenInfo?.type === "collectible"
-                  ? tokenInfo.Name!
-                  : tokenInfo.Ticker!
+            const aoQuantity = data.transaction.tags.find(
+              (tag) => tag.name === "Quantity"
+            );
+
+            if (aoQuantity) {
+              const tokenInfo = await fetchTokenByProcessId(
+                data.transaction.recipient
               );
-              data.transaction.quantity = { ar: amount.toFixed(), winston: "" };
-              data.transaction.recipient = aoRecipient.value;
+              if (tokenInfo) {
+                const amount = balanceToFractioned(aoQuantity.value, {
+                  id: data.transaction.recipient,
+                  decimals: Number(tokenInfo.Denomination)
+                });
+                setTicker(
+                  tokenInfo?.type === "collectible"
+                    ? tokenInfo.Name!
+                    : tokenInfo.Ticker!
+                );
+                if (tokenInfo?.Logo) {
+                  const tokenLogo = await getArweaveLink(tokenInfo.Logo);
+                  setLogo(tokenLogo);
+                } else {
+                  setLogo(arweaveLogo);
+                }
+                data.transaction.quantity = {
+                  ar: amount.toFixed(),
+                  winston: ""
+                };
+                data.transaction.recipient = aoRecipient.value;
+              } else {
+                setLogo(arweaveLogo);
+                setTicker(formatAddress(data.transaction.recipient, 4));
+                const amount = balanceToFractioned(aoQuantity.value, {
+                  id: data.transaction.recipient,
+                  decimals: 0
+                });
+                data.transaction.quantity = {
+                  ar: amount.toFixed(),
+                  winston: ""
+                };
+              }
             }
+          } else {
+            setLogo(arweaveLogo);
           }
+        } catch {
+          //
         }
 
-        setQuantity(data.transaction.quantity.ar);
         setTransaction(data.transaction);
       }
     };
@@ -245,21 +302,17 @@ export function TransactionView({
   // currency setting
   const [currency] = useSetting<string>("currency");
 
-  // arweave price
-  const [arPrice, setArPrice] = useState(0);
-
-  useEffect(() => {
-    getArPrice(currency)
-      .then((res) => setArPrice(res))
-      .catch();
-  }, [currency]);
+  const { price, hasPrice, loading } = useTokenPrice(
+    ao.isAo ? ao.tokenId : "AR"
+  );
 
   // transaction price
   const fiatPrice = useMemo(() => {
+    if (!hasPrice) return;
     const transactionQty = BigNumber(transaction?.quantity?.ar || "0");
 
-    return transactionQty.multipliedBy(arPrice);
-  }, [transaction, arPrice]);
+    return transactionQty.multipliedBy(price);
+  }, [transaction?.quantity?.ar, price, hasPrice]);
 
   // get content type
   const getContentType = () =>
@@ -334,11 +387,11 @@ export function TransactionView({
   }, [transaction]);
 
   return (
-    <Wrapper ref={parentRef}>
+    <Wrapper>
       <div>
         <HeadV2
           title={browser.i18n.getMessage(
-            message ? "message" : "transaction_complete"
+            message ? "message" : "transaction_details"
           )}
           back={() => {
             // This is misleading and `backPath` is only used to indicate whether the back button actually navigates
@@ -349,7 +402,7 @@ export function TransactionView({
             if (backPath === "/notifications" || backPath === "/transactions") {
               back();
             } else {
-              navigate((backPath as ArConnectRoutePath) || "/");
+              navigate((backPath as WanderRoutePath) || "/");
             }
           }}
         />
@@ -357,32 +410,37 @@ export function TransactionView({
           <>
             {!message && (
               <>
-                <Section style={{ paddingTop: 9, paddingBottom: 8 }}>
-                  <AmountTitle
-                    ref={childRef}
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      justifyContent: "center",
-                      alignItems: "flex-end"
-                    }}
-                  >
-                    {!ao.isAo
-                      ? formatTokenBalance(transaction.quantity.ar || "0")
-                      : transaction.quantity.ar}
-                    {/* NEEDS TO BE DYNAMIC */}
-                    <span>{ticker ? ticker : "AR"}</span>
-                  </AmountTitle>
-                  <FiatAmount>
-                    {ao.isAo ? "$-.--" : formatFiatBalance(fiatPrice, currency)}
-                  </FiatAmount>
+                <Section
+                  style={{
+                    display: "flex",
+                    paddingTop: 0,
+                    flexDirection: "column",
+                    gap: 8
+                  }}
+                >
+                  {transactionDirection && (
+                    <TransactionDirection>
+                      {transactionDirection}
+                    </TransactionDirection>
+                  )}
+                  <AdaptiveBalanceDisplay
+                    balance={transaction.quantity.ar}
+                    ticker={ticker || "AR"}
+                    ao={ao}
+                    logo={logo}
+                  />
+                  {hasPrice && !loading && (
+                    <FiatAmount>
+                      {formatFiatBalance(fiatPrice, currency)}
+                    </FiatAmount>
+                  )}
                 </Section>
                 <AnimatePresence>
                   {gw && <CustomGatewayWarning simple />}
                 </AnimatePresence>
               </>
             )}
-            <Section>
+            <Section showPaddingVertical={false}>
               <Properties>
                 <TransactionProperty>
                   <PropertyName>
@@ -615,7 +673,7 @@ export function TransactionView({
           </>
         )) || (
           <>
-            <Section style={{ paddingBottom: 0 }}>
+            <Section showPaddingVertical={false}>
               <FiatAmount>
                 <Skeleton width="3rem" />
               </FiatAmount>
@@ -623,7 +681,7 @@ export function TransactionView({
                 <Skeleton width="6rem" />
               </AmountTitle>
             </Section>
-            <Section>
+            <Section showPaddingVertical={false}>
               <Properties>
                 {new Array(7).fill("").map((_, i) => (
                   <TransactionProperty key={i}>
@@ -663,8 +721,14 @@ export function TransactionView({
             animate="shown"
             exit="hidden"
           >
-            <Section>
-              <SendButton
+            <Section style={{ gap: 12 }}>
+              {fromSend && (
+                <Button fullWidth onClick={handleDone}>
+                  {browser.i18n.getMessage("done")}
+                </Button>
+              )}
+              <Button
+                variant="secondary"
                 fullWidth
                 onClick={() => {
                   const url = ao.isAo
@@ -675,8 +739,12 @@ export function TransactionView({
                 }}
               >
                 {ao.isAo ? "AOLink" : "Viewblock"}
-                <ShareIcon style={{ marginLeft: "5px" }} />
-              </SendButton>
+                <LinkExternal02
+                  height={24}
+                  width={24}
+                  style={{ marginLeft: "8px" }}
+                />
+              </Button>
             </Section>
           </motion.div>
         )}
@@ -739,21 +807,22 @@ const Wrapper = styled.div`
 `;
 
 export const FiatAmount = styled(Text).attrs({
-  noMargin: true
+  noMargin: true,
+  weight: "medium",
+  variant: "secondary",
+  size: "sm"
 })`
   text-align: center;
-  font-size: 12px;
-  font-weight: 600;
 
   ${Skeleton} {
     margin: 0 auto 0.3em;
   }
 `;
 
-const AddContact = styled.div`
+export const AddContact = styled.div`
   font-size: 10px;
   font-weight: 600;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
   margin: 0;
 
   span {
@@ -763,10 +832,18 @@ const AddContact = styled.div`
   }
 `;
 
+export const TransactionDirection = styled(Text).attrs({
+  weight: "medium",
+  variant: "secondary",
+  noMargin: true
+})`
+  text-align: center;
+`;
+
 export const AmountTitle = styled.h1`
   font-size: 2.5rem;
   font-weight: 600;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
   text-align: center;
   margin: 0;
   line-height: 1.1em;
@@ -785,7 +862,7 @@ export const AmountTitle = styled.h1`
 export const Properties = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  gap: 0.5rem;
 `;
 
 export const TransactionProperty = styled.div`
@@ -814,18 +891,19 @@ const BasePropertyText = styled(Text).attrs({
   }
 `;
 
-export const PropertyName = styled(BasePropertyText)`
+export const PropertyName = styled(BasePropertyText).attrs({
+  size: "sm",
+  weight: "medium",
+  variant: "secondary"
+})`
   display: flex;
   align-items: start;
-  font-size: 14px;
-  font-weight: 500;
-
-  color: rgb(${(props) => props.theme.primaryText});
 `;
 
-export const PropertyValue = styled(BasePropertyText)`
-  font-size: 14px;
-  font-weight: 500;
+export const PropertyValue = styled(BasePropertyText).attrs({
+  size: "sm",
+  weight: "medium"
+})`
   text-align: right;
 `;
 

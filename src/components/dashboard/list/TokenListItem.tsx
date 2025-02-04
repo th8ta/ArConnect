@@ -1,23 +1,25 @@
 import { type Token } from "~tokens/token";
 import { Reorder, useDragControls } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
-import { ListItem } from "@arconnect/components";
+import { ListItem } from "@arconnect/components-rebrand";
 import { formatAddress } from "~utils/format";
 import { useTheme } from "~utils/theme";
 import styled from "styled-components";
 import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 import { concatGatewayURL } from "~gateways/utils";
 import aoLogo from "url:/assets/ecosystem/ao-logo.svg";
+import arLogo from "url:/assets/ecosystem/ar-logo.svg";
 import arLogoDark from "url:/assets/ar/logo_dark.png";
 import { getUserAvatar } from "~lib/avatar";
 import { useLocation } from "~wallets/router/router.utils";
+import CommonImage from "~components/common/Image";
 
 export default function TokenListItem({ token, active, onClick }: Props) {
   const { navigate } = useLocation();
 
   // format address
   const formattedAddress = useMemo(
-    () => formatAddress(token.id, 8),
+    () => (token.id === "AR" ? "AR" : formatAddress(token.id, 8)),
     [token.id]
   );
 
@@ -72,17 +74,18 @@ export default function TokenListItem({ token, active, onClick }: Props) {
     >
       <ListItem
         title={`${token.name} (${token.ticker})`}
-        description={
+        subtitle={
           <DescriptionWrapper>
             {formattedAddress}
-            <Image src={aoLogo} alt="ao logo" />
+            <Image src={token.id === "AR" ? arLogo : aoLogo} alt="ao logo" />
           </DescriptionWrapper>
         }
+        hideSquircle
         active={active}
         dragControls={null}
-      >
-        <TokenLogo src={image} />
-      </ListItem>
+        icon={<TokenLogo src={image} />}
+        height={64}
+      />
     </Reorder.Item>
   );
 }
@@ -99,17 +102,14 @@ const DescriptionWrapper = styled.div`
   gap: 8px;
 `;
 
-const TokenLogo = styled.img.attrs({
+export const TokenLogo = styled(CommonImage).attrs({
   alt: "token-logo",
-  draggable: false
+  draggable: false,
+  backgroundColor: "#fffefc"
 })`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 1.7rem;
-  height: 1.7rem;
-  user-select: none;
-  transform: translate(-50%, -50%);
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
 `;
 
 interface Props {

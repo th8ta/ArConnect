@@ -1,12 +1,12 @@
 import {
-  InputV2,
+  Input,
   Loading,
   Section,
   Spacer,
   Text,
   useInput,
   useToasts
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import {
   FiatAmount,
   AmountTitle,
@@ -22,7 +22,7 @@ import browser from "webextension-polyfill";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { formatAddress } from "~utils/format";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { checkPassword } from "~wallets/auth";
 import { Quantity, Token } from "ao-tokens";
@@ -380,9 +380,9 @@ export function SignDataItemAuthRequestView() {
         {askPassword && (
           <>
             <PasswordWrapper>
-              <InputV2
+              <Input
                 placeholder="Enter your password"
-                small
+                sizeVariant="small"
                 {...passwordInput.bindings}
                 label={"Password"}
                 type="password"

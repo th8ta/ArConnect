@@ -1,50 +1,29 @@
-import { formatTokenBalance, formatFiatBalance } from "~tokens/currency";
-import Application, { type AppInfo } from "~applications/application";
-import { gql } from "~gateways/api";
-import Graph, { GraphText } from "~components/popup/Graph";
-import { Loading, TooltipV2 } from "@arconnect/components";
+import { formatFiatBalance } from "~tokens/currency";
+import { Loading } from "@arconnect/components-rebrand";
 import { useEffect, useMemo, useState, type HTMLProps } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { useBalance } from "~wallets/hooks";
-import { useArPrice } from "~lib/coingecko";
-import { getAppURL } from "~utils/format";
-import { useTheme } from "~utils/theme";
-import {
-  ArrowUpRightIcon,
-  EyeIcon,
-  EyeOffIcon,
-  LockIcon
-} from "@iconicicons/react";
-import useActiveTab from "~applications/useActiveTab";
-import AppIcon, { NoAppIcon } from "./AppIcon";
-import browser from "webextension-polyfill";
+import { getAr24hChange, useArPrice } from "~lib/coingecko";
 import useSetting from "~settings/hook";
-import styled from "styled-components";
-import Arweave from "arweave";
-import { removeDecryptionKey } from "~wallets/auth";
-import { findGateway } from "~gateways/wayfinder";
+import styled, { useTheme } from "styled-components";
+import { Text } from "@arconnect/components-rebrand";
 import BigNumber from "bignumber.js";
-import {
-  retryWithDelay,
-  retryWithDelayAndTimeout
-} from "~utils/promises/retry";
+import { useTotalFiatBalance } from "~tokens/hooks";
 
 export default function Balance() {
-  const [loading, setLoading] = useState(false);
-  // grab address
-  const [activeAddress] = useStorage<string>({
-    key: "active_address",
-    instance: ExtensionStorage
-  });
-
   // balance in AR
-  const balance = useBalance();
+  const { data: balance = "0", isLoading } = useBalance();
+  const [percentage, setPercentage] = useState(BigNumber("0"));
 
   // balance in local currency
   const [currency] = useSetting<string>("currency");
-  const { price } = useArPrice(currency);
-  const fiat = useMemo(() => price.multipliedBy(balance), [price, balance]);
+  const { data: price = "0" } = useArPrice(currency);
+  const fiat = useMemo(
+    () => BigNumber(price).multipliedBy(balance || BigNumber("0")),
+    [price, balance]
+  );
+  const totalFiatBalance = useTotalFiatBalance();
 
   // balance display
   const [hideBalance, setHideBalance] = useStorage<boolean>(
@@ -55,31 +34,44 @@ export default function Balance() {
     false
   );
 
-  // active app
-  const activeTab = useActiveTab();
-  const activeApp = useMemo<Application | undefined>(() => {
-    if (!activeTab?.url) {
-      return undefined;
-    }
-
-    return new Application(getAppURL(activeTab.url));
-  }, [activeTab]);
-
-  // active app data
-  const [activeAppData, setActiveAppData] = useState<AppInfo>();
+  const [savedAr24hChange, setSavedAr24hChange] = useStorage<{
+    value: number;
+    timestamp: string;
+  }>({
+    key: "saved_ar_24h_change",
+    instance: ExtensionStorage
+  });
 
   useEffect(() => {
+    if (!currency) return;
+
     (async () => {
-      if (!activeApp) return;
+      try {
+        if (balance === "0") {
+          setPercentage(BigNumber(0));
+          return;
+        }
+        const ar24hChange = await getAr24hChange(currency);
 
-      const connected = await activeApp.isConnected();
-      if (!connected) {
-        return setActiveAppData(undefined);
+        setSavedAr24hChange({
+          value: ar24hChange,
+          timestamp: Date.now().toString()
+        });
+
+        setPercentage(BigNumber(ar24hChange));
+      } catch (error) {
+        console.error("Error fetching AR 24h change:", error);
+
+        // Check if we have a saved value
+        if (savedAr24hChange) {
+          const fallbackPercentage = BigNumber(savedAr24hChange.value);
+          setPercentage(fallbackPercentage);
+        } else {
+          setPercentage(BigNumber(0));
+        }
       }
-
-      setActiveAppData(await activeApp.getAppData());
     })();
-  }, [activeApp]);
+  }, [balance, currency]);
 
   // balance history
   const [historicalBalance, setHistoricalBalance] = useStorage<number[]>(
@@ -90,286 +82,118 @@ export default function Balance() {
     []
   );
 
-  useEffect(() => {
-    (async () => {
-      if (!activeAddress) return;
-      setLoading(true);
-      const history = await balanceHistory(activeAddress);
-
-      setHistoricalBalance(history);
-      setLoading(false);
-    })();
-  }, [activeAddress]);
-
-  // display theme
-  const theme = useTheme();
-
-  useEffect(() => {
-    if (
-      balance.toNumber() !== historicalBalance[historicalBalance.length - 1]
-    ) {
-      setLoading(true);
-    } else {
-      setLoading(false);
-    }
-  }, [balance.toString(), historicalBalance]);
-
   return (
-    <Graph data={historicalBalance}>
-      <BalanceHead>
-        {loading && <Loading style={{ width: "20px", height: "20px" }} />}
-        {!loading && (
-          <div>
-            <BalanceText title noMargin>
-              {(!hideBalance && formatTokenBalance(balance)) ||
-                "*".repeat(balance.toFixed(2).length)}
-              <Ticker>AR</Ticker>
-            </BalanceText>
+    <BalanceHead>
+      {isLoading && <Loading style={{ width: "20px", height: "20px" }} />}
+      {!isLoading && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <BalanceText onClick={() => setHideBalance((val) => !val)} noMargin>
+            {(!hideBalance &&
+              formatFiatBalance(totalFiatBalance, currency.toLowerCase())) ||
+              "*".repeat(totalFiatBalance.toFixed(2).length)}
+          </BalanceText>
 
-            <DivFiatBalanceRow>
-              <FiatBalanceText noMargin>
-                {(!hideBalance &&
-                  formatFiatBalance(fiat, currency.toLowerCase())) ||
-                  "*".repeat(fiat.toFixed(2).length) +
-                    " " +
-                    currency.toUpperCase()}
-              </FiatBalanceText>
-
-              <IconButtons>
-                <TooltipV2
-                  content={browser.i18n.getMessage(
-                    hideBalance ? "balance_show" : "balance_hide"
-                  )}
-                  position="top"
-                >
-                  <BalanceIconButton
-                    onClick={() => setHideBalance((val) => !val)}
-                    as={hideBalance ? EyeOffIcon : EyeIcon}
-                  />
-                </TooltipV2>
-                <TooltipV2
-                  content={browser.i18n.getMessage("lock_wallet")}
-                  position="top"
-                >
-                  <BalanceIconButton
-                    onClick={removeDecryptionKey}
-                    as={LockIcon}
-                  />
-                </TooltipV2>
-              </IconButtons>
-            </DivFiatBalanceRow>
-          </div>
-        )}
-        {activeAppData && (
-          <ActiveAppIcon
-            outline={theme === "light" ? "#000" : "#232323"}
-            onClick={() =>
-              browser.tabs.create({
-                url: browser.runtime.getURL(
-                  `tabs/dashboard.html#/apps/${activeApp.url}`
-                )
-              })
-            }
-            title={activeAppData.name || ""}
-          >
-            {(activeAppData.logo && (
-              <img
-                src={activeAppData.logo}
-                alt={activeAppData.name || ""}
-                draggable={false}
-              />
-            )) || <NoAppIcon />}
-          </ActiveAppIcon>
-        )}
-      </BalanceHead>
-    </Graph>
+          <PriceChangeIndicator
+            percentageChange={percentage}
+            fiatChange={formatFiatBalance(
+              fiat.multipliedBy(percentage.dividedBy(100)),
+              currency.toLowerCase()
+            )}
+            hideBalance={hideBalance}
+          />
+        </div>
+      )}
+    </BalanceHead>
   );
 }
 
-async function balanceHistory(address: string) {
-  const gateway = await findGateway({ graphql: true });
-  let arweave = new Arweave(gateway);
-  let minHeight = 0;
-  try {
-    const { height } = await arweave.network.getInfo();
-    // blocks per day - 720
-    minHeight = height - 720 * 30;
-  } catch {}
+function PriceChangeIndicator({
+  percentageChange,
+  fiatChange,
+  hideBalance
+}: {
+  percentageChange: BigNumber;
+  fiatChange: string;
+  hideBalance?: boolean;
+}) {
+  const theme = useTheme();
+  const isPositive = percentageChange.isGreaterThanOrEqualTo(0);
+  const isZeroChange = percentageChange.isEqualTo(0);
+  const absoluteFiatChange = fiatChange.replace(/[+-]/, "");
 
-  // find txs coming in and going out
-  const inTxs = (
-    await retryWithDelay(() =>
-      gql(
-        `
-      query($recipient: String!, $minHeight: Int!) {
-        transactions(recipients: [$recipient], first: 100, bundledIn: null, block: {min: $minHeight}) {
-          edges {
-            node {
-              owner {
-                address
-              }
-              fee {
-                ar
-              }
-              quantity {
-                ar
-              }
-              block {
-                timestamp
-              }
-            }
-          }
-        }
-      }
-    `,
-        { recipient: address, minHeight }
-      )
-    )
-  ).data.transactions.edges;
+  return (
+    <PercentageChangeContainer>
+      <Text variant="secondary" weight="medium" noMargin>
+        {isZeroChange ? "" : isPositive ? "+" : "-"}
+        {!hideBalance
+          ? absoluteFiatChange
+          : absoluteFiatChange.charAt(0) +
+            "*".repeat(absoluteFiatChange.length - 1)}
+      </Text>
 
-  const outTxs = (
-    await retryWithDelay(() =>
-      gql(
-        `
-      query($owner: String!, $minHeight: Int!) {
-        transactions(owners: [$owner], first: 100, bundledIn: null, block: {min: $minHeight}) {
-          edges {
-            node {
-              owner {
-                address
-              }
-              fee {
-                ar
-              }
-              quantity {
-                ar
-              }
-              block {
-                timestamp
-              }
-            }
-          }
-        }
-      }
-    `,
-        { owner: address, minHeight }
-      )
-    )
-  ).data.transactions.edges;
-
-  // Merge and sort transactions in descending order (newest first)
-  const txs = inTxs
-    .concat(outTxs)
-    .map((edge) => edge.node)
-    .filter((tx) => !!tx?.block?.timestamp) // Filter out transactions without a timestamp
-    .sort((a, b) => b.block.timestamp - a.block.timestamp); // Sort by newest to oldest
-
-  // Get the current balance
-  const winstonBalance = await retryWithDelayAndTimeout(async () => {
-    const gateway = await findGateway({});
-    arweave = new Arweave(gateway);
-    const balance = await arweave.wallets.getBalance(address);
-    if (isNaN(+balance)) throw new Error("Balance is invalid");
-    return balance;
-  });
-  let balance = BigNumber(arweave.ar.winstonToAr(winstonBalance));
-
-  // Initialize the result array with the current balance
-  const res = [balance.toNumber()];
-
-  // Process transactions from newest to oldest, adjusting the balance
-  for (const tx of txs) {
-    if (tx.owner.address === address) {
-      // Outgoing transaction: add back the transaction amount and fee (since we are reversing)
-      balance = balance.plus(tx.quantity.ar).plus(tx.fee.ar);
-    } else {
-      // Incoming transaction: subtract the amount received
-      balance = balance.minus(tx.quantity.ar);
-    }
-
-    // Push the balance at that point in time
-    res.push(balance.toNumber());
-  }
-
-  // Reverse the result array to have chronological order for the line chart (oldest to newest)
-  res.reverse();
-
-  return res;
+      <Text variant="secondary" weight="medium" noMargin>
+        ({percentageChange.abs().toFixed(2)}%)
+      </Text>
+      {!isZeroChange && (
+        <TriangleIcon
+          negative={!isPositive}
+          color={isPositive ? theme.success : theme.fail}
+        />
+      )}
+    </PercentageChangeContainer>
+  );
 }
+
+interface TriangleIconProps {
+  width?: number;
+  height?: number;
+  color: string;
+  negative?: boolean;
+}
+
+const TriangleIcon: React.FC<TriangleIconProps> = ({
+  width = 8.66,
+  height = 6,
+  color,
+  negative = false
+}) => {
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 9 7"
+      fill="none"
+      style={{ transform: `rotate(${negative ? "180deg" : "0deg"})` }}
+    >
+      <path
+        d="M4.49999 0.5L8.83012 6.5H0.169861L4.49999 0.5Z"
+        fill={color || "#000000"}
+      />
+    </svg>
+  );
+};
+
+const PercentageChangeContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+`;
 
 const BalanceHead = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  padding: 4px 0px;
 `;
 
-const BalanceText = styled(GraphText)`
-  font-size: 2.3rem;
-  font-weight: 600;
-`;
-
-const Ticker = styled.span`
-  margin-left: 0.33rem;
-`;
-
-const DivFiatBalanceRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.41rem;
-  font-size: 1rem;
-`;
-
-const FiatBalanceText = styled(GraphText)`
-  font-weight: 400;
-`;
-
-const IconButtons = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.21rem;
-`;
-
-const BalanceIconButton = styled(EyeIcon)`
-  font-size: 1em;
-  width: 1em;
-  height: 1em;
-  color: ${(props) =>
-    props.theme.displayTheme === "light" ? "#AB9AFF" : "#fff"};
+const BalanceText = styled(Text).attrs({
+  size: "4xl",
+  weight: "medium",
+  noMargin: true
+})`
   cursor: pointer;
-  transition: all 0.23s ease-in-out;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  &:active {
-    transform: scale(0.86);
-  }
-`;
-
-const ActionButton = styled(ArrowUpRightIcon)`
-  color: #fff;
-  font-size: 1.9rem;
-  width: 1em;
-  height: 1em;
-  cursor: pointer;
-  transition: all 0.23s ease-in-out;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  &:active {
-    transform: scale(0.87);
-  }
-`;
-
-const ActiveAppIcon = styled(AppIcon)`
-  transition: all 0.07s ease-in-out;
-
-  &:active {
-    transform: scale(0.93);
-  }
+  text-align: center;
 `;
 
 export const CompassIcon = (props: HTMLProps<SVGElement>) => (

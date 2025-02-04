@@ -1,4 +1,4 @@
-import { useStorage } from "@plasmohq/storage/hook";
+import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { useRoute } from "wouter";
 import { useEffect, useMemo } from "react";
@@ -7,7 +7,7 @@ import { Reorder } from "framer-motion";
 import TokenListItem from "./list/TokenListItem";
 import styled from "styled-components";
 import browser from "webextension-polyfill";
-import { ButtonV2, Spacer } from "@arconnect/components";
+import { Button, Spacer } from "@arconnect/components-rebrand";
 import { type TokenInfoWithBalance } from "~tokens/aoTokens/ao";
 import { useLocation } from "~wallets/router/router.utils";
 
@@ -83,7 +83,7 @@ export function TokensDashboardView() {
           axis="y"
           onReorder={() => {}}
           values={aoTokens}
-          style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}
+          style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
         >
           {enhancedAoTokens.map((token) => (
             <div onClick={() => handleTokenClick(token)} key={token.id}>
@@ -97,9 +97,9 @@ export function TokensDashboardView() {
         </Reorder.Group>
         <Spacer y={1} />
       </div>
-      <ButtonV2 fullWidth onClick={addToken}>
+      <Button fullWidth onClick={addToken}>
         {browser.i18n.getMessage("import_token")}
-      </ButtonV2>
+      </Button>
     </Wrapper>
   );
 }
@@ -108,5 +108,5 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: calc(100% - 64px);
+  height: 100%;
 `;

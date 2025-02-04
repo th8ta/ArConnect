@@ -1,4 +1,4 @@
-import { ARCONNECT_PRINTER_ID } from "~api/background/handlers/browser/printer/printer.constants";
+import { WANDER_PRINTER_ID } from "~api/background/handlers/browser/printer/printer.constants";
 
 /**
  * Printer capabilities request callback type
@@ -15,8 +15,8 @@ export function handleGetCapabilities(
   printerId: string,
   callback: PrinterInfoCallback
 ) {
-  // only return capabilities for the ArConnect printer
-  if (printerId !== ARCONNECT_PRINTER_ID) return;
+  // only return capabilities for the Wander printer
+  if (printerId !== WANDER_PRINTER_ID) return;
 
   // mimic a regular printer's capabilities
   callback({

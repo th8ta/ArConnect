@@ -2,7 +2,7 @@ import { ExtensionStorage } from "~utils/storage";
 import Application from "./application";
 
 /**
- * ArConnect permissions
+ * Wander permissions
  */
 export type PermissionType =
   | "ACCESS_ADDRESS"

@@ -1,4 +1,8 @@
-import { ButtonV2, Spacer, type ButtonV2Props } from "@arconnect/components";
+import {
+  Button,
+  Spacer,
+  type ButtonProps
+} from "@arconnect/components-rebrand";
 import { useThrottledRequestAnimationFrame } from "@swyg/corre";
 import { useRef, type MouseEvent } from "react";
 import styled from "styled-components";
@@ -6,7 +10,7 @@ import type { AuthRequest, AuthRequestStatus } from "~utils/auth/auth.types";
 import { prettyDate } from "~utils/pretty_date";
 import browser from "webextension-polyfill";
 
-interface AuthButtonProps extends ButtonV2Props {
+interface AuthButtonProps extends ButtonProps {
   label?: string;
   onClick: (e: MouseEvent<HTMLButtonElement>) => void;
 }
@@ -68,9 +72,9 @@ export function AuthButtons({
           ) : null}
 
           {showPrimaryButton ? (
-            <ButtonV2 {...primaryButtonProps} fullWidth>
+            <Button {...primaryButtonProps} fullWidth>
               {primaryButtonLabel}
-            </ButtonV2>
+            </Button>
           ) : null}
 
           {showPrimaryButton && showSecondaryButton ? (
@@ -78,9 +82,9 @@ export function AuthButtons({
           ) : null}
 
           {showSecondaryButton ? (
-            <ButtonV2 {...secondaryButtonProps} secondary fullWidth>
+            <Button {...secondaryButtonProps} variant="secondary" fullWidth>
               {secondaryButtonLabel}
-            </ButtonV2>
+            </Button>
           ) : null}
         </>
       ) : null}
@@ -91,7 +95,8 @@ export function AuthButtons({
 const PStatusLabel = styled.p<{ status: AuthRequestStatus }>`
   margin: 0;
   padding: 16px;
-  background: ${(props) =>
-    props.theme.displayTheme === "light" ? "#f5f5f5" : "#191919"};
+  background: ${(props) => props.theme.surfaceSecondary};
+  color: ${(props) => props.theme.primaryText};
   border-radius: 10px;
+  font-weight: 500;
 `;
