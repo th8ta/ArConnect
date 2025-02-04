@@ -23,7 +23,6 @@ export default function Collectibles() {
           <Collectible
             id={collectible.id}
             name={collectible.Name || collectible.Ticker}
-            balance={collectible.balance}
             divisibility={collectible.Denomination}
             onClick={() => navigate(`/collectible/${collectible.id}`)}
             key={i}

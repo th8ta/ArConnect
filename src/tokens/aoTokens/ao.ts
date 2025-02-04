@@ -258,8 +258,6 @@ export function useBalanceSortedTokens({
       return +b.balance - +a.balance;
     });
 
-    console.log(sortedTokens);
-
     moveTokenToTop(sortedTokens, AO_NATIVE_TOKEN);
     moveTokenToTop(sortedTokens, "AR");
 

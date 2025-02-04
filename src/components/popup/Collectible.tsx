@@ -9,6 +9,7 @@ import { useTokenBalance } from "~tokens/hooks";
 import { useWallets } from "~utils/wallets/wallets.hooks";
 import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
+import type { TokenInfo } from "~tokens/aoTokens/ao";
 
 export default function Collectible({ id, onClick, ...props }: Props) {
   const gateway = useGateway(FULL_HISTORY);
@@ -25,7 +26,8 @@ export default function Collectible({ id, onClick, ...props }: Props) {
       Ticker: props.name,
       Name: props.name,
       Denomination: props.divisibility,
-      Logo: id
+      Logo: id,
+      type: "collectible" as TokenInfo["type"]
     };
   }, [props]);
 

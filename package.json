@@ -5,7 +5,7 @@
   "description": "__MSG_extensionDescription__",
   "author": "th8ta",
   "packageManager": "yarn@1.22.18",
-  "homepage": "https://arconnect.io",
+  "homepage": "https://www.wander.app",
   "scripts": {
     "dev:chrome": "plasmo dev --verbose",
     "build:chrome": "plasmo build --no-hoist",
