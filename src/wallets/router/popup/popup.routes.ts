@@ -10,6 +10,7 @@ import { PendingPurchaseView } from "~routes/popup/pending";
 import { PurchaseView } from "~routes/popup/purchase";
 import { ReceiveView } from "~routes/popup/receive";
 import { SendView } from "~routes/popup/send";
+import { AmountView } from "~routes/popup/send/amount";
 import { SendAuthView } from "~routes/popup/send/auth";
 import { TransactionCompletedView } from "~routes/popup/send/completed";
 import { ConfirmView } from "~routes/popup/send/confirm";
@@ -20,7 +21,7 @@ import { ContactsView } from "~routes/popup/settings/contacts";
 import { ContactSettingsView } from "~routes/popup/settings/contacts/[address]";
 import { NewContactView } from "~routes/popup/settings/contacts/new";
 import { NotificationSettingsView } from "~routes/popup/settings/notifications";
-import { QuickSettingsView } from "~routes/popup/settings/quickSettings";
+import { MenuView } from "~routes/popup/settings";
 import { TokensSettingsView } from "~routes/popup/settings/tokens";
 import { TokenSettingsView } from "~routes/popup/settings/tokens/[id]";
 import { NewTokenSettingsView } from "~routes/popup/settings/tokens/new";
@@ -38,6 +39,7 @@ import { TransactionsView } from "~routes/popup/transaction/transactions";
 import { UnlockView } from "~routes/popup/unlock";
 import { getExtensionOverrides } from "~wallets/router/extension/extension.routes";
 import type { RouteConfig } from "~wallets/router/router.types";
+import { NoteView } from "~routes/popup/send/note";
 
 export type PopupRoutePath =
   | "/"
@@ -47,7 +49,9 @@ export type PopupRoutePath =
   | `/receive`
   | `/send/transfer`
   | `/send/transfer/${string}`
+  | `/send/amount/${string}/${string}`
   | `/send/auth/${string}`
+  | `/send/note`
   | `/explore`
   | `/subscriptions`
   | `/subscriptions/${string}`
@@ -88,6 +92,8 @@ export const PopupPaths = {
   PendingPurchase: "/purchase-pending",
   Receive: "/receive",
   Send: "/send/transfer/:id?",
+  Amount: "/send/amount/:recipient/:id?",
+  Note: "/send/note",
   SendAuth: "/send/auth/:tokenID?",
   Explore: "/explore",
   Subscriptions: "/subscriptions",
@@ -149,6 +155,14 @@ export const POPUP_ROUTES = [
   {
     path: PopupPaths.Send,
     component: SendView
+  },
+  {
+    path: PopupPaths.Amount,
+    component: AmountView
+  },
+  {
+    path: PopupPaths.Note,
+    component: NoteView
   },
   {
     path: PopupPaths.SendAuth,
@@ -214,7 +228,7 @@ export const POPUP_ROUTES = [
   },
   {
     path: PopupPaths.QuickSettings,
-    component: QuickSettingsView
+    component: MenuView
   },
   {
     path: PopupPaths.Wallets,

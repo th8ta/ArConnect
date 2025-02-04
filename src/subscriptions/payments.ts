@@ -112,7 +112,7 @@ export const prepare = async (
     tx.addTag("Subscription-Name", data.subscriptionName);
     tx.addTag("App-Name", data.applicationName);
     tx.addTag("Type", "Transfer");
-    tx.addTag("Client", "ArConnect");
+    tx.addTag("Client", "Wander");
     tx.addTag("Client-Version", browser.runtime.getManifest().version);
 
     formattedTxn.transaction = tx.toJSON();

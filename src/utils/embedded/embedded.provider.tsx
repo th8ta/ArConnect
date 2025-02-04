@@ -31,6 +31,8 @@ import type {
 import { isTempWalletPromiseExpired } from "~utils/embedded/embedded.utils";
 import { log, LOG_GROUP } from "~utils/log/log.utils";
 
+export type AuthStatusCopy = AuthStatus;
+
 const EMBEDDED_CONTEXT_INITIAL_STATE: EmbeddedContextState = {
   authStatus: "unknown",
   authMethod: null,

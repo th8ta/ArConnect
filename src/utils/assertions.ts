@@ -165,7 +165,7 @@ export function isSplitTransaction(
     isString(input[key], `"${key}" of transaction has to be a string.`);
   }
 
-  isNumber(input.format, '"format" of transaction has to be a number.');
+  isNumber(input.format, "format of transaction has to be a number.");
   isRecordWithKeys(
     input.chunks,
     ["data_root", "chunks", "proofs"],

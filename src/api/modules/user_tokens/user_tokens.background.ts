@@ -12,7 +12,9 @@ const background: BackgroundModuleFunction<
   TokenInfoWithBalance[] | TokenInfo[]
 > = async (_, options?: { fetchBalance?: boolean }) => {
   const address = await ExtensionStorage.get("active_address");
-  const tokens = (await ExtensionStorage.get<TokenInfo[]>("ao_tokens")) || [];
+  const tokens = (
+    (await ExtensionStorage.get<TokenInfo[]>("ao_tokens")) || []
+  ).filter((token) => token.processId !== "AR");
 
   if (!options?.fetchBalance) {
     return tokens;

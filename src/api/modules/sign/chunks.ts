@@ -36,9 +36,9 @@ export const sendChunk = (chunk: Chunk) =>
   new Promise<void>((resolve, reject) => {
     const callID = nanoid();
     // construct message
-    const message: ApiCall & { ext: "arconnect" } = {
+    const message: ApiCall & { ext: "wander" } = {
       type: "chunk",
-      ext: "arconnect",
+      ext: "wander",
       data: chunk,
       callID
     };

@@ -93,4 +93,6 @@ export function isValidMnemonic(mnemonic: string) {
   for (const word of words) {
     isOneOf(word, wordlist, "Invalid word in mnemonic.");
   }
+
+  return words.length;
 }

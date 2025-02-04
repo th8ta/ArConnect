@@ -6,14 +6,13 @@ import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
 import { RefreshIcon } from "@iconicicons/react";
 import {
-  ButtonV2 as Button,
-  InputV2 as Input,
-  Provider,
+  Button,
+  Input,
   Spacer,
   useInput,
   Text,
   useToasts
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import {
   CardBody,
   ConnectionStatus,
@@ -28,7 +27,7 @@ import Mint from "~components/arlocal/Mint";
 import browser from "webextension-polyfill";
 import Arweave from "arweave";
 import axios from "axios";
-import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
+import { WanderThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { useRemoveCover } from "~wallets/setup/non/non-wallet-setup.hook";
 import { useWallets } from "~utils/wallets/wallets.hooks";
 import { WalletsProvider } from "~utils/wallets/wallets.provider";
@@ -165,7 +164,7 @@ function ArLocal() {
         <Title>
           ArLocal {browser.i18n.getMessage("devtools")}
           <Spacer x={0.2} />
-          <Text noMargin>by ArConnect</Text>
+          <Text noMargin>by Wander</Text>
         </Title>
         <ConnectionText>
           {browser.i18n.getMessage(online ? "testnetLive" : "testnetDown")}
@@ -183,7 +182,7 @@ function ArLocal() {
             />
           </InputWrapper>
           <RefreshButton
-            secondary
+            variant="secondary"
             onClick={() => loadTestnet()}
             refreshing={loadingTestnet}
           >
@@ -197,7 +196,12 @@ function ArLocal() {
             <Spacer y={1} />
             <ArLocalTransaction arweave={arweave} />
             <Spacer y={1} />
-            <Button fullWidth secondary loading={mining} onClick={mine}>
+            <Button
+              fullWidth
+              variant="secondary"
+              loading={mining}
+              onClick={mine}
+            >
               {browser.i18n.getMessage("mine")}
             </Button>
           </>
@@ -209,10 +213,10 @@ function ArLocal() {
 
 export default function ArLocalRoot() {
   return (
-    <ArConnectThemeProvider>
+    <WanderThemeProvider>
       <WalletsProvider>
         <ArLocal />
       </WalletsProvider>
-    </ArConnectThemeProvider>
+    </WanderThemeProvider>
   );
 }

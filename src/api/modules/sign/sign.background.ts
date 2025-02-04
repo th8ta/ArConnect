@@ -61,7 +61,7 @@ const background: BackgroundModuleFunction<BackgroundResult> = async (
   // append fee multiplier to the transaction
   transaction.reward = await calculateReward(transaction);
 
-  // add ArConnect tags to the transaction
+  // add Wander tags to the transaction
   for (const tag of signedTxTags) {
     transaction.addTag(tag.name, tag.value);
   }

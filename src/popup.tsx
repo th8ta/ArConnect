@@ -1,5 +1,5 @@
 import { NavigationBar } from "~components/popup/Navigation";
-import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
+import { WanderThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { Routes } from "~wallets/router/routes.component";
 import { POPUP_ROUTES } from "~wallets/router/popup/popup.routes";
 import { Router as Wouter } from "wouter";
@@ -9,8 +9,20 @@ import { useEffect } from "react";
 import { handleSyncLabelsAlarm } from "~api/background/handlers/alarms/sync-labels/sync-labels-alarm.handler";
 import { ErrorBoundary } from "~utils/error/ErrorBoundary/errorBoundary";
 import { FallbackView } from "~components/page/common/Fallback/fallback.view";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-export function ArConnectBrowserExtensionApp() {
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 300_000,
+      refetchInterval: 300_000,
+      retry: 2,
+      refetchOnWindowFocus: true
+    }
+  }
+});
+
+export function WanderBrowserExtensionApp() {
   useEffect(() => {
     handleSyncLabelsAlarm();
   }, []);
@@ -23,18 +35,20 @@ export function ArConnectBrowserExtensionApp() {
   );
 }
 
-export function ArConnectBrowserExtensionAppRoot() {
+export function WanderBrowserExtensionAppRoot() {
   return (
-    <ArConnectThemeProvider>
+    <WanderThemeProvider>
       <ErrorBoundary fallback={FallbackView}>
         <WalletsProvider redirectToWelcome>
-          <Wouter hook={useExtensionLocation}>
-            <ArConnectBrowserExtensionApp />
-          </Wouter>
+          <QueryClientProvider client={queryClient}>
+            <Wouter hook={useExtensionLocation}>
+              <WanderBrowserExtensionApp />
+            </Wouter>
+          </QueryClientProvider>
         </WalletsProvider>
       </ErrorBoundary>
-    </ArConnectThemeProvider>
+    </WanderThemeProvider>
   );
 }
 
-export default ArConnectBrowserExtensionAppRoot;
+export default WanderBrowserExtensionAppRoot;

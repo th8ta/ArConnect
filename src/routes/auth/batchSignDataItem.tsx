@@ -1,13 +1,13 @@
 import { useCurrentAuthRequest } from "~utils/auth/auth.hooks";
 import {
-  InputV2,
+  Input,
   ListItem,
   Section,
   Spacer,
   Text,
   useInput,
   useToasts
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import Wrapper from "~components/auth/Wrapper";
 import browser from "webextension-polyfill";
 import { useEffect, useState } from "react";
@@ -91,7 +91,7 @@ export function BatchSignDataItemAuthRequestView() {
                 <ListItem
                   key={index}
                   title={`Transaction ${index + 1}`}
-                  description={formatTransactionDescription(amount, name)}
+                  subtitle={formatTransactionDescription(amount, name)}
                   small
                   onClick={() => setTransaction(item)}
                 />
@@ -137,9 +137,9 @@ export function BatchSignDataItemAuthRequestView() {
             {askPassword && (
               <>
                 <PasswordWrapper>
-                  <InputV2
+                  <Input
                     placeholder="Enter your password"
-                    small
+                    sizeVariant="small"
                     {...passwordInput.bindings}
                     label={"Password"}
                     type="password"

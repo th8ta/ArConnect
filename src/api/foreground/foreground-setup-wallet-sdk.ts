@@ -30,9 +30,9 @@ export function setupWalletSDK(targetWindow: Window = window) {
 
         // construct data to send to the background
         const callID = nanoid();
-        const data: ApiCall & { ext: "arconnect" } = {
+        const data: ApiCall & { ext: "wander" } = {
           type: `api_${mod.functionName}`,
-          ext: "arconnect",
+          ext: "wander",
           callID,
           data: {
             params: foregroundResult || params
@@ -43,7 +43,7 @@ export function setupWalletSDK(targetWindow: Window = window) {
         // chunking automatically based on data size, rather than relying on `sendChunk` to be called from
         // the foreground scripts manually.
 
-        // Send message to background script (ArConnect Extension) or to the iframe window (ArConnect Embedded):
+        // Send message to background script (Wander Extension) or to the iframe window (Wander Embedded):
         targetWindow.postMessage(data, window.location.origin);
 
         // TODO: Note this is replacing the following from `api.content-script.ts`, so the logic to await and get the response is missing with just the
@@ -126,11 +126,11 @@ export function setupWalletSDK(targetWindow: Window = window) {
     "message",
     (
       e: MessageEvent<{
-        type: "arconnect_event";
+        type: "wander_event";
         event: Event;
       }>
     ) => {
-      if (e.data.type !== "arconnect_event") return;
+      if (e.data.type !== "wander_event") return;
 
       events.emit(e.data.event.name, e.data.event.value);
     }

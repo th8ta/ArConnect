@@ -7,17 +7,17 @@ export const Link = styled.a.attrs({
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  color: rgb(${(props) => props.theme.secondaryText});
+  color: ${(props) => props.theme.secondaryText};
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 1rem;
   text-decoration: none;
   width: max-content;
   transition: all 0.23s ease-in-out;
 
   svg {
     font-size: 1.2em;
-    width: 1em;
-    height: 1em;
+    width: 1.2em;
+    height: 1.2em;
   }
 
   &:hover {

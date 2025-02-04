@@ -48,7 +48,7 @@ const background: BackgroundModuleFunction<string | Uint8Array> = async (
     // validate
     isLegacyEncryptionOptions(options);
 
-    // old ArConnect algorithm
+    // old Wander algorithm
     const key = await crypto.subtle.importKey(
       "jwk",
       privateKey,
