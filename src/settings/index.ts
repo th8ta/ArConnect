@@ -72,15 +72,15 @@ const settings: Setting[] = [
     description: "setting_wayfinder_description",
     type: "boolean",
     defaultValue: true
+  }),
+  new Setting({
+    name: "analytics",
+    displayName: "setting_analytic",
+    icon: BarChart07,
+    description: "setting_analytics_description",
+    type: "boolean",
+    defaultValue: false
   })
-  // new Setting({
-  //   name: "analytics",
-  //   displayName: "setting_analytic",
-  //   icon: BarChart07,
-  //   description: "setting_analytics_description",
-  //   type: "boolean",
-  //   defaultValue: false
-  // })
 ];
 
 /**

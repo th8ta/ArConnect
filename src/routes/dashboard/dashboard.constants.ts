@@ -95,7 +95,10 @@ export const advancedSettings: (DashboardRouteConfig | Setting)[] = [
     icon: Pencil02,
     component: SignSettingsDashboardView
   },
-  ...settings.filter((setting) => setting.name !== "display_theme"),
+  ...settings.filter(
+    (setting) =>
+      setting.name !== "display_theme" && setting.name !== "analytics"
+  ),
   // TODO
   /*{
     name: "config",
