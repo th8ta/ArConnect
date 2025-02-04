@@ -48,8 +48,6 @@ export function useAuthStatusOverride(
   // TODO: Memo all  this:
 
   if (authStatus === "unknown" && location !== "/__OVERRIDES/cover") {
-    console.log(location);
-
     return "/__REDIRECT/";
   }
 
@@ -136,7 +134,7 @@ export function useAuthStatusOverride(
   return AUTH_STATUS_TO_OVERRIDE[authStatus];
 }
 
-export const useEmbeddedLocation: BaseLocationHook = () => {
+export const useEmbeddedLocation: BaseLocationHook = withRouterRedirects(() => {
   const [wocation, wavigate] = useHashLocation();
   const override = useAuthStatusOverride(wocation as RoutePath);
   // const override = useAuthStatusOverride();
@@ -152,4 +150,4 @@ export const useEmbeddedLocation: BaseLocationHook = () => {
   }
 
   return [wocation as WanderRoutePath, wavigate];
-};
+});
