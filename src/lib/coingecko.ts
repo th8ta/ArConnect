@@ -3,6 +3,7 @@ import BigNumber from "bignumber.js";
 import { useState, useCallback, useEffect } from "react";
 import redstone from "redstone-api";
 import { retryWithDelay } from "~utils/promises/retry";
+import { ExtensionStorage } from "~utils/storage";
 
 /**
  * Compare two currencies
@@ -30,15 +31,7 @@ export async function getArPrice(currency: string) {
   try {
     return await getPrice("arweave", currency.toLowerCase());
   } catch (error) {
-    console.error(error, "redirecting to redstone");
-
-    const res = await redstone.getPrice("AR");
-
-    if (!res.value) {
-      return 0;
-    }
-
-    return res.source.coingecko;
+    throw new Error("Failed to fetch AR price");
   }
 }
 
@@ -52,8 +45,20 @@ export function useArPrice(currency: string) {
     queryKey: ["arPrice", currency],
     queryFn: async () => {
       if (!currency) return "0";
-      const result = await getArPrice(currency);
-      return String(result || "0");
+
+      try {
+        const result = await getArPrice(currency);
+        if (result) {
+          await ExtensionStorage.set("last_saved_price", String(result));
+          return String(result);
+        }
+      } catch (error) {
+        const lastPrice = await ExtensionStorage.get<string>(
+          "last_saved_price"
+        );
+        if (lastPrice) return lastPrice;
+      }
+      return "0";
     },
     select: (data) => data || "0",
     retry: 3,
