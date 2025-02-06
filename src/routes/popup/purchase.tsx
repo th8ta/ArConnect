@@ -370,7 +370,7 @@ export function PurchaseView() {
           <Line />
           <InputButton
             style={{
-              background: theme.displayTheme === "light" ? "#f2f2f7" : "#242426"
+              background: theme.surfaceTertiary
             }}
             label={browser.i18n.getMessage("buy_screen_payment_method_label")}
             onClick={() => setShowPaymentSelector(true)}
