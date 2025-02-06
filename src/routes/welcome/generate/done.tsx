@@ -11,6 +11,7 @@ import { formatAddress } from "~utils/format";
 import Squircle from "~components/Squircle";
 import { useLocation } from "~wallets/router/router.utils";
 import type { CommonRouteProps } from "~wallets/router/router.types";
+import { useActiveWallet } from "~wallets/hooks";
 
 export type GenerateDoneWelcomeViewProps =
   CommonRouteProps<SetupWelcomeViewParams>;
@@ -20,6 +21,7 @@ export function GenerateDoneWelcomeView({
 }: GenerateDoneWelcomeViewProps) {
   // wallet context
   const { wallet } = useContext(WalletContext);
+  const activeWallet = useActiveWallet();
   const { navigate } = useLocation();
   const { setupMode } = params;
 
@@ -73,7 +75,7 @@ export function GenerateDoneWelcomeView({
             {browser.i18n.getMessage("your_wallet_address_is")}
           </Text>
           <CopyToClipboard
-            label={formatAddress(wallet.address, 16)}
+            label={formatAddress(wallet.address || activeWallet?.address, 16)}
             labelAs={Label}
             text={wallet.address}
           />
