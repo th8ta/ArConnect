@@ -262,7 +262,7 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
         {!wallet?.address ? (
           <Content>
             <Paragraph>
-              qweq{browser.i18n.getMessage("provide_seedphrase_paragraph")}
+              {browser.i18n.getMessage("provide_seedphrase_paragraph")}
             </Paragraph>
             <SeedInput
               onChange={setLoadedWallet}
