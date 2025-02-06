@@ -177,23 +177,25 @@ export function WalletView({ params: { address } }: WalletViewProps) {
               </WalletName>
               {!!nameServiceName ? (
                 <Tooltip
-                content={browser.i18n.getMessage("cannot_edit_with_name_service")}
-                position="bottom"
-              >
+                  content={browser.i18n.getMessage(
+                    "cannot_edit_with_name_service"
+                  )}
+                  position="bottomEnd"
+                >
                   <Edit02
                     style={{ cursor: "not-allowed" }}
                     height={20}
                     width={20}
                     onClick={() => null}
                   />
-              </Tooltip>
+                </Tooltip>
               ) : (
-                  <Edit02
-                    style={{ cursor: "pointer" }}
-                    height={20}
-                    width={20}
-                    onClick={() => setEditName(true)}
-                  />
+                <Edit02
+                  style={{ cursor: "pointer" }}
+                  height={20}
+                  width={20}
+                  onClick={() => setEditName(true)}
+                />
               )}
             </div>
           ) : (

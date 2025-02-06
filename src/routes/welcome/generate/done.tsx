@@ -1,9 +1,5 @@
 import { Button, Text } from "@arconnect/components-rebrand";
 import { WalletContext, type SetupWelcomeViewParams } from "../setup";
-// import { ButtonV2, Checkbox, Spacer, Text } from "@arconnect/components";
-// import { PasswordContext, WalletContext } from "../setup";
-// import { formatAddress } from "~utils/format";
-// import Paragraph from "~components/Paragraph";
 import browser from "webextension-polyfill";
 import { useContext, useEffect } from "react";
 import { PageType, trackPage } from "~utils/analytics";
@@ -15,7 +11,6 @@ import { formatAddress } from "~utils/format";
 import Squircle from "~components/Squircle";
 import { useLocation } from "~wallets/router/router.utils";
 import type { CommonRouteProps } from "~wallets/router/router.types";
-// import { loadTokens } from "~tokens/token";
 import { getNameServiceProfile } from "~lib/nameservice";
 
 export type GenerateDoneWelcomeViewProps =
@@ -28,71 +23,6 @@ export function GenerateDoneWelcomeView({
   const { wallet } = useContext(WalletContext);
   const { navigate } = useLocation();
   const { setupMode } = params;
-
-
-//   async function done() {
-//     if (loading) return;
-
-//     const startTime = Date.now();
-
-//     setLoading(true);
-//     // add wallet
-//     let nickname: string;
-
-//     if (!walletRef.current.address || !walletRef.current.jwk) {
-//       await new Promise((resolve) => {
-//         const checkState = setInterval(() => {
-//           if (walletRef.current.jwk) {
-//             clearInterval(checkState);
-//             resolve(null);
-//           }
-//           if (!showLongWaitMessage) {
-//             setShowLongWaitMessage(Date.now() - startTime > 10000);
-//           }
-//         }, 1000);
-//       });
-//     }
-
-//     try {
-//       const nameServiceProfile = await getNameServiceProfile(
-//         walletRef.current.address
-//       );
-
-//       if (nameServiceProfile) {
-//         nickname = nameServiceProfile.name;
-//       }
-//     } catch {}
-
-//     // add the wallet
-//     await addWallet(
-//       nickname
-//         ? { nickname, wallet: walletRef.current.jwk }
-//         : walletRef.current.jwk,
-//       password
-//     );
-
-//     // load tokens
-//     await loadTokens();
-
-//     // log user onboarded
-//     await trackEvent(EventType.ONBOARDED, {});
-
-//     if (!analytics && !answered) {
-//       await setAnswered(true);
-//       await setAnalytics(false);
-//     }
-
-//     // redirect to getting started pages
-//     navigate("/getting-started/1");
-
-//     setShowLongWaitMessage(false);
-//     setLoading(false);
-
-//     // reset before unload
-//     window.onbeforeunload = null;
-//     window.top.close();
-//   }
-
 
   // add generated wallet
   async function goToDashboard() {
