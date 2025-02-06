@@ -94,6 +94,7 @@ const DivDescriptionWrapper = styled.div`
 const DivTitleWrapper = styled.div`
   font-size: 1rem;
   font-weight: 600;
+  color: ${(props) => props.theme.primaryText};
 `;
 
 const DivListItem = styled.div`
@@ -122,7 +123,7 @@ const ImgTokenLogo = styled.img.attrs({
 const SpanTokenType = styled.span`
   padding: 0.08rem 0.2rem;
   background-color: rgb(${(props) => props.theme.theme});
-  color: #fff;
+  color: ${(props) => props.theme.primaryText};
   font-weight: 500;
   font-size: 0.5rem;
   text-transform: uppercase;
