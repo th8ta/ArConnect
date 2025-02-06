@@ -22,6 +22,7 @@ import { useStorage } from "@plasmohq/storage/hook";
 import { ExtensionStorage } from "~utils/storage";
 import { loadTokens } from "~tokens/token";
 import { addWallet } from "~wallets";
+import { useHardwareApi } from "~wallets/hooks";
 
 export type PermissionsWelcomeViewProps =
   CommonRouteProps<SetupWelcomeViewParams>;
@@ -30,6 +31,8 @@ export function PermissionsWelcomeView({
   params
 }: PermissionsWelcomeViewProps) {
   const { navigate } = useLocation();
+
+  const hardwareApi = useHardwareApi();
 
   const { wallet } = useContext(WalletContext);
   const { password } = useContext(PasswordContext);
@@ -74,6 +77,20 @@ export function PermissionsWelcomeView({
     const startTime = Date.now();
 
     setLoading(true);
+    if (hardwareApi) {
+      await loadTokens();
+
+      // log user onboarded
+      await trackEvent(EventType.ONBOARDED, {});
+
+      if (!analyticSetting && !answered) {
+        await setAnswered(true);
+        await setAnalyticSetting(false);
+      }
+
+      // redirect to getting started pages
+      navigate(`/${params.setupMode}/${Number(params.page) + 1}`);
+    }
 
     // add wallet
     if (!walletRef.current.address || !walletRef.current.jwk) {

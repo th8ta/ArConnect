@@ -43,6 +43,13 @@ const LoadViews = [
   PermissionsWelcomeView,
   GenerateDoneWelcomeView
 ];
+const KeystoneViews = [
+  WalletsWelcomeView,
+  PasswordWelcomeView,
+  ThemeWelcomeView,
+  PermissionsWelcomeView,
+  GenerateDoneWelcomeView
+];
 
 // TODO: Use a nested router instead:
 const ViewsBySetupMode = {
@@ -59,7 +66,7 @@ const ViewsBySetupMode = {
   recoveryPhraseLoad: LoadViews,
   keyfileLoad: LoadViews,
   qrLoad: LoadViews,
-  keystoneLoad: LoadViews
+  keystoneLoad: KeystoneViews
 } as const;
 
 const VIEW_TITLES_BY_SETUP_MODE = {
@@ -73,6 +80,13 @@ const VIEW_TITLES_BY_SETUP_MODE = {
 
 const remainingLoadSubtitles = [
   "name_your_account",
+  "create_a_password",
+  "choose_ui_theme",
+  "enable_permissions",
+  "congratulations"
+];
+
+const remainingKeystoneSubtitles = [
   "create_a_password",
   "choose_ui_theme",
   "enable_permissions",
@@ -93,7 +107,7 @@ const VIEW_SUBTITLES_BY_SETUP_MODE = {
   recoveryPhraseLoad: ["enter_recovery_phrase", ...remainingLoadSubtitles],
   keyfileLoad: ["upload_key_file", ...remainingLoadSubtitles],
   qrLoad: ["scan_qr_code", ...remainingLoadSubtitles],
-  keystoneLoad: ["scan_qr_code", ...remainingLoadSubtitles]
+  keystoneLoad: ["keystone_connect_title", ...remainingKeystoneSubtitles]
 };
 
 export type WelcomeSetupMode =
