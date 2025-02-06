@@ -3,10 +3,13 @@ import {
   ListItem,
   ButtonV2,
   Loading,
-  useToasts,
   ListItemIcon
 } from "@arconnect/components";
-import { Input as InputV2, useInput } from "@arconnect/components-rebrand";
+import {
+  Input as InputV2,
+  useInput,
+  useToasts
+} from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
 import { Bank, BankNote01, ChevronDown } from "@untitled-ui/icons-react";
 import switchIcon from "url:/assets/ecosystem/switch-vertical.svg";
@@ -26,6 +29,7 @@ import arLogo from "url:/assets/ecosystem/ar-logo.svg";
 import CommonImage from "~components/common/Image";
 import getSymbolFromCurrency from "currency-symbol-map";
 import { useStorage } from "@plasmohq/storage/hook";
+import { WarningIcon } from "~components/popup/Token";
 
 export function PurchaseView() {
   const { navigate } = useLocation();
@@ -42,6 +46,8 @@ export function PurchaseView() {
   const [quote, setQuote] = useState<Quote | null>();
   const [exchangeRate, setExchangeRate] = useState<number>(0);
   const [payInputValue, setpayInputValue] = useState<string>("");
+  const [unavailableQuote, setUnavailableQuote] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const { setToast } = useToasts();
   const theme = useTheme();
 
@@ -70,6 +76,10 @@ export function PurchaseView() {
     if (quote) {
       const rate = quote.fiatAmount / quote.cryptoAmount;
       setExchangeRate(rate);
+      setUnavailableQuote(false);
+    } else {
+      setExchangeRate(0);
+      setUnavailableQuote(true);
     }
     setQuote(quote);
     setLoading(false);
@@ -144,11 +154,14 @@ export function PurchaseView() {
           try {
             const resJson = await response.json();
             if (resJson?.error?.message) {
-              setToast({
-                type: "error",
-                content: resJson?.error?.message,
-                duration: 2400
-              });
+              // TODO: decide whether to notify errors by toast or warning styled component
+              // to make it consistent with mobile app
+              // setToast({
+              //   type: "error",
+              //   content: resJson?.error?.message,
+              //   duration: 2400
+              // });
+              setError(resJson?.error?.message);
             } else {
               throw new Error("Network response was not ok");
             }
@@ -172,12 +185,15 @@ export function PurchaseView() {
       fetchQuote();
     } else {
       setQuote(null);
+      setExchangeRate(0);
+      setUnavailableQuote(false);
     }
   }, [debouncedYouPayInput, selectedCurrency, paymentMethod, arConversion]);
 
   useEffect(() => {
     youPayInput.setState("");
     setExchangeRate(0);
+    setUnavailableQuote(false);
   }, [selectedCurrency]);
 
   const buyAR = async () => {
@@ -212,6 +228,13 @@ export function PurchaseView() {
       <HeadV2 title="Buy" />
       <Wrapper>
         <Top>
+          {unavailableQuote && (
+            <WarningWrapper>
+              <WarningContent>
+                <WarningIcon /> {error}
+              </WarningContent>
+            </WarningWrapper>
+          )}
           <InputV2
             stacked
             sizeVariant="large"
@@ -369,7 +392,7 @@ export function PurchaseView() {
           )}
           <Line />
           <InputButton
-            style={{ background: "#242426" }}
+            style={{ background: theme.surfaceTertiary }}
             label={browser.i18n.getMessage("buy_screen_payment_method_label")}
             onClick={() => setShowPaymentSelector(true)}
             disabled={!paymentMethod}
@@ -687,4 +710,24 @@ export const TokenLogo = styled(CommonImage).attrs({
   border-radius: 50%;
   display: block;
   vertical-align: middle;
+`;
+
+const WarningWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  flex-direction: row;
+  margin-bottom: 10px;
+`;
+
+const WarningContent = styled.span`
+  font-size: 16px;
+  border: 1px solid ${(props) => props.theme.surfaceTertiary};
+  border-radius: 30px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: ${(props) => props.theme.primaryTextv2};
 `;
