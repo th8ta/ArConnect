@@ -1,5 +1,5 @@
 import type { ProtocolWithReturn } from "@arconnect/webext-bridge";
-import type { DisplayTheme } from "@arconnect/components";
+import type { DisplayTheme } from "@arconnect/components-rebrand";
 import type { Chunk } from "~api/modules/sign/chunks";
 import type { InjectedEvents } from "~utils/events";
 import "styled-components";
@@ -95,20 +95,88 @@ declare module "styled-components" {
     theme: string;
     primaryText: string;
     secondaryText: string;
-    secondaryTextv2: string;
+    tertiaryText: string;
     background: string;
-    backgroundSecondary: string;
-    secondaryBtnHover: string;
-    inputField: string;
-    primary: string;
-    backgroundv2;
     cardBorder: string;
-    fail: string;
-    secondaryDelete: string;
-    delete: string;
     cardBackground: string;
+    backgroundv2: string;
+    primary: string;
     primaryBtnHover: string;
+    secondaryBtnHover: string;
+    secondaryItemHover: string;
+    buttonDisabled: string;
     primaryTextv2: string;
+    secondaryTextv2: string;
+    buttonDisabledText: string;
+    inputField: string;
+    success: string;
+    fail: string;
+    backgroundSecondary: string;
+    delete: string;
+    secondaryDelete: string;
+    button: {
+      background: {
+        primary: {
+          default: string;
+          hover: string;
+          active: string;
+          disabled: string;
+        };
+        secondary: {
+          default: string;
+          hover: string;
+          active: string;
+          disabled: string;
+        };
+        secondaryAlt: {
+          default: string;
+          hover: string;
+          active: string;
+          disabled: string;
+        };
+      };
+      text: {
+        primary: string;
+        secondary: string;
+        secondaryAlt: string;
+        disabled: string;
+      };
+      hoverBorder: {
+        primary: string;
+        secondary: string;
+        secondaryAlt: string;
+      };
+    };
+    surfaceSecondary: string;
+    surfaceTertiary: string;
+    borderDefault: string;
+    borderSecondary: string;
+    input: {
+      background: {
+        search: { default: string; disabled: string; special: string };
+        default: { default: string; disabled: string };
+        dropdown: { default: string; disabled: string };
+      };
+      border: {
+        default: { disabled: string; focused: string };
+        search: { disabled: string; focused: string; special: string };
+        dropdown: { default: string; disabled: string; focused: string };
+      };
+      placeholder: {
+        default: string;
+        search: string;
+        dropdown: string;
+      };
+      icons: {
+        searchActive: string;
+        searchInactive: string;
+      };
+    };
+    listItem: {
+      hover: string;
+      active: string;
+      icon: string;
+    };
   }
 }
 

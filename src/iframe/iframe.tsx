@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ArConnectThemeProvider } from "~components/hardware/HardwareWalletTheme";
+import { WanderThemeProvider } from "~components/hardware/HardwareWalletTheme";
 import { NavigationBar } from "~components/popup/Navigation";
 import { AuthRequestsProvider } from "~utils/auth/auth.provider";
 import { Routes } from "~wallets/router/routes.component";
@@ -11,7 +11,18 @@ import {
   useEmbeddedLocation
 } from "~wallets/router/iframe/iframe-router.hook";
 import { EmbeddedProvider } from "~utils/embedded/embedded.provider";
-import { BodyScroller } from "~wallets/router/router.utils";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 300_000,
+      refetchInterval: 300_000,
+      retry: 2,
+      refetchOnWindowFocus: true
+    }
+  }
+});
 
 export function ArConnectEmbeddedApp() {
   useEffect(() => {
@@ -28,14 +39,16 @@ export function ArConnectEmbeddedApp() {
 
 export function ArConnectEmbeddedAppRoot() {
   return (
-    <ArConnectThemeProvider>
+    <WanderThemeProvider>
       <EmbeddedProvider>
         <AuthRequestsProvider useStatusOverride={useAuthStatusOverride}>
-          <Wouter hook={useEmbeddedLocation}>
-            <ArConnectEmbeddedApp />
-          </Wouter>
+          <QueryClientProvider client={queryClient}>
+            <Wouter hook={useEmbeddedLocation}>
+              <ArConnectEmbeddedApp />
+            </Wouter>
+          </QueryClientProvider>
         </AuthRequestsProvider>
       </EmbeddedProvider>
-    </ArConnectThemeProvider>
+    </WanderThemeProvider>
   );
 }

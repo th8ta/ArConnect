@@ -1,14 +1,40 @@
-import { type MouseEventHandler } from "react";
+import { useMemo, type MouseEventHandler } from "react";
 import { concatGatewayURL } from "~gateways/utils";
 import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
 import { hoverEffect } from "~utils/theme";
 import styled from "styled-components";
 import placeholderUrl from "url:/assets/placeholder.png";
-
 import Skeleton from "~components/Skeleton";
+import { useTokenBalance } from "~tokens/hooks";
+import { useWallets } from "~utils/wallets/wallets.hooks";
+import { useStorage } from "@plasmohq/storage/hook";
+import { ExtensionStorage } from "~utils/storage";
+import type { TokenInfo } from "~tokens/aoTokens/ao";
+
 export default function Collectible({ id, onClick, ...props }: Props) {
-  // gateway
   const gateway = useGateway(FULL_HISTORY);
+
+  const [activeAddress] = useStorage<string>({
+    key: "active_address",
+    instance: ExtensionStorage
+  });
+
+  const tokenInfo = useMemo(() => {
+    return {
+      id,
+      processId: id,
+      Ticker: props.name,
+      Name: props.name,
+      Denomination: props.divisibility,
+      Logo: id,
+      type: "collectible" as TokenInfo["type"]
+    };
+  }, [props]);
+
+  const { data: balance, isLoading } = useTokenBalance(
+    tokenInfo,
+    activeAddress
+  );
 
   return (
     <Wrapper onClick={onClick}>
@@ -18,10 +44,10 @@ export default function Collectible({ id, onClick, ...props }: Props) {
       >
         <NameAndQty>
           <Name>{props.name || ""}</Name>
-          {props.balance === undefined ? (
+          {isLoading ? (
             <Skeleton width="24px" height="20px" />
           ) : (
-            <Qty>{props.balance || "0"}</Qty>
+            <Qty>{balance || "0"}</Qty>
           )}
         </NameAndQty>
       </Image>
@@ -61,19 +87,22 @@ const Image = styled.div<{ src: string; fallback: string }>`
 const NameAndQty = styled.div`
   position: absolute;
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 0.25rem;
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 0.1rem 0.35rem;
-  justify-content: space-between;
+  padding: 0.5rem 0.25rem;
+  justify-content: center;
   background-color: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(5px);
-  overflow: hidden;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  flex-wrap: wrap;
   width: 100%;
   box-sizing: border-box;
-  min-width: 0;
+  max-width: 100%;
 `;
 
 const Name = styled.span`
@@ -88,15 +117,13 @@ const Name = styled.span`
 `;
 
 const Qty = styled(Name)`
-  flex: 1 0 auto;
+  flex: 0 0 auto;
   color: #a0a0a0;
 `;
 
 interface Props {
   id: string;
   name: string;
-  balance: string;
   divisibility?: number;
-  decimals?: number;
   onClick?: MouseEventHandler<HTMLDivElement>;
 }

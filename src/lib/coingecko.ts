@@ -1,7 +1,9 @@
+import { useQuery } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import { useState, useCallback, useEffect } from "react";
 import redstone from "redstone-api";
 import { retryWithDelay } from "~utils/promises/retry";
+import { ExtensionStorage } from "~utils/storage";
 
 /**
  * Compare two currencies
@@ -29,15 +31,7 @@ export async function getArPrice(currency: string) {
   try {
     return await getPrice("arweave", currency.toLowerCase());
   } catch (error) {
-    console.error(error, "redirecting to redstone");
-
-    const res = await redstone.getPrice("AR");
-
-    if (!res.value) {
-      return 0;
-    }
-
-    return res.source.coingecko;
+    throw new Error("Failed to fetch AR price");
   }
 }
 
@@ -47,36 +41,33 @@ export async function getArPrice(currency: string) {
  * @returns Object containing price as BigNumber, loading state, and reload function
  */
 export function useArPrice(currency: string) {
-  const [price, setPrice] = useState<BigNumber>(new BigNumber(0));
-  const [loading, setLoading] = useState(true);
+  return useQuery({
+    queryKey: ["arPrice", currency],
+    queryFn: async () => {
+      if (!currency) return "0";
 
-  const fetchPrice = useCallback(async () => {
-    if (!currency) {
-      setPrice(new BigNumber(0));
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const result = await retryWithDelay(() => getArPrice(currency));
-      setPrice(new BigNumber(result || 0));
-    } catch {
-      setPrice(new BigNumber(0));
-    } finally {
-      setLoading(false);
-    }
-  }, [currency]);
-
-  useEffect(() => {
-    fetchPrice();
-  }, [fetchPrice]);
-
-  const reload = () => {
-    fetchPrice();
-  };
-
-  return { price, loading, reload };
+      try {
+        const result = await getArPrice(currency);
+        if (result) {
+          await ExtensionStorage.set("last_saved_price", String(result));
+          return String(result);
+        }
+      } catch (error) {
+        const lastPrice = await ExtensionStorage.get<string>(
+          "last_saved_price"
+        );
+        if (lastPrice) return lastPrice;
+      }
+      return "0";
+    },
+    select: (data) => data || "0",
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchInterval: 30_000,
+    staleTime: 30_000,
+    gcTime: 30_000,
+    enabled: !!currency
+  });
 }
 
 interface CoinGeckoPriceResult {
@@ -96,6 +87,28 @@ export async function getMarketChart(currency: string, days = "max") {
   ).json();
 
   return data;
+}
+
+/**
+ * Get 24-hour price change for the AR token using the CoinGecko API
+ *
+ * @param currency Currency to get the price change in
+ * @returns 24-hour price change percentage of AR
+ */
+export async function getAr24hChange(currency: string): Promise<number> {
+  try {
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=${currency.toLowerCase()}&include_24hr_change=true`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    const changeKey = `${currency.toLowerCase()}_24h_change`;
+
+    return data.arweave[changeKey];
+  } catch (error) {
+    throw new Error("Failed to fetch AR price change");
+  }
 }
 
 interface CoinGeckoMarketChartResult {

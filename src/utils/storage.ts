@@ -36,7 +36,7 @@ export const TempTransactionStorage = new Storage({
 export const TRANSFER_TX_STORAGE = "last_transfer_tx";
 
 /**
- * Name of old ArConnect versions' storage.
+ * Name of old Wander versions' storage.
  */
 export const OLD_STORAGE_NAME = "persist:root";
 

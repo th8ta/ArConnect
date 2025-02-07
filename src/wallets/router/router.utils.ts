@@ -6,14 +6,13 @@ import {
 import { log, LOG_GROUP } from "~utils/log/log.utils";
 import {
   type RouteConfig,
-  type ArConnectRoutePath,
+  type WanderRoutePath,
   type RoutePath,
   type RouteOverride,
   type RouteRedirect,
   type NavigateFn,
   type NavigateOptions,
   type NavigateAction,
-  type CustomHistoryEntry,
   type BaseLocationHook
 } from "~wallets/router/router.types";
 
@@ -33,7 +32,7 @@ export function isRouteRedirect<T extends RoutePath>(
 }
 
 export function isNavigateAction(
-  to: ArConnectRoutePath | NavigateAction
+  to: WanderRoutePath | NavigateAction
 ): to is NavigateAction {
   return typeof to === "number" || !to.startsWith("/");
 }
@@ -102,6 +101,14 @@ export function BodyScroller() {
 // - We replace Wouter with a more capable routing library.
 // - We implement a proper HistoryProvider that listens for location/history changes and updates its state accordingly.
 
+interface CustomHistoryEntry<S = any> {
+  to: WanderRoutePath;
+  options?: {
+    replace?: boolean;
+    state?: S;
+  };
+}
+
 const customHistory: CustomHistoryEntry[] = [];
 
 const HISTORY_SIZE_LIMIT = 32;
@@ -111,15 +118,15 @@ export function useLocation() {
 
   const navigate = useCallback(
     <S = any>(
-      to: ArConnectRoutePath | NavigateAction,
+      to: WanderRoutePath | NavigateAction,
       options?: NavigateOptions<S>
     ) => {
-      let toPath = to as ArConnectRoutePath;
+      let toPath = to as WanderRoutePath;
 
       if (isNavigateAction(to)) {
         const toParts = wocation.split("/");
         const lastPart = toParts.pop();
-        const parentPath = `/${toParts.join("/")}` as ArConnectRoutePath;
+        const parentPath = `/${toParts.join("/")}` as WanderRoutePath;
 
         if (to === "up") {
           toPath = parentPath;
@@ -134,14 +141,14 @@ export function useLocation() {
           if (to === "prev") {
             if (page === 1) throw new Error(`Page 0 out of bounds`);
 
-            toPath = `${parentPath}/${page - 1}` as ArConnectRoutePath;
+            toPath = `${parentPath}/${page - 1}` as WanderRoutePath;
           } else if (to === "next") {
-            toPath = `/${parentPath}/${page + 1}` as ArConnectRoutePath;
+            toPath = `/${parentPath}/${page + 1}` as WanderRoutePath;
           }
         } else {
           if (to <= 0) throw new Error(`Page ${to} out of bounds`);
 
-          toPath = `${parentPath}/${to}` as ArConnectRoutePath;
+          toPath = `${parentPath}/${to}` as WanderRoutePath;
         }
       }
 
@@ -187,7 +194,7 @@ export function useLocation() {
     navigate,
     back
   } as {
-    location: ArConnectRoutePath;
+    location: WanderRoutePath;
     navigate: typeof navigate;
     back: typeof back;
   };

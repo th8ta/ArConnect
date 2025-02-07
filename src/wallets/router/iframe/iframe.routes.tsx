@@ -45,6 +45,7 @@ export type EmbeddedRoutePath =
   | "/auth/import-seed-phrase"
   | "/auth/import-keyfile"
   | "/auth/add-device"
+  | "/auth/confirmation"
   | "/auth/add-auth-provider"
   | "/auth/restore-shares"
   | "/auth/restore-shares/recovery-file"

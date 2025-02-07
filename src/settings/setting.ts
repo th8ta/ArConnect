@@ -24,6 +24,9 @@ export default class Setting {
   /** Name in extension storage */
   public storageName: string;
 
+  /** Input placeholder */
+  public inputPlaceholder?: string;
+
   /** Setting display icon */
   public icon: Icon;
 
@@ -37,7 +40,8 @@ export default class Setting {
     type,
     defaultValue,
     options,
-    icon
+    icon,
+    inputPlaceholder
   }: InitParams) {
     this.name = name;
     this.displayName = displayName;
@@ -45,7 +49,7 @@ export default class Setting {
     this.type = type;
     this.defaultValue = defaultValue;
     this.icon = icon;
-
+    this.inputPlaceholder = inputPlaceholder;
     // set storage name
     this.storageName = `${PREFIX}${name}`;
 
@@ -112,4 +116,5 @@ interface InitParams {
   type: SettingType;
   defaultValue: ValueType;
   options?: ValueType[];
+  inputPlaceholder?: string;
 }

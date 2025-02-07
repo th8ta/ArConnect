@@ -9,7 +9,7 @@ import {
   Provider as ThemeProvider,
   type ArconnectTheme,
   type DisplayTheme
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import {
   ARCONNECT_THEME_BACKGROUND_COLOR,
   ARCONNECT_THEME_TEXT_COLOR
@@ -22,7 +22,7 @@ import {
 function hardwareThemeModifier(theme: ArconnectTheme): ArconnectTheme {
   return {
     ...theme,
-    theme: "154, 184, 255",
+    theme: "#9AB8FF",
     primary: "#9AB8FF",
     primaryBtnHover: "#6F93E1"
   };
@@ -32,7 +32,7 @@ function noThemeModifier(theme: ArconnectTheme): ArconnectTheme {
   return theme;
 }
 
-export function ArConnectThemeProvider({ children }: PropsWithChildren<{}>) {
+export function WanderThemeProvider({ children }: PropsWithChildren<{}>) {
   const hardwareApi = useHardwareApi();
   const theme = useTheme();
   const themeModifier = hardwareApi ? hardwareThemeModifier : noThemeModifier;

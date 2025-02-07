@@ -1,13 +1,13 @@
 import { CompassIcon } from "~components/popup/home/Balance";
 import { currencies } from "~lib/coingecko";
-import {
-  ChartIcon,
-  DollarIcon,
-  PercentageIcon,
-  StarIcon,
-  SunIcon
-} from "@iconicicons/react";
 import Setting from "./setting";
+import {
+  BarChart07,
+  CurrencyDollarCircle,
+  Percent02,
+  Star01,
+  Sun
+} from "@untitled-ui/icons-react";
 
 export const PREFIX = "setting_";
 
@@ -24,7 +24,7 @@ const settings: Setting[] = [
   new Setting({
     name: "fee_multiplier",
     displayName: "setting_fee_multiplier",
-    icon: PercentageIcon,
+    icon: Percent02,
     description: "setting_fee_multiplier_description",
     type: "number",
     defaultValue: 1
@@ -32,11 +32,12 @@ const settings: Setting[] = [
   new Setting({
     name: "currency",
     displayName: "setting_currency",
-    icon: DollarIcon,
+    icon: CurrencyDollarCircle,
     description: "setting_setting_currency_description",
     type: "pick",
     options: currencies,
-    defaultValue: "USD"
+    defaultValue: "USD",
+    inputPlaceholder: "search_currency"
   }),
   /*new Setting({
     name: "arverify",
@@ -49,16 +50,16 @@ const settings: Setting[] = [
   new Setting({
     name: "display_theme",
     displayName: "setting_display_theme",
-    icon: SunIcon,
+    icon: Sun,
     description: "setting_display_theme_description",
     type: "pick",
-    options: ["light", "dark", "system"],
+    options: ["system", "light", "dark"],
     defaultValue: "system"
   }),
   new Setting({
     name: "arconfetti",
     displayName: "setting_arconfetti",
-    icon: StarIcon,
+    icon: Star01,
     description: "setting_setting_arconfetti_description",
     type: "pick",
     options: [false, "arweave", "hedgehog", "usd"],
@@ -75,7 +76,7 @@ const settings: Setting[] = [
   new Setting({
     name: "analytics",
     displayName: "setting_analytic",
-    icon: ChartIcon,
+    icon: BarChart07,
     description: "setting_analytics_description",
     type: "boolean",
     defaultValue: false

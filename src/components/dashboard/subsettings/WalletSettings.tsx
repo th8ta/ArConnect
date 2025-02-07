@@ -1,14 +1,14 @@
 import {
-  ButtonV2,
-  InputV2,
-  ModalV2,
+  Button,
+  Input,
+  Modal,
   Spacer,
   Text,
-  TooltipV2,
+  Tooltip,
   useInput,
   useModal,
   useToasts
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import { CopyIcon, DownloadIcon, TrashIcon } from "@iconicicons/react";
 import { InputWithBtn, InputWrapper } from "~components/arlocal/InputWrapper";
 import { removeWallet, type StoredWallet } from "~wallets";
@@ -175,7 +175,7 @@ export function WalletSettingsDashboardView({
         <WalletName>
           {ansLabel || wallet.nickname}
           {wallet.type === "hardware" && (
-            <TooltipV2
+            <Tooltip
               content={
                 wallet.api.slice(0, 1).toUpperCase() + wallet.api.slice(1)
               }
@@ -184,12 +184,12 @@ export function WalletSettingsDashboardView({
               <HardwareWalletIcon
                 src={wallet.api === "keystone" ? keystoneLogo : undefined}
               />
-            </TooltipV2>
+            </Tooltip>
           )}
         </WalletName>
         <WalletAddress>
           {wallet.address}
-          <TooltipV2
+          <Tooltip
             content={browser.i18n.getMessage("copy_address")}
             position="bottom"
           >
@@ -206,7 +206,7 @@ export function WalletSettingsDashboardView({
                 });
               }}
             />
-          </TooltipV2>
+          </Tooltip>
         </WalletAddress>
         <Title>{browser.i18n.getMessage("edit_wallet_name")}</Title>
         {!!ansLabel && (
@@ -214,7 +214,7 @@ export function WalletSettingsDashboardView({
         )}
         <InputWithBtn>
           <InputWrapper>
-            <InputV2
+            <Input
               {...walletNameInput.bindings}
               type="text"
               placeholder={browser.i18n.getMessage("edit_wallet_name")}
@@ -228,33 +228,37 @@ export function WalletSettingsDashboardView({
         </InputWithBtn>
       </div>
       <div>
-        <ButtonV2
+        <Button
           fullWidth
           onClick={() => exportModal.setOpen(true)}
           disabled={wallet.type === "hardware"}
         >
           <DownloadIcon style={{ marginRight: "5px" }} />
           {browser.i18n.getMessage("export_keyfile")}
-        </ButtonV2>
+        </Button>
         <Spacer y={1} />
-        <ButtonV2 fullWidth secondary onClick={() => removeModal.setOpen(true)}>
+        <Button
+          fullWidth
+          variant="secondary"
+          onClick={() => removeModal.setOpen(true)}
+        >
           <TrashIcon style={{ marginRight: "5px" }} />
           {browser.i18n.getMessage("remove_wallet")}
-        </ButtonV2>
+        </Button>
       </div>
-      <ModalV2
+      <Modal
         {...removeModal.bindings}
         root={document.getElementById("__plasmo")}
         actions={
           <>
-            <ButtonV2
+            <Button
               fullWidth
-              secondary
+              variant="secondary"
               onClick={() => removeModal.setOpen(false)}
             >
               {browser.i18n.getMessage("cancel")}
-            </ButtonV2>
-            <ButtonV2
+            </Button>
+            <Button
               fullWidth
               onClick={async () => {
                 try {
@@ -279,11 +283,11 @@ export function WalletSettingsDashboardView({
               }}
             >
               {browser.i18n.getMessage("confirm")}
-            </ButtonV2>
+            </Button>
           </>
         }
       >
-        <CenterText heading noMargin>
+        <CenterText size="3xl" noMargin>
           {browser.i18n.getMessage("remove_wallet_modal_title")}
         </CenterText>
         <Spacer y={0.55} />
@@ -291,27 +295,27 @@ export function WalletSettingsDashboardView({
           {browser.i18n.getMessage("remove_wallet_modal_content")}
         </CenterText>
         <Spacer y={0.75} />
-      </ModalV2>
-      <ModalV2
+      </Modal>
+      <Modal
         {...exportModal.bindings}
         root={document.getElementById("__plasmo")}
         actions={
-          <ButtonV2 fullWidth onClick={exportWallet}>
+          <Button fullWidth onClick={exportWallet}>
             {browser.i18n.getMessage("export")}
-          </ButtonV2>
+          </Button>
         }
       >
-        <CenterText heading>
+        <CenterText size="xl">
           {browser.i18n.getMessage("export_wallet_modal_title")}
         </CenterText>
-        <InputV2
+        <Input
           type="password"
           placeholder={browser.i18n.getMessage("password")}
           {...passwordInput.bindings}
           fullWidth
         />
         <Spacer y={1} />
-      </ModalV2>
+      </Modal>
     </Wrapper>
   );
 }
@@ -328,7 +332,8 @@ const Wrapper = styled.div`
 `;
 
 const WalletName = styled(Text).attrs({
-  title: true,
+  size: "3xl",
+  weight: "bold",
   noMargin: true
 })`
   display: flex;
@@ -353,10 +358,10 @@ const WalletAddress = styled(Text)`
 `;
 
 export const CopyButton = styled(CopyIcon)`
-  font-size: 1em;
-  width: 1em;
-  height: 1em;
-  color: rgb(${(props) => props.theme.secondaryText});
+  font-size: 1.5rem;
+  width: 1rem;
+  height: 1rem;
+  color: ${(props) => props.theme.secondaryText};
   cursor: pointer;
   transition: all 0.23s ease-in-out;
 

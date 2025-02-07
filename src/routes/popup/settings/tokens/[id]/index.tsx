@@ -1,11 +1,5 @@
-import {
-  ButtonV2,
-  SelectV2,
-  Spacer,
-  Text,
-  TooltipV2,
-  useToasts
-} from "@arconnect/components";
+import { ButtonV2, Spacer, Text, TooltipV2 } from "@arconnect/components";
+import { Select as SelectV2, useToasts } from "@arconnect/components-rebrand";
 import type { TokenType } from "~tokens/token";
 import { useStorage } from "~utils/storage";
 import { ExtensionStorage } from "~utils/storage";
@@ -13,7 +7,7 @@ import { TrashIcon } from "@iconicicons/react";
 import { removeToken } from "~tokens";
 import { useMemo } from "react";
 import browser from "webextension-polyfill";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import copy from "copy-to-clipboard";
 import { formatAddress } from "~utils/format";
 import { CopyButton } from "~components/dashboard/subsettings/WalletSettings";
@@ -21,7 +15,6 @@ import HeadV2 from "~components/popup/HeadV2";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { useLocation } from "~wallets/router/router.utils";
 import { LoadingView } from "~components/page/common/loading/loading.view";
-
 export interface TokenSettingsParams {
   id: string;
 }
@@ -30,6 +23,7 @@ export type TokenSettingsProps = CommonRouteProps<TokenSettingsParams>;
 
 export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
   const { navigate } = useLocation();
+  const theme = useTheme();
 
   // ao tokens
   const [aoTokens, setAoTokens] = useStorage<any[]>(
@@ -95,6 +89,7 @@ export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
                   setToast({
                     type: "info",
                     content: browser.i18n.getMessage("copied_address", [
+                      token.ticker,
                       formatAddress(token.id, 8)
                     ]),
                     duration: 2200
@@ -105,6 +100,7 @@ export function TokenSettingsView({ params: { id } }: TokenSettingsProps) {
           </TokenAddress>
           <SelectV2
             small
+            style={{ color: theme.primaryText, paddingLeft: "0px" }}
             label={browser.i18n.getMessage("token_type")}
             onChange={(e) => {
               // @ts-expect-error
@@ -166,8 +162,10 @@ const BasePropertyText = styled(Text).attrs({
   font-weight: 500;
 `;
 
-const PropertyName = styled(BasePropertyText)``;
+const PropertyName = styled(BasePropertyText)`
+  color: ${(props) => props.theme.primaryText};
+`;
 
 const PropertyValue = styled(BasePropertyText)`
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.secondaryText};
 `;

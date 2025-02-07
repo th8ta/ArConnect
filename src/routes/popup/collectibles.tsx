@@ -11,7 +11,7 @@ export function CollectiblesView() {
   const { navigate } = useLocation();
 
   // all tokens
-  const [aoTokens] = useAoTokens({ type: "collectible" });
+  const { tokens: aoTokens } = useAoTokens({ type: "collectible" });
 
   // collectibles
   const collectibles = useMemo(
@@ -27,7 +27,6 @@ export function CollectiblesView() {
           <Collectible
             id={collectible.id}
             name={collectible.Name || collectible.Ticker}
-            balance={collectible.balance}
             divisibility={collectible.Denomination}
             onClick={() => navigate(`/collectible/${collectible.id}`)}
             key={i}

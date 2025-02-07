@@ -39,3 +39,21 @@ export const humanizeTimestampTags = (tags: DecodedTag[]): DecodedTag[] => {
       : { name, ...rest }
   );
 };
+
+export const calculateDaysSinceTimestamp = (timestamp: number) => {
+  const date = new Date(timestamp * 1000);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - date.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+};
+
+/**
+ * Humanizes a timestamp for a recipient
+ * @param timestamp - The timestamp to humanize in seconds
+ * @returns The humanized timestamp
+ */
+export const humanizeTimestampForRecipient = (timestamp: number) => {
+  const diffDays = calculateDaysSinceTimestamp(timestamp);
+  return `Sent to ${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+};

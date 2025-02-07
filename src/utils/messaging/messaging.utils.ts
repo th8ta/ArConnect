@@ -28,7 +28,7 @@ export async function isomorphicSendMessage<K extends MessageID>({
   tabId,
   data
 }: MessageData<K>) {
-  // See the "Receive API calls" comment in `ArConnect/src/contents/api.ts` for more on message passing.
+  // See the "Receive API calls" comment in `Wander/src/contents/api.ts` for more on message passing.
 
   const currentMessage = messageCounter++;
 

@@ -4,27 +4,23 @@ import {
   signPolicyOptions,
   type PermissionType
 } from "~applications/permissions";
-import { defaultAllowance } from "~applications/allowance";
-import { CheckIcon, EditIcon } from "@iconicicons/react";
+import { EditIcon } from "@iconicicons/react";
 import { useEffect, useMemo, useState } from "react";
 import { IconButton } from "~components/IconButton";
-import PermissionCheckbox, {
-  PermissionDescription
-} from "~components/auth/PermissionCheckbox";
+import { PermissionDescription } from "~components/auth/PermissionCheckbox";
 import { removeApp } from "~applications";
 import {
-  ButtonV2,
+  Button,
   Checkbox,
-  InputV2,
-  ModalV2,
-  SelectV2,
+  Input,
+  Modal,
+  Select,
   Spacer,
   Text,
-  TooltipV2,
   useInput,
   useModal,
   useToasts
-} from "@arconnect/components";
+} from "@arconnect/components-rebrand";
 import { concatGatewayURL, urlToGateway } from "~gateways/utils";
 import Application from "~applications/application";
 import browser from "webextension-polyfill";
@@ -32,8 +28,9 @@ import styled from "styled-components";
 import Arweave from "arweave";
 import { defaultGateway, suggestedGateways, testnets } from "~gateways/gateway";
 import type { CommonRouteProps } from "~wallets/router/router.types";
-import { ErrorTypes } from "~utils/error/error.utils";
 import { LoadingView } from "~components/page/common/loading/loading.view";
+import { ToggleSwitch } from "~routes/popup/subscriptions/subscriptionDetails";
+import { Flex } from "~components/common/Flex";
 
 export interface AppSettingsDashboardViewParams {
   url: string;
@@ -119,7 +116,7 @@ export function AppSettingsDashboardView({
   }
 
   return (
-    <>
+    <div>
       {noTitle ? null : (
         <>
           <Spacer y={0.45} />
@@ -149,8 +146,8 @@ export function AppSettingsDashboardView({
 
         return (
           <div key={i}>
-            <PermissionCheckbox
-              onChange={(checked) =>
+            <ToggleSwitch
+              setChecked={(checked) =>
                 updateSettings((val) => {
                   // toggle permission
                   if (checked && !val.permissions.includes(permissionName)) {
@@ -166,12 +163,15 @@ export function AppSettingsDashboardView({
               }
               checked={settings.permissions.includes(permissionName)}
             >
-              {formattedPermissionName}
-              <br />
-              <PermissionDescription>
-                {browser.i18n.getMessage(permissionData[permissionName])}
-              </PermissionDescription>
-            </PermissionCheckbox>
+              <Flex direction="column">
+                <Text size="md" weight="medium" noMargin>
+                  {formattedPermissionName}
+                </Text>
+                <PermissionDescription>
+                  {browser.i18n.getMessage(permissionData[permissionName])}
+                </PermissionDescription>
+              </Flex>
+            </ToggleSwitch>
             {i !== Object.keys(permissionData).length - 1 && <Spacer y={0.8} />}
           </div>
         );
@@ -187,7 +187,7 @@ export function AppSettingsDashboardView({
             }
           >
             <Checkbox
-              size={16}
+              size={20}
               onChange={() =>
                 updateSettings((val) => ({ ...val, signPolicy: option }))
               }
@@ -289,7 +289,7 @@ export function AppSettingsDashboardView({
       </Text> */}
       <Spacer y={1} />
       <Title>{browser.i18n.getMessage("gateway")}</Title>
-      <SelectV2
+      <Select
         onChange={(e) => {
           // @ts-expect-error
           if (e.target.value === "custom") {
@@ -317,13 +317,13 @@ export function AppSettingsDashboardView({
         <option value="custom" selected={isCustom}>
           Custom
         </option>
-      </SelectV2>
+      </Select>
       {editingCustom && (
         <>
           <Spacer y={0.8} />
           <InputWithBtn>
             <InputWrapper>
-              <InputV2
+              <Input
                 {...customGatewayInput.bindings}
                 type="text"
                 placeholder="https://arweave.net:443"
@@ -331,7 +331,7 @@ export function AppSettingsDashboardView({
               />
             </InputWrapper>
             <IconButton
-              secondary
+              variant="secondary"
               onClick={() => {
                 updateSettings((val) => ({
                   ...val,
@@ -351,7 +351,7 @@ export function AppSettingsDashboardView({
       )}
       <Spacer y={1} />
       <Title>{browser.i18n.getMessage("bundlrNode")}</Title>
-      <InputV2
+      <Input
         value={settings.bundler}
         onChange={(e) =>
           updateSettings((val) => ({
@@ -364,13 +364,13 @@ export function AppSettingsDashboardView({
         placeholder="https://turbo.ardrive.io"
       />
       <Spacer y={1.65} />
-      <ButtonV2 fullWidth onClick={() => removeModal.setOpen(true)}>
+      <Button fullWidth onClick={() => removeModal.setOpen(true)}>
         {browser.i18n.getMessage("removeApp")}
-      </ButtonV2>
+      </Button>
       <Spacer y={0.7} />
-      <ButtonV2
+      <Button
         fullWidth
-        secondary
+        variant="secondary"
         onClick={() =>
           updateSettings((val) => ({
             ...val,
@@ -379,34 +379,38 @@ export function AppSettingsDashboardView({
         }
       >
         {browser.i18n.getMessage(settings.blocked ? "unblock" : "block")}
-      </ButtonV2>
-      <ModalV2
+      </Button>
+      <Modal
         {...removeModal.bindings}
         root={document.getElementById("__plasmo")}
         actions={
           <>
-            <ButtonV2 secondary onClick={() => removeModal.setOpen(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => removeModal.setOpen(false)}
+            >
               {browser.i18n.getMessage("cancel")}
-            </ButtonV2>
-            <ButtonV2 onClick={() => removeApp(app.url)}>
+            </Button>
+            <Button onClick={() => removeApp(app.url)}>
               {browser.i18n.getMessage("remove")}
-            </ButtonV2>
+            </Button>
           </>
         }
       >
-        <CenterText heading>{browser.i18n.getMessage("removeApp")}</CenterText>
+        <CenterText>{browser.i18n.getMessage("removeApp")}</CenterText>
         <Spacer y={0.55} />
         <CenterText noMargin>
           {browser.i18n.getMessage("removeAppNote")}
         </CenterText>
         <Spacer y={0.75} />
-      </ModalV2>
-    </>
+      </Modal>
+    </div>
   );
 }
 
 const AppName = styled(Text).attrs({
-  title: true,
+  size: "3xl",
+  weight: "bold",
   noMargin: true
 })`
   font-weight: 600;

@@ -111,7 +111,7 @@ const Wrapper = styled.div`
 const Label = styled.p`
   font-size: 0.7rem;
   font-weight: 600;
-  color: rgb(${(props) => props.theme.primaryText});
+  color: ${(props) => props.theme.primaryText};
   margin: 0;
   margin-bottom: 0.8em;
 `;

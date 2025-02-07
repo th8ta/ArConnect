@@ -35,8 +35,7 @@ function getColor() {
 export function log(logGroup: LOG_GROUP, ...args: any) {
   if (!LOG_GROUPS_ENABLED[logGroup]) return;
 
-  const prefix =
-    location.protocol === "chrome-extension:" ? "" : "[ArConnect] ";
+  const prefix = location.protocol === "chrome-extension:" ? "" : "[Wander] ";
 
   console.log(`${prefix}%c[${logGroup}]`, getColor(), ...args);
 }

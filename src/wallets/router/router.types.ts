@@ -30,7 +30,7 @@ export interface RouteConfig<
   authType?: RouteAuthType;
 }
 
-export type ArConnectRoutePath =
+export type WanderRoutePath =
   | WelcomeRoutePath
   | AuthRoutePath
   | PopupRoutePath
@@ -38,14 +38,6 @@ export type ArConnectRoutePath =
   | EmbeddedRoutePath;
 
 // navigate():
-
-export interface CustomHistoryEntry<S = any> {
-  to: ArConnectRoutePath;
-  options?: {
-    replace?: boolean;
-    state?: S;
-  };
-}
 
 export type NavigateAction = "prev" | "next" | "up" | number;
 
@@ -56,7 +48,7 @@ export interface NavigateOptions<S = any> {
 }
 
 export type NavigateFn<S = any> = (
-  to: ArConnectRoutePath | NavigateAction,
+  to: WanderRoutePath | NavigateAction,
   options?: NavigateOptions<S>
 ) => void;
 
