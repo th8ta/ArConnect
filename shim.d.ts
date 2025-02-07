@@ -75,9 +75,11 @@ declare module "@arconnect/webext-bridge" {
 }
 
 interface ApiCall<DataType = any> extends JsonValue {
+  app: "wander" | "wanderEmbedded";
+  version: string;
+  callID: number | string;
   type: string;
   data?: DataType;
-  callID: number | string;
 }
 
 interface ApiResponse<DataType = any> extends ApiCall<DataType> {
