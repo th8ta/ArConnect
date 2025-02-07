@@ -1,7 +1,10 @@
 import type { ApiCall, ApiResponse, Event } from "shim";
 import type { InjectedEvents } from "~utils/events";
 import { nanoid } from "nanoid";
-import { foregroundModules } from "~api/foreground/foreground-modules";
+import {
+  foregroundModules,
+  type ForegroundModule
+} from "~api/foreground/foreground-modules";
 import mitt from "mitt";
 import { log, LOG_GROUP } from "~utils/log/log.utils";
 import { version } from "../../../package.json";
@@ -14,14 +17,16 @@ export function setupWalletSDK(targetWindow: Window = window) {
   /** Init events */
   const events = mitt<InjectedEvents>();
 
-  const walletAPI = {};
-  const moduleMap = new Map<string, (typeof foregroundModules)[number]>();
+  // TODO: Can we get the right type here?:
+  const walletAPI = {
+    walletName: isEmbedded ? "ArConnect Embedded" : "ArConnect",
+    walletVersion: version,
+    events
+  } as const;
 
   for (const mod of foregroundModules) {
-    moduleMap.set(mod.functionName, mod);
-
     walletAPI[mod.functionName] = (...params: any[]) => {
-      return callForegroundThenBackground(mod.functionName, params);
+      return callForegroundThenBackground(mod, params);
     };
   }
 
@@ -30,33 +35,41 @@ export function setupWalletSDK(targetWindow: Window = window) {
    * This can be reused by the Proxy handler below.
    */
   async function callForegroundThenBackground(
-    fnName: string,
+    foregroundModule: string | ForegroundModule,
     params: any[]
   ): Promise<any> {
-    const mod = moduleMap.get(fnName);
-
     return new Promise<any>(async (resolve, reject) => {
-      // execute foreground module
-      // TODO: Use a default function for those that do not have/need one and see if chunking can be done automatically or if it is needed at all:
-      const foregroundResult = mod ? await mod.function(...params) : null;
+      // 1. Find out what function are we calling:
 
-      // 2. Prepare the payload to send
+      const functionName =
+        typeof foregroundModule === "string"
+          ? foregroundModule
+          : foregroundModule.functionName;
+
+      // 2. Get & prepare its params:
+      // For `sign` and `dispatch`, this is where the params are send in chunks.
+      const functionParams =
+        typeof foregroundModule === "string"
+          ? params
+          : await foregroundModule.function(...params);
+
+      // TODO: Use a default function for those that do not have/need one and
+      // see if chunking can be done automatically or if it is needed at all:
+
+      // 3. Prepare the message & payload to send:
       const callID = nanoid();
       const data: ApiCall = {
         app: isEmbedded ? "wanderEmbedded" : "wander",
         version,
         callID,
-        type: `api_${mod.functionName}`,
+        type: `api_${functionName}`,
         data: {
-          params: foregroundResult || params
+          params: functionParams
         }
       };
 
-      // TODO: Replace `postMessage` with `isomorphicSendMessage`, which should be updated to handle
-      // chunking automatically based on data size, rather than relying on `sendChunk` to be called from
-      // the foreground scripts manually.
+      // 4. Send message to background script (ArConnect Extension) or to the iframe window (ArConnect Embedded):
 
-      // Send message to background script (ArConnect Extension) or to the iframe window (ArConnect Embedded):
       targetWindow.postMessage(data, window.location.origin);
 
       // TODO: Note this is replacing the following from `api.content-script.ts`, so the logic to await and get the response is missing with just the
@@ -70,7 +83,11 @@ export function setupWalletSDK(targetWindow: Window = window) {
       //
       // window.postMessage(res, window.location.origin);
 
-      // wait for result from background
+      // TODO: Replace `postMessage` with `isomorphicSendMessage`, which should be updated to handle
+      // chunking automatically based on data size, rather than relying on `sendChunk` to be called from
+      // the foreground scripts manually.
+
+      // 5. Wait for result from background:
       window.addEventListener("message", callback);
 
       // TODO: Declare outside (factory) to facilitate testing?
@@ -93,11 +110,16 @@ export function setupWalletSDK(targetWindow: Window = window) {
           return reject(res.data);
         }
 
+        const finalizerFn =
+          typeof foregroundModule === "string"
+            ? null
+            : foregroundModule.finalizer;
+
         // call the finalizer function if it exists
-        if (mod && mod.finalizer) {
-          const finalizerResult = await mod.finalizer(
+        if (finalizerFn) {
+          const finalizerResult = await finalizerFn(
             res.data,
-            foregroundResult,
+            functionParams,
             params
           );
 
@@ -122,31 +144,25 @@ export function setupWalletSDK(targetWindow: Window = window) {
   /**
    * Create the Proxy object.
    */
-  const proxyWallet = new Proxy<Record<string, any>>(
-    {
-      walletName: isEmbedded ? "ArConnect Embedded" : "ArConnect",
-      ...walletAPI
-    },
-    {
-      get(target, propKey: string) {
-        // If the property is a symbol or some internal property:
-        if (typeof propKey !== "string") {
-          return Reflect.get(target, propKey);
-        }
-
-        // Get value from target if it exists
-        const value = Reflect.get(target, propKey);
-        if (value !== undefined) {
-          return value;
-        }
-
-        // Forward generically or throw:
-        return (...args: any[]) => {
-          return callForegroundThenBackground(propKey, args);
-        };
+  const proxyWallet = new Proxy<Record<string, any>>(walletAPI, {
+    get(target, propKey: string) {
+      // If the property is a symbol or some internal property:
+      if (typeof propKey !== "string") {
+        return Reflect.get(target, propKey);
       }
+
+      // Get value from target if it exists
+      const value = Reflect.get(target, propKey);
+      if (value !== undefined) {
+        return value;
+      }
+
+      // Forward generically or throw:
+      return (...args: any[]) => {
+        return callForegroundThenBackground(propKey, args);
+      };
     }
-  );
+  });
 
   // @ts-expect-error
   window.arweaveWallet = proxyWallet;

@@ -8,13 +8,10 @@ import { WanderIframeConfig, WanderIframeStyles } from "./wander-iframe.types";
 export class WanderIframe {
   private iframe: HTMLIFrameElement;
   private config: WanderIframeConfig;
-  private messageHandler: (event: MessageEvent) => void;
 
   constructor(config: WanderIframeConfig) {
     this.config = config;
-    this.messageHandler = this.createMessageHandler();
     this.iframe = this.initializeIframe();
-    this.setupMessageListener();
   }
 
   public getElement(): HTMLIFrameElement {
@@ -30,8 +27,9 @@ export class WanderIframe {
   }
 
   public resize(data: IncomingResizeMessageData): void {
-    data.width &&
+    if (data.width !== undefined)
       this.iframe.style.setProperty("--iframe-width", `${data.width}px`);
+
     this.iframe.style.setProperty("--iframe-height", `${data.height}px`);
   }
 
@@ -39,19 +37,6 @@ export class WanderIframe {
     if (this.iframe.contentWindow) {
       this.iframe.contentWindow.postMessage(message, "*");
     }
-  }
-
-  private createMessageHandler(): (event: MessageEvent) => void {
-    return (event: MessageEvent) => {
-      const message = event.data;
-      if (isIncomingMessage(message)) {
-        this.config.onMessage(message);
-      }
-    };
-  }
-
-  private setupMessageListener(): void {
-    window.addEventListener("message", this.messageHandler);
   }
 
   private initializeIframe(): HTMLIFrameElement {
@@ -93,13 +78,5 @@ export class WanderIframe {
     }
 
     return this.iframe;
-  }
-
-  public destroy(): void {
-    window.removeEventListener("message", this.messageHandler);
-    // Only remove the iframe if we created it
-    if (!this.config.iframeRef) {
-      this.iframe.remove();
-    }
   }
 }

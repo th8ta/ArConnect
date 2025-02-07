@@ -1,9 +1,22 @@
 // Messages sent from iframe to SDK
 export type IncomingMessageId =
   | "embedded_auth"
-  | "embedded_balance"
+  | "embedded_close"
   | "embedded_resize"
-  | "embedded_close";
+  | "embedded_balance"
+  | "embedded_notification";
+
+// embedded_auth:
+
+export interface UserDetails {
+  // TODO: Add props
+}
+
+export interface IncomingAuthMessageData {
+  userDetails: null | UserDetails;
+}
+
+// embedded_resize
 
 export type RouteType =
   | "auth"
@@ -12,29 +25,34 @@ export type RouteType =
   | "auth-request"
   | "default";
 
-export interface IncomingAuthMessageData {
-  userDetails: any; // TODO: TBD
+export type RouteLayout = "modal" | "popup";
+
+export interface IncomingResizeMessageData {
+  routeType: RouteType;
+  preferredLayout: RouteLayout;
+  width?: number;
+  height: number;
 }
 
-export type FrameLayout = "modal" | "popup";
+// embedded_balance:
 
 export interface IncomingBalanceMessageData {
   aggregatedBalance: number;
   currency: "USD" | "EUR"; // TODO: Replace with a type that includes all options in the settings?
 }
 
-export interface IncomingResizeMessageData {
-  routeType: RouteType;
-  preferredLayout: FrameLayout;
-  width?: number;
-  height: number;
+// embedded_notification
+
+export interface IncomingNotificationMessageData {
+  notificationsCount: number;
 }
 
 export interface IncomingMessageMap {
   embedded_auth: IncomingAuthMessageData;
-  embedded_balance: IncomingBalanceMessageData;
-  embedded_resize: IncomingResizeMessageData;
   embedded_close: void;
+  embedded_resize: IncomingResizeMessageData;
+  embedded_balance: IncomingBalanceMessageData;
+  embedded_notification: IncomingNotificationMessageData;
 }
 export interface IncomingMessage<K extends IncomingMessageId> {
   id: string;
