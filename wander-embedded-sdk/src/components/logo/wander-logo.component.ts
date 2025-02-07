@@ -1,4 +1,4 @@
-export function getArConnectLogo(
+export function getWanderLogo(
   styles?: Partial<CSSStyleDeclaration>
 ): SVGElement {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");

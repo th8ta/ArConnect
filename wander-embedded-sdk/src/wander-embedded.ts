@@ -1,29 +1,32 @@
 import { setupWalletSDK } from "wallet-api/wallet-sdk.es.js";
-import { ArConnectEmbeddedOptions } from "./types";
-import { ArConnectButton } from "./components/ArConnectButton";
-import { ArConnectIframe } from "./components/ArConnectIframe";
+import { WanderButton } from "./components/button/wander-button.component";
+import { WanderIframe } from "./components/iframe/wander-iframe.component";
 import {
   IncomingMessage,
   IncomingMessageId,
   IncomingResizeMessageData
 } from "./types/messages";
-import { UIComponents } from "./types/embedded";
+import {
+  WanderEmbeddedComponents,
+  WanderEmbeddedOptions
+} from "./wander-embedded.types";
 
-export class ArConnectEmbedded {
-  private components: UIComponents;
-  private readonly DEFAULT_IFRAME_SRC = "http://localhost:5174/";
-  private options: ArConnectEmbeddedOptions;
+export class WanderEmbedded {
+  static DEFAULT_IFRAME_SRC = "http://localhost:5174/" as const;
 
-  constructor(options?: ArConnectEmbeddedOptions) {
+  private components: WanderEmbeddedComponents;
+  private options: WanderEmbeddedOptions;
+
+  constructor(options?: WanderEmbeddedOptions) {
     this.options = options || {};
     this.components = this.initializeComponents(options);
   }
 
   private initializeComponents(
-    options?: ArConnectEmbeddedOptions
-  ): UIComponents {
-    const iframe = new ArConnectIframe({
-      src: this.DEFAULT_IFRAME_SRC,
+    options?: WanderEmbeddedOptions
+  ): WanderEmbeddedComponents {
+    const iframe = new WanderIframe({
+      src: WanderEmbedded.DEFAULT_IFRAME_SRC,
       onMessage: (message) => this.handleIframeMessage(message),
       iframeRef: options?.iframeRef,
       iframeStyles: options?.iframeStyles
@@ -37,7 +40,7 @@ export class ArConnectEmbedded {
     if (options?.buttonStyles !== "none") {
       const container = this.createContainer();
 
-      const button = new ArConnectButton({
+      const button = new WanderButton({
         buttonStyles: options?.buttonStyles,
         onClick: () => this.open(),
         logo: options?.logo,
@@ -54,7 +57,7 @@ export class ArConnectEmbedded {
 
   private createContainer(): HTMLDivElement {
     const container = document.createElement("div");
-    container.id = "arconnect-embedded-container";
+    container.id = "wander-embedded-container";
     return container;
   }
 

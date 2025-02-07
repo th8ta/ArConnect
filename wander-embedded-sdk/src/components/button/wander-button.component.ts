@@ -1,14 +1,11 @@
-import {
-  ArConnectButtonConfig,
-  ArConnectButtonStyles
-} from "../types/arconnect-button";
-import { getArConnectLogo } from "./ArConnectLogo";
+import { WanderButtonConfig, WanderButtonStyles } from "./wander-button.types";
+import { getWanderLogo } from "../logo/wander-logo.component";
 
-export class ArConnectButton {
+export class WanderButton {
   private button: HTMLButtonElement;
-  private config: ArConnectButtonConfig;
+  private config: WanderButtonConfig;
 
-  constructor(config: ArConnectButtonConfig) {
+  constructor(config: WanderButtonConfig) {
     this.config = config;
     this.button = this.initializeButton();
   }
@@ -23,7 +20,7 @@ export class ArConnectButton {
     this.button = document.createElement("button");
     this.button.innerText = "Open";
 
-    const defaultStyles: ArConnectButtonStyles = {
+    const defaultStyles: WanderButtonStyles = {
       position: "fixed",
       bottom: "40px",
       right: "40px",
@@ -60,7 +57,7 @@ export class ArConnectButton {
       imgElement.height = 30;
       logo = imgElement;
     } else {
-      logo = getArConnectLogo({
+      logo = getWanderLogo({
         width: "30px",
         height: "30px"
       });

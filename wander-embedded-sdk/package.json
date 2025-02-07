@@ -1,7 +1,7 @@
 {
-  "name": "arconnect-embedded-sdk",
+  "name": "wander-embedded-sdk",
   "version": "0.0.5",
-  "description": "arconnect embedded sdk",
+  "description": "Wander Embedded SDK.",
   "author": "kranthicodes",
   "license": "MIT",
   "files": [
