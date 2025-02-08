@@ -46,7 +46,8 @@ export const defaultTokens: TokenInfo[] = [
     Ticker: "AO",
     Denomination: 12,
     Logo: "UkS-mdoiG8hcAClhKK8ch4ZhEzla0mCPDOix9hpdSFE",
-    processId: "m3PaWzK4PTG9lAaqYQPaPdOcXdO8hYqi5Fe9NWqXd0w"
+    // processId: "m3PaWzK4PTG9lAaqYQPaPdOcXdO8hYqi5Fe9NWqXd0w"
+    processId: "0syT13r0s0tgPmIed95bJnuSqaD29HQNN8D3ElLSrsc"
   },
   {
     Name: "Q Arweave",
