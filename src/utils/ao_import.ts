@@ -1,7 +1,8 @@
 import { getAoTokens } from "~tokens";
 import { ExtensionStorage } from "./storage";
 
-export const AO_NATIVE_TOKEN = "m3PaWzK4PTG9lAaqYQPaPdOcXdO8hYqi5Fe9NWqXd0w";
+// export const AO_NATIVE_TOKEN = "m3PaWzK4PTG9lAaqYQPaPdOcXdO8hYqi5Fe9NWqXd0w";
+export const AO_NATIVE_TOKEN = "0syT13r0s0tgPmIed95bJnuSqaD29HQNN8D3ElLSrsc";
 export const EXP_TOKEN = "aYrCboXVSl1AXL9gPFe3tfRxRf0ZmkOXH65mKT0HHZw";
 export const AO_NATIVE_TOKEN_BALANCE_MIRROR =
   "Pi-WmAQp2-mh-oWH9lWpz5EthlUDj_W0IusAv-RXhRk";
