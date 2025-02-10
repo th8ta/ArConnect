@@ -41,33 +41,35 @@ export function ExploreView() {
 
   return (
     <Wrapper>
-      <Header>
-        <img src={WanderIcon} alt="Wander Icon" width={38.407} height={18} />
-        <ScrollButton direction="left" onClick={() => scroll("left")}>
-          <ArrowLeft height={20} width={20} />
-        </ScrollButton>
-        <Categories ref={categoriesRef}>
-          {categories.map((category) => (
-            <Category
-              key={category.title}
-              onClick={() => handleCategoryClick(category.title)}
-            >
-              <CategoryIcon as={category.icon} />
-              {category.title}
-            </Category>
-          ))}
-        </Categories>
-        <ScrollButton direction="right" onClick={() => scroll("right")}>
-          <ArrowRight height={20} width={20} />
-        </ScrollButton>
-      </Header>
-      <Input
-        {...searchInput.bindings}
-        sizeVariant="small"
-        variant="search"
-        fullWidth
-        placeholder="Search for an app"
-      />
+      <FixedHeader>
+        <Header>
+          <img src={WanderIcon} alt="Wander Icon" width={38.407} height={18} />
+          <ScrollButton direction="left" onClick={() => scroll("left")}>
+            <ArrowLeft height={20} width={20} />
+          </ScrollButton>
+          <Categories ref={categoriesRef}>
+            {categories.map((category) => (
+              <Category
+                key={category.title}
+                onClick={() => handleCategoryClick(category.title)}
+              >
+                <CategoryIcon as={category.icon} />
+                {category.title}
+              </Category>
+            ))}
+          </Categories>
+          <ScrollButton direction="right" onClick={() => scroll("right")}>
+            <ArrowRight height={20} width={20} />
+          </ScrollButton>
+        </Header>
+        <Input
+          {...searchInput.bindings}
+          sizeVariant="small"
+          variant="search"
+          fullWidth
+          placeholder="Search for an app"
+        />
+      </FixedHeader>
       <AppList>
         {filteredApps.map((app, index) => (
           <AppWrapper
@@ -249,18 +251,13 @@ const Title = styled.div`
   align-items: center;
 `;
 
-const Wrapper = styled(Section)`
+const Wrapper = styled(Section).attrs({ showPaddingVertical: false })`
   display: flex;
   flex: 1;
   height: 100%;
   flex-direction: column;
   gap: 1rem;
   padding-bottom: 100px;
-  background: linear-gradient(
-    180deg,
-    #26126f 0%,
-    ${({ theme }) => (theme.displayTheme === "dark" ? "#111" : "#FFF")} 150px
-  );
 `;
 
 const AppTitle = styled(Text).attrs({
@@ -355,6 +352,22 @@ const CategoryIcon = styled.div`
   color: ${(props) => props.theme.primaryText};
 `;
 
+const FixedHeader = styled.div`
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+  position: fixed;
+  width: 100vw;
+  padding: 24px 24px 16px 24px;
+  box-sizing: border-box;
+  background: linear-gradient(
+    180deg,
+    #26126f 0%,
+    ${({ theme }) => (theme.displayTheme === "dark" ? "#111" : "#FFF")} 150px
+  );
+  z-index: 100;
+`;
+
 const Header = styled.div`
   display: flex;
   align-items: center;
@@ -406,4 +419,5 @@ const AppList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding-top: 136px;
 `;

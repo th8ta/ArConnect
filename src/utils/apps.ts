@@ -330,6 +330,7 @@ export const apps: App[] = [
     category: "NFTs",
     url: "https://1of1_aoction-house.arweave.net",
     icon: AoctionHouseIcon,
+    imageSize: "32px",
     useAppIconWrapper: true
   },
 
