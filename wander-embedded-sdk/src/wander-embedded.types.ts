@@ -1,13 +1,29 @@
-import {
-  IncomingAuthMessageData,
-  IncomingBalanceMessageData,
-  IncomingNotificationMessageData,
-  IncomingResizeMessageData,
-  RouteLayout,
-  RouteType
-} from "./types/messages";
+import { UserDetails } from "./utils/message/message.types";
+
+export type RouteType =
+  | "default"
+  | "auth"
+  | "account"
+  | "settings"
+  | "auth-request";
+
+// TODO: 2-columns
+export type RouteLayout = "modal" | "popup";
+
+export interface RouteConfig {
+  routeType: RouteType;
+  preferredLayout: RouteLayout;
+  width?: number;
+  height: number;
+}
+
+export interface BalanceInfo {
+  aggregatedBalance: number;
+  currency: "USD" | "EUR"; // TODO: Replace with a type that includes all options in the settings?
+}
 
 export interface WanderEmbeddedOptions {
+  src?: string;
   iframe?: WanderEmbeddedIframeOptions | HTMLIFrameElement;
   button?: WanderEmbeddedButtonOptions | boolean;
 
@@ -20,51 +36,47 @@ export interface WanderEmbeddedOptions {
   */
 
   // TODO: Also export the messages types:
-  onAuth?: (data: IncomingAuthMessageData) => void;
+  onAuth?: (userDetails: UserDetails | null) => void;
   onOpen?: () => void;
   onClose?: () => void;
-  onResize?: (data: IncomingResizeMessageData) => void;
-  onBalance?: (data: IncomingBalanceMessageData) => void;
-  onNotification?: (data: IncomingNotificationMessageData) => void;
+  onResize?: (routeConfig: RouteConfig) => void;
+  onBalance?: (balanceInfo: BalanceInfo) => void;
+  onNotification?: (notificationsCount: number) => void;
 }
 
 // Common:
 
-type StateModifier =
+export type StateModifier =
+  | "default"
   | "isAuthenticated"
   | "isOpen"
   | "isAuthRoute"
   | "isAccountRoute"
   | "isSettingsRoute"
-  | "isAuthRequestRoute"
-  | "isDefaultRoute";
+  | "isAuthRequestRoute";
 
 export interface WanderEmbeddedComponentOptions<T> {
   id?: string;
   className?: string | Record<StateModifier, string>;
-  cssVars?: T | Record<StateModifier, T>;
+  // cssVars?: T | Record<StateModifier, T>;
+  cssVars?: Record<StateModifier, T>;
 }
 
 // Modal (iframe):
 
 export interface WanderEmbeddedIframeOptions
   extends WanderEmbeddedComponentOptions<WanderEmbeddedModalCSSVars> {
-  routeLayout: Record<RouteType, RouteLayout>;
+  routeLayout?: Record<RouteType, RouteLayout>;
 }
 
 // Button:
 
 export interface WanderEmbeddedButtonOptions
   extends WanderEmbeddedComponentOptions<WanderEmbeddedButtonCSSVars> {
+  position?: WanderEmbeddedButtonPosition;
   logo?: boolean | string;
   balance?: boolean | WanderEmbeddedBalanceOptions;
-  notifications?: boolean | WanderEmbeddedNotificationsOptions;
-  position: WanderEmbeddedButtonPosition;
-}
-
-export interface WanderEmbeddedBalanceOptions {
-  balanceOf: "total" | string; // string would be a token id
-  currency: "auto" | string; // "auto" would be the one the user selected on the wallet, string would be a token id or currency symbol (e.g. USD).
+  notifications?: WanderEmbeddedButtonNotifications;
 }
 
 export type WanderEmbeddedButtonPosition =
@@ -72,6 +84,13 @@ export type WanderEmbeddedButtonPosition =
   | "bottom-right"
   | "top-left"
   | "bottom-left";
+
+export interface WanderEmbeddedBalanceOptions {
+  balanceOf: "total" | string; // string would be a token id
+  currency: "auto" | string; // "auto" would be the one the user selected on the wallet, string would be a token id or currency symbol (e.g. USD).
+}
+
+export type WanderEmbeddedButtonNotifications = "off" | "counter" | "alert";
 
 // Styles:
 

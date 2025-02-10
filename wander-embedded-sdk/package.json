@@ -15,6 +15,7 @@
       "require": "./sdk-dist/index.cjs"
     }
   },
+  "type": "module",
   "main": "sdk-dist/index.cjs",
   "module": "sdk-dist/index.js",
   "unpkg": "sdk-dist/index.global.js",
@@ -28,5 +29,8 @@
   "devDependencies": {
     "tsup": "^8.3.5",
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "ts-deepmerge": "^7.0.2"
   }
 }

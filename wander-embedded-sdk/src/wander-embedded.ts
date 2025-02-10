@@ -2,17 +2,39 @@ import { setupWalletSDK } from "wallet-api/wallet-sdk.es.js";
 import { WanderButton } from "./components/button/wander-button.component";
 import { WanderIframe } from "./components/iframe/wander-iframe.component";
 import {
-  IncomingMessage,
-  IncomingMessageId,
+  BalanceInfo,
+  RouteConfig,
+  RouteType,
+  StateModifier,
+  WanderEmbeddedOptions
+} from "./wander-embedded.types";
+import {
+  IncomingBalanceMessageData,
   IncomingResizeMessageData,
-  isIncomingMessage
-} from "./types/messages";
-import { WanderEmbeddedOptions } from "./wander-embedded.types";
+  UserDetails
+} from "./utils/message/message.types";
+import { isIncomingMessage } from "./utils/message/message.utils";
+
+const NOOP = () => {};
 
 export class WanderEmbedded {
   static DEFAULT_IFRAME_SRC = "http://localhost:5174/" as const;
 
-  static DEFAULT_OPTIONS = {} as const satisfies WanderEmbeddedOptions;
+  static ROUTE_MODIFIERS: Record<string, "" | StateModifier> = {
+    default: "",
+    auth: "isAuthRoute",
+    account: "isAccountRoute",
+    settings: "isSettingsRoute",
+    "auth-request": "isAuthRequestRoute"
+  };
+
+  // Callbacks:
+  private onAuth: (userDetails: UserDetails | null) => void = NOOP;
+  private onOpen: () => void = NOOP;
+  private onClose: () => void = NOOP;
+  private onResize: (data: IncomingResizeMessageData) => void = NOOP;
+  private onBalance: (data: IncomingBalanceMessageData) => void = NOOP;
+  private onNotification: (notificationsCount: number) => void = NOOP;
 
   // Components:
   private buttonComponent: null | WanderButton = null;
@@ -22,67 +44,82 @@ export class WanderEmbedded {
   private buttonRef: null | HTMLButtonElement = null;
   private iframeRef: null | HTMLIFrameElement = null;
 
-  // TODO: Implement logic to update them:
+  // State:
   public isOpen = false;
-  public isAuthenticated = false;
-  public width: number | null = null;
-  public height: number | null = null;
-  public balance: any | null = null;
-  public notifications: number = 0;
+  public userDetails: UserDetails | null = null;
+  public routeConfig: RouteConfig | null = null;
+  public balanceInfo: BalanceInfo | null = null;
+  public notificationsCount: number = 0;
 
   constructor(options: WanderEmbeddedOptions = {}) {
-    // TODO: Pass options or default (add merge util function and add static DEFAULT_OPTIONS):
-    const completeOptions = merge(options, WanderEmbedded.DEFAULT_OPTIONS);
+    // Callbacks:
+    this.onAuth = options.onAuth ?? NOOP;
+    this.onOpen = options.onOpen ?? NOOP;
+    this.onClose = options.onClose ?? NOOP;
+    this.onResize = options.onResize ?? NOOP;
+    this.onBalance = options.onBalance ?? NOOP;
+    this.onNotification = options.onNotification ?? NOOP;
 
     // Create or get references to iframe and, maybe, button:
-    this.initializeComponents(completeOptions);
+    this.initializeComponents(options);
 
     if (!this.iframeRef) throw new Error("Error creating iframe");
 
-    // Once we have all the elements in place, start listening for wallet messages and set `window.arweaveWallet`:
+    // TODO: Pass theme and balance config to iframe:
+    // this.iframeRef.contentWindow.postMessage(message, "*");
+
+    // Once we have all the elements in place, start listening for wallet messages...
     this.handleMessage = this.handleMessage.bind(this);
     window.addEventListener("message", this.handleMessage);
+
+    // ...and set `window.arweaveWallet`:
     setupWalletSDK(this.iframeRef.contentWindow as Window);
+
+    // And also the button click handler, if needed:
+    if (this.buttonRef) {
+      this.handleButtonClick = this.handleButtonClick.bind(this);
+      this.buttonRef.addEventListener("click", this.handleButtonClick);
+    }
   }
 
-  private initializeComponents(options?: WanderEmbeddedOptions): void {
-    if (options?.iframe instanceof HTMLElement) {
-      this.iframeRef = options.iframe;
+  private initializeComponents(options: WanderEmbeddedOptions): void {
+    const {
+      src = WanderEmbedded.DEFAULT_IFRAME_SRC,
+      iframe: iframeOptions,
+      button: buttonOptions
+    } = options;
+
+    if (iframeOptions instanceof HTMLElement) {
+      if (
+        iframeOptions.src &&
+        iframeOptions.src !== WanderEmbedded.DEFAULT_IFRAME_SRC
+      ) {
+        console.warn(
+          `Replacing iframe.src ("${iframeOptions.src}") with ${WanderEmbedded.DEFAULT_IFRAME_SRC}`
+        );
+      }
+
+      iframeOptions.src = WanderEmbedded.DEFAULT_IFRAME_SRC;
+
+      this.iframeRef = iframeOptions;
     } else {
-      // TODO: Pass options to `WanderIframe`:
-      this.iframeComponent = new WanderIframe({
-        // TODO: There should be an option to pass a custom URL and/or to set the API key:
-        src: WanderEmbedded.DEFAULT_IFRAME_SRC,
-        iframeStyles: options?.iframeStyles
-      });
+      this.iframeComponent = new WanderIframe(src, iframeOptions);
 
       this.iframeRef = this.iframeComponent.getElement();
 
       document.body.appendChild(this.iframeRef);
     }
 
-    if (typeof options?.button === "object" || options?.button === true) {
-      this.buttonComponent = new WanderButton({
-        buttonStyles: options?.buttonStyles,
-        onClick: () => this.open(),
-        logo: options?.logo,
-        balance: options?.balance
-      });
+    if (typeof buttonOptions === "object" || buttonOptions === true) {
+      this.buttonComponent = new WanderButton(
+        buttonOptions === true ? {} : buttonOptions
+      );
 
       this.buttonRef = this.buttonComponent.getElement();
 
       document.body.appendChild(this.buttonRef);
     }
   }
-
-  /*
-    const messageHandler: () => void = (event: MessageEvent) => {
-
-      if (isIncomingMessage(message)) {
-        this.config.onMessage(message);
-      }
-    }
-   */
 
   private handleMessage(event: MessageEvent): void {
     const message = event.data;
@@ -91,48 +128,81 @@ export class WanderEmbedded {
 
     switch (message.type) {
       case "embedded_auth":
-        this.isAuthenticated = true;
-        this.userDetails = message.data;
-        this.options.onAuth(message.data);
+        const { userDetails } = message.data;
+        this.userDetails = userDetails;
+
+        if (userDetails) {
+          this.iframeComponent?.addModifier("isAuthenticated");
+          this.buttonComponent?.addModifier("isAuthenticated");
+        } else {
+          this.iframeComponent?.removeModifier("isAuthenticated");
+          this.buttonComponent?.removeModifier("isAuthenticated");
+        }
+
+        this.onAuth(message.data);
         break;
 
       case "embedded_close":
         if (this.isOpen) {
           this.isOpen = false;
-          this.iframeComponent.hide();
-          this.options.onClose();
+
+          this.iframeComponent?.removeModifier("isOpen");
+          this.buttonComponent?.removeModifier("isOpen");
+
+          this.onClose();
         }
         break;
 
       case "embedded_resize":
-        this.width = message.data.width;
-        this.height = message.data.height;
+        const routeConfig = message.data;
+        const routeModifier =
+          WanderEmbedded.ROUTE_MODIFIERS[routeConfig.routeType];
 
-        this.iframeComponent.resize(message.data as IncomingResizeMessageData);
+        // TODO: Also account for routeConfig.preferredType & routeConfig.routeType
 
-        this.options.onResize?.(message.data as IncomingResizeMessageData);
+        if (routeModifier) {
+          this.iframeComponent?.addModifier(routeModifier);
+          this.buttonComponent?.addModifier(routeModifier);
+        }
+
+        this.iframeComponent?.resize(routeConfig);
+
+        this.onResize(routeConfig);
 
         if (!this.isOpen) {
           this.isOpen = true;
-          this.iframeComponent.show();
-          this.options.onOpen();
+          // this.iframeComponent.show();
+          this.onOpen();
         }
 
         break;
 
       case "embedded_balance":
-        this.balance = message.data;
-        this.options.onBalance(message.data);
+        const balanceInfo = message.data;
+        this.balanceInfo = balanceInfo;
+
+        this.buttonComponent?.setBalance(balanceInfo);
+
+        this.onBalance(balanceInfo);
         break;
 
       case "embedded_notification":
-        this.notifications = message.data.notificationsCount;
-        this.options.onNotification(message.data);
+        const { notificationsCount } = message.data;
+        this.notificationsCount = notificationsCount;
+
+        this.buttonComponent?.setNotifications(notificationsCount);
+
+        this.onNotification(notificationsCount);
         break;
     }
 
-    this.iframeComponent.updateStateModifiers();
-    this.buttonComponent.updateStateModifiers();
+    // this.iframeComponent.update();
+    // this.buttonComponent.update();
+  }
+
+  private handleButtonClick() {
+    if (this.isOpen) this.close();
+    else this.open();
   }
 
   public open(): void {
@@ -167,9 +237,22 @@ export class WanderEmbedded {
 
   public destroy(): void {
     window.removeEventListener("message", this.handleMessage);
+    window.removeEventListener("click", this.handleButtonClick);
 
     // Only remove the elements we crated:
     if (this.iframeComponent) this.iframeRef?.remove();
     if (this.buttonComponent) this.buttonRef?.remove();
+  }
+
+  get isAuthenticated() {
+    return !!this.userDetails;
+  }
+
+  get width() {
+    return this.routeConfig?.width;
+  }
+
+  get height() {
+    return this.routeConfig?.height;
   }
 }

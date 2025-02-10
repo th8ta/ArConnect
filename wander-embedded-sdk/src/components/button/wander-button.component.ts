@@ -1,12 +1,33 @@
-import { WanderButtonConfig, WanderButtonStyles } from "./wander-button.types";
+import { CSSProperties } from "react";
+import {
+  BalanceInfo,
+  StateModifier,
+  WanderEmbeddedButtonOptions
+} from "../../wander-embedded.types";
 import { getWanderLogo } from "../logo/wander-logo.component";
 
 export class WanderButton {
-  private button: HTMLButtonElement;
-  private config: WanderButtonConfig;
+  // static DEFAULT_CLASSNAMES: Record<StateModifier, string> = {};
 
-  constructor(config: WanderButtonConfig) {
-    this.config = config;
+  private button: HTMLButtonElement;
+
+  private id: string = "wanderEmbeddedButton";
+
+  // private classNames: Partial<Record<StateModifier, string>>;
+  // private cssVars?: Partial<Record<StateModifier, WanderEmbeddedButtonCSSVars>>;
+
+  // TODO: How to manage light/dark theme?
+
+  constructor(options: WanderEmbeddedButtonOptions = {}) {
+    this.id = options.id || this.id;
+
+    /*
+    this.classNames = typeof options.className === "string"
+      ? { default: options.className } satisfies Partial<Record<StateModifier, string>>
+      : (options.className || {});
+    this.cssVars = options.cssVars || {};
+    */
+
     this.button = this.initializeButton();
   }
 
@@ -14,13 +35,15 @@ export class WanderButton {
     return this.button;
   }
 
+  // TODO: Button needs 3 states: noAuth, noConnect and connected
+
   private initializeButton(): HTMLButtonElement {
     // TODO: Add logo and balance if provided
     // Create new button
     this.button = document.createElement("button");
     this.button.innerText = "Open";
 
-    const defaultStyles: WanderButtonStyles = {
+    const defaultStyles: CSSProperties = {
       position: "fixed",
       bottom: "40px",
       right: "40px",
@@ -38,15 +61,10 @@ export class WanderButton {
       zIndex: "9999"
     };
 
-    // Always apply custom styles if provided
-    if (this.config.buttonStyles && this.config.buttonStyles !== "none") {
-      const styles = { ...this.config.buttonStyles };
-      Object.assign(this.button.style, styles);
-    } else {
-      Object.assign(this.button.style, defaultStyles);
-    }
+    Object.assign(this.button.style, defaultStyles);
 
     // Clear any existing content
+    /*
     this.button.innerHTML = "";
 
     let logo: SVGElement | HTMLImageElement;
@@ -67,11 +85,16 @@ export class WanderButton {
 
     const text = document.createTextNode("Connect");
     this.button.appendChild(text);
-
-    if (this.config.onClick) {
-      this.button.addEventListener("click", this.config.onClick);
-    }
+    */
 
     return this.button;
   }
+
+  addModifier(modifier: StateModifier) {}
+
+  removeModifier(modifier: StateModifier) {}
+
+  setBalance(balanceInfo: BalanceInfo) {}
+
+  setNotifications(notificationsCount: number) {}
 }
