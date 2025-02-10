@@ -357,6 +357,7 @@ const FixedHeader = styled.div`
   gap: 1rem;
   flex-direction: column;
   position: fixed;
+  left: 0;
   width: 100vw;
   padding: 24px 24px 16px 24px;
   box-sizing: border-box;
