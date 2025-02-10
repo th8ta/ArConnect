@@ -103,7 +103,9 @@ export function PurchaseView() {
         const data = await response.json();
         const currencyInfo = data.response.map((currency) => ({
           symbol: currency.symbol,
-          logo: `https://cdn.onramper.com/icons/tokens/${currency.symbol.toLowerCase()}.svg`,
+          logo: ["DZD", "CVE"].includes(currency.symbol)
+            ? `https://kapowaz.github.io/square-flags/flags/${currency.logoSymbol.toLowerCase()}.svg`
+            : `https://cdn.onramper.com/icons/tokens/${currency.symbol.toLowerCase()}.svg`,
           name: currency.name,
           paymentOptions: currency.paymentOptions
         }));
