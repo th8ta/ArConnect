@@ -82,6 +82,8 @@ export function ExploreView() {
                   source={app.icon}
                   alt={app.name}
                   objectFit={app.objectFit}
+                  showBorder={app.showBorder}
+                  imageSize={app.imageSize}
                 />
               ) : (
                 <AppIconWrapper
@@ -89,6 +91,8 @@ export function ExploreView() {
                   alt={app.name}
                   backgroundColor={app.backgroundColor}
                   objectFit={app.objectFit}
+                  showBorder={app.showBorder}
+                  imageSize={app.imageSize}
                 />
               )}
               <Description>
@@ -127,21 +131,32 @@ const filterApps = (
   });
 };
 
-const IconWrapper = styled.div<{ backgroundColor?: string }>`
+const IconWrapper = styled.div<{
+  backgroundColor?: string;
+  showBorder?: boolean;
+}>`
   background-color: ${(props) => props.backgroundColor || "white"};
   border-radius: 12px;
+  ${(props) =>
+    props.showBorder && `border: 1px solid ${props.theme.borderDefault};`}
   overflow: hidden;
   height: 40px;
   width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
-const IconImage = styled.img<{ objectFit?: "contain" | "cover" }>`
-  width: 100%;
-  height: 100%;
+const IconImage = styled.img<{
+  objectFit?: "contain" | "cover";
+  size?: string;
+}>`
+  width: ${(props) => props.size || "100%"};
+  height: ${(props) => props.size || "100%"};
   object-fit: ${(props) => props.objectFit || "contain"};
 `;
 
-const GradientWrapper = styled.div<{ colors?: string[] }>`
+const GradientWrapper = styled.div<{ colors?: string[]; showBorder?: boolean }>`
   border-radius: 12px;
   overflow: hidden;
   height: 40px;
@@ -150,6 +165,11 @@ const GradientWrapper = styled.div<{ colors?: string[] }>`
     props.colors
       ? `linear-gradient(135deg, ${props.colors[0]} 0%, ${props.colors[1]} 100%)`
       : "linear-gradient(135deg, #8B57FE 0%, #886DFB 100%)"};
+  ${(props) =>
+    props.showBorder && `border: 1px solid ${props.theme.borderDefault};`}
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 interface AppIconProps {
@@ -157,17 +177,26 @@ interface AppIconProps {
   alt?: string;
   backgroundColor?: string;
   objectFit?: "contain" | "cover";
+  showBorder?: boolean;
+  imageSize?: string;
 }
 
 function AppIconWrapper({
   source,
   alt,
+  showBorder,
   backgroundColor,
-  objectFit
+  objectFit,
+  imageSize
 }: AppIconProps) {
   return (
-    <IconWrapper backgroundColor={backgroundColor}>
-      <IconImage src={source} alt={alt || ""} objectFit={objectFit} />
+    <IconWrapper backgroundColor={backgroundColor} showBorder={showBorder}>
+      <IconImage
+        src={source}
+        alt={alt || ""}
+        objectFit={objectFit}
+        size={imageSize}
+      />
     </IconWrapper>
   );
 }
@@ -177,17 +206,26 @@ interface AppGradientIconProps {
   alt?: string;
   colors?: string[];
   objectFit?: "contain" | "cover";
+  showBorder?: boolean;
+  imageSize?: string;
 }
 
 function AppLinearGradientIconWrapper({
   source,
   alt,
   colors,
-  objectFit
+  showBorder,
+  objectFit,
+  imageSize
 }: AppGradientIconProps) {
   return (
-    <GradientWrapper colors={colors}>
-      <IconImage objectFit={objectFit} src={source} alt={alt || ""} />
+    <GradientWrapper colors={colors} showBorder={showBorder}>
+      <IconImage
+        objectFit={objectFit}
+        src={source}
+        alt={alt || ""}
+        size={imageSize}
+      />
     </GradientWrapper>
   );
 }
