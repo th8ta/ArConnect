@@ -108,7 +108,7 @@ export function GenerateQRView({ params: { address } }: GenerateQRViewProps) {
               <ContentWrapper>
                 <Section>
                   <QRCodeWrapper size={275}>
-                    <div style={{ backgroundColor: "#fff" }}>
+                    <div style={{ backgroundColor: "#fff", padding: "12px", borderRadius: "12px" }}>
                       <QRCodeLoop frames={frames} fps={5} size={275} />
                     </div>
                   </QRCodeWrapper>
