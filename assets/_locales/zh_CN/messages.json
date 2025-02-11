@@ -2875,5 +2875,37 @@
     "privacy_policy": {
         "message": "隐私政策",
         "description": "Privacy policy text"
+    },
+    "exchange_rate": {
+        "message": "汇率",
+        "description": "Exchange rate text"
+    },
+    "max_buy_amount": {
+        "message": "AR 最高购买金额为 $AMOUNT$ $CURRENCY$",
+        "description": "Max buy amount text",
+        "placeholders": {
+        "amount": {
+            "content": "$1",
+            "example": "1"
+        },
+        "currency": {
+            "content": "$2",
+            "example": "USD"
+        }
+        }
+    },
+    "min_buy_amount": {
+        "message": "最低 AR 购买金额为 $AMOUNT$ $CURRENCY$",
+        "description": "Min buy amount text",
+        "placeholders": {
+        "amount": {
+            "content": "$1",
+            "example": "1"
+        },
+        "currency": {
+            "content": "$2",
+            "example": "USD"
+        }
+        }
     }
 }
