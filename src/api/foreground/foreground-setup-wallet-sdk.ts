@@ -70,7 +70,11 @@ export function setupWalletSDK(targetWindow: Window = window) {
 
       // 4. Send message to background script (ArConnect Extension) or to the iframe window (ArConnect Embedded):
 
-      targetWindow.postMessage(data, window.location.origin);
+      const targetOrigin = isEmbedded
+        ? "http://localhost:5173"
+        : window.location.origin;
+
+      targetWindow.postMessage(data, targetOrigin);
 
       // TODO: Note this is replacing the following from `api.content-script.ts`, so the logic to await and get the response is missing with just the
       // one-line change above.

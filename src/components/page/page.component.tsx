@@ -74,7 +74,10 @@ export function Page({ children }: PageProps) {
     >
       {process.env.NODE_ENV === "development" &&
       import.meta.env?.VITE_IS_EMBEDDED_APP === "1" ? (
-        <DivLine style={{ top: `${height}px` }} data-height={`${height}px`} />
+        <DivLine
+          style={{ top: `${height - 6}px` }}
+          data-height={`${height}px`}
+        />
       ) : null}
 
       {children}
@@ -100,16 +103,18 @@ const DivLine = styled(motion.div)`
   left: 0;
   width: 100%;
   border-bottom: 2px dashed red;
+  z-index: 9999;
+  pointer-events: none;
 
   &::before {
     content: attr(data-height);
     position: absolute;
     top: 2px;
     left: 16px;
-    transform: translate(0, -50%);
+    transform: translate(0, -100%);
     padding: 4px 8px;
     background: red;
     font: bold 11px monospace;
-    border-radius: 16px;
+    border-radius: 4px 4px 0 0;
   }
 `;

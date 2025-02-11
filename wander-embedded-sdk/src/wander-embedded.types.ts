@@ -7,12 +7,30 @@ export type RouteType =
   | "settings"
   | "auth-request";
 
+export type RouteLayoutType = "modal" | "popup";
+
+export interface ModalLayoutConfig {
+  position?: "left" | "center" | "right";
+  expanded?: boolean;
+  imgSrc?: string | boolean;
+  fixedWidth?: number;
+  fixedHeight?: number;
+}
+
+export interface PopupLayoutConfig {
+  position?: WanderEmbeddedButtonPosition;
+  fixedWidth?: number;
+  fixedHeight?: number;
+}
+
+export type LayoutConfig = ModalLayoutConfig | PopupLayoutConfig;
+
 // TODO: 2-columns
-export type RouteLayout = "modal" | "popup";
+// TODO: Option to use fixed dimensions?
 
 export interface RouteConfig {
   routeType: RouteType;
-  preferredLayout: RouteLayout;
+  preferredLayout: LayoutConfig;
   width?: number;
   height: number;
 }
@@ -26,6 +44,14 @@ export interface WanderEmbeddedOptions {
   src?: string;
   iframe?: WanderEmbeddedIframeOptions | HTMLIFrameElement;
   button?: WanderEmbeddedButtonOptions | boolean;
+
+  // TODO: Add option so that the popup routes have a fixed size and do not resize
+
+  // TODO: Add option to configure the size-images based on route on the side-by-side view (or send them from the modal)
+
+  // TODO: Add effect when spending/signing
+
+  // TODO: Responsive-specific options for narrow screens.
 
   /*
   logo?: string;
@@ -66,7 +92,7 @@ export interface WanderEmbeddedComponentOptions<T> {
 
 export interface WanderEmbeddedIframeOptions
   extends WanderEmbeddedComponentOptions<WanderEmbeddedModalCSSVars> {
-  routeLayout?: Record<RouteType, RouteLayout>;
+  routeLayout?: Record<RouteType, LayoutConfig>;
 }
 
 // Button:
@@ -95,9 +121,46 @@ export type WanderEmbeddedButtonNotifications = "off" | "counter" | "alert";
 // Styles:
 
 export interface WanderEmbeddedModalCSSVars {
-  // TODO: Similar to just using styles but styes might cause issues with the different states/transitions of the iframe. Also, we probably don't want to give such fine-grained control to developers. In that case, just provide the iframe yourself.
+  // Modal (iframe):
+  background?: string;
+  border?: string;
+  borderRadius?: number | string;
+  boxShadow?: string;
+  zIndex?: string;
+  preferredWidth?: number | string;
+  preferredHeight?: number | string;
+
+  // Backdrop (div):
+  backdropBackground?: string;
+  backdropBackdropFilter?: string;
+  backdropPadding?: number | string;
 }
 
 export interface WanderEmbeddedButtonCSSVars {
-  // TODO: Similar to just using styles but styes might cause issues with the different states/transitions of the button. Also, we probably don't want to give such fine-grained control to developers. In that case, just create and manage the button yourself.
+  // Button (button):
+  background?: string;
+  border?: string;
+  borderRadius?: number | string;
+  boxShadow?: string;
+  zIndex?: string;
+  minWidth?: number | string;
+  minHeight?: number | string;
+  padding?: number | string;
+  font?: string;
+
+  // Logo (img / svg):
+  logoBackground?: string;
+  logoBorder?: string; // TODO: Border-right only?
+  logoBorderRadius?: number | string;
+
+  // Labels (span):
+
+  // Balance (span):
+
+  // Notifications (span):
+  notificationsBackground?: string;
+  notificationsBorder?: string;
+  notificationsBorderRadius?: number | string;
+  notificationsBoxShadow?: string;
+  notificationsPadding?: number | string;
 }

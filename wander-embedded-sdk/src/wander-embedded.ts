@@ -1,6 +1,7 @@
 import { setupWalletSDK } from "wallet-api/wallet-sdk.es.js";
 import { WanderButton } from "./components/button/wander-button.component";
 import { WanderIframe } from "./components/iframe/wander-iframe.component";
+import { merge } from "ts-deepmerge";
 import {
   BalanceInfo,
   RouteConfig,
@@ -18,7 +19,7 @@ import { isIncomingMessage } from "./utils/message/message.utils";
 const NOOP = () => {};
 
 export class WanderEmbedded {
-  static DEFAULT_IFRAME_SRC = "http://localhost:5174/" as const;
+  static DEFAULT_IFRAME_SRC = "http://localhost:5173/" as const;
 
   static ROUTE_MODIFIERS: Record<string, "" | StateModifier> = {
     default: "",
@@ -52,6 +53,13 @@ export class WanderEmbedded {
   public notificationsCount: number = 0;
 
   constructor(options: WanderEmbeddedOptions = {}) {
+    // console.log("WanderEmbedded constructor");
+
+    // TODO: Make sure this cannot be called twice, or that it first destroys the previous instance(s)
+
+    // TODO: Fix embedded issue: If generation was too long ago and it expires, it just throws an error instead of
+    // generating a new one when needed.
+
     // Callbacks:
     this.onAuth = options.onAuth ?? NOOP;
     this.onOpen = options.onOpen ?? NOOP;
@@ -60,8 +68,12 @@ export class WanderEmbedded {
     this.onBalance = options.onBalance ?? NOOP;
     this.onNotification = options.onNotification ?? NOOP;
 
+    const optionsWithDefaults = merge(options, {
+      button: true
+    });
+
     // Create or get references to iframe and, maybe, button:
-    this.initializeComponents(options);
+    this.initializeComponents(optionsWithDefaults);
 
     if (!this.iframeRef) throw new Error("Error creating iframe");
 
@@ -89,6 +101,9 @@ export class WanderEmbedded {
       button: buttonOptions
     } = options;
 
+    // TODO Use PARAM_ORIGIN_KEY and PARAM_API_KEY instead of hardcoded values:
+    const srcWithParams = `${src}?origin=${location.origin}&api-key=123`;
+
     if (iframeOptions instanceof HTMLElement) {
       if (
         iframeOptions.src &&
@@ -99,15 +114,17 @@ export class WanderEmbedded {
         );
       }
 
-      iframeOptions.src = WanderEmbedded.DEFAULT_IFRAME_SRC;
+      iframeOptions.src = srcWithParams;
 
       this.iframeRef = iframeOptions;
     } else {
-      this.iframeComponent = new WanderIframe(src, iframeOptions);
+      this.iframeComponent = new WanderIframe(srcWithParams, iframeOptions);
 
-      this.iframeRef = this.iframeComponent.getElement();
+      const elements = this.iframeComponent.getElements();
 
-      document.body.appendChild(this.iframeRef);
+      this.iframeRef = elements.iframe;
+
+      document.body.appendChild(elements.backdrop);
     }
 
     if (typeof buttonOptions === "object" || buttonOptions === true) {
@@ -125,6 +142,8 @@ export class WanderEmbedded {
     const message = event.data;
 
     if (!isIncomingMessage(message)) return;
+
+    console.log("MESSAGE", message);
 
     switch (message.type) {
       case "embedded_auth":
