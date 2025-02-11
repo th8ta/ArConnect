@@ -779,7 +779,7 @@ export const Line = styled.div<{ margin?: string }>`
   margin: ${(props) => (props.margin ? props.margin : "18px")} 0;
   height: 1px;
   width: 100%;
-  background-color: #333333;
+  background-color: ${(props) => props.theme.borderDefault};
 `;
 
 export const TokenLogo = styled(CommonImage).attrs({
