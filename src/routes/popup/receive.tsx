@@ -70,7 +70,7 @@ export function ReceiveView({ walletName, walletAddress }: ReceiveViewProps) {
           </Text>
           <QRCodeWrapper>
             <QRCodeSVG
-              fgColor="#000"
+              fgColor="#fff"
               bgColor="transparent"
               size={176}
               value={effectiveAddress ?? ""}
