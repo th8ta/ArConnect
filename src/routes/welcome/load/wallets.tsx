@@ -44,6 +44,11 @@ import QRLoopScanner, {
 } from "~components/welcome/load/QRLoopScanner";
 import { useScanner, AnimatedQRScanner } from "@arconnect/keystone-sdk";
 import { addHardwareWallet } from "~wallets/hardware";
+import {
+  Alert,
+  Icon as WarningIcon
+} from "~components/auth/CustomGatewayWarning";
+import { useActiveWallet } from "~wallets/hooks";
 
 export type WalletsWelcomeViewProps = CommonRouteProps<SetupWelcomeViewParams>;
 
@@ -59,6 +64,7 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
   // wallet context
   const { wallet, setWallet } = useContext(WalletContext);
 
+  const activeWallet = useActiveWallet();
   // wallet generation taking longer
   const [showLongWaitMessage, setShowLongWaitMessage] = useState(false);
 
@@ -262,7 +268,7 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
         {!wallet?.address ? (
           <Content>
             <Paragraph>
-              qweq{browser.i18n.getMessage("provide_seedphrase_paragraph")}
+              {browser.i18n.getMessage("provide_seedphrase_paragraph")}
             </Paragraph>
             <SeedInput
               onChange={setLoadedWallet}
@@ -446,14 +452,11 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
         <WalletKeySizeErrorModal {...walletModal} back={() => navigate(`/`)} />
       </Container>
     );
-  } else
+  } else if (params.setupMode === "keystoneLoad") {
     return (
       <Container>
-        {!wallet?.address ? (
+        {!activeWallet?.address ? (
           <Content>
-            <Paragraph>
-              {browser.i18n.getMessage("scan_qr_code_description")}
-            </Paragraph>
             <div
               style={{
                 display: "flex",
@@ -462,41 +465,40 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
                 gap: 24
               }}
             >
-              <Text size="sm" weight="medium" noMargin>
-                {browser.i18n.getMessage("scan_qr_code_instruction")}
-              </Text>
               {scanMode ? (
-                params.setupMode === "qrLoad" ? (
-                  <QRLoopScanner
-                    onResult={(result) => {
-                      setLoadedWallet(result);
-                      setScanMode(false);
-                      done(result);
-                    }}
-                  />
-                ) : (
-                  <KeystoneScanner onSuccess={keystoneDone} />
-                )
+                <KeystoneScanner onSuccess={keystoneDone} />
               ) : (
                 <div
                   style={{
                     display: "flex",
-                    flex: 1,
-                    justifyContent: "center",
-                    alignItems: "center"
+                    flexDirection: "column",
+                    flex: 1
                   }}
                 >
-                  <Button
-                    fullWidth
-                    variant="secondary"
-                    style={{ gap: 8 }}
-                    onClick={() => setScanMode(true)}
+                  <div
+                    style={{
+                      display: "flex",
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "center"
+                    }}
                   >
-                    <Webcam01 height={24} width={24} />
-                    <Text weight="bold" noMargin>
-                      {browser.i18n.getMessage("open_webcam")}
-                    </Text>
-                  </Button>
+                    <Button
+                      fullWidth
+                      variant="secondary"
+                      style={{ gap: 8 }}
+                      onClick={() => setScanMode(true)}
+                    >
+                      <Webcam01 height={24} width={24} />
+                      <Text weight="bold" noMargin>
+                        {browser.i18n.getMessage("open_webcam")}
+                      </Text>
+                    </Button>
+                  </div>
+                  <Alert>
+                    <WarningIcon />
+                    {browser.i18n.getMessage("keystone_features_warning")}
+                  </Alert>
                 </div>
               )}
             </div>
@@ -504,35 +506,43 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
         ) : (
           <Content
             style={{
-              justifyContent: "center",
-              alignItems: "center",
-              textAlign: "center"
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between"
             }}
           >
-            <Text size="md" weight="medium" noMargin>
-              {browser.i18n.getMessage("found_account_with_phrase")}
-            </Text>
-            <AddressContainer>
-              <Text size="sm" weight="medium" noMargin>
-                {wallet.address}
+            <div />
+            <div
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                gap: 24
+              }}
+            >
+              <Text size="md" weight="medium" noMargin>
+                {browser.i18n.getMessage("found_account_with_phrase")}
               </Text>
-            </AddressContainer>
+              <AddressContainer>
+                <Text size="sm" weight="medium" noMargin>
+                  {activeWallet?.address}
+                </Text>
+              </AddressContainer>
+            </div>
+            <Actions>
+              <Button fullWidth onClick={handleYesImport}>
+                {browser.i18n.getMessage("yes_import")}
+              </Button>
+              <Button variant="secondary" fullWidth onClick={handleNoImport}>
+                {browser.i18n.getMessage("no_import")}
+              </Button>
+            </Actions>
           </Content>
         )}
-        {!wallet?.address ? (
-          <Actions>
-            {loading && showLongWaitMessage && (
-              <Text
-                variant="secondary"
-                size="sm"
-                noMargin
-                style={{ textAlign: "center" }}
-              >
-                {browser.i18n.getMessage("longer_than_usual")}
-              </Text>
-            )}
-          </Actions>
-        ) : (
+        {wallet?.address && (
           <Actions>
             <Button fullWidth onClick={handleYesImport}>
               {browser.i18n.getMessage("yes_import")}
@@ -542,9 +552,107 @@ export function WalletsWelcomeView({ params }: WalletsWelcomeViewProps) {
             </Button>
           </Actions>
         )}
-        <WalletKeySizeErrorModal {...walletModal} back={() => navigate(`/`)} />
       </Container>
     );
+  }
+  return (
+    <Container>
+      {!wallet?.address ? (
+        <Content>
+          <Paragraph>
+            {browser.i18n.getMessage("scan_qr_code_description")}
+          </Paragraph>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              gap: 24
+            }}
+          >
+            <Text size="sm" weight="medium" noMargin>
+              {browser.i18n.getMessage("scan_qr_code_instruction")}
+            </Text>
+            {scanMode ? (
+              params.setupMode === "qrLoad" ? (
+                <QRLoopScanner
+                  onResult={(result) => {
+                    setLoadedWallet(result);
+                    setScanMode(false);
+                    done(result);
+                  }}
+                />
+              ) : (
+                <KeystoneScanner onSuccess={keystoneDone} />
+              )
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+              >
+                <Button
+                  fullWidth
+                  variant="secondary"
+                  style={{ gap: 8 }}
+                  onClick={() => setScanMode(true)}
+                >
+                  <Webcam01 height={24} width={24} />
+                  <Text weight="bold" noMargin>
+                    {browser.i18n.getMessage("open_webcam")}
+                  </Text>
+                </Button>
+              </div>
+            )}
+          </div>
+        </Content>
+      ) : (
+        <Content
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center"
+          }}
+        >
+          <Text size="md" weight="medium" noMargin>
+            {browser.i18n.getMessage("found_account_with_phrase")}
+          </Text>
+          <AddressContainer>
+            <Text size="sm" weight="medium" noMargin>
+              {wallet.address}
+            </Text>
+          </AddressContainer>
+        </Content>
+      )}
+      {!wallet?.address ? (
+        <Actions>
+          {loading && showLongWaitMessage && (
+            <Text
+              variant="secondary"
+              size="sm"
+              noMargin
+              style={{ textAlign: "center" }}
+            >
+              {browser.i18n.getMessage("longer_than_usual")}
+            </Text>
+          )}
+        </Actions>
+      ) : (
+        <Actions>
+          <Button fullWidth onClick={handleYesImport}>
+            {browser.i18n.getMessage("yes_import")}
+          </Button>
+          <Button variant="secondary" fullWidth onClick={handleNoImport}>
+            {browser.i18n.getMessage("no_import")}
+          </Button>
+        </Actions>
+      )}
+      <WalletKeySizeErrorModal {...walletModal} back={() => navigate(`/`)} />
+    </Container>
+  );
 }
 
 const KeystoneScanner = ({
@@ -626,8 +734,7 @@ const KeystoneScanner = ({
         />
       </VideoContainer>
       <Text size="sm" variant="secondary" style={{ textAlign: "center" }}>
-        {browser.i18n.getMessage("progress")}:{" "}
-        {Math.round(scanner.progress * 100)}%
+        {browser.i18n.getMessage("progress")}: {Math.round(scanner.progress)}%
       </Text>
     </ScannerContainer>
   );
@@ -645,7 +752,6 @@ const Container = styled.div`
   justify-content: space-between;
   overflow: scroll;
   height: 100%;
-  gap: 24px;
 `;
 
 const Content = styled.div`

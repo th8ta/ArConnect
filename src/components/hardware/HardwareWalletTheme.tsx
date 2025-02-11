@@ -22,7 +22,7 @@ import {
 function hardwareThemeModifier(theme: ArconnectTheme): ArconnectTheme {
   return {
     ...theme,
-    theme: "154, 184, 255",
+    theme: "#9AB8FF",
     primary: "#9AB8FF",
     primaryBtnHover: "#6F93E1"
   };
