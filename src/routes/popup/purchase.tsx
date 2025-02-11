@@ -114,14 +114,16 @@ export function PurchaseView() {
         }
 
         const data = await response.json();
-        const currencyInfo = data.response.map((currency) => ({
-          symbol: currency.symbol,
-          logo: ["DZD", "CVE"].includes(currency.symbol)
-            ? `https://kapowaz.github.io/square-flags/flags/${currency.logoSymbol.toLowerCase()}.svg`
-            : `https://cdn.onramper.com/icons/tokens/${currency.symbol.toLowerCase()}.svg`,
-          name: currency.name,
-          paymentOptions: currency.paymentOptions
-        }));
+        const currencyInfo = data.response
+          .filter((currency) => currency.isAllowed)
+          .map((currency) => ({
+            symbol: currency.symbol,
+            logo: ["DZD", "CVE"].includes(currency.symbol)
+              ? `https://kapowaz.github.io/square-flags/flags/${currency.logoSymbol.toLowerCase()}.svg`
+              : `https://cdn.onramper.com/icons/tokens/${currency.symbol.toLowerCase()}.svg`,
+            name: currency.name,
+            paymentOptions: currency.paymentOptions
+          }));
         setCurrencies(currencyInfo || []);
         setSelectedCurrency(currencyInfo[0]);
         setPaymentMethod(currencyInfo[0].paymentOptions[0]);
@@ -243,9 +245,7 @@ export function PurchaseView() {
   }, [debouncedYouPayInput, selectedCurrency, paymentMethod, arConversion]);
 
   useEffect(() => {
-    youPayInput.setState("");
     setExchangeRate(0);
-    setUnavailableQuote(false);
   }, [selectedCurrency]);
 
   useEffect(() => {
@@ -254,7 +254,7 @@ export function PurchaseView() {
       quote &&
       paymentMethod &&
       (quote.fiatAmount > paymentMethod.maxAmount ||
-        quote.fiatAmount < paymentMethod.maxAmount)
+        quote.fiatAmount < paymentMethod.minAmount)
     ) {
       const isExceedMaxAmount = quote.fiatAmount > paymentMethod.maxAmount;
       setError(
@@ -709,7 +709,8 @@ const InputButton = ({
             style={{
               display: "flex",
               flexDirection: "column",
-              textAlign: "left"
+              textAlign: "left",
+              gap: "4px"
             }}
           >
             <Text size="sm" noMargin weight="medium" variant="secondary">
@@ -731,7 +732,7 @@ const InputButtonWrapper = styled.button`
   font-size: ${(props) => props.style?.fontSize ?? "16px"};
   display: flex;
   height: ${(props) => props.style?.height ?? "42px"};
-  padding: 12px 15px;
+  padding: 12px;
   border-radius: 10px;
   width: 100%;
   justify-content: space-between;
