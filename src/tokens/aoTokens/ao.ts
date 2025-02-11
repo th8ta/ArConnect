@@ -498,9 +498,7 @@ export async function fetchTokenBalance(
   refresh?: boolean
 ): Promise<string> {
   try {
-    if (token.processId === AO_NATIVE_TOKEN) {
-      return (await getNativeTokenBalance(address)).toString();
-    } else if (token.processId === "AR") {
+    if (token.processId === "AR") {
       return await getArTokenBalance(address);
     } else {
       if (refresh) token = await getTokenInfo(token.processId);
