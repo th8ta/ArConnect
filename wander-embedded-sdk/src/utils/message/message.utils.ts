@@ -38,7 +38,7 @@ export function isIncomingMessage(
         data &&
         typeof data === "object" &&
         typeof data.routeType === "string" &&
-        typeof data.preferredLayout === "string" &&
+        typeof data.preferredLayoutType === "string" &&
         typeof data.height === "number"
       );
     }

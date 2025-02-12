@@ -7,30 +7,42 @@ export type RouteType =
   | "settings"
   | "auth-request";
 
-export type RouteLayoutType = "modal" | "popup";
-
 export interface ModalLayoutConfig {
-  position?: "left" | "center" | "right";
-  expanded?: boolean;
-  imgSrc?: string | boolean;
+  type: "modal";
   fixedWidth?: number;
   fixedHeight?: number;
 }
 
 export interface PopupLayoutConfig {
+  type: "popup";
   position?: WanderEmbeddedButtonPosition;
   fixedWidth?: number;
   fixedHeight?: number;
 }
 
-export type LayoutConfig = ModalLayoutConfig | PopupLayoutConfig;
+export interface SidebarLayoutConfig {
+  type: "sidebar";
+  position?: "left" | "right";
+  fixedWidth?: number;
+}
 
-// TODO: 2-columns
-// TODO: Option to use fixed dimensions?
+export interface HalfLayoutConfig {
+  type: "half";
+  position?: "left" | "right";
+  imgSrc?: string | boolean;
+}
+
+export type LayoutConfig =
+  | ModalLayoutConfig
+  | PopupLayoutConfig
+  | SidebarLayoutConfig
+  | HalfLayoutConfig;
+
+export type LayoutType = LayoutConfig["type"];
 
 export interface RouteConfig {
   routeType: RouteType;
-  preferredLayout: LayoutConfig;
+  preferredLayoutType: LayoutType;
   width?: number;
   height: number;
 }
@@ -92,7 +104,7 @@ export interface WanderEmbeddedComponentOptions<T> {
 
 export interface WanderEmbeddedIframeOptions
   extends WanderEmbeddedComponentOptions<WanderEmbeddedModalCSSVars> {
-  routeLayout?: Record<RouteType, LayoutConfig>;
+  routeLayout?: Partial<Record<RouteType, LayoutType | LayoutConfig>>;
 }
 
 // Button:
@@ -123,7 +135,8 @@ export type WanderEmbeddedButtonNotifications = "off" | "counter" | "alert";
 export interface WanderEmbeddedModalCSSVars {
   // Modal (iframe):
   background?: string;
-  border?: string;
+  borderWidth?: number | string;
+  borderColor?: string;
   borderRadius?: number | string;
   boxShadow?: string;
   zIndex?: string;
@@ -134,6 +147,9 @@ export interface WanderEmbeddedModalCSSVars {
   backdropBackground?: string;
   backdropBackdropFilter?: string;
   backdropPadding?: number | string;
+
+  // TODO: For sidebar, we should add innerPadding (inside iframe)
+  // TODO: For half, we should add innerMaxWidth (inside iframe)
 }
 
 export interface WanderEmbeddedButtonCSSVars {

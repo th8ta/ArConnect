@@ -5,7 +5,7 @@ import {
   WanderEmbeddedButtonOptions
 } from "../../wander-embedded.types";
 import { createWanderSVG } from "../logo/wander-logo.component";
-import { asCSSVars } from "../../utils/styles/styles.utils";
+// import { asCSSVars } from "../../utils/styles/styles.utils";
 
 export class WanderButton {
   static DEFAULT_BUTTON_ID = "wanderEmbeddedButton" as const;
@@ -52,10 +52,6 @@ export class WanderButton {
     this.label = elements.label;
     this.balance = elements.balance;
     this.notifications = elements.notifications;
-  }
-
-  public getElement(): HTMLButtonElement {
-    return this.button;
   }
 
   // TODO: Button needs 3 states/labels:
@@ -107,6 +103,7 @@ export class WanderButton {
       gap: "8px",
       borderRadius: "50px",
       border: "1px solid rgba(51, 51, 51, 1)",
+      outline: "none",
       backgroundColor: "rgba(25, 25, 25, 1)",
       boxShadow: "0px 4px 40px 0px rgba(0, 0, 0, 0.25)",
       fontSize: "24px",
@@ -116,7 +113,7 @@ export class WanderButton {
     };
 
     // TODO: Use shadow DOM?
-    Object.assign(button.style, buttonStyle, asCSSVars({}));
+    Object.assign(button.style, buttonStyle);
 
     const logoStyle: CSSProperties = {};
 
@@ -159,6 +156,10 @@ export class WanderButton {
       balance,
       notifications
     };
+  }
+
+  getElement(): HTMLButtonElement {
+    return this.button;
   }
 
   addModifier(modifier: StateModifier) {}

@@ -20,7 +20,7 @@ export interface EmbeddedBalanceMessageData {
 
 export interface EmbeddedResizeMessageData {
   routeType: RouteType;
-  preferredLayout: EmbeddedLayout;
+  preferredLayoutType: EmbeddedLayout;
   width?: number;
   height: number;
 }

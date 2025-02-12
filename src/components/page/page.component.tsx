@@ -6,7 +6,7 @@ import {
   locationToRouteType,
   routeTypeToPreferredLayout
 } from "~utils/embedded/utils/routes/embedded-routes.utils";
-import type { ArConnectRoutePath } from "~wallets/router/router.types";
+import type { WanderRoutePath } from "~wallets/router/router.types";
 
 export interface PageProps extends PropsWithChildren {}
 
@@ -37,15 +37,15 @@ export function Page({ children }: PageProps) {
       if (width > 0 && height > 0) {
         // We get the path manually to avoid causing duplicate re-renders of the `Page` component if using the
         // `useLocation` hook:
-        const path = location.hash.replace("#", "") as ArConnectRoutePath;
+        const path = location.hash.replace("#", "") as WanderRoutePath;
         const routeType = locationToRouteType(path);
-        const preferredLayout = routeTypeToPreferredLayout(routeType);
+        const preferredLayoutType = routeTypeToPreferredLayout(routeType);
 
         postEmbeddedMessage({
           type: "embedded_resize",
           data: {
             routeType,
-            preferredLayout,
+            preferredLayoutType,
             width,
             height
           }

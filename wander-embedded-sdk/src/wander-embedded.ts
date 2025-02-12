@@ -55,6 +55,14 @@ export class WanderEmbedded {
   constructor(options: WanderEmbeddedOptions = {}) {
     // console.log("WanderEmbedded constructor");
 
+    // TODO: Add close button inside iframe and make sure the spinner shows straight away.
+
+    // TODO: Add customizable default size for each layout
+
+    // TODO: Add popup transition like Passkeys
+
+    // TODO: Take screenshots of the 4 layouts, side and half with and without border/padding
+
     // TODO: Make sure this cannot be called twice, or that it first destroys the previous instance(s)
 
     // TODO: Fix embedded issue: If generation was too long ago and it expires, it just throws an error instead of
@@ -125,6 +133,7 @@ export class WanderEmbedded {
       this.iframeRef = elements.iframe;
 
       document.body.appendChild(elements.backdrop);
+      document.body.appendChild(elements.iframe);
     }
 
     if (typeof buttonOptions === "object" || buttonOptions === true) {
@@ -153,9 +162,21 @@ export class WanderEmbedded {
         if (userDetails) {
           this.iframeComponent?.addModifier("isAuthenticated");
           this.buttonComponent?.addModifier("isAuthenticated");
+
+          this.iframeComponent?.resize({
+            routeType: "default",
+            preferredLayoutType: "popup",
+            height: 0
+          });
         } else {
           this.iframeComponent?.removeModifier("isAuthenticated");
           this.buttonComponent?.removeModifier("isAuthenticated");
+
+          this.iframeComponent?.resize({
+            routeType: "auth",
+            preferredLayoutType: "modal",
+            height: 0
+          });
         }
 
         this.onAuth(message.data);
@@ -176,8 +197,6 @@ export class WanderEmbedded {
         const routeConfig = message.data;
         const routeModifier =
           WanderEmbedded.ROUTE_MODIFIERS[routeConfig.routeType];
-
-        // TODO: Also account for routeConfig.preferredType & routeConfig.routeType
 
         if (routeModifier) {
           this.iframeComponent?.addModifier(routeModifier);

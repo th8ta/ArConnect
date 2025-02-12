@@ -35,7 +35,6 @@ import type { IBridgeMessage } from "@arconnect/webext-bridge";
 import { log, LOG_GROUP } from "~utils/log/log.utils";
 import { isError } from "~utils/error/error.utils";
 import type {
-  ArConnectRoutePath,
   RouteOverride,
   RouteRedirect
 } from "~wallets/router/router.types";

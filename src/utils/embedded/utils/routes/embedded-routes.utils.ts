@@ -1,4 +1,4 @@
-import type { ArConnectRoutePath } from "~wallets/router/router.types";
+import type { WanderRoutePath } from "~wallets/router/router.types";
 
 export type RouteType =
   | "auth"
@@ -14,14 +14,14 @@ const routeTypeByLocationPrefix: Record<string, RouteType> = {
   "auth-request": "auth-request"
 };
 
-export function locationToRouteType(path: ArConnectRoutePath): RouteType {
+export function locationToRouteType(path: WanderRoutePath): RouteType {
   const pathPrefix = path.split("/")[1] || "";
 
   return routeTypeByLocationPrefix[pathPrefix] || "default";
 }
 
 // TODO: This should match SDK's options:
-export type EmbeddedLayout = "modal" | "popup";
+export type EmbeddedLayout = "modal" | "popup" | "sidebar" | "half";
 
 const preferredLayoutByRouteType: Record<RouteType, EmbeddedLayout> = {
   auth: "modal",

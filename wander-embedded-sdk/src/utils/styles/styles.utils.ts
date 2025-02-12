@@ -1,12 +1,9 @@
-export function asCSSVars(obj: Record<string, string | number | undefined>) {
-  const style: Record<string, string> = {};
+export function addCSSVariables<T>(element: HTMLElement, vars: T) {
+  for (const key in vars) {
+    const value = vars[key];
 
-  for (const key in obj) {
-    const value = obj[key];
-
-    if (value)
-      style[`--${key}`] = typeof value === "number" ? `${value}px` : value;
+    if (typeof value === "string") element.style.setProperty(`--${key}`, value);
+    else if (typeof value === "number")
+      element.style.setProperty(`--${key}`, `${value}px`);
   }
-
-  return style;
 }
