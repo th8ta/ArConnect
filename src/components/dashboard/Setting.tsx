@@ -111,24 +111,27 @@ export function SettingDashboardView({ setting }: SettingDashboardViewProps) {
       );
 
     case "pick":
+      const showSearchInput =
+        setting.name !== "gateways" &&
+        setting?.options &&
+        setting.options.length > 6;
+
       return (
         <>
           {/** search for "pick" settings with more than 6 options */}
-          {setting.name !== "gateways" &&
-            setting?.options &&
-            setting.options.length > 6 && (
-              <>
-                <SearchWrapper>
-                  <SearchInput
-                    placeholder={browser.i18n.getMessage(
-                      setting?.inputPlaceholder || "search_pick_option"
-                    )}
-                    {...searchInput.bindings}
-                  />
-                </SearchWrapper>
-              </>
-            )}
-          <RadioWrapper>
+          {showSearchInput && (
+            <>
+              <SearchWrapper>
+                <SearchInput
+                  placeholder={browser.i18n.getMessage(
+                    setting?.inputPlaceholder || "search_pick_option"
+                  )}
+                  {...searchInput.bindings}
+                />
+              </SearchWrapper>
+            </>
+          )}
+          <RadioWrapper hidePadding={!showSearchInput}>
             {setting?.options &&
               setting.options.filter(filterSearchResults).map((option, i) => {
                 if (setting.name === "gateways") {
@@ -169,11 +172,11 @@ export function SettingDashboardView({ setting }: SettingDashboardViewProps) {
   }
 }
 
-export const RadioWrapper = styled.div`
+export const RadioWrapper = styled.div<{ hidePadding?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 1.5rem 0;
+  ${(props) => !props.hidePadding && `padding: 1.5rem 0;`}
 `;
 
 export const Radio = styled(Squircle).attrs((props) => ({
