@@ -119,67 +119,78 @@ export function ConnectAuthRequestView() {
   }, [requestedPermissions, requestedPermCopy]);
 
   // connect
-  async function connect(checkPassword = true) {
-    if (!url) return;
+  const connect = useCallback(
+    async (checkPassword = true) => {
+      if (!url) return;
 
-    if (checkPassword) {
-      const unlockRes = await globalUnlock(passwordInput.state);
+      if (checkPassword) {
+        const unlockRes = await globalUnlock(passwordInput.state);
 
-      if (!unlockRes) {
-        passwordInput.setStatus("error");
-        return setToast({
-          type: "error",
-          content: browser.i18n.getMessage("invalidPassword"),
-          duration: 2200
+        if (!unlockRes) {
+          passwordInput.setStatus("error");
+          return setToast({
+            type: "error",
+            content: browser.i18n.getMessage("invalidPassword"),
+            duration: 2200
+          });
+        }
+      }
+
+      // get existing permissions
+      const app = new Application(url);
+      const isAppPresent = await app.isAppPresent();
+
+      if (!isAppPresent) {
+        // add the app
+        await addApp({
+          url,
+          permissions,
+          name: appInfo.name,
+          logo: appInfo.logo,
+          signPolicy,
+          // alwaysAsk,
+          allowance: {
+            enabled: false,
+            limit: "0",
+            spent: "0" // in winstons
+          },
+          // TODO: wayfinder
+          gateway: gateway || defaultGateway
+        });
+      } else {
+        // update existing permissions, if the app
+        // has already been added
+
+        await app.updateSettings({
+          signPolicy,
+          permissions,
+          // alwaysAsk,
+          allowance: {
+            enabled: false,
+            limit: "0",
+            spent: "0" // in winstons
+          }
         });
       }
-    }
 
-    // get existing permissions
-    const app = new Application(url);
-    const isAppPresent = await app.isAppPresent();
-
-    if (!isAppPresent) {
-      // add the app
-      await addApp({
-        url,
-        permissions,
-        name: appInfo.name,
-        logo: appInfo.logo,
-        signPolicy,
-        // alwaysAsk,
-        allowance: {
-          enabled: false,
-          limit: "0",
-          spent: "0" // in winstons
-        },
-        // TODO: wayfinder
-        gateway: gateway || defaultGateway
+      // track connected app.
+      await trackEvent(EventType.CONNECTED_APP, {
+        appName: appInfo.name,
+        appUrl: url
       });
-    } else {
-      // update existing permissions, if the app
-      // has already been added
 
-      await app.updateSettings({
-        signPolicy,
-        permissions,
-        // alwaysAsk,
-        allowance: {
-          enabled: false,
-          limit: "0",
-          spent: "0" // in winstons
-        }
-      });
-    }
-
-    // track connected app.
-    await trackEvent(EventType.CONNECTED_APP, {
-      appName: appInfo.name,
-      appUrl: url
-    });
-
-    acceptRequest();
-  }
+      acceptRequest();
+    },
+    [
+      url,
+      passwordInput.state,
+      permissions,
+      appInfo,
+      signPolicy,
+      gateway,
+      acceptRequest
+    ]
+  );
 
   const handleBack = useCallback(async () => {
     if (page === "confirm") {
@@ -201,7 +212,7 @@ export function ConnectAuthRequestView() {
     } else if (page === "unlock") {
       await connect();
     }
-  }, [page, askPassword, passwordInput.state]);
+  }, [page, askPassword, connect]);
 
   useEffect(() => {
     (async () => {
