@@ -2,7 +2,7 @@ import { ExtensionStorage } from "~utils/storage";
 import type { Storage } from "@plasmohq/storage";
 import { PREFIX } from "~settings";
 import { getGatewayCache } from "~gateways/cache";
-import { clGateway, type Gateway } from "~gateways/gateway";
+import { clGateway, defaultGateway, type Gateway } from "~gateways/gateway";
 
 export default class Setting {
   /** Name of the setting */
@@ -63,13 +63,24 @@ export default class Setting {
       if (!options) throw new Error("Options not defined");
 
       if (name === "gateways") {
-        getGatewayCache().then((gateways) => {
+        getGatewayCache().then(async (gateways = []) => {
           const gatewayOptions = gateways.map((gateway) => ({
             port: gateway.settings.port,
             protocol: gateway.settings.protocol,
             host: gateway.settings.fqdn
           }));
-          const otherHosts = [clGateway.host, "aoweave.tech", "defi.ao"];
+          const gateway = (await this.getValue()) as Gateway;
+
+          const otherHosts = Array.from(
+            new Set([
+              gateway.host,
+              defaultGateway.host,
+              clGateway.host,
+              "aoweave.tech",
+              "defi.ao"
+            ])
+          );
+
           const uniqueHosts = otherHosts
             .filter(
               (host) => !gatewayOptions.some((option) => option.host === host)
