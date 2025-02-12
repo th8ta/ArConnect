@@ -1,6 +1,8 @@
 import { ExtensionStorage } from "~utils/storage";
 import type { Storage } from "@plasmohq/storage";
 import { PREFIX } from "~settings";
+import { getGatewayCache } from "~gateways/cache";
+import { clGateway, type Gateway } from "~gateways/gateway";
 
 export default class Setting {
   /** Name of the setting */
@@ -60,7 +62,25 @@ export default class Setting {
     if (type === "pick") {
       if (!options) throw new Error("Options not defined");
 
-      this.options = options;
+      if (name === "gateways") {
+        getGatewayCache().then((gateways) => {
+          const gatewayOptions = gateways.map((gateway) => ({
+            port: gateway.settings.port,
+            protocol: gateway.settings.protocol,
+            host: gateway.settings.fqdn
+          }));
+          const otherHosts = [clGateway.host, "aoweave.tech", "defi.ao"];
+          const uniqueHosts = otherHosts
+            .filter(
+              (host) => !gatewayOptions.some((option) => option.host === host)
+            )
+            .map((host) => ({ port: 443, protocol: "https", host }));
+
+          this.options = [...gatewayOptions, ...uniqueHosts];
+        });
+      } else {
+        this.options = options;
+      }
     }
   }
 
@@ -104,7 +124,7 @@ export default class Setting {
  * pick - Pick from a list
  */
 type SettingType = "string" | "number" | "boolean" | "pick";
-export type ValueType = string | number | boolean;
+export type ValueType = string | number | boolean | Gateway;
 
 export type Icon = (props: React.ComponentProps<"svg">) => JSX.Element;
 

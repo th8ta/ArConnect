@@ -428,7 +428,7 @@
       "description": "About settings title"
   },
   "setting_reset": {
-      "message": "重置",
+      "message": "重置 Wander",
       "description": "Reset settings title"
   },
   "setting_analytic": {
@@ -475,9 +475,9 @@
       "message": "主题",
       "description": "Theme settings title"
   },
-  "setting_wayfinder": {
-      "message": "Wayfinder",
-      "description": "Wayfinder settings title"
+  "setting_gateways": {
+      "message": "网关",
+      "description": "Gateways settings title"
   },
   "setting_notifications": {
       "message": "通知",
@@ -543,9 +543,9 @@
       "message": "扩展 UI 的主题",
       "description": "Display theme settings description"
   },
-  "setting_wayfinder_description": {
-      "message": "针对 ar.io 网关的实验性系统范围导航器",
-      "description": "Wayfinder settings description"
+  "setting_gateways_description": {
+      "message": "Arweave 网关简化了数据访问。",
+      "description": "Gateways settings description"
   },
   "search_pick_option": {
       "message": "搜索选项...",
