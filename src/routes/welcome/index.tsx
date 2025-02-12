@@ -15,6 +15,7 @@ import { useLocation } from "~wallets/router/router.utils";
 import WanderIcon from "url:assets/icon.svg";
 import StarIcons from "~components/welcome/StarIcons";
 import IconText from "~components/IconText";
+import UpdateSplash from "./UpdateSplash";
 
 export function HomeWelcomeView() {
   const { navigate } = useLocation();
@@ -72,6 +73,8 @@ export function HomeWelcomeView() {
             />
             <IconText width={280} height={52.866} />
           </ImagesWrapper>
+          <UpdateSplash />
+
           <Spacer y={3.5} />
           <ButtonsWrapper>
             <WelcomeButton
