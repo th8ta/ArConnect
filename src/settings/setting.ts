@@ -2,7 +2,12 @@ import { ExtensionStorage } from "~utils/storage";
 import type { Storage } from "@plasmohq/storage";
 import { PREFIX } from "~settings";
 import { getGatewayCache } from "~gateways/cache";
-import { clGateway, defaultGateway, type Gateway } from "~gateways/gateway";
+import {
+  clGateway,
+  defaultGateway,
+  defaultGateways,
+  type Gateway
+} from "~gateways/gateway";
 
 export default class Setting {
   /** Name of the setting */
@@ -64,11 +69,14 @@ export default class Setting {
 
       if (name === "gateways") {
         getGatewayCache().then(async (gateways = []) => {
-          const gatewayOptions = gateways.map((gateway) => ({
-            port: gateway.settings.port,
-            protocol: gateway.settings.protocol,
-            host: gateway.settings.fqdn
-          }));
+          let gatewayOptions: Gateway[] = defaultGateways;
+          if (gateways.length > 0) {
+            gatewayOptions = gateways.map((gateway) => ({
+              port: gateway.settings.port,
+              protocol: gateway.settings.protocol,
+              host: gateway.settings.fqdn
+            }));
+          }
           const gateway = (await this.getValue()) as Gateway;
 
           const otherHosts = Array.from(
