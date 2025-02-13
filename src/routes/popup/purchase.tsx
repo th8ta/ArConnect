@@ -10,8 +10,12 @@ import {
   ListItemIcon
 } from "@arconnect/components-rebrand";
 import browser from "webextension-polyfill";
-import { Bank, BankNote01, ChevronDown } from "@untitled-ui/icons-react";
-import switchIcon from "url:/assets/ecosystem/switch-vertical.svg";
+import {
+  Bank,
+  BankNote01,
+  ChevronDown,
+  SwitchVertical02
+} from "@untitled-ui/icons-react";
 import styled from "styled-components";
 import HeadV2 from "~components/popup/HeadV2";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -390,7 +394,7 @@ export function PurchaseView() {
               setArConversion(!arConversion);
             }}
           >
-            <img style={{ height: "20px" }} src={switchIcon} />
+            <SwitchVertical02 height={20} color={theme.primaryText} />
           </Switch>
           <InputButton
             style={{
