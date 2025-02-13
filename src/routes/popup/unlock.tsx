@@ -12,6 +12,7 @@ import styled, { useTheme } from "styled-components";
 import WanderIcon from "url:assets/icon.svg";
 import IconText from "~components/IconText";
 import StarIcons from "~components/welcome/StarIcons";
+import UpdateSplash from "~routes/welcome/UpdateSplash";
 
 export function UnlockView() {
   // password input
@@ -42,6 +43,7 @@ export function UnlockView() {
       <Content>
         <StarIcons screen="unlock" />
         <IconsContainer>
+          <UpdateSplash width={250} height={250} />
           <Image
             src={WanderIcon}
             alt="Wander Icon"
