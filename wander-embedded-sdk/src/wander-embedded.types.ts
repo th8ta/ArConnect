@@ -86,9 +86,15 @@ export interface WanderEmbeddedOptions {
 
 // Common:
 
+export type ThemeVariant = "light" | "dark";
+
+export type ThemeSetting = "system" | ThemeVariant;
+
 export interface WanderEmbeddedComponentOptions<T> {
   id?: string;
   className?: string;
+  // TODO: Support themes
+  // cssVars?: ThemeSetting | T | Record<ThemeVariant, T>;
   cssVars?: T;
 }
 

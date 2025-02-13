@@ -49,6 +49,26 @@ export class WanderIframe {
     opacity: 1
   };
 
+  static MODAL_HIDE_STYLE: CSSProperties = {
+    pointerEvents: "none",
+    opacity: 0
+  };
+
+  static MODAL_SHOW_STYLE: CSSProperties = {
+    pointerEvents: "auto",
+    opacity: 1
+  };
+
+  static POPUP_HIDE_STYLE: CSSProperties = {
+    pointerEvents: "none",
+    opacity: 0
+  };
+
+  static POPUP_SHOW_STYLE: CSSProperties = {
+    pointerEvents: "auto",
+    opacity: 1
+  };
+
   static BACKDROP_BASE_STYLE: CSSProperties = {
     position: "fixed",
     zIndex: "var(--zIndex, 9999)",
@@ -221,8 +241,8 @@ export class WanderIframe {
         cssVars.preferredWidth ??= layoutConfig.fixedWidth || routeConfig.width;
         cssVars.preferredHeight ??=
           layoutConfig.fixedHeight || routeConfig.height;
-        this.iframeHideStyle = WanderIframe.BACKDROP_HIDE_STYLE;
-        this.iframeShowStyle = WanderIframe.BACKDROP_SHOW_STYLE;
+        this.iframeHideStyle = WanderIframe.MODAL_HIDE_STYLE;
+        this.iframeShowStyle = WanderIframe.MODAL_SHOW_STYLE;
 
         break;
       }
@@ -237,11 +257,13 @@ export class WanderIframe {
         iframeStyle[x] = "var(--backdropPadding, 32px)";
         iframeStyle.transition =
           "height linear 300ms, width linear 300ms, opacity linear 150ms";
+        // iframeStyle.minWidth = 0;
+        // iframeStyle.minHeight = 0;
         cssVars.preferredWidth ??= layoutConfig.fixedWidth || routeConfig.width;
         cssVars.preferredHeight ??=
           layoutConfig.fixedHeight || routeConfig.height;
-        this.iframeHideStyle = WanderIframe.BACKDROP_HIDE_STYLE;
-        this.iframeShowStyle = WanderIframe.BACKDROP_SHOW_STYLE;
+        this.iframeHideStyle = WanderIframe.POPUP_HIDE_STYLE;
+        this.iframeShowStyle = WanderIframe.POPUP_SHOW_STYLE;
 
         break;
       }
