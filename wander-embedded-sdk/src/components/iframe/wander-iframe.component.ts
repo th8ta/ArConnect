@@ -1,6 +1,7 @@
 import { CSSProperties } from "react";
 import {
   HalfLayoutConfig,
+  isRouteConfig,
   LayoutConfig,
   LayoutType,
   ModalLayoutConfig,
@@ -93,15 +94,39 @@ export class WanderIframe {
 
     const { routeLayout } = options;
 
-    this.routeLayout = {
-      default: WanderIframe.getLayoutConfig(routeLayout?.default),
-      auth: WanderIframe.getLayoutConfig(routeLayout?.auth),
-      account: WanderIframe.getLayoutConfig(routeLayout?.account),
-      settings: WanderIframe.getLayoutConfig(routeLayout?.settings),
-      "auth-request": WanderIframe.getLayoutConfig(
-        routeLayout?.["auth-request"]
-      )
-    };
+    if (typeof routeLayout === "string" || isRouteConfig(routeLayout)) {
+      // If a single value is passed, we use it for default and auth-requests. Anything else fallbacks to the default
+      // (currently modal):
+
+      const defaultLayoutConfig = WanderIframe.getLayoutConfig(routeLayout);
+
+      this.routeLayout = {
+        default: defaultLayoutConfig,
+        "auth-request": defaultLayoutConfig
+      };
+    } else {
+      // If only default and auth are defined by the developer, default is used for both default and auth-request, and
+      // auth is used for auth, account and settings:
+
+      const defaultLayoutConfig = WanderIframe.getLayoutConfig(
+        routeLayout?.default
+      );
+      const authLayoutConfig = WanderIframe.getLayoutConfig(routeLayout?.auth);
+
+      this.routeLayout = {
+        default: defaultLayoutConfig,
+        auth: authLayoutConfig,
+        account:
+          WanderIframe.getLayoutConfig(routeLayout?.account) ||
+          authLayoutConfig,
+        settings:
+          WanderIframe.getLayoutConfig(routeLayout?.settings) ||
+          authLayoutConfig,
+        "auth-request":
+          WanderIframe.getLayoutConfig(routeLayout?.["auth-request"]) ||
+          defaultLayoutConfig
+      };
+    }
 
     const elements = WanderIframe.initializeIframe(src, options);
 
@@ -182,11 +207,9 @@ export class WanderIframe {
 
     this.currentLayoutType = layoutType;
 
-    console.log("RESIZE", layoutConfig);
-
     const backdropStyle: CSSProperties = {};
     const iframeStyle: CSSProperties = {};
-    const cssVars: WanderEmbeddedModalCSSVars = this.options.cssVars || {};
+    const cssVars: WanderEmbeddedModalCSSVars = { ...this.options.cssVars };
 
     switch (layoutConfig.type) {
       case "modal": {

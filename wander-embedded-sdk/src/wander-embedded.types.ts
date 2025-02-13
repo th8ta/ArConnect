@@ -42,6 +42,22 @@ export type LayoutConfig =
 
 export type LayoutType = LayoutConfig["type"];
 
+export const LAYOUT_TYPES = [
+  "modal",
+  "popup",
+  "sidebar",
+  "half"
+] as const satisfies LayoutType[];
+
+export function isRouteConfig(obj: unknown): obj is LayoutConfig {
+  return !!(
+    obj &&
+    typeof obj === "object" &&
+    "type" in obj &&
+    LAYOUT_TYPES.includes(obj.type as LayoutType)
+  );
+}
+
 export interface RouteConfig {
   routeType: RouteType;
   preferredLayoutType: LayoutType;
@@ -78,9 +94,25 @@ export interface WanderEmbeddedComponentOptions<T> {
 
 // Modal (iframe):
 
+export type WanderEmbeddedClickOutsideBehavior = "auto" | boolean;
+
 export interface WanderEmbeddedIframeOptions
   extends WanderEmbeddedComponentOptions<WanderEmbeddedModalCSSVars> {
-  routeLayout?: Partial<Record<RouteType, LayoutType | LayoutConfig>>;
+  // TODO: Default should automatically be used for auth-requests, and auth for account and settings?
+  routeLayout?:
+    | LayoutType
+    | LayoutConfig
+    | Partial<Record<RouteType, LayoutType | LayoutConfig>>;
+
+  /**
+   * Close Wander Embedded when clicking outside of it:
+   *
+   * - "auto": Will close if `backdropBackground` is not transparent or if `backdropBackdropFilter` is used.
+   * - false: Will never close. Use this if you want Wander Embedded to close by clicking the close icon.
+   * - true: Will always close. Use this if you want Wander Embedded to close when clicking outside, even if the
+   *   backdrop is not visible.
+   */
+  clickOutsideBehavior?: WanderEmbeddedClickOutsideBehavior;
 }
 
 // Button:
@@ -130,6 +162,12 @@ export interface WanderEmbeddedModalCSSVars {
   backdropBackground?: string;
   backdropBackdropFilter?: string;
   backdropPadding?: number | string;
+
+  /**
+   * TODO: If `backdropBackground` is transparent and `backdropBackdropFilter` is not set, this will be set to "none", unless
+   * a different value is specified. In any other case, this is ignored.
+   */
+  backdropPointerEvents?: string;
 }
 
 export interface WanderEmbeddedButtonCSSVars {

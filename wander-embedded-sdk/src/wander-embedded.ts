@@ -33,6 +33,7 @@ export class WanderEmbedded {
 
   // HTML elements:
   private buttonRef: null | HTMLButtonElement = null;
+  private backdropRef: null | HTMLDivElement = null;
   private iframeRef: null | HTMLIFrameElement = null;
 
   // State:
@@ -50,8 +51,10 @@ export class WanderEmbedded {
   - // TODO: Animate/transition this. First close the old layout. Then open the new one.
   - Initialize CSS variables with options?
   - Add popup transition like Passkeys
-  - Enable/disable close with click outside? Only when backdrop visible?
+  - The modal should only open automatically for auth request, and if the user closes it it should remain open until all are
+    cleared.
 
+  - Animate button when it first appears.
   - Pass "App wrapper (inside iframe):" to iframe.
   - Add option to configure the size-images based on route on the side-by-side view (or send them from the modal)
   - "popup" layout should probably not resize, only modal.
@@ -59,7 +62,7 @@ export class WanderEmbedded {
   - Add logic to increase/decrease pending notifications (e.g. when an auth request has been viewed).
   - Add black and white logo option? Consider overlaying the app logo to indicate "connected".
   - Add styling shortcuts (different defaults): sketch, smooth, rounded
-  - Add function to change options later
+  - Add function to change layouts and cssVars later
   - On mobile, just take the whole screen. One desktop, leave space for button.
   - Add slight rotation towards/against the mouse (except when directly on top)?
   - TODO: Pass theme, balance config and max width/height to iframe:
@@ -84,8 +87,11 @@ export class WanderEmbedded {
     this.onNotification = options.onNotification ?? NOOP;
 
     const optionsWithDefaults = merge(options, {
+      iframe: {
+        clickOutsideBehavior: "auto"
+      },
       button: true
-    });
+    } satisfies WanderEmbeddedOptions);
 
     // Create or get references to iframe and, maybe, button:
     this.initializeComponents(optionsWithDefaults);
@@ -137,6 +143,7 @@ export class WanderEmbedded {
 
       const elements = this.iframeComponent.getElements();
 
+      this.backdropRef = elements.backdrop;
       this.iframeRef = elements.iframe;
 
       document.body.appendChild(elements.backdrop);
@@ -151,6 +158,30 @@ export class WanderEmbedded {
       this.buttonRef = this.buttonComponent.getElement();
 
       document.body.appendChild(this.buttonRef);
+    }
+
+    const clickOutsideBehavior =
+      iframeOptions instanceof HTMLElement
+        ? false
+        : iframeOptions?.clickOutsideBehavior;
+
+    if (clickOutsideBehavior) {
+      document.body.addEventListener("click", ({ target }) => {
+        // Do not check if `target` is the backdrop <div> as it might have pointer-events: none.
+
+        const shouldClose =
+          clickOutsideBehavior === true ||
+          (this.iframeRef !== target &&
+            this.buttonRef !== target &&
+            !this.iframeRef?.contains(target as HTMLElement) &&
+            !this.buttonRef?.contains(target as HTMLElement) &&
+            this.backdropRef &&
+            (getComputedStyle(this.backdropRef).backdropFilter !== "none" ||
+              // TODO: This is not a good way to check if it's totally transparent:
+              getComputedStyle(this.backdropRef).background !== "transparent"));
+
+        if (shouldClose) this.close();
+      });
     }
   }
 

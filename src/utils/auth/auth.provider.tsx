@@ -452,7 +452,11 @@ export function AuthRequestsProvider({
       authRequests.length > 0 &&
       authRequests.every((authRequest) => authRequest.status !== "pending");
 
-    if (statusOverride === null && authRequests.length === 0) {
+    if (
+      import.meta.env?.VITE_IS_EMBEDDED_APP !== "1" &&
+      statusOverride === null &&
+      authRequests.length === 0
+    ) {
       // TODO: Maybe move to the app entry point?
       // Close the popup if an AuthRequest doesn't arrive in less than `AUTH_POPUP_REQUEST_WAIT_MS` (1s), unless the
       // wallet is locked (no timeout in that case):
