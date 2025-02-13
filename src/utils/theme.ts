@@ -86,9 +86,9 @@ export function getFormattedColor(color: string) {
     formattedColor = color;
   } else if (/^([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(color)) {
     formattedColor = `#${color}`;
-  } else if (/\d{1,3}, ?\d{1,3}, ?\d{1,3}/.test(color)) {
+  } else if (/^\d{1,3}, ?\d{1,3}, ?\d{1,3}$/.test(color)) {
     formattedColor = `rgb(${color})`;
-  } else if (/\d{1,3}, ?\d{1,3}, ?\d{1,3}, ?.+/.test(color)) {
+  } else if (/^\d{1,3}, ?\d{1,3}, ?\d{1,3}, ?.+$/.test(color)) {
     formattedColor = `rgba(${color})`;
   }
   return formattedColor;
