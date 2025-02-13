@@ -5,8 +5,6 @@ import { merge } from "ts-deepmerge";
 import {
   BalanceInfo,
   RouteConfig,
-  RouteType,
-  StateModifier,
   WanderEmbeddedOptions
 } from "./wander-embedded.types";
 import {
@@ -20,14 +18,6 @@ const NOOP = () => {};
 
 export class WanderEmbedded {
   static DEFAULT_IFRAME_SRC = "http://localhost:5173/" as const;
-
-  static ROUTE_MODIFIERS: Record<string, "" | StateModifier> = {
-    default: "",
-    auth: "isAuthRoute",
-    account: "isAccountRoute",
-    settings: "isSettingsRoute",
-    "auth-request": "isAuthRequestRoute"
-  };
 
   // Callbacks:
   private onAuth: (userDetails: UserDetails | null) => void = NOOP;
@@ -47,27 +37,44 @@ export class WanderEmbedded {
 
   // State:
   public isOpen = false;
-  public userDetails: UserDetails | null = null;
+  public userDetails: UserDetails | null = null; // TODO: Should we expose this?
   public routeConfig: RouteConfig | null = null;
   public balanceInfo: BalanceInfo | null = null;
   public notificationsCount: number = 0;
 
+  /*
+
+  TODO:
+
+  - // TODO: Create defaultCssVars property to avoid having to use default values in "var" and get rid of these overrides:
+  - // TODO: Animate/transition this. First close the old layout. Then open the new one.
+  - Initialize CSS variables with options?
+  - Add popup transition like Passkeys
+  - Enable/disable close with click outside? Only when backdrop visible?
+
+  - Pass "App wrapper (inside iframe):" to iframe.
+  - Add option to configure the size-images based on route on the side-by-side view (or send them from the modal)
+  - "popup" layout should probably not resize, only modal.
+  - How to manage light/dark theme?
+  - Add logic to increase/decrease pending notifications (e.g. when an auth request has been viewed).
+  - Add black and white logo option? Consider overlaying the app logo to indicate "connected".
+  - Add styling shortcuts (different defaults): sketch, smooth, rounded
+  - Add function to change options later
+  - On mobile, just take the whole screen. One desktop, leave space for button.
+  - Add slight rotation towards/against the mouse (except when directly on top)?
+  - TODO: Pass theme, balance config and max width/height to iframe:
+  - Make sure this cannot be called twice, or that it first destroys the previous instance(s)
+  - Use shadow DOM instead and add :hover, :focus and media queries.
+  - Add customizable default size for each layout.
+  - Add close button inside iframe and make sure the spinner shows straight away.
+  - TODO: Add CSS var for transition duration.
+  - Considering having different transitions.
+  - Add effect when spending/signing
+  - Fix embedded issue: If generation was too long ago and it expires, it just throws an error instead of generating a new one when needed.
+
+  */
+
   constructor(options: WanderEmbeddedOptions = {}) {
-    // console.log("WanderEmbedded constructor");
-
-    // TODO: Add close button inside iframe and make sure the spinner shows straight away.
-
-    // TODO: Add customizable default size for each layout
-
-    // TODO: Add popup transition like Passkeys
-
-    // TODO: Take screenshots of the 4 layouts, side and half with and without border/padding
-
-    // TODO: Make sure this cannot be called twice, or that it first destroys the previous instance(s)
-
-    // TODO: Fix embedded issue: If generation was too long ago and it expires, it just throws an error instead of
-    // generating a new one when needed.
-
     // Callbacks:
     this.onAuth = options.onAuth ?? NOOP;
     this.onOpen = options.onOpen ?? NOOP;
@@ -85,7 +92,7 @@ export class WanderEmbedded {
 
     if (!this.iframeRef) throw new Error("Error creating iframe");
 
-    // TODO: Pass theme and balance config to iframe:
+    // TODO: Pass theme, balance config and max width/height to iframe:
     // this.iframeRef.contentWindow.postMessage(message, "*");
 
     // Once we have all the elements in place, start listening for wallet messages...
@@ -160,8 +167,7 @@ export class WanderEmbedded {
         this.userDetails = userDetails;
 
         if (userDetails) {
-          this.iframeComponent?.addModifier("isAuthenticated");
-          this.buttonComponent?.addModifier("isAuthenticated");
+          this.buttonComponent?.setStatus("isAuthenticated");
 
           this.iframeComponent?.resize({
             routeType: "default",
@@ -169,8 +175,7 @@ export class WanderEmbedded {
             height: 0
           });
         } else {
-          this.iframeComponent?.removeModifier("isAuthenticated");
-          this.buttonComponent?.removeModifier("isAuthenticated");
+          this.buttonComponent?.unsetStatus("isAuthenticated");
 
           this.iframeComponent?.resize({
             routeType: "auth",
@@ -186,8 +191,7 @@ export class WanderEmbedded {
         if (this.isOpen) {
           this.isOpen = false;
 
-          this.iframeComponent?.removeModifier("isOpen");
-          this.buttonComponent?.removeModifier("isOpen");
+          this.buttonComponent?.unsetStatus("isOpen");
 
           this.onClose();
         }
@@ -195,13 +199,6 @@ export class WanderEmbedded {
 
       case "embedded_resize":
         const routeConfig = message.data;
-        const routeModifier =
-          WanderEmbedded.ROUTE_MODIFIERS[routeConfig.routeType];
-
-        if (routeModifier) {
-          this.iframeComponent?.addModifier(routeModifier);
-          this.buttonComponent?.addModifier(routeModifier);
-        }
 
         this.iframeComponent?.resize(routeConfig);
 
@@ -209,7 +206,8 @@ export class WanderEmbedded {
 
         if (!this.isOpen) {
           this.isOpen = true;
-          // this.iframeComponent.show();
+          this.buttonComponent?.setStatus("isOpen");
+          this.iframeComponent?.show();
           this.onOpen();
         }
 
@@ -233,9 +231,6 @@ export class WanderEmbedded {
         this.onNotification(notificationsCount);
         break;
     }
-
-    // this.iframeComponent.update();
-    // this.buttonComponent.update();
   }
 
   private handleButtonClick() {
@@ -252,10 +247,9 @@ export class WanderEmbedded {
 
     if (this.iframeComponent && !this.isOpen) {
       this.isOpen = true;
+      this.buttonComponent?.setStatus("isOpen");
       this.iframeComponent.show();
     }
-
-    // TODO: Update iframe and button styles (StateModifier)
   }
 
   public close(): void {
@@ -267,10 +261,9 @@ export class WanderEmbedded {
 
     if (this.iframeComponent && this.isOpen) {
       this.isOpen = false;
+      this.buttonComponent?.unsetStatus("isOpen");
       this.iframeComponent.hide();
     }
-
-    // TODO: Update iframe and button styles (StateModifier)
   }
 
   public destroy(): void {

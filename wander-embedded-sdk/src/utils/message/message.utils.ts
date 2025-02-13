@@ -49,7 +49,7 @@ export function isIncomingMessage(
       return !!(
         data &&
         typeof data === "object" &&
-        typeof data.aggregatedBalance === "number" &&
+        typeof data.amount === "number" &&
         typeof data.currency === "string"
       );
     }

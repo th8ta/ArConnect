@@ -8,7 +8,6 @@ import {
   RouteConfig,
   RouteType,
   SidebarLayoutConfig,
-  StateModifier,
   WanderEmbeddedIframeOptions,
   WanderEmbeddedModalCSSVars
 } from "../../wander-embedded.types";
@@ -22,12 +21,14 @@ export class WanderIframe {
     position: "fixed",
     zIndex: "calc(var(--zIndex, 9999) + 1)",
     background: "var(--background, white)",
-    border:
-      "var(--borderWidth, 2px) solid var(--borderColor, rgba(0, 0, 0, .125))",
+    borderWidth: "var(--borderWidth, 2px)",
+    borderStyle: "solid",
+    borderColor: "var(--borderColor, rgba(0, 0, 0, .125))",
     borderRadius: "var(--borderRadius, 10px)",
     boxShadow: "var(--boxShadow, 0 0 16px 0 rgba(0, 0, 0, 0.125))",
     width: "calc(var(--preferredWidth, 400px) - 2 * var(--borderWidth, 2px))",
     height: "calc(var(--preferredHeight, 600px) - 2 * var(--borderWidth, 2px))",
+    // TODO: No min on mobile:
     minWidth: "400px",
     minHeight: "400px",
     maxWidth:
@@ -54,12 +55,9 @@ export class WanderIframe {
     background: "var(--backdropBackground, rgba(255, 255, 255, .0625))",
     backdropFilter: "var(--backdropBackdropFilter, blur(12px))",
     padding: "var(--backdropPadding, 32px)",
-    // TODO: Add CSS vars for this:
+    // TODO: Add CSS var for transition duration.
     transition: "opacity linear 150ms"
-    // ...WanderIframe.BACKDROP_HIDE_STYLE
   };
-
-  // static DEFAULT_CLASSNAMES: Record<StateModifier, string> = {};
 
   static DEFAULT_ROUTE_LAYOUT = {
     modal: {
@@ -76,12 +74,13 @@ export class WanderIframe {
     } as HalfLayoutConfig
   };
 
+  // Elements:
   private backdrop: HTMLDivElement;
   private iframe: HTMLIFrameElement;
 
+  // Options:
   private options: WanderEmbeddedIframeOptions;
   private routeLayout: Partial<Record<RouteType, LayoutConfig>>;
-
   private iframeHideStyle: CSSProperties = {};
   private iframeShowStyle: CSSProperties = {};
 
@@ -89,12 +88,7 @@ export class WanderIframe {
   private currentLayoutType: LayoutType | null = null;
   private isOpen = false;
 
-  // private classNames: Partial<Record<StateModifier, string>>;
-  // private cssVars?: Partial<Record<StateModifier, WanderEmbeddedModalCSSVars>>;
-
   constructor(src: string, options: WanderEmbeddedIframeOptions = {}) {
-    // console.log("WanderIframe constructor");
-
     this.options = options;
 
     const { routeLayout } = options;
@@ -109,13 +103,6 @@ export class WanderIframe {
       )
     };
 
-    /*
-    this.classNames = typeof options.className === "string"
-      ? { default: options.className } satisfies Partial<Record<StateModifier, string>>
-      : (options.className || {});
-    this.cssVars = options.cssVars || {};
-    */
-
     const elements = WanderIframe.initializeIframe(src, options);
 
     this.backdrop = elements.backdrop;
@@ -128,9 +115,6 @@ export class WanderIframe {
       preferredLayoutType: this.routeLayout.auth?.type || "modal",
       height: 0
     });
-
-    // TODO: Initialize CSS variables with options?
-    // TODO: Apply CSS variables and modifiers.
   }
 
   static getLayoutConfig(
@@ -188,10 +172,6 @@ export class WanderIframe {
     Object.assign(this.iframe.style, this.iframeHideStyle);
   }
 
-  addModifier(modifier: StateModifier) {}
-
-  removeModifier(modifier: StateModifier) {}
-
   resize(routeConfig: RouteConfig): void {
     const layoutConfig =
       this.routeLayout[routeConfig.routeType] ||
@@ -204,13 +184,9 @@ export class WanderIframe {
 
     console.log("RESIZE", layoutConfig);
 
-    // TODO: On mobile, just take the whole screen. One desktop, leave space for button.
-    // TODO: Enable/disable close with click outside? Only when backdrop visible?
-    // TODO: Add slight rotation towards/against the mouse (except when directly on top)?
-
     const backdropStyle: CSSProperties = {};
     const iframeStyle: CSSProperties = {};
-    const iframeCSSVars: WanderEmbeddedModalCSSVars = {};
+    const cssVars: WanderEmbeddedModalCSSVars = this.options.cssVars || {};
 
     switch (layoutConfig.type) {
       case "modal": {
@@ -219,9 +195,8 @@ export class WanderIframe {
         iframeStyle.transform = "translate(-50%, -50%)"; // TODO: Add scale effect when appearing?
         iframeStyle.transition =
           "height linear 300ms, width linear 300ms, opacity linear 150ms";
-        iframeCSSVars.preferredWidth =
-          layoutConfig.fixedWidth || routeConfig.width;
-        iframeCSSVars.preferredHeight =
+        cssVars.preferredWidth ??= layoutConfig.fixedWidth || routeConfig.width;
+        cssVars.preferredHeight ??=
           layoutConfig.fixedHeight || routeConfig.height;
         this.iframeHideStyle = WanderIframe.BACKDROP_HIDE_STYLE;
         this.iframeShowStyle = WanderIframe.BACKDROP_SHOW_STYLE;
@@ -239,9 +214,8 @@ export class WanderIframe {
         iframeStyle[x] = "var(--backdropPadding, 32px)";
         iframeStyle.transition =
           "height linear 300ms, width linear 300ms, opacity linear 150ms";
-        iframeCSSVars.preferredWidth =
-          layoutConfig.fixedWidth || routeConfig.width;
-        iframeCSSVars.preferredHeight =
+        cssVars.preferredWidth ??= layoutConfig.fixedWidth || routeConfig.width;
+        cssVars.preferredHeight ??=
           layoutConfig.fixedHeight || routeConfig.height;
         this.iframeHideStyle = WanderIframe.BACKDROP_HIDE_STYLE;
         this.iframeShowStyle = WanderIframe.BACKDROP_SHOW_STYLE;
@@ -254,10 +228,13 @@ export class WanderIframe {
         const y = layoutConfig.position || "right";
         const sign = y === "right" ? "+" : "-";
 
-        iframeStyle.top = 0;
-        iframeStyle[y] = 0;
+        iframeStyle.top = layoutConfig.expanded
+          ? 0
+          : `var(--backdropPadding, 0)`;
+        iframeStyle[y] = layoutConfig.expanded
+          ? 0
+          : `var(--backdropPadding, 0)`;
         iframeStyle.transition = "transform linear 150ms";
-        // iframeStyle.maxHeight = "100dvh";
 
         this.iframeHideStyle = {
           transform: `translate(calc(${sign}100% ${sign} var(--backdropPadding, 32px)), 0)`
@@ -267,15 +244,34 @@ export class WanderIframe {
           transform: `translate(0, 0)`
         };
 
-        iframeCSSVars.backdropPadding = 0;
+        if (layoutConfig.expanded) {
+          iframeStyle.borderWidth =
+            y === "right"
+              ? "0 0 0 var(--borderWidth, 2px)"
+              : "0 var(--borderWidth, 2px) 0 0";
+
+          // TODO: Create defaultCssVars property to avoid having to use default values in "var" and get rid of these overrides:
+          iframeStyle.width = "var(--preferredWidth, 400px)";
+          iframeStyle.height = "var(--preferredHeight, 600px)";
+          iframeStyle.maxWidth = "var(--preferredWidth, 400px)";
+          iframeStyle.maxHeight = "var(--preferredHeight, 600px)";
+
+          cssVars.backdropPadding = 0;
+          cssVars.borderRadius ??= 0;
+        } else {
+          cssVars.backdropPadding ??= 8;
+        }
 
         if (layoutConfig.type === "sidebar") {
-          iframeCSSVars.preferredWidth =
+          cssVars.preferredWidth ??=
             layoutConfig.fixedWidth || routeConfig.width;
-          iframeCSSVars.preferredHeight = "100dvw";
+          cssVars.preferredHeight ??=
+            "calc(100dvw - 2 * var(--backdropPadding, 0))";
         } else {
-          iframeCSSVars.preferredWidth = "50vw";
-          iframeCSSVars.preferredHeight = "100dvw";
+          cssVars.preferredWidth ??=
+            "calc(50vw - 2 * var(--backdropPadding, 0))";
+          cssVars.preferredHeight ??=
+            "calc(100dvw - 2 * var(--backdropPadding, 0))";
 
           // TODO Set imgSrc
         }
@@ -290,8 +286,8 @@ export class WanderIframe {
       this.backdrop.removeAttribute("style");
       this.iframe.removeAttribute("style");
 
-      Object.assign(backdropStyle, WanderIframe.BACKDROP_BASE_STYLE);
-      Object.assign(iframeStyle, WanderIframe.IFRAME_BASE_STYLE);
+      Object.assign(this.backdrop.style, WanderIframe.BACKDROP_BASE_STYLE);
+      Object.assign(this.iframe.style, WanderIframe.IFRAME_BASE_STYLE);
 
       // TODO: Animate/transition this. First close the old layout. Then open the new one.
     }
@@ -310,6 +306,7 @@ export class WanderIframe {
       this.isOpen ? this.iframeShowStyle : this.iframeHideStyle
     );
 
-    addCSSVariables(this.iframe, iframeCSSVars);
+    addCSSVariables(this.backdrop, cssVars);
+    addCSSVariables(this.iframe, cssVars);
   }
 }

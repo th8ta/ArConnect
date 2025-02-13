@@ -14,7 +14,7 @@ export interface EmbeddedAuthMessageData {
 }
 
 export interface EmbeddedBalanceMessageData {
-  aggregatedBalance: number;
+  amount: number;
   currency: "USD" | "EUR"; // TODO: Replace with a type that includes all options in the settings?
 }
 

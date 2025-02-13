@@ -23,12 +23,14 @@ export interface PopupLayoutConfig {
 export interface SidebarLayoutConfig {
   type: "sidebar";
   position?: "left" | "right";
+  expanded?: boolean;
   fixedWidth?: number;
 }
 
 export interface HalfLayoutConfig {
   type: "half";
   position?: "left" | "right";
+  expanded?: boolean;
   imgSrc?: string | boolean;
 }
 
@@ -48,7 +50,7 @@ export interface RouteConfig {
 }
 
 export interface BalanceInfo {
-  aggregatedBalance: number;
+  amount: number;
   currency: "USD" | "EUR"; // TODO: Replace with a type that includes all options in the settings?
 }
 
@@ -56,22 +58,6 @@ export interface WanderEmbeddedOptions {
   src?: string;
   iframe?: WanderEmbeddedIframeOptions | HTMLIFrameElement;
   button?: WanderEmbeddedButtonOptions | boolean;
-
-  // TODO: Add option so that the popup routes have a fixed size and do not resize
-
-  // TODO: Add option to configure the size-images based on route on the side-by-side view (or send them from the modal)
-
-  // TODO: Add effect when spending/signing
-
-  // TODO: Responsive-specific options for narrow screens.
-
-  /*
-  logo?: string;
-  balance?: string;
-  iframeRef?: HTMLIFrameElement;
-  buttonStyles?: Partial<CSSStyleDeclaration> | "none";
-  iframeStyles?: Partial<CSSStyleDeclaration>;
-  */
 
   // TODO: Also export the messages types:
   onAuth?: (userDetails: UserDetails | null) => void;
@@ -84,20 +70,10 @@ export interface WanderEmbeddedOptions {
 
 // Common:
 
-export type StateModifier =
-  | "default"
-  | "isAuthenticated"
-  | "isOpen"
-  | "isAuthRoute"
-  | "isAccountRoute"
-  | "isSettingsRoute"
-  | "isAuthRequestRoute";
-
 export interface WanderEmbeddedComponentOptions<T> {
   id?: string;
-  className?: string | Record<StateModifier, string>;
-  // cssVars?: T | Record<StateModifier, T>;
-  cssVars?: Record<StateModifier, T>;
+  className?: string;
+  cssVars?: T;
 }
 
 // Modal (iframe):
@@ -108,6 +84,8 @@ export interface WanderEmbeddedIframeOptions
 }
 
 // Button:
+
+export type WanderEmbeddedButtonStatus = "isAuthenticated" | "isOpen";
 
 export interface WanderEmbeddedButtonOptions
   extends WanderEmbeddedComponentOptions<WanderEmbeddedButtonCSSVars> {
@@ -135,7 +113,7 @@ export type WanderEmbeddedButtonNotifications = "off" | "counter" | "alert";
 export interface WanderEmbeddedModalCSSVars {
   // Modal (iframe):
   background?: string;
-  borderWidth?: number | string;
+  borderWidth?: number;
   borderColor?: string;
   borderRadius?: number | string;
   boxShadow?: string;
@@ -143,19 +121,22 @@ export interface WanderEmbeddedModalCSSVars {
   preferredWidth?: number | string;
   preferredHeight?: number | string;
 
+  // App wrapper (inside iframe):
+  iframePadding?: number;
+  iframeMaxWidth?: number;
+  iframeMaxHeight?: number;
+
   // Backdrop (div):
   backdropBackground?: string;
   backdropBackdropFilter?: string;
   backdropPadding?: number | string;
-
-  // TODO: For sidebar, we should add innerPadding (inside iframe)
-  // TODO: For half, we should add innerMaxWidth (inside iframe)
 }
 
 export interface WanderEmbeddedButtonCSSVars {
   // Button (button):
   background?: string;
-  border?: string;
+  borderWidth?: number | string;
+  borderColor?: string;
   borderRadius?: number | string;
   boxShadow?: string;
   zIndex?: string;
@@ -179,4 +160,6 @@ export interface WanderEmbeddedButtonCSSVars {
   notificationsBorderRadius?: number | string;
   notificationsBoxShadow?: string;
   notificationsPadding?: number | string;
+
+  // TODO: :hover and :focus specific styling.
 }

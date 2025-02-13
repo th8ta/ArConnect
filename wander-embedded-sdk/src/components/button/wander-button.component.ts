@@ -1,8 +1,8 @@
 import { CSSProperties } from "react";
 import {
   BalanceInfo,
-  StateModifier,
-  WanderEmbeddedButtonOptions
+  WanderEmbeddedButtonOptions,
+  WanderEmbeddedButtonStatus
 } from "../../wander-embedded.types";
 import { createWanderSVG } from "../logo/wander-logo.component";
 // import { asCSSVars } from "../../utils/styles/styles.utils";
@@ -10,40 +10,21 @@ import { createWanderSVG } from "../logo/wander-logo.component";
 export class WanderButton {
   static DEFAULT_BUTTON_ID = "wanderEmbeddedButton" as const;
 
-  // static DEFAULT_CLASSNAMES: Record<StateModifier, string> = {};
-
+  // Elements:
   private button: HTMLButtonElement;
   private logo: HTMLImageElement | SVGElement;
   private label: HTMLSpanElement;
   private balance: HTMLSpanElement;
   private notifications: HTMLSpanElement;
 
+  // Options:
   private options: WanderEmbeddedButtonOptions;
 
-  // private classNames: Partial<Record<StateModifier, string>>;
-  // private cssVars?: Partial<Record<StateModifier, WanderEmbeddedButtonCSSVars>>;
-
-  // TODO: How to manage light/dark theme?
-
-  // TODO: Add a variant that says "Sign" if there are sign requests and make the button change color/blink
-
-  // TODO: Add black and white option?
-
-  // TODO: Add styling shortcuts (different defaults): sketch, smooth, rounded
+  // State:
+  private status: Partial<Record<WanderEmbeddedButtonStatus, boolean>> = {};
 
   constructor(options: WanderEmbeddedButtonOptions = {}) {
-    console.log("WanderButton constructor");
-
     this.options = options;
-
-    // TODO: Add function to change options later...
-
-    /*
-    this.classNames = typeof options.className === "string"
-      ? { default: options.className } satisfies Partial<Record<StateModifier, string>>
-      : (options.className || {});
-    this.cssVars = options.cssVars || {};
-    */
 
     const elements = WanderButton.initializeButton(options);
 
@@ -55,9 +36,10 @@ export class WanderButton {
   }
 
   // TODO: Button needs 3 states/labels:
-  // noAuth => Sign in/Close
-  // noConnect => No specific label cause the dApp has to do it
-  // connected => Open/Close
+  // noAuth => Sign in
+  // noConnect => Open (show "connected" / "not connected" icon)? The dApp has to connect by itself.
+  // connected => Open
+  // pending auth requests => Review requests
   // (and hover for each of them?)
 
   static initializeButton(options: WanderEmbeddedButtonOptions) {
@@ -112,7 +94,6 @@ export class WanderButton {
       zIndex: "9999"
     };
 
-    // TODO: Use shadow DOM?
     Object.assign(button.style, buttonStyle);
 
     const logoStyle: CSSProperties = {};
@@ -162,15 +143,11 @@ export class WanderButton {
     return this.button;
   }
 
-  addModifier(modifier: StateModifier) {}
-
-  removeModifier(modifier: StateModifier) {}
-
   setBalance(balanceInfo: BalanceInfo) {
     // TODO: Show label if no balance?
     const formattedBalance = new Intl.NumberFormat(undefined, {
       currency: balanceInfo.currency
-    }).format(balanceInfo.aggregatedBalance);
+    }).format(balanceInfo.amount);
 
     this.balance.textContent = `${formattedBalance}`;
   }
@@ -178,5 +155,13 @@ export class WanderButton {
   setNotifications(notificationsCount: number) {
     // TODO: Show / hide if there aren't any:
     this.notifications.textContent = `${notificationsCount}`;
+  }
+
+  setStatus(status: WanderEmbeddedButtonStatus) {
+    this.status[status] = true;
+  }
+
+  unsetStatus(status: WanderEmbeddedButtonStatus) {
+    this.status[status] = false;
   }
 }
