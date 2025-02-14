@@ -610,7 +610,7 @@
     "description": "Address copy notification 2"
   },
   "cannot_edit_with_name_service": {
-    "message": "Cannot edit nickname. Wallet already has a name service name.",
+    "message": "Cannot edit. It already has a name service.",
     "description": "Explainer for disabled edits for wallets with name service names"
   },
   "add_wallet_subtitle": {

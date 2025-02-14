@@ -205,11 +205,6 @@ export function WalletSettingsDashboardView({
           </Tooltip>
         </WalletAddress>
         <Title>{browser.i18n.getMessage("edit_wallet_name")}</Title>
-        {!!nameServiceName && (
-          <Warning>
-            {browser.i18n.getMessage("cannot_edit_with_name_service")}
-          </Warning>
-        )}
         <InputWithBtn>
           <InputWrapper>
             <Input
@@ -224,6 +219,11 @@ export function WalletSettingsDashboardView({
             Save
           </IconButton>
         </InputWithBtn>
+        {!!nameServiceName && (
+          <Warning>
+            {browser.i18n.getMessage("cannot_edit_with_name_service")}
+          </Warning>
+        )}
       </div>
       <div>
         <Button

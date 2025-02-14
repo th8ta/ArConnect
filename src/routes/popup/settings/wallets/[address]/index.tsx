@@ -177,7 +177,7 @@ export function WalletView({ params: { address } }: WalletViewProps) {
               </WalletName>
               {nameServiceName ? (
                 <Tooltip
-                  position="bottomStart"
+                  position="bottomEnd"
                   content={browser.i18n.getMessage(
                     "cannot_edit_with_name_service"
                   )}
