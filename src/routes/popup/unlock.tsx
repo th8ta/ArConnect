@@ -13,8 +13,11 @@ import WanderIcon from "url:assets/icon.svg";
 import IconText from "~components/IconText";
 import StarIcons from "~components/welcome/StarIcons";
 import UpdateSplash from "~routes/welcome/UpdateSplash";
+import { useEffect, useState } from "react";
+import { ExtensionStorage } from "~utils/storage";
 
 export function UnlockView() {
+  const [showAnimation, setShowAnimation] = useState<boolean>(false);
   // password input
   const passwordInput = useInput();
   const { displayTheme } = useTheme();
@@ -38,12 +41,48 @@ export function UnlockView() {
     }
   }
 
+  // To show update splash
+  useEffect(() => {
+    const showSplash = async () => {
+      const isSplashScreenSeen = await ExtensionStorage.get(
+        "update_splash_screen_seen"
+      );
+
+      // we need to make sure it's not undefined
+      if (isSplashScreenSeen === undefined) return;
+
+      if (!isSplashScreenSeen) {
+        setShowAnimation(true);
+        await ExtensionStorage.set("update_splash_screen_seen", true);
+      }
+      return;
+    };
+    showSplash();
+  }, []);
+
+  // To show update splash
+  if (showAnimation) {
+    return (
+      <Wrapper>
+        <Content>
+          <StarIcons screen="unlock" />
+          <IconsContainer>
+            <UpdateSplash
+              setShowSplash={setShowAnimation}
+              width={250}
+              height={250}
+            />
+          </IconsContainer>
+        </Content>
+      </Wrapper>
+    );
+  }
+
   return (
     <Wrapper>
       <Content>
         <StarIcons screen="unlock" />
         <IconsContainer>
-          <UpdateSplash width={250} height={250} />
           <Image
             src={WanderIcon}
             alt="Wander Icon"

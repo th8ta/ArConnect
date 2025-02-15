@@ -3,21 +3,20 @@ import Lottie from "react-lottie";
 import wanderLogo from "assets/lotties/wander-logo.json";
 import wanderLogoLight from "assets/lotties/wander-logo-light.json";
 import { useTheme } from "styled-components";
-import { useEffect, useState } from "react";
-import { ExtensionStorage } from "~utils/storage";
 
 interface WanderLogoProps {
   width?: number;
   height?: number;
+  setShowSplash: (showSplash: boolean) => void;
 }
 
 const UpdateSplash: React.FC<WanderLogoProps> = ({
-  width = 200,
-  height = 200
+  width = 250,
+  height = 250,
+  setShowSplash
 }) => {
   const theme = useTheme();
   const isLight = theme.displayTheme === "light";
-  const [showSplash, setShowSplash] = useState<boolean>(false);
 
   const defaultOptions = {
     loop: false,
@@ -28,28 +27,18 @@ const UpdateSplash: React.FC<WanderLogoProps> = ({
     }
   };
 
-  useEffect(() => {
-    const showSplash = async () => {
-      const isSplashScreenSeen = Boolean(
-        await ExtensionStorage.get("update_splash_screen_seen")
-      );
-      if (!isSplashScreenSeen) {
-        await ExtensionStorage.set("update_splash_screen_seen", true);
-        setShowSplash(true);
-      }
-    };
-    showSplash();
-  }, [showSplash]);
-
-  if (showSplash) {
-    return (
-      <div style={{ width, height }}>
-        <Lottie options={defaultOptions} height={250} width={250} />
-      </div>
-    );
-  }
-
-  return <></>;
+  return (
+    <div style={{ width, height }}>
+      <Lottie
+        eventListeners={[
+          { eventName: "complete", callback: () => setShowSplash(false) }
+        ]}
+        options={defaultOptions}
+        height={250}
+        width={250}
+      />
+    </div>
+  );
 };
 
 export default UpdateSplash;
