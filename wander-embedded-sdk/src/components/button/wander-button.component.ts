@@ -274,14 +274,14 @@ export class WanderButton {
     this.balance.textContent = `${formattedBalance}`;
   }
 
-  setNotifications(notificationsCount: number) {
+  setNotifications(pendingRequests: number) {
     const { label, notifications, i18n } = this.config;
 
     if (notifications === "off") return;
 
-    if (notificationsCount > 0) {
+    if (pendingRequests > 0) {
       this.notifications.textContent =
-        notifications === "counter" ? `${notificationsCount}` : "!";
+        notifications === "counter" ? `${pendingRequests}` : "!";
       this.label.textContent = label ? i18n.reviewRequests : "";
     } else {
       this.notifications.textContent = "";

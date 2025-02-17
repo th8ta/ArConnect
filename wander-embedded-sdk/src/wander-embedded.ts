@@ -25,7 +25,7 @@ export class WanderEmbedded {
   private onClose: () => void = NOOP;
   private onResize: (data: IncomingResizeMessageData) => void = NOOP;
   private onBalance: (data: IncomingBalanceMessageData) => void = NOOP;
-  private onNotification: (notificationsCount: number) => void = NOOP;
+  private onRequest: (pendingRequests: number) => void = NOOP;
 
   // Components:
   private buttonComponent: null | WanderButton = null;
@@ -38,11 +38,13 @@ export class WanderEmbedded {
   private iframeRef: null | HTMLIFrameElement = null;
 
   // State:
+  private shouldOpenAutomatically = true;
+
   public isOpen = false;
   public userDetails: UserDetails | null = null; // TODO: Should we expose this?
   public routeConfig: RouteConfig | null = null;
   public balanceInfo: BalanceInfo | null = null;
-  public notificationsCount: number = 0;
+  public pendingRequests: number = 0;
 
   constructor(options: WanderEmbeddedOptions = {}) {
     // Callbacks:
@@ -51,7 +53,7 @@ export class WanderEmbedded {
     this.onClose = options.onClose ?? NOOP;
     this.onResize = options.onResize ?? NOOP;
     this.onBalance = options.onBalance ?? NOOP;
-    this.onNotification = options.onNotification ?? NOOP;
+    this.onRequest = options.onRequest ?? NOOP;
 
     // TODO: Merge options properly:
 
@@ -206,7 +208,11 @@ export class WanderEmbedded {
 
         this.onResize(routeConfig);
 
-        if (!this.isOpen) {
+        if (
+          routeConfig.routeType === "auth-request" &&
+          this.shouldOpenAutomatically &&
+          !this.isOpen
+        ) {
           this.isOpen = true;
           this.buttonComponent?.setStatus("isOpen");
           this.iframeComponent?.show();
@@ -225,12 +231,12 @@ export class WanderEmbedded {
         break;
 
       case "embedded_notification":
-        const { notificationsCount } = message.data;
-        this.notificationsCount = notificationsCount;
+        const { pendingRequests } = message.data;
+        this.pendingRequests = pendingRequests;
 
-        this.buttonComponent?.setNotifications(notificationsCount);
+        this.buttonComponent?.setNotifications(pendingRequests);
 
-        this.onNotification(notificationsCount);
+        this.onRequest(pendingRequests);
         break;
     }
   }
@@ -265,6 +271,11 @@ export class WanderEmbedded {
       this.isOpen = false;
       this.buttonComponent?.unsetStatus("isOpen");
       this.iframeComponent.hide();
+
+      // Manually closing the popup while there are pending requests will prevent it from automatically opening again:
+      if (this.pendingRequests > 0) {
+        this.shouldOpenAutomatically = false;
+      }
     }
   }
 

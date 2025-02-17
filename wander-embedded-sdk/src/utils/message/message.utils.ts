@@ -60,7 +60,7 @@ export function isIncomingMessage(
       return !!(
         data &&
         typeof data === "object" &&
-        typeof data.notificationsCount === "number"
+        typeof data.pendingRequests === "number"
       );
     }
 

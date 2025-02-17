@@ -78,7 +78,6 @@ export class WanderIframe {
     background: "var(--backdropBackground, rgba(255, 255, 255, .0625))",
     backdropFilter: "var(--backdropBackdropFilter, blur(12px))",
     padding: "var(--backdropPadding, 32px)",
-    // TODO: Add CSS var for transition duration.
     transition: "opacity linear 150ms"
   };
 
@@ -301,7 +300,6 @@ export class WanderIframe {
               ? "0 0 0 var(--borderWidth, 2px)"
               : "0 var(--borderWidth, 2px) 0 0";
 
-          // TODO: Create defaultCssVars property to avoid having to use default values in "var" and get rid of these overrides:
           iframeStyle.width = "var(--preferredWidth, 400px)";
           iframeStyle.height = "var(--preferredHeight, 600px)";
           iframeStyle.maxWidth = "var(--preferredWidth, 400px)";

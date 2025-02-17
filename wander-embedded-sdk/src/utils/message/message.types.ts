@@ -23,7 +23,7 @@ export type IncomingBalanceMessageData = BalanceInfo;
 // embedded_notification
 
 export interface IncomingNotificationMessageData {
-  notificationsCount: number;
+  pendingRequests: number;
 }
 
 // IncomingMessage:
