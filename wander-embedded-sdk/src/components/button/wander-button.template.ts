@@ -1,7 +1,37 @@
-export const wanderButtonTemplateContent = (customStyles = "") => `
+export interface WanderButtonTemplateContentOptions {
+  dappLogoSrc?: string;
+  customStyles?: string;
+  cssVariableKeys?: string[];
+}
+
+// TODO: Missing :hover, :active and :focus styles
+
+export const getWanderButtonTemplateContent = ({
+  dappLogoSrc,
+  customStyles,
+  cssVariableKeys = []
+}: WanderButtonTemplateContentOptions) => `
 <style>
+
+  :root[data-theme="dark"] {
+    ${cssVariableKeys
+      .map((cssVariableKey) => {
+        return `--${cssVariableKey}: var(--${cssVariableKey}Dark);`;
+      })
+      .join("\n")}
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root[data-theme="system"] {
+      ${cssVariableKeys
+        .map((cssVariableKey) => {
+          return `--${cssVariableKey}: var(--${cssVariableKey}Dark);`;
+        })
+        .join("\n")}
+    }
+  }
+
   .button {
-    position: fixed;
     display: flex;
     align-items: center;
     gap: var(--gapInside);
@@ -31,26 +61,9 @@ export const wanderButtonTemplateContent = (customStyles = "") => `
     transform: scale(0.95);
   }
 
-  .logos {
-    position: relative;
-  }
-
   .wanderLogo {
     width: 32px;
     aspect-ratio: 1;
-  }
-
-  .dappLogo {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background: red;
-    width: 16px;
-    height: 16px;
-  }
-
-  .isConnected .dappLogo {
-    transform: none;
   }
 
   .label:empty {
@@ -61,14 +74,36 @@ export const wanderButtonTemplateContent = (customStyles = "") => `
     display: none;
   }
 
+  .indicator,
+  .dappLogo,
   .notifications {
     position: absolute;
-    right: -4px;
-    bottom: -4px;
-    z-index: -1;
-    padding: 2px 4px;
+    right: calc(4px + var(--borderWidth));
+    bottom: calc(4px + var(--borderWidth));
+    border-radius: 32px;
+    border: var(--borderWidth) solid var(--borderColor);
+    transition: transform linear 150ms, background linear 150ms;
+  }
+
+  .indicator {
+    width: 8px;
+    height: 8px;
+    z-index: 8;
+    background: #CCC;
+    transform: translate(50%, 50%);
+  }
+
+  .dappLogo {
+    width: 22px;
+    height: 22px;
+    z-index: 9;
+    background: var(--background);
+    transform: translate(50%, 50%) scale(0);
+    padding: 3px;
+  }
+
+  .notifications {
     background: red;
-    border-radius: 16px;
     font-size: 12px;
     font-weight: bold;
     min-height: 22px;
@@ -77,11 +112,20 @@ export const wanderButtonTemplateContent = (customStyles = "") => `
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform linear 150ms;
+    z-index: 10;
+    transform: translate(50%, 50%) scale(1);
+  }
+
+  .isConnected + .indicator {
+    background: green;
+  }
+
+  .isConnected ~ .dappLogo[src] {
+    transform: translate(50%, 50%) scale(1);
   }
 
   .notifications:empty {
-    transform: scale(0);
+    transform: translate(50%, 50%) scale(0);
   }
 
   @keyframes sail {
@@ -101,58 +145,57 @@ export const wanderButtonTemplateContent = (customStyles = "") => `
 
 <button class="button">
 
-  <span class="logos>
-    <svg
-      class="wanderLogo"
-      viewBox="0 0 257 121"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+  <svg
+    class="wanderLogo"
+    viewBox="0 0 257 121"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg">
 
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M177.235 60.5134L131.532 2.56198C129.607 0.0634354 127.719 -0.344614 125.651 2.33897L79.8771 60.4191L124.181 100.462L128.483 8.72145L132.785 100.462L177.235 60.5134Z" fill="url(#gradient1)"/>
-      <path d="M209.689 120.406L256.138 21.2852C257.135 19.114 254.755 16.9443 252.685 18.1364L183.231 58.0562L138.086 108.914L209.689 120.406Z" fill="url(#gradient2)"/>
-      <path d="M47.211 120.406L0.762138 21.2853C-0.234245 19.1141 2.14523 16.9445 4.21552 18.1365L73.6694 58.0564L118.814 108.914L47.211 120.406Z" fill="url(#gradient3)"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M177.235 60.5134L131.532 2.56198C129.607 0.0634354 127.719 -0.344614 125.651 2.33897L79.8771 60.4191L124.181 100.462L128.483 8.72145L132.785 100.462L177.235 60.5134Z" fill="url(#gradient1)"/>
+    <path d="M209.689 120.406L256.138 21.2852C257.135 19.114 254.755 16.9443 252.685 18.1364L183.231 58.0562L138.086 108.914L209.689 120.406Z" fill="url(#gradient2)"/>
+    <path d="M47.211 120.406L0.762138 21.2853C-0.234245 19.1141 2.14523 16.9445 4.21552 18.1365L73.6694 58.0564L118.814 108.914L47.211 120.406Z" fill="url(#gradient3)"/>
 
-      <defs>
-        <linearGradient
-          id="gradient1"
-          x1="128.213"
-          y1="100.462"
-          x2="128.213"
-          y2="0.5"
-          gradientUnits="userSpaceOnUse">
-          <stop stop-color="#6B57F9"/>
-          <stop offset="1" stop-color="#9787FF"/>
-        </linearGradient>
+    <defs>
+      <linearGradient
+        id="gradient1"
+        x1="128.213"
+        y1="100.462"
+        x2="128.213"
+        y2="0.5"
+        gradientUnits="userSpaceOnUse">
+        <stop stop-color="#6B57F9"/>
+        <stop offset="1" stop-color="#9787FF"/>
+      </linearGradient>
 
-        <linearGradient
-          id="gradient2"
-          x1="156.561"
-          y1="80.0762"
-          x2="218.926"
-          y2="115.502"
-          gradientUnits="userSpaceOnUse">
-          <stop stop-color="#6B57F9"/>
-          <stop offset="1" stop-color="#9787FF"/>
-        </linearGradient>
+      <linearGradient
+        id="gradient2"
+        x1="156.561"
+        y1="80.0762"
+        x2="218.926"
+        y2="115.502"
+        gradientUnits="userSpaceOnUse">
+        <stop stop-color="#6B57F9"/>
+        <stop offset="1" stop-color="#9787FF"/>
+      </linearGradient>
 
-        <linearGradient
-          id="gradient3"
-          x1="100.34"
-          y1="80.0764"
-          x2="37.9744"
-          y2="115.502"
-          gradientUnits="userSpaceOnUse">
-          <stop stop-color="#6B57F9"/>
-          <stop offset="1" stop-color="#9787FF"/>
-        </linearGradient>
-      </defs>
-    </svg>
-
-    <img class="dappLogo" />
-  </span>
+      <linearGradient
+        id="gradient3"
+        x1="100.34"
+        y1="80.0764"
+        x2="37.9744"
+        y2="115.502"
+        gradientUnits="userSpaceOnUse">
+        <stop stop-color="#6B57F9"/>
+        <stop offset="1" stop-color="#9787FF"/>
+      </linearGradient>
+    </defs>
+  </svg>
 
   <span class="label">Sign in</span>
   <span class="balance"></span>
-  <span class="notifications"></span>
 </button>
+
+<span class="indicator"></span>
+<img hidden class="dappLogo" ${dappLogoSrc ? `src="${dappLogoSrc}"` : ""} />
+<span class="notifications"></span>
 `;

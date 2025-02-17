@@ -74,7 +74,6 @@ export interface WanderEmbeddedOptions {
   src?: string;
   iframe?: WanderEmbeddedIframeOptions | HTMLIFrameElement;
   button?: WanderEmbeddedButtonOptions | boolean;
-  theme?: ThemeSetting;
 
   // TODO: Also export the messages types:
   onAuth?: (userDetails: UserDetails | null) => void;
@@ -93,11 +92,19 @@ export type ThemeSetting = "system" | ThemeVariant;
 
 export interface WanderEmbeddedComponentOptions<T> {
   id?: string;
-  className?: string;
-  // TODO: Support themes
-  // cssVars?: T | Record<ThemeVariant, T>;
-  cssVars?: Partial<T>;
+  theme?: ThemeSetting;
+  cssVars?: Partial<T> | Partial<Record<ThemeVariant, Partial<T>>>;
   customStyles?: string;
+}
+
+export function isThemeRecord<T>(
+  cssVars: Partial<T> | Partial<Record<ThemeVariant, Partial<T>>>
+): cssVars is Partial<Record<ThemeVariant, Partial<T>>> {
+  return !!(
+    cssVars &&
+    typeof cssVars === "object" &&
+    ("light" in cssVars || "dark" in cssVars)
+  );
 }
 
 // Modal (iframe):
@@ -139,9 +146,10 @@ export interface WanderEmbeddedButtonOptions
   position?: WanderEmbeddedButtonPosition;
   wanderLogo?: WanderLogoVariant;
   /**
+   * TODO: Decide if we want this. Currently hidden, as it doesn't really look good.
    * URL of the dApp logo that will be displayed next to (overlaid) the Wander logo when connected.
    */
-  dappLogo?: string;
+  dappLogoSrc?: string;
   balance?: boolean | WanderEmbeddedBalanceOptions;
   notifications?: WanderEmbeddedButtonNotifications;
 }

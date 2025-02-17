@@ -2,6 +2,7 @@ import { CSSProperties } from "react";
 import {
   HalfLayoutConfig,
   isRouteConfig,
+  isThemeRecord,
   LayoutConfig,
   LayoutType,
   ModalLayoutConfig,
@@ -229,6 +230,11 @@ export class WanderIframe {
 
     const backdropStyle: CSSProperties = {};
     const iframeStyle: CSSProperties = {};
+
+    if (isThemeRecord(this.options.cssVars)) {
+      throw new Error("Not implemented yet");
+    }
+
     const cssVars: Partial<WanderEmbeddedModalCSSVars> = {
       ...this.options.cssVars
     };

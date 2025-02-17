@@ -53,11 +53,12 @@ export class WanderEmbedded {
     this.onBalance = options.onBalance ?? NOOP;
     this.onNotification = options.onNotification ?? NOOP;
 
+    // TODO: Merge options properly:
+
     const optionsWithDefaults = merge(options, {
       iframe: {
         clickOutsideBehavior: "auto"
-      },
-      button: true
+      }
     } satisfies WanderEmbeddedOptions);
 
     // Create or get references to iframe and, maybe, button:
