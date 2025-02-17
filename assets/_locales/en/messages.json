@@ -432,7 +432,7 @@
     "description": "About settings title"
   },
   "setting_reset": {
-    "message": "Reset",
+    "message": "Reset Wander",
     "description": "Reset settings title"
   },
   "setting_analytic": {
@@ -479,9 +479,9 @@
     "message": "Theme",
     "description": "Theme settings title"
   },
-  "setting_wayfinder": {
-    "message": "Wayfinder",
-    "description": "Wayfinder settings title"
+  "setting_gateways": {
+    "message": "Gateways",
+    "description": "Gateways settings title"
   },
   "setting_notifications": {
     "message": "Notifications",
@@ -547,9 +547,9 @@
     "message": "The theme of the extension UI",
     "description": "Display theme settings description"
   },
-  "setting_wayfinder_description": {
-    "message": "Experimental system-wide wayfinder for ar.io gateways",
-    "description": "Wayfinder settings description"
+  "setting_gateways_description": {
+    "message": "Arweave gateways simplify data access.",
+    "description": "Gateways settings description"
   },
   "search_pick_option": {
     "message": "Search for an option...",

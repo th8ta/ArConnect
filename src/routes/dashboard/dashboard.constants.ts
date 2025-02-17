@@ -78,6 +78,7 @@ export const basicSettings: (DashboardRouteConfig | Setting)[] = [
     icon: Bell03,
     component: NotificationSettingsDashboardView
   },
+  getSetting("gateways"),
   {
     name: "about",
     displayName: "setting_about",
@@ -97,7 +98,9 @@ export const advancedSettings: (DashboardRouteConfig | Setting)[] = [
   },
   ...settings.filter(
     (setting) =>
-      setting.name !== "display_theme" && setting.name !== "analytics"
+      setting.name !== "display_theme" &&
+      setting.name !== "analytics" &&
+      setting.name !== "gateways"
   ),
   // TODO
   /*{
