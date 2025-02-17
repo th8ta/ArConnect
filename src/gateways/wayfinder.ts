@@ -21,34 +21,6 @@ export const STAKED_GQL_FULL_HISTORY: Requirements = {
 export async function findGateway(
   requirements: Requirements
 ): Promise<Gateway> {
-  // Get if the Wayfinder feature is enabled:
-  const wayfinderEnabled = await getSetting("wayfinder").getValue();
-
-  console.log("findGateway(), wayfinderEnabled =", wayfinderEnabled);
-
-  // This should have been loaded into the cache by handleGatewayUpdateAlarm, but sometimes this function might run
-  // before that, so in that case we fall back to the same behavior has having the Wayfinder disabled:
-  const procData = await getGatewayCache();
-
-  if (!wayfinderEnabled || !procData) {
-    if (requirements.arns) {
-      return {
-        host: "arweave.dev",
-        port: 443,
-        protocol: "https"
-      };
-    }
-
-    // wayfinder disabled or all the chain is needed
-    if (requirements.startBlock === 0) {
-      return defaultGateway;
-    }
-
-    throw new Error(
-      wayfinderEnabled ? "Missing gateway cache" : "Wayfinder disabled"
-    );
-  }
-
   try {
     // Get if the Wayfinder feature is enabled:
     const wayfinderEnabled = await getSetting("wayfinder").getValue();
@@ -56,24 +28,25 @@ export async function findGateway(
     // This should have been loaded into the cache by handleGatewayUpdateAlarm, but sometimes this function might run
     // before that, so in that case we fall back to the same behavior has having the Wayfinder disabled:
     const procData = await getGatewayCache();
+    if (!requirements.random) {
+      if (!wayfinderEnabled || !procData || !requirements.random) {
+        if (requirements.arns) {
+          return {
+            host: "arweave.dev",
+            port: 443,
+            protocol: "https"
+          };
+        }
 
-    if (!wayfinderEnabled || !procData) {
-      if (requirements.arns) {
-        return {
-          host: "arweave.dev",
-          port: 443,
-          protocol: "https"
-        };
+        // wayfinder disabled or all the chain is needed
+        if (requirements.startBlock === 0) {
+          return defaultGateway;
+        }
+
+        throw new Error(
+          wayfinderEnabled ? "Missing gateway cache" : "Wayfinder disabled"
+        );
       }
-
-      // wayfinder disabled or all the chain is needed
-      if (requirements.startBlock === 0) {
-        return defaultGateway;
-      }
-
-      throw new Error(
-        wayfinderEnabled ? "Missing gateway cache" : "Wayfinder disabled"
-      );
     }
 
     // this could probably be filtered out during the caching process
@@ -82,6 +55,27 @@ export async function findGateway(
         gateway.ping.status === "success" && gateway.health.status === "success"
       );
     });
+
+    // Handle random requirement first
+    if (requirements.random) {
+      const randomIndex = Math.floor(Math.random() * filteredGateways.length);
+      const selectedGateway = filteredGateways[randomIndex];
+
+      await trackEvent(EventType.WAYFINDER_GATEWAY_SELECTED, {
+        host: selectedGateway.settings.fqdn,
+        port: selectedGateway.settings.port,
+        protocol: selectedGateway.settings.protocol,
+        requirements
+      });
+
+      return {
+        host: selectedGateway.settings.fqdn,
+        port: selectedGateway.settings.port,
+        protocol: selectedGateway.settings.protocol
+      };
+    }
+
+    // Continue with existing stake-based selection
     const sortedGateways = sortGatewaysByOperatorStake(filteredGateways);
     const top10 = sortedGateways.slice(0, Math.min(10, sortedGateways.length));
     const randomIndex = Math.floor(Math.random() * top10.length);
@@ -224,6 +218,9 @@ export function useGraphqlGateways(count?: number) {
 }
 
 export interface Requirements {
+  /* Whether the gateway should be selected randomly */
+  random?: boolean;
+
   /* Whether the gateway should support GraphQL requests */
   graphql?: boolean;
   /* Should the gateway support ArNS */

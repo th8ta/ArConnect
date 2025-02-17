@@ -119,7 +119,7 @@ export function useBalance() {
   const fetchBalance = useCallback(async () => {
     if (!activeAddress) return "0";
 
-    const gateway = await findGateway({});
+    const gateway = await findGateway({ random: true });
     const arweave = new Arweave(gateway);
 
     // fetch balance

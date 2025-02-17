@@ -271,7 +271,7 @@ export function useBalanceSortedTokens({
 export async function getArTokenBalance(address: string) {
   if (!activeAddress) return "0";
 
-  const gateway = await findGateway({});
+  const gateway = await findGateway({ random: true });
   const arweave = new Arweave(gateway);
 
   const winstonBalance = await arweave.wallets.getBalance(address);
