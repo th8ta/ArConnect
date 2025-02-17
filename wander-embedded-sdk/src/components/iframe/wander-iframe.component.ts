@@ -10,6 +10,7 @@ import {
   RouteConfig,
   RouteType,
   SidebarLayoutConfig,
+  WanderEmbeddedIframeConfig,
   WanderEmbeddedIframeOptions,
   WanderEmbeddedModalCSSVars
 } from "../../wander-embedded.types";
@@ -100,15 +101,16 @@ export class WanderIframe {
   private backdrop: HTMLDivElement;
   private iframe: HTMLIFrameElement;
 
-  // Options:
+  // Config (options):
+  // private config: WanderEmbeddedIframeConfig;
   private options: WanderEmbeddedIframeOptions;
   private routeLayout: Partial<Record<RouteType, LayoutConfig>>;
-  private iframeHideStyle: CSSProperties = {};
-  private iframeShowStyle: CSSProperties = {};
 
   // State:
   private currentLayoutType: LayoutType | null = null;
   private isOpen = false;
+  private iframeHideStyle: CSSProperties = {};
+  private iframeShowStyle: CSSProperties = {};
 
   constructor(src: string, options: WanderEmbeddedIframeOptions = {}) {
     this.options = options;
@@ -201,8 +203,6 @@ export class WanderIframe {
   }
 
   show(): void {
-    console.log("SHOW");
-
     this.isOpen = true;
 
     Object.assign(this.backdrop.style, WanderIframe.BACKDROP_SHOW_STYLE);
@@ -210,8 +210,6 @@ export class WanderIframe {
   }
 
   hide(): void {
-    console.log("HIDE");
-
     this.isOpen = false;
 
     Object.assign(this.backdrop.style, WanderIframe.BACKDROP_HIDE_STYLE);
@@ -231,7 +229,7 @@ export class WanderIframe {
     const backdropStyle: CSSProperties = {};
     const iframeStyle: CSSProperties = {};
 
-    if (isThemeRecord(this.options.cssVars)) {
+    if (this.options.cssVars && isThemeRecord(this.options.cssVars)) {
       throw new Error("Not implemented yet");
     }
 

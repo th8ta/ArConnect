@@ -1,7 +1,7 @@
 import {
   BalanceInfo,
   isThemeRecord,
-  ThemeSetting,
+  WanderEmbeddedButtonConfig,
   WanderEmbeddedButtonCSSVars,
   WanderEmbeddedButtonOptions,
   WanderEmbeddedButtonStatus
@@ -11,8 +11,6 @@ import { addCSSVariables } from "../../utils/styles/styles.utils";
 import { merge } from "ts-deepmerge";
 
 export class WanderButton {
-  static DEFAULT_HOST_ID = "wanderEmbeddedButtonHost" as const;
-
   static DEFAULT_LIGHT_CSS_VARS: WanderEmbeddedButtonCSSVars = {
     // Button (button):
     gapX: 16,
@@ -70,6 +68,29 @@ export class WanderButton {
     notificationsPadding: ""
   };
 
+  static DEFAULT_CONFIG = {
+    id: "wanderEmbeddedButtonHost",
+    theme: "system",
+    cssVars: {
+      light: WanderButton.DEFAULT_LIGHT_CSS_VARS,
+      dark: WanderButton.DEFAULT_DARK_CSS_VARS
+    },
+    customStyles: "",
+    position: "bottom-right",
+    wanderLogo: "default",
+    dappLogoSrc: "",
+    label: true,
+    balance: {
+      balanceOf: "total",
+      currency: "auto"
+    },
+    notifications: "counter",
+    i18n: {
+      signIn: "Sign in",
+      reviewRequests: "Review requests"
+    }
+  } as const satisfies WanderEmbeddedButtonConfig;
+
   // Elements:
   private host: HTMLDivElement;
   private button: HTMLButtonElement;
@@ -77,19 +98,79 @@ export class WanderButton {
   private label: HTMLSpanElement;
   private balance: HTMLSpanElement;
   private indicator: HTMLSpanElement;
-  private dappLogo: HTMLImageElement | SVGElement;
+  private dappLogo: HTMLImageElement;
   private notifications: HTMLSpanElement;
 
-  // Options:
-  private options: WanderEmbeddedButtonOptions;
+  // Config (options):
+  private config: WanderEmbeddedButtonConfig;
 
   // State:
   private status: Partial<Record<WanderEmbeddedButtonStatus, boolean>> = {};
 
   constructor(options: WanderEmbeddedButtonOptions = {}) {
-    this.options = options;
+    const cssVars = options.cssVars || {};
 
-    const elements = WanderButton.initializeButton(options);
+    let cssVarsLight: WanderEmbeddedButtonCSSVars =
+      WanderButton.DEFAULT_LIGHT_CSS_VARS;
+    let cssVarsDark: WanderEmbeddedButtonCSSVars =
+      WanderButton.DEFAULT_DARK_CSS_VARS;
+
+    if (Object.keys(cssVars).length > 0) {
+      if (isThemeRecord(cssVars)) {
+        cssVarsLight = merge(
+          cssVars?.light || {},
+          WanderButton.DEFAULT_LIGHT_CSS_VARS
+        ) as WanderEmbeddedButtonCSSVars;
+        cssVarsDark = merge(
+          cssVars?.dark || {},
+          WanderButton.DEFAULT_DARK_CSS_VARS
+        ) as WanderEmbeddedButtonCSSVars;
+      } else if (options.theme !== "dark") {
+        cssVarsLight = merge(
+          cssVars || {},
+          WanderButton.DEFAULT_LIGHT_CSS_VARS
+        ) as WanderEmbeddedButtonCSSVars;
+      } else {
+        cssVarsDark = merge(
+          cssVars || {},
+          WanderButton.DEFAULT_DARK_CSS_VARS
+        ) as WanderEmbeddedButtonCSSVars;
+      }
+    }
+
+    this.config = {
+      id: options.id || WanderButton.DEFAULT_CONFIG.id,
+      theme: options.theme || WanderButton.DEFAULT_CONFIG.theme,
+      cssVars: {
+        light: cssVarsLight,
+        dark: cssVarsDark
+      },
+      customStyles:
+        options.customStyles || WanderButton.DEFAULT_CONFIG.customStyles,
+      position: options.position || WanderButton.DEFAULT_CONFIG.position,
+      wanderLogo: options.wanderLogo || WanderButton.DEFAULT_CONFIG.wanderLogo,
+      dappLogoSrc:
+        options.dappLogoSrc || WanderButton.DEFAULT_CONFIG.dappLogoSrc,
+      label: options.label || WanderButton.DEFAULT_CONFIG.label,
+      balance:
+        options.balance === false
+          ? false
+          : {
+              balanceOf:
+                (options.balance === true
+                  ? null
+                  : options.balance?.balanceOf) ??
+                WanderButton.DEFAULT_CONFIG.balance.balanceOf,
+              currency:
+                (options.balance === true ? null : options.balance?.currency) ??
+                WanderButton.DEFAULT_CONFIG.balance.currency
+            },
+      notifications:
+        options.notifications || WanderButton.DEFAULT_CONFIG.notifications,
+      i18n: options.i18n || WanderButton.DEFAULT_CONFIG.i18n
+    };
+
+    const elements = WanderButton.initializeButton(this.config);
 
     this.host = elements.host;
     this.button = elements.button;
@@ -101,25 +182,18 @@ export class WanderButton {
     this.notifications = elements.notifications;
   }
 
-  static initializeButton(options: WanderEmbeddedButtonOptions) {
-    const id = options.id || WanderButton.DEFAULT_HOST_ID;
-    const position = options.position || "bottom-right";
-    const themeSetting: ThemeSetting = options.theme || "system";
-    const cssVars = options.cssVars || {};
-
+  static initializeButton(config: WanderEmbeddedButtonConfig) {
     const host = document.createElement("div");
 
-    host.id = id;
-    host.setAttribute("data-theme", themeSetting);
+    host.id = config.id;
+    host.setAttribute("data-theme", config.theme);
 
     const shadow = host.attachShadow({ mode: "open" });
     const template = document.createElement("template");
 
-    console.log("SRC =", options.dappLogoSrc);
-
     template.innerHTML = getWanderButtonTemplateContent({
-      dappLogoSrc: options.dappLogoSrc,
-      customStyles: options.customStyles,
+      wanderLogo: config.wanderLogo,
+      customStyles: config.customStyles,
       // TODO: It would be better to create an interface with the subset of vars that we can override when changing themes:
       cssVariableKeys: Object.keys(WanderButton.DEFAULT_LIGHT_CSS_VARS)
     });
@@ -131,9 +205,7 @@ export class WanderButton {
     const label = shadow.querySelector(".label") as HTMLSpanElement;
     const balance = shadow.querySelector(".balance") as HTMLSpanElement;
     const indicator = shadow.querySelector(".indicator") as HTMLSpanElement;
-    const dappLogo = shadow.querySelector(".dappLogo") as
-      | HTMLImageElement
-      | SVGElement;
+    const dappLogo = shadow.querySelector(".dappLogo") as HTMLImageElement;
     const notifications = shadow.querySelector(
       ".notifications"
     ) as HTMLSpanElement;
@@ -149,41 +221,25 @@ export class WanderButton {
     )
       throw new Error("Missing elements");
 
-    const [y, x] = position.split("-") as ["top" | "bottom", "left" | "right"];
+    const [y, x] = config.position.split("-") as [
+      "top" | "bottom",
+      "left" | "right"
+    ];
 
     host.style.position = "fixed";
     host.style[y] = "var(--gapY)";
     host.style[x] = "var(--gapX)";
 
-    let cssVarsLight: WanderEmbeddedButtonCSSVars | null = null;
-    let cssVarsDark: WanderEmbeddedButtonCSSVars | null = null;
+    addCSSVariables(host, config.cssVars.light);
+    addCSSVariables(host, config.cssVars.dark, "Dark");
 
-    if (Object.keys(cssVars).length === 0) {
-      cssVarsLight = WanderButton.DEFAULT_LIGHT_CSS_VARS;
-      cssVarsDark = WanderButton.DEFAULT_DARK_CSS_VARS;
-    } else if (isThemeRecord(cssVars)) {
-      cssVarsLight = merge(
-        cssVars?.light || {},
-        WanderButton.DEFAULT_LIGHT_CSS_VARS
-      ) as WanderEmbeddedButtonCSSVars;
-      cssVarsDark = merge(
-        cssVars?.dark || {},
-        WanderButton.DEFAULT_DARK_CSS_VARS
-      ) as WanderEmbeddedButtonCSSVars;
-    } else if (themeSetting !== "dark") {
-      cssVarsLight = merge(
-        cssVars || {},
-        WanderButton.DEFAULT_LIGHT_CSS_VARS
-      ) as WanderEmbeddedButtonCSSVars;
-    } else {
-      cssVarsDark = merge(
-        cssVars || {},
-        WanderButton.DEFAULT_DARK_CSS_VARS
-      ) as WanderEmbeddedButtonCSSVars;
+    label.textContent = config.i18n.signIn;
+
+    if (config.balance === false) {
+      balance.setAttribute("hidden", "true");
     }
 
-    if (cssVarsLight) addCSSVariables(host, cssVarsLight);
-    if (cssVarsDark) addCSSVariables(host, cssVarsDark, "Dark");
+    dappLogo.src = config.dappLogoSrc;
 
     return {
       host,
@@ -219,12 +275,21 @@ export class WanderButton {
   }
 
   setNotifications(notificationsCount: number) {
+    const { label, notifications, i18n } = this.config;
+
+    if (notifications === "off") return;
+
     if (notificationsCount > 0) {
-      this.notifications.textContent = `${notificationsCount}`;
-      this.label.textContent = "Review requests";
+      this.notifications.textContent =
+        notifications === "counter" ? `${notificationsCount}` : "!";
+      this.label.textContent = label ? i18n.reviewRequests : "";
     } else {
       this.notifications.textContent = "";
-      this.label.textContent = this.status.isAuthenticated ? "" : "Sign in";
+      this.label.textContent = label
+        ? this.status.isAuthenticated
+          ? ""
+          : i18n.signIn
+        : "";
     }
   }
 
@@ -242,7 +307,7 @@ export class WanderButton {
     this.button.classList.add(status);
 
     if (status === "isAuthenticated") {
-      this.label.textContent = "Sign in";
+      this.label.textContent = this.config.label ? this.config.i18n.signIn : "";
     }
   }
 }

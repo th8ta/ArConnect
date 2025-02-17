@@ -75,7 +75,7 @@ export interface WanderEmbeddedOptions {
   iframe?: WanderEmbeddedIframeOptions | HTMLIFrameElement;
   button?: WanderEmbeddedButtonOptions | boolean;
 
-  // TODO: Also export the messages types:
+  // TODO: Also export the param types:
   onAuth?: (userDetails: UserDetails | null) => void;
   onOpen?: () => void;
   onClose?: () => void;
@@ -95,6 +95,11 @@ export interface WanderEmbeddedComponentOptions<T> {
   theme?: ThemeSetting;
   cssVars?: Partial<T> | Partial<Record<ThemeVariant, Partial<T>>>;
   customStyles?: string;
+}
+
+export interface WanderEmbeddedComponentConfig<T>
+  extends Required<WanderEmbeddedComponentOptions<T>> {
+  cssVars: Record<ThemeVariant, T>;
 }
 
 export function isThemeRecord<T>(
@@ -130,29 +135,13 @@ export interface WanderEmbeddedIframeOptions
   clickOutsideBehavior?: WanderEmbeddedClickOutsideBehavior;
 }
 
-// Button:
-
-export type WanderEmbeddedButtonStatus =
-  | "isAuthenticated"
-  | "isConnected"
-  | "isOpen";
-
-export type WanderLogoVariant = "none" | "default" | "black-n-white";
-
-export type WanderEmbeddedButtonNotifications = "off" | "counter" | "alert";
-
-export interface WanderEmbeddedButtonOptions
-  extends WanderEmbeddedComponentOptions<WanderEmbeddedButtonCSSVars> {
-  position?: WanderEmbeddedButtonPosition;
-  wanderLogo?: WanderLogoVariant;
-  /**
-   * TODO: Decide if we want this. Currently hidden, as it doesn't really look good.
-   * URL of the dApp logo that will be displayed next to (overlaid) the Wander logo when connected.
-   */
-  dappLogoSrc?: string;
-  balance?: boolean | WanderEmbeddedBalanceOptions;
-  notifications?: WanderEmbeddedButtonNotifications;
+export interface WanderEmbeddedIframeConfig
+  extends WanderEmbeddedComponentConfig<WanderEmbeddedModalCSSVars> {
+  routeLayout: Record<RouteType, LayoutConfig>;
+  clickOutsideBehavior: WanderEmbeddedClickOutsideBehavior;
 }
+
+// Button:
 
 export type WanderEmbeddedButtonPosition =
   | "top-right"
@@ -160,10 +149,50 @@ export type WanderEmbeddedButtonPosition =
   | "top-left"
   | "bottom-left";
 
+export type WanderEmbeddedLogoVariant = "none" | "default" | "text-color";
+
 export interface WanderEmbeddedBalanceOptions {
   balanceOf: "total" | string; // string would be a token id
   currency: "auto" | string; // "auto" would be the one the user selected on the wallet, string would be a token id or currency symbol (e.g. USD).
 }
+
+export type WanderEmbeddedButtonNotifications = "off" | "counter" | "alert";
+
+export interface WanderEmbeddedButtonLabels {
+  signIn: string;
+  reviewRequests: string;
+}
+
+export interface WanderEmbeddedButtonOptions
+  extends WanderEmbeddedComponentOptions<WanderEmbeddedButtonCSSVars> {
+  position?: WanderEmbeddedButtonPosition;
+  wanderLogo?: WanderEmbeddedLogoVariant;
+  /**
+   * TODO: Decide if we want this. Currently hidden, as it doesn't really look good.
+   * URL of the dApp logo that will be displayed next to (overlaid) the Wander logo when connected.
+   */
+  dappLogoSrc?: string;
+  label?: boolean;
+  balance?: boolean | WanderEmbeddedBalanceOptions;
+  notifications?: WanderEmbeddedButtonNotifications;
+  i18n?: WanderEmbeddedButtonLabels;
+}
+
+export interface WanderEmbeddedButtonConfig
+  extends WanderEmbeddedComponentConfig<WanderEmbeddedButtonCSSVars> {
+  position: WanderEmbeddedButtonPosition;
+  wanderLogo: WanderEmbeddedLogoVariant;
+  dappLogoSrc: string;
+  label: boolean;
+  balance: false | WanderEmbeddedBalanceOptions;
+  notifications: WanderEmbeddedButtonNotifications;
+  i18n: WanderEmbeddedButtonLabels;
+}
+
+export type WanderEmbeddedButtonStatus =
+  | "isAuthenticated"
+  | "isConnected"
+  | "isOpen";
 
 // Styles:
 
@@ -213,6 +242,8 @@ export interface WanderEmbeddedButtonCSSVars {
   borderColor: string;
   borderRadius: number | string;
   boxShadow: string;
+
+  // TODO: Vars below are not used yet:
 
   // Logo (img / svg):
   logoBackground: string;

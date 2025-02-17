@@ -66,7 +66,7 @@ export class WanderEmbedded {
 
     if (!this.iframeRef) throw new Error("Error creating iframe");
 
-    // TODO: Pass theme, balance config and max width/height to iframe:
+    // TODO: Pass theme, balance config and max width/height to iframe context:
     // this.iframeRef.contentWindow.postMessage(message, "*");
 
     // Once we have all the elements in place, start listening for wallet messages...
