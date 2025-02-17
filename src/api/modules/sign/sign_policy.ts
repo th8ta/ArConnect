@@ -7,7 +7,7 @@ export type SignPolicy = "always_ask" | "ask_when_spending" | "auto_confirm";
 
 export function checkIfUserNeedsToSign(
   signPolicy: SignPolicy,
-  transaction: Transaction | DataItem | RawDataItem,
+  transaction?: Transaction | DataItem | RawDataItem,
   walletType: "local" | "hardware" = "local"
 ) {
   try {
@@ -20,6 +20,7 @@ export function checkIfUserNeedsToSign(
         return true;
 
       case "ask_when_spending":
+        if (!transaction) return false;
         const tags = transaction?.tags || [];
         let isAo = false,
           isTransfer = false,
