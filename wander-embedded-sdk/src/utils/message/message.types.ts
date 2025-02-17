@@ -20,9 +20,9 @@ export type IncomingResizeMessageData = RouteConfig;
 
 export type IncomingBalanceMessageData = BalanceInfo;
 
-// embedded_notification
+// embedded_request
 
-export interface IncomingNotificationMessageData {
+export interface IncomingRequestMessageData {
   pendingRequests: number;
 }
 
@@ -47,9 +47,9 @@ export type IncomingBalanceMessage = BaseIncomingMessage<
   "embedded_balance",
   IncomingBalanceMessageData
 >;
-export type IncomingNotificationMessage = BaseIncomingMessage<
-  "embedded_notification",
-  IncomingNotificationMessageData
+export type IncomingRequestMessage = BaseIncomingMessage<
+  "embedded_request",
+  IncomingRequestMessageData
 >;
 
 export type IncomingMessage =
@@ -57,7 +57,7 @@ export type IncomingMessage =
   | IncomingCloseMessage
   | IncomingResizeMessage
   | IncomingBalanceMessage
-  | IncomingNotificationMessage;
+  | IncomingRequestMessage;
 
 export type IncomingMessageId = IncomingMessage["type"];
 

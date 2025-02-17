@@ -8,9 +8,10 @@ import type {
 
 const EMBEDDED_MESSAGE_IDS = [
   "embedded_auth",
-  "embedded_balance",
+  "embedded_close",
   "embedded_resize",
-  "embedded_close"
+  "embedded_balance",
+  "embedded_request"
 ] as const satisfies EmbeddedMessageId[];
 
 export interface PostEmbeddedMessageData<K extends EmbeddedMessageId> {

@@ -3,7 +3,7 @@ import {
   IncomingBalanceMessageData,
   IncomingMessage,
   IncomingMessageId,
-  IncomingNotificationMessageData,
+  IncomingRequestMessageData,
   IncomingResizeMessage,
   IncomingResizeMessageData,
   OutgoingMessage
@@ -54,8 +54,8 @@ export function isIncomingMessage(
       );
     }
 
-    case "embedded_notification": {
-      const data = message.data as IncomingNotificationMessageData;
+    case "embedded_request": {
+      const data = message.data as IncomingRequestMessageData;
 
       return !!(
         data &&

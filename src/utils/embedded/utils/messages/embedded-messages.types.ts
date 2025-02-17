@@ -5,17 +5,13 @@ import type {
 
 export type EmbeddedMessageId =
   | "embedded_auth"
-  | "embedded_balance"
+  | "embedded_close"
   | "embedded_resize"
-  | "embedded_close";
+  | "embedded_balance"
+  | "embedded_request";
 
 export interface EmbeddedAuthMessageData {
   userDetails: any; // TODO: TBD
-}
-
-export interface EmbeddedBalanceMessageData {
-  amount: number;
-  currency: "USD" | "EUR"; // TODO: Replace with a type that includes all options in the settings?
 }
 
 export interface EmbeddedResizeMessageData {
@@ -25,11 +21,21 @@ export interface EmbeddedResizeMessageData {
   height: number;
 }
 
+export interface EmbeddedBalanceMessageData {
+  amount: number;
+  currency: "USD" | "EUR"; // TODO: Replace with a type that includes all options in the settings?
+}
+
+export interface EmbeddedRequestMessageData {
+  pendingRequests: number;
+}
+
 export interface EmbeddedMessageMap {
   embedded_auth: EmbeddedAuthMessageData;
-  embedded_balance: EmbeddedBalanceMessageData;
-  embedded_resize: EmbeddedResizeMessageData;
   embedded_close: void;
+  embedded_resize: EmbeddedResizeMessageData;
+  embedded_balance: EmbeddedBalanceMessageData;
+  embedded_request: EmbeddedRequestMessageData;
 }
 
 export interface EmbeddedCall<K extends EmbeddedMessageId> {

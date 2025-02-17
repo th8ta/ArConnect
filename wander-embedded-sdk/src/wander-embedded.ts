@@ -230,7 +230,7 @@ export class WanderEmbedded {
         this.onBalance(balanceInfo);
         break;
 
-      case "embedded_notification":
+      case "embedded_request":
         const { pendingRequests } = message.data;
         this.pendingRequests = pendingRequests;
 

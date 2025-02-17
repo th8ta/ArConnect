@@ -99,6 +99,13 @@ export function AuthRequestsProvider({
         // AuthRequests from the state but leave it open.
 
         postEmbeddedMessage({
+          type: "embedded_request",
+          data: {
+            pendingRequests: 0
+          }
+        });
+
+        postEmbeddedMessage({
           type: "embedded_close",
           data: null
         });
@@ -135,6 +142,19 @@ export function AuthRequestsProvider({
             compareConnectAuthRequests(authRequest, completedAuthRequest)
           ) {
             completedAuthRequests.push(authRequest);
+          }
+        });
+      }
+
+      if (import.meta.env?.VITE_IS_EMBEDDED_APP === "1") {
+        const pendingRequests =
+          authRequests.filter((authRequest) => authRequest.status === "pending")
+            .length - completedAuthRequests.length;
+
+        postEmbeddedMessage({
+          type: "embedded_request",
+          data: {
+            pendingRequests
           }
         });
       }
@@ -281,6 +301,19 @@ export function AuthRequestsProvider({
           ...authRequests,
           { ...authRequest, status: "pending" }
         ] satisfies AuthRequest[];
+
+        if (import.meta.env?.VITE_IS_EMBEDDED_APP === "1") {
+          const pendingRequests = nextAuthRequests.filter(
+            (authRequest) => authRequest.status === "pending"
+          ).length;
+
+          postEmbeddedMessage({
+            type: "embedded_request",
+            data: {
+              pendingRequests
+            }
+          });
+        }
 
         // TODO: Add setting to decide whether we automatically jump to a new pending request when they arrive or stay
         // in the one currently selected.
