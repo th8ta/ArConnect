@@ -32,6 +32,7 @@ export class WanderEmbedded {
   private iframeComponent: null | WanderIframe = null;
 
   // HTML elements:
+  private buttonHostRef: null | HTMLDivElement = null;
   private buttonRef: null | HTMLButtonElement = null;
   private backdropRef: null | HTMLDivElement = null;
   private iframeRef: null | HTMLIFrameElement = null;
@@ -42,39 +43,6 @@ export class WanderEmbedded {
   public routeConfig: RouteConfig | null = null;
   public balanceInfo: BalanceInfo | null = null;
   public notificationsCount: number = 0;
-
-  /*
-
-  TODO:
-
-  - TODO: Support themes (after shadow dom)
-  - TODO: Create defaultCssVars property to avoid having to use default values in "var" and get rid of these overrides:
-  - TODO: Animate/transition this. First close the old layout. Then open the new one.
-  - Initialize CSS variables with options?
-  - Add popup transition like Passkeys
-  - The modal should only open automatically for auth request, and if the user closes it it should remain open until all are
-    cleared.
-  - Animate button when it first appears.
-  - Pass "App wrapper (inside iframe):" to iframe.
-  - Add option to configure the size-images based on route on the side-by-side view (or send them from the modal)
-  - "popup" layout should probably not resize, only modal.
-  - Add logic to increase/decrease pending notifications (e.g. when an auth request has been viewed).
-  - Add black and white logo option? Consider overlaying the app logo to indicate "connected".
-  - Add styling shortcuts (different defaults): sketch, smooth, rounded
-  - Add function to change layouts and cssVars later
-  - On mobile, just take the whole screen. One desktop, leave space for button.
-  - Add slight rotation towards/against the mouse (except when directly on top)?
-  - TODO: Pass theme, balance config and max width/height to iframe:
-  - Make sure this cannot be called twice, or that it first destroys the previous instance(s)
-  - Use shadow DOM instead and add :hover, :focus and media queries.
-  - Add customizable default size for each layout.
-  - Add close button inside iframe and make sure the spinner shows straight away.
-  - TODO: Add CSS var for transition duration.
-  - Considering having different transitions.
-  - Add effect when spending/signing
-  - Fix embedded issue: If generation was too long ago and it expires, it just throws an error instead of generating a new one when needed.
-
-  */
 
   constructor(options: WanderEmbeddedOptions = {}) {
     // Callbacks:
@@ -154,9 +122,12 @@ export class WanderEmbedded {
         buttonOptions === true ? {} : buttonOptions
       );
 
-      this.buttonRef = this.buttonComponent.getElement();
+      const { host, button } = this.buttonComponent.getElements();
 
-      document.body.appendChild(this.buttonRef);
+      this.buttonHostRef = host;
+      this.buttonRef = button;
+
+      document.body.appendChild(host);
     }
 
     const clickOutsideBehavior =
@@ -171,9 +142,9 @@ export class WanderEmbedded {
         const shouldClose =
           clickOutsideBehavior === true ||
           (this.iframeRef !== target &&
-            this.buttonRef !== target &&
+            this.buttonHostRef !== target &&
             !this.iframeRef?.contains(target as HTMLElement) &&
-            !this.buttonRef?.contains(target as HTMLElement) &&
+            !this.buttonHostRef?.contains(target as HTMLElement) &&
             this.backdropRef &&
             (getComputedStyle(this.backdropRef).backdropFilter !== "none" ||
               // TODO: This is not a good way to check if it's totally transparent:
@@ -300,9 +271,17 @@ export class WanderEmbedded {
     window.removeEventListener("message", this.handleMessage);
     window.removeEventListener("click", this.handleButtonClick);
 
-    // Only remove the elements we crated:
-    if (this.iframeComponent) this.iframeRef?.remove();
-    if (this.buttonComponent) this.buttonRef?.remove();
+    // Remove the elements we crated:
+
+    if (this.iframeComponent) {
+      this.backdropRef?.remove();
+      this.iframeRef?.remove();
+    }
+
+    if (this.buttonComponent) {
+      this.buttonHostRef?.remove();
+      this.buttonRef?.remove();
+    }
   }
 
   get isAuthenticated() {

@@ -1,18 +1,59 @@
-import { CSSProperties } from "react";
 import {
   BalanceInfo,
+  WanderEmbeddedButtonCSSVars,
   WanderEmbeddedButtonOptions,
   WanderEmbeddedButtonStatus
 } from "../../wander-embedded.types";
-import { createWanderSVG } from "../logo/wander-logo.component";
-// import { asCSSVars } from "../../utils/styles/styles.utils";
+import { wanderButtonTemplateContent } from "./wander-button.template";
+import { addCSSVariables } from "../../utils/styles/styles.utils";
+import { merge } from "ts-deepmerge";
 
 export class WanderButton {
   static DEFAULT_BUTTON_ID = "wanderEmbeddedButton" as const;
 
+  static DEFAULT_CSS_VARS: WanderEmbeddedButtonCSSVars = {
+    // Button (button):
+    gapX: 16,
+    gapY: 16,
+    gapInside: 8,
+    minWidth: 0,
+    minHeight: 0,
+    zIndex: "9999",
+    padding: "12px 20px 12px 16px",
+    font: "24px sans-serif",
+
+    // Button (button, affected by :hover & :focus):
+    background: "black",
+    color: "white",
+    borderWidth: 0,
+    borderColor: "black",
+    borderRadius: 128,
+    boxShadow: "0px 4px 40px 0px rgba(0, 0, 0, 0.25)",
+
+    // Logo (img / svg):
+    logoBackground: "",
+    logoBorderWidth: "",
+    logoBorderColor: "",
+    logoBorderRadius: "",
+
+    // Labels (span):
+
+    // Balance (span):
+
+    // Notifications (span):
+    notificationsBackground: "",
+    notificationsBorderWidth: "",
+    notificationsBorderColor: "",
+    notificationsBorderRadius: "",
+    notificationsBoxShadow: "",
+    notificationsPadding: ""
+  };
+
   // Elements:
+  private host: HTMLDivElement;
   private button: HTMLButtonElement;
-  private logo: HTMLImageElement | SVGElement;
+  private wanderLogo: SVGElement;
+  private dappLogo: HTMLImageElement | SVGElement;
   private label: HTMLSpanElement;
   private balance: HTMLSpanElement;
   private notifications: HTMLSpanElement;
@@ -28,8 +69,10 @@ export class WanderButton {
 
     const elements = WanderButton.initializeButton(options);
 
+    this.host = elements.host;
     this.button = elements.button;
-    this.logo = elements.logo;
+    this.wanderLogo = elements.wanderLogo;
+    this.dappLogo = elements.dappLogo;
     this.label = elements.label;
     this.balance = elements.balance;
     this.notifications = elements.notifications;
@@ -43,8 +86,57 @@ export class WanderButton {
   // (and hover for each of them?)
 
   static initializeButton(options: WanderEmbeddedButtonOptions) {
-    // TODO: Always add all elements (logo and balance) but show/hide them
+    const host = document.createElement("div");
+    const shadow = host.attachShadow({ mode: "open" });
+    const template = document.createElement("template");
 
+    template.innerHTML = wanderButtonTemplateContent(options.customStyles);
+    shadow.appendChild(template.content);
+
+    const button = shadow.querySelector(".button") as HTMLButtonElement;
+    const wanderLogo = shadow.querySelector(".wanderLogo") as SVGElement;
+    const dappLogo = shadow.querySelector(".dappLogo") as
+      | HTMLImageElement
+      | SVGElement;
+    const label = shadow.querySelector(".label") as HTMLSpanElement;
+    const balance = shadow.querySelector(".balance") as HTMLSpanElement;
+    const notifications = shadow.querySelector(
+      ".notifications"
+    ) as HTMLSpanElement;
+
+    if (
+      !button ||
+      !wanderLogo ||
+      !dappLogo ||
+      !label ||
+      !balance ||
+      !notifications
+    )
+      throw new Error("Missing elements");
+
+    const [y, x] = (options.position || "bottom-right").split("-") as [
+      "top" | "bottom",
+      "left" | "right"
+    ];
+
+    button.style[y] = "var(--gapY)";
+    button.style[x] = "var(--gapX)";
+
+    const cssVars = merge(options.cssVars || {}, WanderButton.DEFAULT_CSS_VARS);
+
+    addCSSVariables(host, cssVars);
+
+    return {
+      host,
+      button,
+      wanderLogo,
+      dappLogo,
+      label,
+      balance,
+      notifications
+    };
+
+    /*
     const button = document.createElement("button");
 
     button.id = WanderButton.DEFAULT_BUTTON_ID;
@@ -62,85 +154,19 @@ export class WanderButton {
       logo.width = 30;
       logo.height = 30;
     }
-
-    const label = document.createElement("span");
-
-    label.textContent = "Sign in";
-
-    const balance = document.createElement("span");
-
-    balance.textContent = new Intl.NumberFormat().format(0);
-
-    const notifications = document.createElement("span");
-
-    notifications.textContent = "2";
-
-    const buttonStyle: CSSProperties = {
-      position: "fixed",
-      bottom: "40px",
-      right: "40px",
-      display: "flex",
-      alignItems: "center",
-      padding: "16px",
-      gap: "8px",
-      borderRadius: "50px",
-      border: "1px solid rgba(51, 51, 51, 1)",
-      outline: "none",
-      backgroundColor: "rgba(25, 25, 25, 1)",
-      boxShadow: "0px 4px 40px 0px rgba(0, 0, 0, 0.25)",
-      fontSize: "24px",
-      // lineHeight: "28.8px",
-      color: "white",
-      zIndex: "9999"
-    };
-
-    Object.assign(button.style, buttonStyle);
-
-    const logoStyle: CSSProperties = {};
-
-    Object.assign(logo.style, logoStyle);
-
-    const labelStyle: CSSProperties = {};
-
-    Object.assign(label.style, labelStyle);
-
-    const balanceStyle: CSSProperties = {};
-
-    Object.assign(balance.style, balanceStyle);
-
-    const notificationsStyle: CSSProperties = {
-      position: "absolute",
-      right: "-4px",
-      bottom: "-4px",
-      zIndex: -1,
-      padding: "2px 4px",
-      background: "red",
-      borderRadius: "16px",
-      fontSize: "12px",
-      fontWeight: "bold",
-      minHeight: "22px",
-      minWidth: "22px",
-      textAlign: "center"
-    };
-
-    Object.assign(notifications.style, notificationsStyle);
-
-    button.appendChild(logo);
-    button.appendChild(label);
-    button.appendChild(balance);
-    button.appendChild(notifications);
-
-    return {
-      button,
-      logo,
-      label,
-      balance,
-      notifications
-    };
+    */
   }
 
-  getElement(): HTMLButtonElement {
-    return this.button;
+  getElements() {
+    return {
+      host: this.host,
+      button: this.button,
+      wanderLogo: this.wanderLogo,
+      dappLogo: this.dappLogo,
+      label: this.label,
+      balance: this.balance,
+      notifications: this.notifications
+    };
   }
 
   setBalance(balanceInfo: BalanceInfo) {
@@ -154,14 +180,25 @@ export class WanderButton {
 
   setNotifications(notificationsCount: number) {
     // TODO: Show / hide if there aren't any:
-    this.notifications.textContent = `${notificationsCount}`;
+    this.notifications.textContent =
+      notificationsCount > 0 ? `${notificationsCount}` : "";
   }
 
   setStatus(status: WanderEmbeddedButtonStatus) {
     this.status[status] = true;
+    this.button.classList.add(status);
+
+    if (status === "isAuthenticated") {
+      this.label.textContent = "Sign in";
+    }
   }
 
   unsetStatus(status: WanderEmbeddedButtonStatus) {
     this.status[status] = false;
+    this.button.classList.add(status);
+
+    if (status === "isAuthenticated") {
+      this.label.textContent = "";
+    }
   }
 }

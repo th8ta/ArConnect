@@ -229,7 +229,9 @@ export class WanderIframe {
 
     const backdropStyle: CSSProperties = {};
     const iframeStyle: CSSProperties = {};
-    const cssVars: WanderEmbeddedModalCSSVars = { ...this.options.cssVars };
+    const cssVars: Partial<WanderEmbeddedModalCSSVars> = {
+      ...this.options.cssVars
+    };
 
     switch (layoutConfig.type) {
       case "modal": {

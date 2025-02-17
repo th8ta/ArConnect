@@ -74,6 +74,7 @@ export interface WanderEmbeddedOptions {
   src?: string;
   iframe?: WanderEmbeddedIframeOptions | HTMLIFrameElement;
   button?: WanderEmbeddedButtonOptions | boolean;
+  theme?: ThemeSetting;
 
   // TODO: Also export the messages types:
   onAuth?: (userDetails: UserDetails | null) => void;
@@ -94,8 +95,9 @@ export interface WanderEmbeddedComponentOptions<T> {
   id?: string;
   className?: string;
   // TODO: Support themes
-  // cssVars?: ThemeSetting | T | Record<ThemeVariant, T>;
-  cssVars?: T;
+  // cssVars?: T | Record<ThemeVariant, T>;
+  cssVars?: Partial<T>;
+  customStyles?: string;
 }
 
 // Modal (iframe):
@@ -123,12 +125,23 @@ export interface WanderEmbeddedIframeOptions
 
 // Button:
 
-export type WanderEmbeddedButtonStatus = "isAuthenticated" | "isOpen";
+export type WanderEmbeddedButtonStatus =
+  | "isAuthenticated"
+  | "isConnected"
+  | "isOpen";
+
+export type WanderLogoVariant = "none" | "default" | "black-n-white";
+
+export type WanderEmbeddedButtonNotifications = "off" | "counter" | "alert";
 
 export interface WanderEmbeddedButtonOptions
   extends WanderEmbeddedComponentOptions<WanderEmbeddedButtonCSSVars> {
   position?: WanderEmbeddedButtonPosition;
-  logo?: boolean | string;
+  wanderLogo?: WanderLogoVariant;
+  /**
+   * URL of the dApp logo that will be displayed next to (overlaid) the Wander logo when connected.
+   */
+  dappLogo?: string;
   balance?: boolean | WanderEmbeddedBalanceOptions;
   notifications?: WanderEmbeddedButtonNotifications;
 }
@@ -144,66 +157,68 @@ export interface WanderEmbeddedBalanceOptions {
   currency: "auto" | string; // "auto" would be the one the user selected on the wallet, string would be a token id or currency symbol (e.g. USD).
 }
 
-export type WanderEmbeddedButtonNotifications = "off" | "counter" | "alert";
-
 // Styles:
 
 export interface WanderEmbeddedModalCSSVars {
   // Modal (iframe):
-  background?: string;
-  borderWidth?: number;
-  borderColor?: string;
-  borderRadius?: number | string;
-  boxShadow?: string;
-  zIndex?: string;
-  preferredWidth?: number | string;
-  preferredHeight?: number | string;
+  background: string;
+  borderWidth: number;
+  borderColor: string;
+  borderRadius: number | string;
+  boxShadow: string;
+  zIndex: string;
+  preferredWidth: number | string;
+  preferredHeight: number | string;
 
   // App wrapper (inside iframe):
-  iframePadding?: number;
-  iframeMaxWidth?: number;
-  iframeMaxHeight?: number;
+  iframePadding: number;
+  iframeMaxWidth: number;
+  iframeMaxHeight: number;
 
   // Backdrop (div):
-  backdropBackground?: string;
-  backdropBackdropFilter?: string;
-  backdropPadding?: number | string;
+  backdropBackground: string;
+  backdropBackdropFilter: string;
+  backdropPadding: number | string;
 
   /**
    * TODO: If `backdropBackground` is transparent and `backdropBackdropFilter` is not set, this will be set to "none", unless
    * a different value is specified. In any other case, this is ignored.
    */
-  backdropPointerEvents?: string;
+  backdropPointerEvents: string;
 }
 
 export interface WanderEmbeddedButtonCSSVars {
   // Button (button):
-  background?: string;
-  borderWidth?: number | string;
-  borderColor?: string;
-  borderRadius?: number | string;
-  boxShadow?: string;
-  zIndex?: string;
-  minWidth?: number | string;
-  minHeight?: number | string;
-  padding?: number | string;
-  font?: string;
+  gapX: number | string;
+  gapY: number | string;
+  gapInside: number | string;
+  minWidth: number | string;
+  minHeight: number | string;
+  zIndex: string;
+  padding: number | string;
+  font: string;
+
+  // Button (button, affected by :hover & :focus):
+  background: string;
+  color: string;
+  borderWidth: number | string;
+  borderColor: string;
+  borderRadius: number | string;
+  boxShadow: string;
 
   // Logo (img / svg):
-  logoBackground?: string;
-  logoBorder?: string; // TODO: Border-right only?
-  logoBorderRadius?: number | string;
-
-  // Labels (span):
-
-  // Balance (span):
+  logoBackground: string;
+  logoBorderWidth: number | string;
+  logoBorderColor: string;
+  logoBorderRadius: number | string;
 
   // Notifications (span):
-  notificationsBackground?: string;
-  notificationsBorder?: string;
-  notificationsBorderRadius?: number | string;
-  notificationsBoxShadow?: string;
-  notificationsPadding?: number | string;
+  notificationsBackground: string;
+  notificationsBorderWidth: number | string;
+  notificationsBorderColor: string;
+  notificationsBorderRadius: number | string;
+  notificationsBoxShadow: string;
+  notificationsPadding: number | string;
 
   // TODO: :hover and :focus specific styling.
 }
