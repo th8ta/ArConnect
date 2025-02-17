@@ -229,6 +229,12 @@ export class WanderButton {
     host.style.position = "fixed";
     host.style[y] = "var(--gapY)";
     host.style[x] = "var(--gapX)";
+    host.style.transition = "opacity linear 150ms";
+    host.style.opacity = "0";
+
+    setTimeout(() => {
+      host.style.opacity = "1";
+    });
 
     addCSSVariables(host, config.cssVars.light);
     addCSSVariables(host, config.cssVars.dark, "Dark");
