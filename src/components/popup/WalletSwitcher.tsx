@@ -136,13 +136,13 @@ export default function WalletSwitcher({ open, close }: Props) {
   useEffect(() => {
     const updateBalances = async () => {
       if (open && inactiveWallets.length > 0) {
-        const balances = await fetchWalletBalances(inactiveWallets, currency);
+        const balances = await fetchWalletBalances(inactiveWallets);
         setWalletBalances(balances);
       }
     };
 
     updateBalances();
-  }, [open, inactiveWallets, currency]);
+  }, [open, inactiveWallets]);
 
   const fiatBalances = useMemo(() => {
     return Object.entries(walletBalances).reduce((acc, [address, balance]) => {
