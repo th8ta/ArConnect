@@ -31,7 +31,6 @@ export class WanderIframe {
     boxShadow: "var(--boxShadow, 0 0 16px 0 rgba(0, 0, 0, 0.125))",
     width: "calc(var(--preferredWidth, 400px) - 2 * var(--borderWidth, 2px))",
     height: "calc(var(--preferredHeight, 600px) - 2 * var(--borderWidth, 2px))",
-    // TODO: No min on mobile:
     minWidth: "400px",
     minHeight: "400px",
     maxWidth:
@@ -94,6 +93,22 @@ export class WanderIframe {
     half: {
       type: "half"
     } as HalfLayoutConfig
+  };
+
+  static MOBILE_MEDIA_QUERY = "(max-width: 540px)";
+
+  static IFRAME_MOBILE_STYLE: CSSProperties = {
+    borderWidth: "0",
+    borderRadius: "0",
+    width: "100dvw",
+    height: "100dvh",
+    minWidth: "100dvw",
+    minHeight: "100dvh",
+    maxWidth: "100dvw",
+    maxHeight: "100dvh",
+    top: "0",
+    left: "0",
+    transform: "none"
   };
 
   // Elements:
@@ -162,6 +177,19 @@ export class WanderIframe {
       preferredLayoutType: this.routeLayout.auth?.type || "modal",
       height: 0
     });
+
+    // Handle mobile styles
+    const mobileQuery = window.matchMedia(WanderIframe.MOBILE_MEDIA_QUERY);
+    const handleMobileChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      if (e.matches) {
+        Object.assign(this.iframe.style, WanderIframe.IFRAME_MOBILE_STYLE);
+      } else {
+        Object.assign(this.iframe.style, WanderIframe.IFRAME_BASE_STYLE);
+      }
+    };
+
+    mobileQuery.addListener(handleMobileChange);
+    handleMobileChange(mobileQuery);
   }
 
   static getLayoutConfig(
@@ -241,8 +269,7 @@ export class WanderIframe {
         iframeStyle.top = "50%";
         iframeStyle.left = "50%";
         iframeStyle.transform = "translate(-50%, -50%)"; // TODO: Add scale effect when appearing?
-        iframeStyle.transition =
-          "height linear 300ms, width linear 300ms, opacity linear 150ms";
+        iframeStyle.transition = "opacity linear 150ms";
         cssVars.preferredWidth ??= layoutConfig.fixedWidth || routeConfig.width;
         cssVars.preferredHeight ??=
           layoutConfig.fixedHeight || routeConfig.height;
@@ -260,8 +287,7 @@ export class WanderIframe {
 
         iframeStyle[y] = "var(--backdropPadding, 32px)";
         iframeStyle[x] = "var(--backdropPadding, 32px)";
-        iframeStyle.transition =
-          "height linear 300ms, width linear 300ms, opacity linear 150ms";
+        iframeStyle.transition = "opacity linear 150ms";
         // iframeStyle.minWidth = 0;
         // iframeStyle.minHeight = 0;
         cssVars.preferredWidth ??= layoutConfig.fixedWidth || routeConfig.width;
@@ -284,7 +310,7 @@ export class WanderIframe {
         iframeStyle[y] = layoutConfig.expanded
           ? 0
           : `var(--backdropPadding, 0)`;
-        iframeStyle.transition = "transform linear 150ms";
+        iframeStyle.transition = "opacity linear 150ms";
 
         this.iframeHideStyle = {
           transform: `translate(calc(${sign}100% ${sign} var(--backdropPadding, 32px)), 0)`

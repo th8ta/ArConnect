@@ -93,7 +93,9 @@ export class WanderEmbedded {
     } = options;
 
     // TODO Use PARAM_ORIGIN_KEY and PARAM_API_KEY instead of hardcoded values:
-    const srcWithParams = `${src}?origin=${location.origin}&api-key=123`;
+    // const srcWithParams = `${src}?origin=${location.origin}&api-key=123`;
+
+    const srcWithParams = `${src}?origin=${location.origin}&api-key=123&test=ok&auth=1`;
 
     if (iframeOptions instanceof HTMLElement) {
       if (
