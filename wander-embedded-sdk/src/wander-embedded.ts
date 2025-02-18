@@ -88,6 +88,12 @@ export class WanderEmbedded {
       this.handleButtonClick = this.handleButtonClick.bind(this);
       this.buttonRef.addEventListener("click", this.handleButtonClick);
     }
+
+    // Adds the iframe host element to the document body if an iframe component exists
+    if (this.iframeComponent) {
+      document.body.appendChild(this.iframeComponent.getElements().host);
+    }
+
     WanderEmbedded.instance = this;
   }
 
@@ -123,9 +129,6 @@ export class WanderEmbedded {
 
       this.backdropRef = elements.backdrop;
       this.iframeRef = elements.iframe;
-
-      document.body.appendChild(elements.backdrop);
-      document.body.appendChild(elements.iframe);
     }
 
     if (typeof buttonOptions === "object" || buttonOptions === true) {
