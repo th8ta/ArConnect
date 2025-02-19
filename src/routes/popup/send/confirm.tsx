@@ -343,11 +343,19 @@ export function ConfirmView({
           });
           navigate(`/send/completed/${res}?isAo=true`);
           setIsLoading(false);
+        } else {
+          throw new Error("Failed to send ao transfer");
         }
         return res;
       } catch (err) {
         console.log("err in ao", err);
-        throw err;
+        setIsLoading(false);
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("failed_tx"),
+          duration: 2000
+        });
+        return;
       }
     }
     // Prepare transaction
