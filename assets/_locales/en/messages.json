@@ -609,9 +609,9 @@
     "message": "address copied",
     "description": "Address copy notification 2"
   },
-  "cannot_edit_with_name_service": {
-    "message": "Cannot edit. It already has a name service.",
-    "description": "Explainer for disabled edits for wallets with name service names"
+  "cannot_edit_with_ans": {
+    "message": "Cannot edit nickname. Wallet already has an ANS label.",
+    "description": "Explainer for disabled edits for wallets with ANS profiles"
   },
   "add_wallet_subtitle": {
     "message": "You can add as many as you like",

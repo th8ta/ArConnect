@@ -39,9 +39,6 @@ import WanderIcon from "url:assets/icon.svg";
 import Image from "~components/common/Image";
 import { Flex } from "~components/common/Flex";
 import { svgie } from "~utils/svgies";
-import { useNameServiceProfile } from "~lib/nameservice";
-import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
-import { concatGatewayURL } from "~gateways/utils";
 
 type Page = "unlock" | "connect" | "permissions" | "confirm";
 
@@ -67,18 +64,11 @@ export function ConnectAuthRequestView() {
 
   const [avatar, setAvatar] = useState("");
 
-  const nameServiceProfile = useNameServiceProfile(wallet?.address);
-  const nsGateway = useGateway(FULL_HISTORY);
-
   useEffect(() => {
     if (!wallet?.address) return;
 
-    if (nameServiceProfile?.logo && nsGateway?.protocol && nsGateway?.host) {
-      setAvatar(concatGatewayURL(nsGateway) + "/" + nameServiceProfile.logo);
-    } else {
-      setAvatar(svgie(wallet?.address, { asDataURI: true }));
-    }
-  }, [wallet, nameServiceProfile, nsGateway]);
+    setAvatar(svgie(wallet?.address, { asDataURI: true }));
+  }, [wallet]);
 
   const { authRequest, acceptRequest, rejectRequest } =
     useCurrentAuthRequest("connect");
@@ -89,6 +79,15 @@ export function ConnectAuthRequestView() {
     appInfo = {},
     gateway
   } = authRequest;
+
+  // wallet switcher open
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+
+  // page
+  const [page, setPage] = useState<Page>("connect");
+
+  // password input
+  const passwordInput = useInput();
 
   // toasts
   const { setToast } = useToasts();

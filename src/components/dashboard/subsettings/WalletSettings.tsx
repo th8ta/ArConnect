@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useStorage } from "~utils/storage";
 import { IconButton } from "~components/IconButton";
 import { decryptWallet, freeDecryptedWallet } from "~wallets/encryption";
+import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { ExtensionStorage } from "~utils/storage";
 import { downloadKeyfile } from "~utils/file";
 import keystoneLogo from "url:/assets/hardware/keystone.png";
@@ -25,7 +26,6 @@ import copy from "copy-to-clipboard";
 import { formatAddress } from "~utils/format";
 import type { CommonRouteProps } from "~wallets/router/router.types";
 import { LoadingView } from "~components/page/common/loading/loading.view";
-import { getNameServiceProfile } from "~lib/nameservice";
 
 export interface WalletSettingsDashboardViewParams {
   address: string;
@@ -55,15 +55,19 @@ export function WalletSettingsDashboardView({
   // toasts
   const { setToast } = useToasts();
 
-  // name service name
-  const [nameServiceName, setNameServiceName] = useState<string>();
+  // ans
+  const [ansLabel, setAnsLabel] = useState<string>();
 
   useEffect(() => {
     (async () => {
       if (!wallet) return;
 
-      const nameServiceProfile = await getNameServiceProfile(wallet.address);
-      setNameServiceName(nameServiceProfile?.name);
+      // get ans profile
+      const profile = (await getAnsProfile(wallet.address)) as AnsUser;
+
+      if (!profile?.currentLabel) return;
+
+      setAnsLabel(profile.currentLabel + ".ar");
     })();
   }, [wallet?.address]);
 
@@ -72,12 +76,12 @@ export function WalletSettingsDashboardView({
 
   useEffect(() => {
     if (!wallet) return;
-    walletNameInput.setState(nameServiceName || wallet.nickname);
-  }, [wallet, nameServiceName]);
+    walletNameInput.setState(ansLabel || wallet.nickname);
+  }, [wallet, ansLabel]);
 
   // update nickname function
   async function updateNickname() {
-    if (!!nameServiceName) return;
+    if (!!ansLabel) return;
 
     // check name
     const newName = walletNameInput.state;
@@ -169,7 +173,7 @@ export function WalletSettingsDashboardView({
       <div>
         <Spacer y={0.45} />
         <WalletName>
-          {nameServiceName || wallet.nickname}
+          {ansLabel || wallet.nickname}
           {wallet.type === "hardware" && (
             <Tooltip
               content={
@@ -205,6 +209,9 @@ export function WalletSettingsDashboardView({
           </Tooltip>
         </WalletAddress>
         <Title>{browser.i18n.getMessage("edit_wallet_name")}</Title>
+        {!!ansLabel && (
+          <Warning>{browser.i18n.getMessage("cannot_edit_with_ans")}</Warning>
+        )}
         <InputWithBtn>
           <InputWrapper>
             <Input
@@ -212,18 +219,13 @@ export function WalletSettingsDashboardView({
               type="text"
               placeholder={browser.i18n.getMessage("edit_wallet_name")}
               fullWidth
-              disabled={!!nameServiceName}
+              disabled={!!ansLabel}
             />
           </InputWrapper>
-          <IconButton onClick={updateNickname} disabled={!!nameServiceName}>
+          <IconButton onClick={updateNickname} disabled={!!ansLabel}>
             Save
           </IconButton>
         </InputWithBtn>
-        {!!nameServiceName && (
-          <Warning>
-            {browser.i18n.getMessage("cannot_edit_with_name_service")}
-          </Warning>
-        )}
       </div>
       <div>
         <Button

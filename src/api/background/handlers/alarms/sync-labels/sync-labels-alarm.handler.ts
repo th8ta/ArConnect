@@ -1,5 +1,5 @@
+import { getAnsProfile, type AnsUser } from "~lib/ans";
 import type { Alarms } from "webextension-polyfill";
-import { getNameServiceProfiles } from "~lib/nameservice";
 import { ExtensionStorage } from "~utils/storage";
 import { getWallets } from "~wallets";
 
@@ -18,16 +18,21 @@ export async function handleSyncLabelsAlarm(alarm?: Alarms.Alarm) {
   if (wallets.length === 0) return;
 
   // get profiles
-  const profiles = await getNameServiceProfiles(wallets.map((w) => w.address));
+  const profiles = (await getAnsProfile(
+    wallets.map((w) => w.address)
+  )) as AnsUser[];
 
-  const find = (addr: string) => profiles.find((w) => w.address === addr)?.name;
+  const find = (addr: string) =>
+    profiles.find((w) => w.user === addr)?.currentLabel;
 
   // save updated wallets
   await ExtensionStorage.set(
     "wallets",
     wallets.map((wallet) => ({
       ...wallet,
-      nickname: find(wallet.address) || wallet.nickname
+      nickname: find(wallet.address)
+        ? find(wallet.address) + ".ar"
+        : wallet.nickname
     }))
   );
 }

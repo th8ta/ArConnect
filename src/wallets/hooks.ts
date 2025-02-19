@@ -1,5 +1,6 @@
 import type { WalletInterface } from "~components/welcome/load/Migrate";
 import type { JWKInterface } from "arweave/web/lib/wallet";
+import { type AnsUser, getAnsProfile } from "~lib/ans";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useStorage } from "~utils/storage";
 import { defaultGateway } from "~gateways/gateway";
@@ -10,7 +11,6 @@ import type { StoredWallet } from "~wallets";
 import Arweave from "arweave";
 import { isPasswordFresh } from "./auth";
 import { useQuery } from "@tanstack/react-query";
-import { getNameServiceProfiles } from "~lib/nameservice";
 
 /**
  * Wallets with details hook
@@ -37,15 +37,15 @@ export function useWalletsDetails(wallets: JWKInterface[]) {
 
       // load ans labels
       try {
-        const profiles = await getNameServiceProfiles(
+        const profiles = (await getAnsProfile(
           details.map((w) => w.address)
-        );
+        )) as AnsUser[];
 
         for (const wallet of details) {
-          const profile = profiles.find((p) => p.address === wallet.address);
+          const profile = profiles.find((p) => p.user === wallet.address);
 
-          if (!profile?.name) continue;
-          wallet.label = profile.name;
+          if (!profile?.currentLabel) continue;
+          wallet.label = profile.currentLabel + ".ar";
         }
       } catch {}
 

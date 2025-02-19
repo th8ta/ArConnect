@@ -2,6 +2,7 @@ import { concatGatewayURL } from "~gateways/utils";
 import { Button, Section } from "@arconnect/components-rebrand";
 import { useEffect, useState } from "react";
 import { useStorage } from "~utils/storage";
+import { type AnsUser, getAnsProfile } from "~lib/ans";
 import browser from "webextension-polyfill";
 import styled from "styled-components";
 import { FULL_HISTORY, useGateway } from "~gateways/wayfinder";
@@ -10,8 +11,6 @@ import HeadV2 from "~components/popup/HeadV2";
 import { useLocation } from "~wallets/router/router.utils";
 import { ExtensionStorage } from "~utils/storage";
 import type { StoredWallet } from "~wallets";
-import { getNameServiceProfiles } from "~lib/nameservice";
-import type { NameServiceProfile } from "~lib/types";
 
 export function WalletsView() {
   const { navigate } = useLocation();
@@ -32,31 +31,27 @@ export function WalletsView() {
   );
 
   // ans data
-  const [nameServiceProfiles, setNameServiceProfiles] = useState<
-    NameServiceProfile[]
-  >([]);
+  const [ansProfiles, setAnsProfiles] = useState<AnsUser[]>([]);
 
   useEffect(() => {
     (async () => {
       if (!wallets) return;
 
       // fetch profiles
-      const profiles = await getNameServiceProfiles(
-        wallets.map((w) => w.address)
-      );
+      const profiles = await getAnsProfile(wallets.map((w) => w.address));
 
-      setNameServiceProfiles(profiles);
+      setAnsProfiles(profiles as AnsUser[]);
     })();
   }, [wallets]);
 
   // ans shortcuts
   const findProfile = (address: string) =>
-    nameServiceProfiles.find((profile) => profile.address === address);
+    ansProfiles.find((profile) => profile.user === address);
 
   const gateway = useGateway(FULL_HISTORY);
 
   function findAvatar(address: string) {
-    const avatar = findProfile(address)?.logo;
+    const avatar = findProfile(address)?.avatar;
     const gatewayUrl = concatGatewayURL(gateway);
 
     if (!avatar) return undefined;
@@ -64,7 +59,7 @@ export function WalletsView() {
   }
 
   function findLabel(address: string) {
-    const label = findProfile(address)?.name;
+    const label = findProfile(address)?.currentLabel;
 
     if (!label) return undefined;
     return label + ".ar";
