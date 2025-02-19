@@ -23,7 +23,7 @@ import { useEffect, useMemo, useState } from "react";
 import { findGateway } from "~gateways/wayfinder";
 import Arweave from "arweave";
 import { useLocation } from "~wallets/router/router.utils";
-import { fallbackGateway, type Gateway } from "~gateways/gateway";
+import { type Gateway } from "~gateways/gateway";
 import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
 import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
@@ -377,7 +377,7 @@ export function ConfirmView({
                 SubscriptionStatus.ACTIVE
               ));
           } catch (e) {
-            gateway = fallbackGateway;
+            gateway = await findGateway({ random: true });
             const fallbackArweave = new Arweave(gateway);
             await fallbackArweave.transactions.sign(
               convertedTransaction,
@@ -442,7 +442,7 @@ export function ConfirmView({
           try {
             await submitTx(convertedTransaction, arweave, type);
           } catch (e) {
-            gateway = fallbackGateway;
+            gateway = await findGateway({ random: true });
             const fallbackArweave = new Arweave(gateway);
             await fallbackArweave.transactions.sign(
               convertedTransaction,

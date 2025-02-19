@@ -1056,7 +1056,7 @@
       "description": "Transaction sent successfully notification"
   },
   "failed_tx": {
-      "message": "无法发送交易",
+      "message": "无法发送交易。请再试一次。",
       "description": "Transfer error notification"
   },
   "assets": {

@@ -1068,7 +1068,7 @@
     "description": "Transaction sent successfuly notification"
   },
   "failed_tx": {
-    "message": "Could not send transaction",
+    "message": "Could not send transaction. Please try again.",
     "description": "Transfer error notification"
   },
   "assets": {
