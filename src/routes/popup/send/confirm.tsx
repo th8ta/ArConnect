@@ -1,4 +1,5 @@
 import {
+  Button,
   Input,
   Section,
   Spacer,
@@ -75,6 +76,7 @@ import {
 import prettyBytes from "pretty-bytes";
 import { stringToBuffer } from "arweave/web/lib/utils";
 import useSetting from "~settings/hook";
+import { Flex } from "~components/common/Flex";
 
 export interface ConfirmViewParams {
   token: string;
@@ -234,6 +236,30 @@ export function ConfirmView({
     transaction.addTag("Type", "Transfer");
     transaction.addTag("Client", "Wander");
     transaction.addTag("Client-Version", browser.runtime.getManifest().version);
+  }
+
+  function showTransferError() {
+    setToast({
+      type: "error",
+      content: (
+        <Flex direction="column" gap={16}>
+          <Text style={{ color: "#EEE" }} noMargin>
+            {browser.i18n.getMessage("failed_tx_with_gateway")}
+          </Text>
+          <Button
+            fullWidth
+            onClick={() =>
+              browser.tabs.create({
+                url: browser.runtime.getURL("tabs/dashboard.html#/gateways")
+              })
+            }
+          >
+            {browser.i18n.getMessage("switch_gateway")}
+          </Button>
+        </Flex>
+      ),
+      duration: 5000
+    });
   }
 
   async function submitTx(
@@ -418,11 +444,7 @@ export function ConfirmView({
           console.log(e);
           setIsLoading(false);
           freeDecryptedWallet(keyfile);
-          setToast({
-            type: "error",
-            content: browser.i18n.getMessage("failed_tx"),
-            duration: 2000
-          });
+          showTransferError();
         }
       } else {
         const activeWallet = await getActiveWallet();
@@ -479,11 +501,7 @@ export function ConfirmView({
         } catch (e) {
           freeDecryptedWallet(keyfile);
           setIsLoading(false);
-          setToast({
-            type: "error",
-            content: browser.i18n.getMessage("failed_tx"),
-            duration: 2000
-          });
+          showTransferError();
         }
       }
     }
@@ -664,11 +682,7 @@ export function ConfirmView({
         );
       } catch (e) {
         console.log(e);
-        setToast({
-          type: "error",
-          content: browser.i18n.getMessage("failed_tx"),
-          duration: 2000
-        });
+        showTransferError();
       }
     }
   );

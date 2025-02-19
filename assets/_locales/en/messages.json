@@ -1071,6 +1071,10 @@
     "message": "Could not send transaction. Please try again.",
     "description": "Transfer error notification"
   },
+  "failed_tx_with_gateway": {
+    "message": "Could not send transaction. Please try again or use a different gateway.",
+    "description": "Transfer error notification"
+  },
   "assets": {
     "message": "Assets",
     "description": "Assets title"
@@ -2917,5 +2921,9 @@
         "example": "USD"
       }
     }
+  },
+  "switch_gateway": {
+    "message": "Switch Gateway",
+    "description": "Switch gateway text"
   }
 }

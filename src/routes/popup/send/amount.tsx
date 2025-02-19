@@ -489,6 +489,7 @@ export function AmountView({ params: { id, recipient } }: AmountViewProps) {
                 ticker={
                   qtyMode === "fiat" ? "USD" : token?.Ticker?.toUpperCase()
                 }
+                autoFocus
               />
               {!!+price && (
                 <Flex
