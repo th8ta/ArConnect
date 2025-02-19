@@ -207,7 +207,7 @@ export class WanderEmbedded {
           this.isOpen = false;
 
           this.buttonComponent?.unsetStatus("isOpen");
-
+          this.iframeComponent?.hide();
           this.onClose();
         }
         break;
