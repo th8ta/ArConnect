@@ -17,6 +17,7 @@ import { isIncomingMessage } from "./utils/message/message.utils";
 const NOOP = () => {};
 
 export class WanderEmbedded {
+  private static instance: WanderEmbedded | null = null;
   static DEFAULT_IFRAME_SRC = "http://localhost:5173/" as const;
 
   // Callbacks:
@@ -47,6 +48,10 @@ export class WanderEmbedded {
   public pendingRequests: number = 0;
 
   constructor(options: WanderEmbeddedOptions = {}) {
+    if (WanderEmbedded.instance) {
+      throw new Error("WanderEmbedded instance already exists.");
+    }
+
     // Callbacks:
     this.onAuth = options.onAuth ?? NOOP;
     this.onOpen = options.onOpen ?? NOOP;
@@ -83,6 +88,13 @@ export class WanderEmbedded {
       this.handleButtonClick = this.handleButtonClick.bind(this);
       this.buttonRef.addEventListener("click", this.handleButtonClick);
     }
+
+    // Adds the iframe host element to the document body if an iframe component exists
+    if (this.iframeComponent) {
+      document.body.appendChild(this.iframeComponent.getElements().host);
+    }
+
+    WanderEmbedded.instance = this;
   }
 
   private initializeComponents(options: WanderEmbeddedOptions): void {
@@ -93,7 +105,9 @@ export class WanderEmbedded {
     } = options;
 
     // TODO Use PARAM_ORIGIN_KEY and PARAM_API_KEY instead of hardcoded values:
-    const srcWithParams = `${src}?origin=${location.origin}&api-key=123`;
+    // const srcWithParams = `${src}?origin=${location.origin}&api-key=123`;
+
+    const srcWithParams = `${src}?origin=${location.origin}&api-key=123&test=ok&auth=1`;
 
     if (iframeOptions instanceof HTMLElement) {
       if (
@@ -115,9 +129,6 @@ export class WanderEmbedded {
 
       this.backdropRef = elements.backdrop;
       this.iframeRef = elements.iframe;
-
-      document.body.appendChild(elements.backdrop);
-      document.body.appendChild(elements.iframe);
     }
 
     if (typeof buttonOptions === "object" || buttonOptions === true) {
@@ -196,7 +207,7 @@ export class WanderEmbedded {
           this.isOpen = false;
 
           this.buttonComponent?.unsetStatus("isOpen");
-
+          this.iframeComponent?.hide();
           this.onClose();
         }
         break;
@@ -294,6 +305,8 @@ export class WanderEmbedded {
       this.buttonHostRef?.remove();
       this.buttonRef?.remove();
     }
+
+    WanderEmbedded.instance = null;
   }
 
   get isAuthenticated() {
