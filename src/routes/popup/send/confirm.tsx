@@ -1,4 +1,5 @@
 import {
+  Button,
   Input,
   Section,
   Spacer,
@@ -23,7 +24,7 @@ import { useEffect, useMemo, useState } from "react";
 import { findGateway } from "~gateways/wayfinder";
 import Arweave from "arweave";
 import { useLocation } from "~wallets/router/router.utils";
-import { fallbackGateway, type Gateway } from "~gateways/gateway";
+import { type Gateway } from "~gateways/gateway";
 import AnimatedQRScanner from "~components/hardware/AnimatedQRScanner";
 import AnimatedQRPlayer from "~components/hardware/AnimatedQRPlayer";
 import { getActiveKeyfile, getActiveWallet, type StoredWallet } from "~wallets";
@@ -75,6 +76,7 @@ import {
 import prettyBytes from "pretty-bytes";
 import { stringToBuffer } from "arweave/web/lib/utils";
 import useSetting from "~settings/hook";
+import { Flex } from "~components/common/Flex";
 
 export interface ConfirmViewParams {
   token: string;
@@ -236,6 +238,30 @@ export function ConfirmView({
     transaction.addTag("Client-Version", browser.runtime.getManifest().version);
   }
 
+  function showTransferError() {
+    setToast({
+      type: "error",
+      content: (
+        <Flex direction="column" gap={16}>
+          <Text style={{ color: "#EEE" }} noMargin>
+            {browser.i18n.getMessage("failed_tx_with_gateway")}
+          </Text>
+          <Button
+            fullWidth
+            onClick={() =>
+              browser.tabs.create({
+                url: browser.runtime.getURL("tabs/dashboard.html#/gateways")
+              })
+            }
+          >
+            {browser.i18n.getMessage("switch_gateway")}
+          </Button>
+        </Flex>
+      ),
+      duration: 5000
+    });
+  }
+
   async function submitTx(
     transaction: Transaction,
     arweave: Arweave,
@@ -343,11 +369,19 @@ export function ConfirmView({
           });
           navigate(`/send/completed/${res}?isAo=true`);
           setIsLoading(false);
+        } else {
+          throw new Error("Failed to send ao transfer");
         }
         return res;
       } catch (err) {
         console.log("err in ao", err);
-        throw err;
+        setIsLoading(false);
+        setToast({
+          type: "error",
+          content: browser.i18n.getMessage("failed_tx"),
+          duration: 2000
+        });
+        return;
       }
     }
     // Prepare transaction
@@ -377,7 +411,7 @@ export function ConfirmView({
                 SubscriptionStatus.ACTIVE
               ));
           } catch (e) {
-            gateway = fallbackGateway;
+            gateway = await findGateway({ random: true });
             const fallbackArweave = new Arweave(gateway);
             await fallbackArweave.transactions.sign(
               convertedTransaction,
@@ -410,11 +444,7 @@ export function ConfirmView({
           console.log(e);
           setIsLoading(false);
           freeDecryptedWallet(keyfile);
-          setToast({
-            type: "error",
-            content: browser.i18n.getMessage("failed_tx"),
-            duration: 2000
-          });
+          showTransferError();
         }
       } else {
         const activeWallet = await getActiveWallet();
@@ -442,7 +472,7 @@ export function ConfirmView({
           try {
             await submitTx(convertedTransaction, arweave, type);
           } catch (e) {
-            gateway = fallbackGateway;
+            gateway = await findGateway({ random: true });
             const fallbackArweave = new Arweave(gateway);
             await fallbackArweave.transactions.sign(
               convertedTransaction,
@@ -471,11 +501,7 @@ export function ConfirmView({
         } catch (e) {
           freeDecryptedWallet(keyfile);
           setIsLoading(false);
-          setToast({
-            type: "error",
-            content: browser.i18n.getMessage("failed_tx"),
-            duration: 2000
-          });
+          showTransferError();
         }
       }
     }
@@ -656,11 +682,7 @@ export function ConfirmView({
         );
       } catch (e) {
         console.log(e);
-        setToast({
-          type: "error",
-          content: browser.i18n.getMessage("failed_tx"),
-          duration: 2000
-        });
+        showTransferError();
       }
     }
   );
